@@ -391,7 +391,7 @@ class YooKassaReconciliationDalTests(IsolatedAsyncioTestCase):
         self.assertIn("limit 25", sql)
 
 
-def test_core_worker_registers_yookassa_reconciliation() -> None:
-    assert "YooKassaReconciliationWorker" in {
+def test_core_worker_retires_yookassa_reconciliation() -> None:
+    assert "YooKassaReconciliationWorker" not in {
         task.name for task in main_worker._core_worker_tasks()
     }

@@ -139,6 +139,10 @@ def _inject_observability_instances(app: web.Application, ctx: PluginContext) ->
     set_service_context(app, METRICS_SERVICE_KEY, ctx.metrics)
 
 
+async def _retired_business_webhook(request: web.Request) -> web.Response:
+    return web.json_response({"ok": False, "error": "legacy_business_retired"}, status=410)
+
+
 def _register_provider_webhook_routes(app: web.Application, settings: Settings) -> None:
     registered_webhook_paths: set[str] = set()
     for spec in iter_provider_specs():
@@ -155,13 +159,21 @@ def _register_provider_webhook_routes(app: web.Application, settings: Settings) 
             normalized_method = str(method).strip().upper()
             if not normalized_method:
                 continue
-            app.router.add_route(normalized_method, path, webhook_route)
+            app.router.add_route(normalized_method, path, _retired_business_webhook)
             logger.info(
-                "%s webhook route configured at: [%s] %s",
+                "%s webhook retired at: [%s] %s",
                 spec.label,
                 normalized_method,
                 path,
             )
+
+
+def _register_legacy_business_webhooks(app: web.Application, settings: Settings) -> None:
+    _register_provider_webhook_routes(app, settings)
+    panel_path = settings.panel_webhook_path
+    if panel_path.startswith("/"):
+        app.router.add_post(panel_path, _retired_business_webhook)
+        logger.info("Account-level panel webhook retired at: [POST] %s", panel_path)
 
 
 async def build_and_start_web_app(
@@ -215,14 +227,7 @@ async def build_and_start_web_app(
             telegram_webhook_path,
         )
 
-    from bot.services.panel_webhook_service import panel_webhook_route
-
-    _register_provider_webhook_routes(app, settings)
-
-    panel_path = settings.panel_webhook_path
-    if panel_path.startswith("/"):
-        app.router.add_post(panel_path, panel_webhook_route)
-        logger.info("Panel webhook route configured at: [POST] %s", panel_path)
+    _register_legacy_business_webhooks(app, settings)
 
     if plugin_context is not None:
         setup_web_plugins(plugin_context, app, scope=WEB_SCOPE_WEBHOOKS)

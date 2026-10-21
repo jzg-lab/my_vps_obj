@@ -138,5 +138,7 @@ class WataReconciliationDalTests(IsolatedAsyncioTestCase):
         self.assertIn("limit 25", sql)
 
 
-def test_core_worker_registers_wata_reconciliation() -> None:
-    assert "WataReconciliationWorker" in {task.name for task in main_worker._core_worker_tasks()}
+def test_core_worker_retires_wata_reconciliation() -> None:
+    assert "WataReconciliationWorker" not in {
+        task.name for task in main_worker._core_worker_tasks()
+    }

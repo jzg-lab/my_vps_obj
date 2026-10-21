@@ -41,6 +41,7 @@ from .common import (
     _normalize_language,
     _require_user_id,
 )
+from .legacy_business import SINGLE_SUBSCRIPTION_RETIRED
 from .response_helpers import json_response
 
 logger = logging.getLogger(__name__)
@@ -146,6 +147,8 @@ async def _grant_referral_welcome_bonus_if_eligible(
     session: AsyncSession,
     user: User,
 ) -> datetime | None:
+    if request.app.get(SINGLE_SUBSCRIPTION_RETIRED, False):
+        return None
     locked_user = await user_dal.lock_user_by_id(session, int(user.user_id))
     if not locked_user:
         return None

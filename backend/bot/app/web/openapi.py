@@ -25,6 +25,7 @@ from bot.app.web.route_contracts import (
     ok_envelope,
     schema_ref,
 )
+from bot.app.web.webapp.legacy_business import retired_single_subscription_route
 from bot.app.web.webapp.routes import setup_subscription_webapp_routes
 from bot.plugins import WEB_SCOPE_WEBAPP, PluginContext, setup_web_plugins
 
@@ -147,6 +148,29 @@ def _operation_for_route(
         "tags": [_tag_for_path(path)],
         "responses": {"200": _json_response(contract)},
     }
+    if retired_single_subscription_route(method, path):
+        operation["deprecated"] = True
+        operation["description"] = (
+            "Retired in the independent-service deployment. Authorized requests return 410. "
+            "The historical 200 schema is retained for upstream compatibility tooling only."
+        )
+        operation["responses"]["200"]["description"] = "Historical response (not served)"
+        operation["responses"]["410"] = {
+            "description": "Single-subscription business is retired",
+            "content": {
+                "application/json": {
+                    "schema": {
+                        "type": "object",
+                        "additionalProperties": False,
+                        "required": ["ok", "error"],
+                        "properties": {
+                            "ok": {"type": "boolean", "const": False},
+                            "error": {"type": "string", "const": "legacy_business_retired"},
+                        },
+                    }
+                }
+            },
+        }
     parameters = _path_parameters(path, route)
     if parameters:
         operation["parameters"] = parameters

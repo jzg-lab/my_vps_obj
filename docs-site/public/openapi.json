@@ -24064,6 +24064,8 @@
         ]
       },
       "post": {
+        "deprecated": true,
+        "description": "Retired in the independent-service deployment. Authorized requests return 410. The historical 200 schema is retained for upstream compatibility tooling only.",
         "operationId": "post_admin_gift_create_route",
         "requestBody": {
           "content": {
@@ -24098,7 +24100,32 @@
                 }
               }
             },
-            "description": "JSON response"
+            "description": "Historical response (not served)"
+          },
+          "410": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "error": {
+                      "const": "legacy_business_retired",
+                      "type": "string"
+                    },
+                    "ok": {
+                      "const": false,
+                      "type": "boolean"
+                    }
+                  },
+                  "required": [
+                    "ok",
+                    "error"
+                  ],
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Single-subscription business is retired"
           }
         },
         "security": [
@@ -24492,6 +24519,8 @@
     },
     "/api/admin/gifts/{gift_id}/revoke": {
       "post": {
+        "deprecated": true,
+        "description": "Retired in the independent-service deployment. Authorized requests return 410. The historical 200 schema is retained for upstream compatibility tooling only.",
         "operationId": "post_admin_gift_revoke_route",
         "parameters": [
           {
@@ -24536,7 +24565,32 @@
                 }
               }
             },
-            "description": "JSON response"
+            "description": "Historical response (not served)"
+          },
+          "410": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "error": {
+                      "const": "legacy_business_retired",
+                      "type": "string"
+                    },
+                    "ok": {
+                      "const": false,
+                      "type": "boolean"
+                    }
+                  },
+                  "required": [
+                    "ok",
+                    "error"
+                  ],
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Single-subscription business is retired"
           }
         },
         "security": [
@@ -25018,6 +25072,8 @@
     },
     "/api/admin/partner-applications/{id}/approve": {
       "post": {
+        "deprecated": true,
+        "description": "Retired in the independent-service deployment. Authorized requests return 410. The historical 200 schema is retained for upstream compatibility tooling only.",
         "operationId": "post_admin_partner_application_approve_route",
         "parameters": [
           {
@@ -25058,7 +25114,32 @@
                 }
               }
             },
-            "description": "JSON response"
+            "description": "Historical response (not served)"
+          },
+          "410": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "error": {
+                      "const": "legacy_business_retired",
+                      "type": "string"
+                    },
+                    "ok": {
+                      "const": false,
+                      "type": "boolean"
+                    }
+                  },
+                  "required": [
+                    "ok",
+                    "error"
+                  ],
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Single-subscription business is retired"
           }
         },
         "security": [
@@ -25077,6 +25158,8 @@
     },
     "/api/admin/partner-applications/{id}/reject": {
       "post": {
+        "deprecated": true,
+        "description": "Retired in the independent-service deployment. Authorized requests return 410. The historical 200 schema is retained for upstream compatibility tooling only.",
         "operationId": "post_admin_partner_application_reject_route",
         "parameters": [
           {
@@ -25121,7 +25204,32 @@
                 }
               }
             },
-            "description": "JSON response"
+            "description": "Historical response (not served)"
+          },
+          "410": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "error": {
+                      "const": "legacy_business_retired",
+                      "type": "string"
+                    },
+                    "ok": {
+                      "const": false,
+                      "type": "boolean"
+                    }
+                  },
+                  "required": [
+                    "ok",
+                    "error"
+                  ],
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Single-subscription business is retired"
           }
         },
         "security": [
@@ -25140,6 +25248,8 @@
     },
     "/api/admin/partner-applications/{id}/reopen": {
       "post": {
+        "deprecated": true,
+        "description": "Retired in the independent-service deployment. Authorized requests return 410. The historical 200 schema is retained for upstream compatibility tooling only.",
         "operationId": "post_admin_partner_application_reopen_route",
         "parameters": [
           {
@@ -25174,7 +25284,32 @@
                 }
               }
             },
-            "description": "JSON response"
+            "description": "Historical response (not served)"
+          },
+          "410": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "error": {
+                      "const": "legacy_business_retired",
+                      "type": "string"
+                    },
+                    "ok": {
+                      "const": false,
+                      "type": "boolean"
+                    }
+                  },
+                  "required": [
+                    "ok",
+                    "error"
+                  ],
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Single-subscription business is retired"
           }
         },
         "security": [
@@ -25285,6 +25420,8 @@
     },
     "/api/admin/partner-withdrawals/{id}/fail": {
       "post": {
+        "deprecated": true,
+        "description": "Retired in the independent-service deployment. Authorized requests return 410. The historical 200 schema is retained for upstream compatibility tooling only.",
         "operationId": "post_admin_partner_withdrawal_fail_route",
         "parameters": [
           {
@@ -25329,7 +25466,32 @@
                 }
               }
             },
-            "description": "JSON response"
+            "description": "Historical response (not served)"
+          },
+          "410": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "error": {
+                      "const": "legacy_business_retired",
+                      "type": "string"
+                    },
+                    "ok": {
+                      "const": false,
+                      "type": "boolean"
+                    }
+                  },
+                  "required": [
+                    "ok",
+                    "error"
+                  ],
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Single-subscription business is retired"
           }
         },
         "security": [
@@ -25348,6 +25510,8 @@
     },
     "/api/admin/partner-withdrawals/{id}/paid": {
       "post": {
+        "deprecated": true,
+        "description": "Retired in the independent-service deployment. Authorized requests return 410. The historical 200 schema is retained for upstream compatibility tooling only.",
         "operationId": "post_admin_partner_withdrawal_paid_route",
         "parameters": [
           {
@@ -25392,7 +25556,32 @@
                 }
               }
             },
-            "description": "JSON response"
+            "description": "Historical response (not served)"
+          },
+          "410": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "error": {
+                      "const": "legacy_business_retired",
+                      "type": "string"
+                    },
+                    "ok": {
+                      "const": false,
+                      "type": "boolean"
+                    }
+                  },
+                  "required": [
+                    "ok",
+                    "error"
+                  ],
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Single-subscription business is retired"
           }
         },
         "security": [
@@ -25411,6 +25600,8 @@
     },
     "/api/admin/partner-withdrawals/{id}/processing": {
       "post": {
+        "deprecated": true,
+        "description": "Retired in the independent-service deployment. Authorized requests return 410. The historical 200 schema is retained for upstream compatibility tooling only.",
         "operationId": "post_admin_partner_withdrawal_processing_route",
         "parameters": [
           {
@@ -25455,7 +25646,32 @@
                 }
               }
             },
-            "description": "JSON response"
+            "description": "Historical response (not served)"
+          },
+          "410": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "error": {
+                      "const": "legacy_business_retired",
+                      "type": "string"
+                    },
+                    "ok": {
+                      "const": false,
+                      "type": "boolean"
+                    }
+                  },
+                  "required": [
+                    "ok",
+                    "error"
+                  ],
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Single-subscription business is retired"
           }
         },
         "security": [
@@ -25474,6 +25690,8 @@
     },
     "/api/admin/partner-withdrawals/{id}/reject": {
       "post": {
+        "deprecated": true,
+        "description": "Retired in the independent-service deployment. Authorized requests return 410. The historical 200 schema is retained for upstream compatibility tooling only.",
         "operationId": "post_admin_partner_withdrawal_reject_route",
         "parameters": [
           {
@@ -25518,7 +25736,32 @@
                 }
               }
             },
-            "description": "JSON response"
+            "description": "Historical response (not served)"
+          },
+          "410": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "error": {
+                      "const": "legacy_business_retired",
+                      "type": "string"
+                    },
+                    "ok": {
+                      "const": false,
+                      "type": "boolean"
+                    }
+                  },
+                  "required": [
+                    "ok",
+                    "error"
+                  ],
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Single-subscription business is retired"
           }
         },
         "security": [
@@ -25537,6 +25780,8 @@
     },
     "/api/admin/partner-withdrawals/{id}/reveal": {
       "post": {
+        "deprecated": true,
+        "description": "Retired in the independent-service deployment. Authorized requests return 410. The historical 200 schema is retained for upstream compatibility tooling only.",
         "operationId": "post_admin_partner_withdrawal_reveal_route",
         "parameters": [
           {
@@ -25571,7 +25816,32 @@
                 }
               }
             },
-            "description": "JSON response"
+            "description": "Historical response (not served)"
+          },
+          "410": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "error": {
+                      "const": "legacy_business_retired",
+                      "type": "string"
+                    },
+                    "ok": {
+                      "const": false,
+                      "type": "boolean"
+                    }
+                  },
+                  "required": [
+                    "ok",
+                    "error"
+                  ],
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Single-subscription business is retired"
           }
         },
         "security": [
@@ -25627,6 +25897,8 @@
         ]
       },
       "post": {
+        "deprecated": true,
+        "description": "Retired in the independent-service deployment. Authorized requests return 410. The historical 200 schema is retained for upstream compatibility tooling only.",
         "operationId": "post_admin_partner_create_route",
         "requestBody": {
           "content": {
@@ -25661,7 +25933,32 @@
                 }
               }
             },
-            "description": "JSON response"
+            "description": "Historical response (not served)"
+          },
+          "410": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "error": {
+                      "const": "legacy_business_retired",
+                      "type": "string"
+                    },
+                    "ok": {
+                      "const": false,
+                      "type": "boolean"
+                    }
+                  },
+                  "required": [
+                    "ok",
+                    "error"
+                  ],
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Single-subscription business is retired"
           }
         },
         "security": [
@@ -25799,6 +26096,8 @@
         ]
       },
       "post": {
+        "deprecated": true,
+        "description": "Retired in the independent-service deployment. Authorized requests return 410. The historical 200 schema is retained for upstream compatibility tooling only.",
         "operationId": "post_admin_partner_bulk_referral_import_route",
         "requestBody": {
           "content": {
@@ -25833,7 +26132,32 @@
                 }
               }
             },
-            "description": "JSON response"
+            "description": "Historical response (not served)"
+          },
+          "410": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "error": {
+                      "const": "legacy_business_retired",
+                      "type": "string"
+                    },
+                    "ok": {
+                      "const": false,
+                      "type": "boolean"
+                    }
+                  },
+                  "required": [
+                    "ok",
+                    "error"
+                  ],
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Single-subscription business is retired"
           }
         },
         "security": [
@@ -25901,6 +26225,8 @@
     },
     "/api/admin/partners/{id}/balance-adjustments": {
       "post": {
+        "deprecated": true,
+        "description": "Retired in the independent-service deployment. Authorized requests return 410. The historical 200 schema is retained for upstream compatibility tooling only.",
         "operationId": "post_admin_partner_balance_adjustment_route",
         "parameters": [
           {
@@ -25941,7 +26267,32 @@
                 }
               }
             },
-            "description": "JSON response"
+            "description": "Historical response (not served)"
+          },
+          "410": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "error": {
+                      "const": "legacy_business_retired",
+                      "type": "string"
+                    },
+                    "ok": {
+                      "const": false,
+                      "type": "boolean"
+                    }
+                  },
+                  "required": [
+                    "ok",
+                    "error"
+                  ],
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Single-subscription business is retired"
           }
         },
         "security": [
@@ -25960,6 +26311,8 @@
     },
     "/api/admin/partners/{id}/close": {
       "post": {
+        "deprecated": true,
+        "description": "Retired in the independent-service deployment. Authorized requests return 410. The historical 200 schema is retained for upstream compatibility tooling only.",
         "operationId": "post_admin_partner_close_route",
         "parameters": [
           {
@@ -26004,7 +26357,32 @@
                 }
               }
             },
-            "description": "JSON response"
+            "description": "Historical response (not served)"
+          },
+          "410": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "error": {
+                      "const": "legacy_business_retired",
+                      "type": "string"
+                    },
+                    "ok": {
+                      "const": false,
+                      "type": "boolean"
+                    }
+                  },
+                  "required": [
+                    "ok",
+                    "error"
+                  ],
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Single-subscription business is retired"
           }
         },
         "security": [
@@ -26023,6 +26401,8 @@
     },
     "/api/admin/partners/{id}/commission-rate": {
       "post": {
+        "deprecated": true,
+        "description": "Retired in the independent-service deployment. Authorized requests return 410. The historical 200 schema is retained for upstream compatibility tooling only.",
         "operationId": "post_admin_partner_rate_route",
         "parameters": [
           {
@@ -26067,7 +26447,32 @@
                 }
               }
             },
-            "description": "JSON response"
+            "description": "Historical response (not served)"
+          },
+          "410": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "error": {
+                      "const": "legacy_business_retired",
+                      "type": "string"
+                    },
+                    "ok": {
+                      "const": false,
+                      "type": "boolean"
+                    }
+                  },
+                  "required": [
+                    "ok",
+                    "error"
+                  ],
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Single-subscription business is retired"
           }
         },
         "security": [
@@ -26086,6 +26491,8 @@
     },
     "/api/admin/partners/{id}/link/rotate": {
       "post": {
+        "deprecated": true,
+        "description": "Retired in the independent-service deployment. Authorized requests return 410. The historical 200 schema is retained for upstream compatibility tooling only.",
         "operationId": "post_admin_partner_link_rotate_route",
         "parameters": [
           {
@@ -26120,7 +26527,32 @@
                 }
               }
             },
-            "description": "JSON response"
+            "description": "Historical response (not served)"
+          },
+          "410": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "error": {
+                      "const": "legacy_business_retired",
+                      "type": "string"
+                    },
+                    "ok": {
+                      "const": false,
+                      "type": "boolean"
+                    }
+                  },
+                  "required": [
+                    "ok",
+                    "error"
+                  ],
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Single-subscription business is retired"
           }
         },
         "security": [
@@ -26139,6 +26571,8 @@
     },
     "/api/admin/partners/{id}/pause": {
       "post": {
+        "deprecated": true,
+        "description": "Retired in the independent-service deployment. Authorized requests return 410. The historical 200 schema is retained for upstream compatibility tooling only.",
         "operationId": "post_admin_partner_pause_route",
         "parameters": [
           {
@@ -26183,7 +26617,32 @@
                 }
               }
             },
-            "description": "JSON response"
+            "description": "Historical response (not served)"
+          },
+          "410": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "error": {
+                      "const": "legacy_business_retired",
+                      "type": "string"
+                    },
+                    "ok": {
+                      "const": false,
+                      "type": "boolean"
+                    }
+                  },
+                  "required": [
+                    "ok",
+                    "error"
+                  ],
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Single-subscription business is retired"
           }
         },
         "security": [
@@ -26253,6 +26712,8 @@
         ]
       },
       "post": {
+        "deprecated": true,
+        "description": "Retired in the independent-service deployment. Authorized requests return 410. The historical 200 schema is retained for upstream compatibility tooling only.",
         "operationId": "post_admin_partner_referral_import_route",
         "parameters": [
           {
@@ -26297,7 +26758,32 @@
                 }
               }
             },
-            "description": "JSON response"
+            "description": "Historical response (not served)"
+          },
+          "410": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "error": {
+                      "const": "legacy_business_retired",
+                      "type": "string"
+                    },
+                    "ok": {
+                      "const": false,
+                      "type": "boolean"
+                    }
+                  },
+                  "required": [
+                    "ok",
+                    "error"
+                  ],
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Single-subscription business is retired"
           }
         },
         "security": [
@@ -26316,6 +26802,8 @@
     },
     "/api/admin/partners/{id}/resume": {
       "post": {
+        "deprecated": true,
+        "description": "Retired in the independent-service deployment. Authorized requests return 410. The historical 200 schema is retained for upstream compatibility tooling only.",
         "operationId": "post_admin_partner_resume_route",
         "parameters": [
           {
@@ -26360,7 +26848,32 @@
                 }
               }
             },
-            "description": "JSON response"
+            "description": "Historical response (not served)"
+          },
+          "410": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "error": {
+                      "const": "legacy_business_retired",
+                      "type": "string"
+                    },
+                    "ok": {
+                      "const": false,
+                      "type": "boolean"
+                    }
+                  },
+                  "required": [
+                    "ok",
+                    "error"
+                  ],
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Single-subscription business is retired"
           }
         },
         "security": [
@@ -26508,6 +27021,8 @@
     },
     "/api/admin/payments/{payment_id}/finalize": {
       "post": {
+        "deprecated": true,
+        "description": "Retired in the independent-service deployment. Authorized requests return 410. The historical 200 schema is retained for upstream compatibility tooling only.",
         "operationId": "post_admin_payment_finalize_route",
         "parameters": [
           {
@@ -26552,7 +27067,32 @@
                 }
               }
             },
-            "description": "JSON response"
+            "description": "Historical response (not served)"
+          },
+          "410": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "error": {
+                      "const": "legacy_business_retired",
+                      "type": "string"
+                    },
+                    "ok": {
+                      "const": false,
+                      "type": "boolean"
+                    }
+                  },
+                  "required": [
+                    "ok",
+                    "error"
+                  ],
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Single-subscription business is retired"
           }
         },
         "security": [
@@ -26571,6 +27111,8 @@
     },
     "/api/admin/payments/{payment_id}/reverse": {
       "post": {
+        "deprecated": true,
+        "description": "Retired in the independent-service deployment. Authorized requests return 410. The historical 200 schema is retained for upstream compatibility tooling only.",
         "operationId": "post_admin_payment_reverse_route",
         "parameters": [
           {
@@ -26615,7 +27157,32 @@
                 }
               }
             },
-            "description": "JSON response"
+            "description": "Historical response (not served)"
+          },
+          "410": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "error": {
+                      "const": "legacy_business_retired",
+                      "type": "string"
+                    },
+                    "ok": {
+                      "const": false,
+                      "type": "boolean"
+                    }
+                  },
+                  "required": [
+                    "ok",
+                    "error"
+                  ],
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Single-subscription business is retired"
           }
         },
         "security": [
@@ -27499,6 +28066,8 @@
         ]
       },
       "post": {
+        "deprecated": true,
+        "description": "Retired in the independent-service deployment. Authorized requests return 410. The historical 200 schema is retained for upstream compatibility tooling only.",
         "operationId": "post_admin_promo_create_route",
         "requestBody": {
           "content": {
@@ -27533,7 +28102,32 @@
                 }
               }
             },
-            "description": "JSON response"
+            "description": "Historical response (not served)"
+          },
+          "410": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "error": {
+                      "const": "legacy_business_retired",
+                      "type": "string"
+                    },
+                    "ok": {
+                      "const": false,
+                      "type": "boolean"
+                    }
+                  },
+                  "required": [
+                    "ok",
+                    "error"
+                  ],
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Single-subscription business is retired"
           }
         },
         "security": [
@@ -27598,6 +28192,8 @@
     },
     "/api/admin/promos/{promo_id}": {
       "delete": {
+        "deprecated": true,
+        "description": "Retired in the independent-service deployment. Authorized requests return 410. The historical 200 schema is retained for upstream compatibility tooling only.",
         "operationId": "delete_admin_promo_delete_route",
         "parameters": [
           {
@@ -27628,7 +28224,32 @@
                 }
               }
             },
-            "description": "JSON response"
+            "description": "Historical response (not served)"
+          },
+          "410": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "error": {
+                      "const": "legacy_business_retired",
+                      "type": "string"
+                    },
+                    "ok": {
+                      "const": false,
+                      "type": "boolean"
+                    }
+                  },
+                  "required": [
+                    "ok",
+                    "error"
+                  ],
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Single-subscription business is retired"
           }
         },
         "security": [
@@ -27696,6 +28317,8 @@
         ]
       },
       "patch": {
+        "deprecated": true,
+        "description": "Retired in the independent-service deployment. Authorized requests return 410. The historical 200 schema is retained for upstream compatibility tooling only.",
         "operationId": "patch_admin_promo_update_route",
         "parameters": [
           {
@@ -27740,7 +28363,32 @@
                 }
               }
             },
-            "description": "JSON response"
+            "description": "Historical response (not served)"
+          },
+          "410": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "error": {
+                      "const": "legacy_business_retired",
+                      "type": "string"
+                    },
+                    "ok": {
+                      "const": false,
+                      "type": "boolean"
+                    }
+                  },
+                  "required": [
+                    "ok",
+                    "error"
+                  ],
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Single-subscription business is retired"
           }
         },
         "security": [
@@ -28928,6 +29576,8 @@
     },
     "/api/admin/sync": {
       "post": {
+        "deprecated": true,
+        "description": "Retired in the independent-service deployment. Authorized requests return 410. The historical 200 schema is retained for upstream compatibility tooling only.",
         "operationId": "post_admin_sync_route",
         "responses": {
           "200": {
@@ -28955,7 +29605,32 @@
                 }
               }
             },
-            "description": "JSON response"
+            "description": "Historical response (not served)"
+          },
+          "410": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "error": {
+                      "const": "legacy_business_retired",
+                      "type": "string"
+                    },
+                    "ok": {
+                      "const": false,
+                      "type": "boolean"
+                    }
+                  },
+                  "required": [
+                    "ok",
+                    "error"
+                  ],
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Single-subscription business is retired"
           }
         },
         "security": [
@@ -29018,6 +29693,8 @@
         ]
       },
       "put": {
+        "deprecated": true,
+        "description": "Retired in the independent-service deployment. Authorized requests return 410. The historical 200 schema is retained for upstream compatibility tooling only.",
         "operationId": "put_admin_tariffs_save_route",
         "requestBody": {
           "content": {
@@ -29055,7 +29732,32 @@
                 }
               }
             },
-            "description": "JSON response"
+            "description": "Historical response (not served)"
+          },
+          "410": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "error": {
+                      "const": "legacy_business_retired",
+                      "type": "string"
+                    },
+                    "ok": {
+                      "const": false,
+                      "type": "boolean"
+                    }
+                  },
+                  "required": [
+                    "ok",
+                    "error"
+                  ],
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Single-subscription business is retired"
           }
         },
         "security": [
@@ -29118,6 +29820,8 @@
         ]
       },
       "post": {
+        "deprecated": true,
+        "description": "Retired in the independent-service deployment. Authorized requests return 410. The historical 200 schema is retained for upstream compatibility tooling only.",
         "operationId": "post_admin_tariff_reconciliation_apply_route",
         "requestBody": {
           "content": {
@@ -29155,7 +29859,32 @@
                 }
               }
             },
-            "description": "JSON response"
+            "description": "Historical response (not served)"
+          },
+          "410": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "error": {
+                      "const": "legacy_business_retired",
+                      "type": "string"
+                    },
+                    "ok": {
+                      "const": false,
+                      "type": "boolean"
+                    }
+                  },
+                  "required": [
+                    "ok",
+                    "error"
+                  ],
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Single-subscription business is retired"
           }
         },
         "security": [
@@ -31473,6 +32202,8 @@
     },
     "/api/admin/users/{user_id}/balance-adjustment": {
       "post": {
+        "deprecated": true,
+        "description": "Retired in the independent-service deployment. Authorized requests return 410. The historical 200 schema is retained for upstream compatibility tooling only.",
         "operationId": "post_admin_user_balance_adjustment_route",
         "parameters": [
           {
@@ -31647,7 +32378,32 @@
                 }
               }
             },
-            "description": "JSON response"
+            "description": "Historical response (not served)"
+          },
+          "410": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "error": {
+                      "const": "legacy_business_retired",
+                      "type": "string"
+                    },
+                    "ok": {
+                      "const": false,
+                      "type": "boolean"
+                    }
+                  },
+                  "required": [
+                    "ok",
+                    "error"
+                  ],
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Single-subscription business is retired"
           }
         },
         "security": [
@@ -31666,6 +32422,8 @@
     },
     "/api/admin/users/{user_id}/balance-conversion": {
       "post": {
+        "deprecated": true,
+        "description": "Retired in the independent-service deployment. Authorized requests return 410. The historical 200 schema is retained for upstream compatibility tooling only.",
         "operationId": "post_admin_user_balance_conversion_route",
         "parameters": [
           {
@@ -31840,7 +32598,32 @@
                 }
               }
             },
-            "description": "JSON response"
+            "description": "Historical response (not served)"
+          },
+          "410": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "error": {
+                      "const": "legacy_business_retired",
+                      "type": "string"
+                    },
+                    "ok": {
+                      "const": false,
+                      "type": "boolean"
+                    }
+                  },
+                  "required": [
+                    "ok",
+                    "error"
+                  ],
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Single-subscription business is retired"
           }
         },
         "security": [
@@ -31926,6 +32709,8 @@
     },
     "/api/admin/users/{user_id}/extend": {
       "post": {
+        "deprecated": true,
+        "description": "Retired in the independent-service deployment. Authorized requests return 410. The historical 200 schema is retained for upstream compatibility tooling only.",
         "operationId": "post_admin_user_extend_route",
         "parameters": [
           {
@@ -31969,7 +32754,32 @@
                 }
               }
             },
-            "description": "JSON response"
+            "description": "Historical response (not served)"
+          },
+          "410": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "error": {
+                      "const": "legacy_business_retired",
+                      "type": "string"
+                    },
+                    "ok": {
+                      "const": false,
+                      "type": "boolean"
+                    }
+                  },
+                  "required": [
+                    "ok",
+                    "error"
+                  ],
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Single-subscription business is retired"
           }
         },
         "security": [
@@ -31988,6 +32798,8 @@
     },
     "/api/admin/users/{user_id}/hwid-device-limit": {
       "post": {
+        "deprecated": true,
+        "description": "Retired in the independent-service deployment. Authorized requests return 410. The historical 200 schema is retained for upstream compatibility tooling only.",
         "operationId": "post_admin_user_hwid_device_limit_route",
         "parameters": [
           {
@@ -32031,7 +32843,32 @@
                 }
               }
             },
-            "description": "JSON response"
+            "description": "Historical response (not served)"
+          },
+          "410": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "error": {
+                      "const": "legacy_business_retired",
+                      "type": "string"
+                    },
+                    "ok": {
+                      "const": false,
+                      "type": "boolean"
+                    }
+                  },
+                  "required": [
+                    "ok",
+                    "error"
+                  ],
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Single-subscription business is retired"
           }
         },
         "security": [
@@ -32353,6 +33190,8 @@
     },
     "/api/admin/users/{user_id}/premium-override": {
       "post": {
+        "deprecated": true,
+        "description": "Retired in the independent-service deployment. Authorized requests return 410. The historical 200 schema is retained for upstream compatibility tooling only.",
         "operationId": "post_admin_user_premium_override_route",
         "parameters": [
           {
@@ -32396,7 +33235,32 @@
                 }
               }
             },
-            "description": "JSON response"
+            "description": "Historical response (not served)"
+          },
+          "410": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "error": {
+                      "const": "legacy_business_retired",
+                      "type": "string"
+                    },
+                    "ok": {
+                      "const": false,
+                      "type": "boolean"
+                    }
+                  },
+                  "required": [
+                    "ok",
+                    "error"
+                  ],
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Single-subscription business is retired"
           }
         },
         "security": [
@@ -32498,6 +33362,8 @@
     },
     "/api/admin/users/{user_id}/regular-traffic-override": {
       "post": {
+        "deprecated": true,
+        "description": "Retired in the independent-service deployment. Authorized requests return 410. The historical 200 schema is retained for upstream compatibility tooling only.",
         "operationId": "post_admin_user_regular_traffic_override_route",
         "parameters": [
           {
@@ -32541,7 +33407,32 @@
                 }
               }
             },
-            "description": "JSON response"
+            "description": "Historical response (not served)"
+          },
+          "410": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "error": {
+                      "const": "legacy_business_retired",
+                      "type": "string"
+                    },
+                    "ok": {
+                      "const": false,
+                      "type": "boolean"
+                    }
+                  },
+                  "required": [
+                    "ok",
+                    "error"
+                  ],
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Single-subscription business is retired"
           }
         },
         "security": [
@@ -32560,6 +33451,8 @@
     },
     "/api/admin/users/{user_id}/reset-trial": {
       "post": {
+        "deprecated": true,
+        "description": "Retired in the independent-service deployment. Authorized requests return 410. The historical 200 schema is retained for upstream compatibility tooling only.",
         "operationId": "post_admin_user_reset_trial_route",
         "parameters": [
           {
@@ -32590,7 +33483,32 @@
                 }
               }
             },
-            "description": "JSON response"
+            "description": "Historical response (not served)"
+          },
+          "410": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "error": {
+                      "const": "legacy_business_retired",
+                      "type": "string"
+                    },
+                    "ok": {
+                      "const": false,
+                      "type": "boolean"
+                    }
+                  },
+                  "required": [
+                    "ok",
+                    "error"
+                  ],
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Single-subscription business is retired"
           }
         },
         "security": [
@@ -32609,6 +33527,8 @@
     },
     "/api/admin/users/{user_id}/squad-overrides": {
       "patch": {
+        "deprecated": true,
+        "description": "Retired in the independent-service deployment. Authorized requests return 410. The historical 200 schema is retained for upstream compatibility tooling only.",
         "operationId": "patch_admin_user_squad_overrides_route",
         "parameters": [
           {
@@ -32653,7 +33573,32 @@
                 }
               }
             },
-            "description": "JSON response"
+            "description": "Historical response (not served)"
+          },
+          "410": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "error": {
+                      "const": "legacy_business_retired",
+                      "type": "string"
+                    },
+                    "ok": {
+                      "const": false,
+                      "type": "boolean"
+                    }
+                  },
+                  "required": [
+                    "ok",
+                    "error"
+                  ],
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Single-subscription business is retired"
           }
         },
         "security": [
@@ -32672,6 +33617,8 @@
     },
     "/api/admin/users/{user_id}/squad-overrides/refresh": {
       "post": {
+        "deprecated": true,
+        "description": "Retired in the independent-service deployment. Authorized requests return 410. The historical 200 schema is retained for upstream compatibility tooling only.",
         "operationId": "post_admin_user_squad_overrides_refresh_route",
         "parameters": [
           {
@@ -32706,7 +33653,32 @@
                 }
               }
             },
-            "description": "JSON response"
+            "description": "Historical response (not served)"
+          },
+          "410": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "error": {
+                      "const": "legacy_business_retired",
+                      "type": "string"
+                    },
+                    "ok": {
+                      "const": false,
+                      "type": "boolean"
+                    }
+                  },
+                  "required": [
+                    "ok",
+                    "error"
+                  ],
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Single-subscription business is retired"
           }
         },
         "security": [
@@ -32725,6 +33697,8 @@
     },
     "/api/admin/users/{user_id}/subscription-reissue": {
       "post": {
+        "deprecated": true,
+        "description": "Retired in the independent-service deployment. Authorized requests return 410. The historical 200 schema is retained for upstream compatibility tooling only.",
         "operationId": "post_admin_user_subscription_reissue_route",
         "parameters": [
           {
@@ -32759,7 +33733,32 @@
                 }
               }
             },
-            "description": "JSON response"
+            "description": "Historical response (not served)"
+          },
+          "410": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "error": {
+                      "const": "legacy_business_retired",
+                      "type": "string"
+                    },
+                    "ok": {
+                      "const": false,
+                      "type": "boolean"
+                    }
+                  },
+                  "required": [
+                    "ok",
+                    "error"
+                  ],
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Single-subscription business is retired"
           }
         },
         "security": [
@@ -32778,6 +33777,8 @@
     },
     "/api/admin/users/{user_id}/tariff": {
       "post": {
+        "deprecated": true,
+        "description": "Retired in the independent-service deployment. Authorized requests return 410. The historical 200 schema is retained for upstream compatibility tooling only.",
         "operationId": "post_admin_user_tariff_route",
         "parameters": [
           {
@@ -32821,7 +33822,32 @@
                 }
               }
             },
-            "description": "JSON response"
+            "description": "Historical response (not served)"
+          },
+          "410": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "error": {
+                      "const": "legacy_business_retired",
+                      "type": "string"
+                    },
+                    "ok": {
+                      "const": false,
+                      "type": "boolean"
+                    }
+                  },
+                  "required": [
+                    "ok",
+                    "error"
+                  ],
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Single-subscription business is retired"
           }
         },
         "security": [
@@ -32893,6 +33919,8 @@
     },
     "/api/admin/users/{user_id}/traffic-grant": {
       "post": {
+        "deprecated": true,
+        "description": "Retired in the independent-service deployment. Authorized requests return 410. The historical 200 schema is retained for upstream compatibility tooling only.",
         "operationId": "post_admin_user_traffic_grant_route",
         "parameters": [
           {
@@ -32964,7 +33992,32 @@
                 }
               }
             },
-            "description": "JSON response"
+            "description": "Historical response (not served)"
+          },
+          "410": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "error": {
+                      "const": "legacy_business_retired",
+                      "type": "string"
+                    },
+                    "ok": {
+                      "const": false,
+                      "type": "boolean"
+                    }
+                  },
+                  "required": [
+                    "ok",
+                    "error"
+                  ],
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Single-subscription business is retired"
           }
         },
         "security": [
@@ -32983,6 +34036,8 @@
     },
     "/api/admin/users/{user_id}/traffic-strategy": {
       "post": {
+        "deprecated": true,
+        "description": "Retired in the independent-service deployment. Authorized requests return 410. The historical 200 schema is retained for upstream compatibility tooling only.",
         "operationId": "post_admin_user_traffic_strategy_route",
         "parameters": [
           {
@@ -33026,7 +34081,32 @@
                 }
               }
             },
-            "description": "JSON response"
+            "description": "Historical response (not served)"
+          },
+          "410": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "error": {
+                      "const": "legacy_business_retired",
+                      "type": "string"
+                    },
+                    "ok": {
+                      "const": false,
+                      "type": "boolean"
+                    }
+                  },
+                  "required": [
+                    "ok",
+                    "error"
+                  ],
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Single-subscription business is retired"
           }
         },
         "security": [
@@ -34339,6 +35419,8 @@
     },
     "/api/balance": {
       "get": {
+        "deprecated": true,
+        "description": "Retired in the independent-service deployment. Authorized requests return 410. The historical 200 schema is retained for upstream compatibility tooling only.",
         "operationId": "get_balance_route",
         "responses": {
           "200": {
@@ -34479,7 +35561,32 @@
                 }
               }
             },
-            "description": "JSON response"
+            "description": "Historical response (not served)"
+          },
+          "410": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "error": {
+                      "const": "legacy_business_retired",
+                      "type": "string"
+                    },
+                    "ok": {
+                      "const": false,
+                      "type": "boolean"
+                    }
+                  },
+                  "required": [
+                    "ok",
+                    "error"
+                  ],
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Single-subscription business is retired"
           }
         },
         "security": [
@@ -34498,6 +35605,8 @@
     },
     "/api/balance/topup": {
       "post": {
+        "deprecated": true,
+        "description": "Retired in the independent-service deployment. Authorized requests return 410. The historical 200 schema is retained for upstream compatibility tooling only.",
         "operationId": "post_balance_topup_route",
         "requestBody": {
           "content": {
@@ -34557,7 +35666,32 @@
                 }
               }
             },
-            "description": "JSON response"
+            "description": "Historical response (not served)"
+          },
+          "410": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "error": {
+                      "const": "legacy_business_retired",
+                      "type": "string"
+                    },
+                    "ok": {
+                      "const": false,
+                      "type": "boolean"
+                    }
+                  },
+                  "required": [
+                    "ok",
+                    "error"
+                  ],
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Single-subscription business is retired"
           }
         },
         "security": [
@@ -34614,6 +35748,8 @@
     },
     "/api/devices": {
       "get": {
+        "deprecated": true,
+        "description": "Retired in the independent-service deployment. Authorized requests return 410. The historical 200 schema is retained for upstream compatibility tooling only.",
         "operationId": "get_devices_route",
         "responses": {
           "200": {
@@ -34661,7 +35797,32 @@
                 }
               }
             },
-            "description": "JSON response"
+            "description": "Historical response (not served)"
+          },
+          "410": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "error": {
+                      "const": "legacy_business_retired",
+                      "type": "string"
+                    },
+                    "ok": {
+                      "const": false,
+                      "type": "boolean"
+                    }
+                  },
+                  "required": [
+                    "ok",
+                    "error"
+                  ],
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Single-subscription business is retired"
           }
         },
         "security": [
@@ -34680,6 +35841,8 @@
     },
     "/api/devices/disconnect": {
       "post": {
+        "deprecated": true,
+        "description": "Retired in the independent-service deployment. Authorized requests return 410. The historical 200 schema is retained for upstream compatibility tooling only.",
         "operationId": "post_disconnect_device_route",
         "requestBody": {
           "content": {
@@ -34710,7 +35873,32 @@
                 }
               }
             },
-            "description": "JSON response"
+            "description": "Historical response (not served)"
+          },
+          "410": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "error": {
+                      "const": "legacy_business_retired",
+                      "type": "string"
+                    },
+                    "ok": {
+                      "const": false,
+                      "type": "boolean"
+                    }
+                  },
+                  "required": [
+                    "ok",
+                    "error"
+                  ],
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Single-subscription business is retired"
           }
         },
         "security": [
@@ -34729,6 +35917,8 @@
     },
     "/api/devices/rename": {
       "post": {
+        "deprecated": true,
+        "description": "Retired in the independent-service deployment. Authorized requests return 410. The historical 200 schema is retained for upstream compatibility tooling only.",
         "operationId": "post_rename_device_route",
         "requestBody": {
           "content": {
@@ -34763,7 +35953,32 @@
                 }
               }
             },
-            "description": "JSON response"
+            "description": "Historical response (not served)"
+          },
+          "410": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "error": {
+                      "const": "legacy_business_retired",
+                      "type": "string"
+                    },
+                    "ok": {
+                      "const": false,
+                      "type": "boolean"
+                    }
+                  },
+                  "required": [
+                    "ok",
+                    "error"
+                  ],
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Single-subscription business is retired"
           }
         },
         "security": [
@@ -34782,6 +35997,8 @@
     },
     "/api/devices/topup-options": {
       "get": {
+        "deprecated": true,
+        "description": "Retired in the independent-service deployment. Authorized requests return 410. The historical 200 schema is retained for upstream compatibility tooling only.",
         "operationId": "get_device_topup_options_route",
         "responses": {
           "200": {
@@ -35169,7 +36386,32 @@
                 }
               }
             },
-            "description": "JSON response"
+            "description": "Historical response (not served)"
+          },
+          "410": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "error": {
+                      "const": "legacy_business_retired",
+                      "type": "string"
+                    },
+                    "ok": {
+                      "const": false,
+                      "type": "boolean"
+                    }
+                  },
+                  "required": [
+                    "ok",
+                    "error"
+                  ],
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Single-subscription business is retired"
           }
         },
         "security": [
@@ -35334,6 +36576,8 @@
     },
     "/api/extensions/checkout": {
       "post": {
+        "deprecated": true,
+        "description": "Retired in the independent-service deployment. Authorized requests return 410. The historical 200 schema is retained for upstream compatibility tooling only.",
         "operationId": "post_extension_checkout_route",
         "requestBody": {
           "content": {
@@ -35371,7 +36615,32 @@
                 }
               }
             },
-            "description": "JSON response"
+            "description": "Historical response (not served)"
+          },
+          "410": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "error": {
+                      "const": "legacy_business_retired",
+                      "type": "string"
+                    },
+                    "ok": {
+                      "const": false,
+                      "type": "boolean"
+                    }
+                  },
+                  "required": [
+                    "ok",
+                    "error"
+                  ],
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Single-subscription business is retired"
           }
         },
         "security": [
@@ -35390,6 +36659,8 @@
     },
     "/api/extensions/order": {
       "get": {
+        "deprecated": true,
+        "description": "Retired in the independent-service deployment. Authorized requests return 410. The historical 200 schema is retained for upstream compatibility tooling only.",
         "operationId": "get_extension_order_route",
         "responses": {
           "200": {
@@ -35414,7 +36685,32 @@
                 }
               }
             },
-            "description": "JSON response"
+            "description": "Historical response (not served)"
+          },
+          "410": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "error": {
+                      "const": "legacy_business_retired",
+                      "type": "string"
+                    },
+                    "ok": {
+                      "const": false,
+                      "type": "boolean"
+                    }
+                  },
+                  "required": [
+                    "ok",
+                    "error"
+                  ],
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Single-subscription business is retired"
           }
         },
         "security": [
@@ -35433,6 +36729,8 @@
     },
     "/api/extensions/orders": {
       "get": {
+        "deprecated": true,
+        "description": "Retired in the independent-service deployment. Authorized requests return 410. The historical 200 schema is retained for upstream compatibility tooling only.",
         "operationId": "get_extension_orders_route",
         "responses": {
           "200": {
@@ -35460,7 +36758,32 @@
                 }
               }
             },
-            "description": "JSON response"
+            "description": "Historical response (not served)"
+          },
+          "410": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "error": {
+                      "const": "legacy_business_retired",
+                      "type": "string"
+                    },
+                    "ok": {
+                      "const": false,
+                      "type": "boolean"
+                    }
+                  },
+                  "required": [
+                    "ok",
+                    "error"
+                  ],
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Single-subscription business is retired"
           }
         },
         "security": [
@@ -35477,6 +36800,8 @@
         ]
       },
       "post": {
+        "deprecated": true,
+        "description": "Retired in the independent-service deployment. Authorized requests return 410. The historical 200 schema is retained for upstream compatibility tooling only.",
         "operationId": "post_extension_order_create_route",
         "requestBody": {
           "content": {
@@ -35511,7 +36836,32 @@
                 }
               }
             },
-            "description": "JSON response"
+            "description": "Historical response (not served)"
+          },
+          "410": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "error": {
+                      "const": "legacy_business_retired",
+                      "type": "string"
+                    },
+                    "ok": {
+                      "const": false,
+                      "type": "boolean"
+                    }
+                  },
+                  "required": [
+                    "ok",
+                    "error"
+                  ],
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Single-subscription business is retired"
           }
         },
         "security": [
@@ -35530,6 +36880,8 @@
     },
     "/api/extensions/payment-methods": {
       "get": {
+        "deprecated": true,
+        "description": "Retired in the independent-service deployment. Authorized requests return 410. The historical 200 schema is retained for upstream compatibility tooling only.",
         "operationId": "get_extension_payment_methods_route",
         "responses": {
           "200": {
@@ -35557,7 +36909,32 @@
                 }
               }
             },
-            "description": "JSON response"
+            "description": "Historical response (not served)"
+          },
+          "410": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "error": {
+                      "const": "legacy_business_retired",
+                      "type": "string"
+                    },
+                    "ok": {
+                      "const": false,
+                      "type": "boolean"
+                    }
+                  },
+                  "required": [
+                    "ok",
+                    "error"
+                  ],
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Single-subscription business is retired"
           }
         },
         "security": [
@@ -35652,6 +37029,8 @@
     },
     "/api/gifts": {
       "get": {
+        "deprecated": true,
+        "description": "Retired in the independent-service deployment. Authorized requests return 410. The historical 200 schema is retained for upstream compatibility tooling only.",
         "operationId": "get_gifts_route",
         "responses": {
           "200": {
@@ -35683,7 +37062,32 @@
                 }
               }
             },
-            "description": "JSON response"
+            "description": "Historical response (not served)"
+          },
+          "410": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "error": {
+                      "const": "legacy_business_retired",
+                      "type": "string"
+                    },
+                    "ok": {
+                      "const": false,
+                      "type": "boolean"
+                    }
+                  },
+                  "required": [
+                    "ok",
+                    "error"
+                  ],
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Single-subscription business is retired"
           }
         },
         "security": [
@@ -35702,6 +37106,8 @@
     },
     "/api/gifts/claim": {
       "post": {
+        "deprecated": true,
+        "description": "Retired in the independent-service deployment. Authorized requests return 410. The historical 200 schema is retained for upstream compatibility tooling only.",
         "operationId": "post_gift_claim_route",
         "requestBody": {
           "content": {
@@ -35732,7 +37138,32 @@
                 }
               }
             },
-            "description": "JSON response"
+            "description": "Historical response (not served)"
+          },
+          "410": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "error": {
+                      "const": "legacy_business_retired",
+                      "type": "string"
+                    },
+                    "ok": {
+                      "const": false,
+                      "type": "boolean"
+                    }
+                  },
+                  "required": [
+                    "ok",
+                    "error"
+                  ],
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Single-subscription business is retired"
           }
         },
         "security": [
@@ -35751,6 +37182,8 @@
     },
     "/api/gifts/options": {
       "get": {
+        "deprecated": true,
+        "description": "Retired in the independent-service deployment. Authorized requests return 410. The historical 200 schema is retained for upstream compatibility tooling only.",
         "operationId": "get_gift_options_route",
         "responses": {
           "200": {
@@ -36057,7 +37490,32 @@
                 }
               }
             },
-            "description": "JSON response"
+            "description": "Historical response (not served)"
+          },
+          "410": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "error": {
+                      "const": "legacy_business_retired",
+                      "type": "string"
+                    },
+                    "ok": {
+                      "const": false,
+                      "type": "boolean"
+                    }
+                  },
+                  "required": [
+                    "ok",
+                    "error"
+                  ],
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Single-subscription business is retired"
           }
         },
         "security": [
@@ -36076,6 +37534,8 @@
     },
     "/api/gifts/preview": {
       "post": {
+        "deprecated": true,
+        "description": "Retired in the independent-service deployment. Authorized requests return 410. The historical 200 schema is retained for upstream compatibility tooling only.",
         "operationId": "post_gift_preview_route",
         "requestBody": {
           "content": {
@@ -36110,7 +37570,32 @@
                 }
               }
             },
-            "description": "JSON response"
+            "description": "Historical response (not served)"
+          },
+          "410": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "error": {
+                      "const": "legacy_business_retired",
+                      "type": "string"
+                    },
+                    "ok": {
+                      "const": false,
+                      "type": "boolean"
+                    }
+                  },
+                  "required": [
+                    "ok",
+                    "error"
+                  ],
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Single-subscription business is retired"
           }
         },
         "security": [
@@ -38035,6 +39520,8 @@
     },
     "/api/partner/applications": {
       "post": {
+        "deprecated": true,
+        "description": "Retired in the independent-service deployment. Authorized requests return 410. The historical 200 schema is retained for upstream compatibility tooling only.",
         "operationId": "post_partner_application_create_route",
         "requestBody": {
           "content": {
@@ -38069,7 +39556,32 @@
                 }
               }
             },
-            "description": "JSON response"
+            "description": "Historical response (not served)"
+          },
+          "410": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "error": {
+                      "const": "legacy_business_retired",
+                      "type": "string"
+                    },
+                    "ok": {
+                      "const": false,
+                      "type": "boolean"
+                    }
+                  },
+                  "required": [
+                    "ok",
+                    "error"
+                  ],
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Single-subscription business is retired"
           }
         },
         "summary": "Partner Application Create",
@@ -38080,6 +39592,8 @@
     },
     "/api/partner/balance/renew": {
       "post": {
+        "deprecated": true,
+        "description": "Retired in the independent-service deployment. Authorized requests return 410. The historical 200 schema is retained for upstream compatibility tooling only.",
         "operationId": "post_partner_balance_renew_route",
         "requestBody": {
           "content": {
@@ -38122,7 +39636,32 @@
                 }
               }
             },
-            "description": "JSON response"
+            "description": "Historical response (not served)"
+          },
+          "410": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "error": {
+                      "const": "legacy_business_retired",
+                      "type": "string"
+                    },
+                    "ok": {
+                      "const": false,
+                      "type": "boolean"
+                    }
+                  },
+                  "required": [
+                    "ok",
+                    "error"
+                  ],
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Single-subscription business is retired"
           }
         },
         "summary": "Partner Balance Renew",
@@ -38133,6 +39672,8 @@
     },
     "/api/partner/clients": {
       "get": {
+        "deprecated": true,
+        "description": "Retired in the independent-service deployment. Authorized requests return 410. The historical 200 schema is retained for upstream compatibility tooling only.",
         "operationId": "get_partner_clients_route",
         "responses": {
           "200": {
@@ -38172,7 +39713,32 @@
                 }
               }
             },
-            "description": "JSON response"
+            "description": "Historical response (not served)"
+          },
+          "410": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "error": {
+                      "const": "legacy_business_retired",
+                      "type": "string"
+                    },
+                    "ok": {
+                      "const": false,
+                      "type": "boolean"
+                    }
+                  },
+                  "required": [
+                    "ok",
+                    "error"
+                  ],
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Single-subscription business is retired"
           }
         },
         "summary": "Partner Clients",
@@ -38183,6 +39749,8 @@
     },
     "/api/partner/commissions": {
       "get": {
+        "deprecated": true,
+        "description": "Retired in the independent-service deployment. Authorized requests return 410. The historical 200 schema is retained for upstream compatibility tooling only.",
         "operationId": "get_partner_commissions_route",
         "responses": {
           "200": {
@@ -38222,7 +39790,32 @@
                 }
               }
             },
-            "description": "JSON response"
+            "description": "Historical response (not served)"
+          },
+          "410": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "error": {
+                      "const": "legacy_business_retired",
+                      "type": "string"
+                    },
+                    "ok": {
+                      "const": false,
+                      "type": "boolean"
+                    }
+                  },
+                  "required": [
+                    "ok",
+                    "error"
+                  ],
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Single-subscription business is retired"
           }
         },
         "summary": "Partner Commissions",
@@ -38233,6 +39826,8 @@
     },
     "/api/partner/overview": {
       "get": {
+        "deprecated": true,
+        "description": "Retired in the independent-service deployment. Authorized requests return 410. The historical 200 schema is retained for upstream compatibility tooling only.",
         "operationId": "get_partner_overview_route",
         "responses": {
           "200": {
@@ -38260,7 +39855,32 @@
                 }
               }
             },
-            "description": "JSON response"
+            "description": "Historical response (not served)"
+          },
+          "410": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "error": {
+                      "const": "legacy_business_retired",
+                      "type": "string"
+                    },
+                    "ok": {
+                      "const": false,
+                      "type": "boolean"
+                    }
+                  },
+                  "required": [
+                    "ok",
+                    "error"
+                  ],
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Single-subscription business is retired"
           }
         },
         "summary": "Partner Overview",
@@ -38271,6 +39891,8 @@
     },
     "/api/partner/withdrawals": {
       "get": {
+        "deprecated": true,
+        "description": "Retired in the independent-service deployment. Authorized requests return 410. The historical 200 schema is retained for upstream compatibility tooling only.",
         "operationId": "get_partner_withdrawals_route",
         "responses": {
           "200": {
@@ -38310,7 +39932,32 @@
                 }
               }
             },
-            "description": "JSON response"
+            "description": "Historical response (not served)"
+          },
+          "410": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "error": {
+                      "const": "legacy_business_retired",
+                      "type": "string"
+                    },
+                    "ok": {
+                      "const": false,
+                      "type": "boolean"
+                    }
+                  },
+                  "required": [
+                    "ok",
+                    "error"
+                  ],
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Single-subscription business is retired"
           }
         },
         "summary": "Partner Withdrawals",
@@ -38319,6 +39966,8 @@
         ]
       },
       "post": {
+        "deprecated": true,
+        "description": "Retired in the independent-service deployment. Authorized requests return 410. The historical 200 schema is retained for upstream compatibility tooling only.",
         "operationId": "post_partner_withdrawal_create_route",
         "requestBody": {
           "content": {
@@ -38353,7 +40002,32 @@
                 }
               }
             },
-            "description": "JSON response"
+            "description": "Historical response (not served)"
+          },
+          "410": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "error": {
+                      "const": "legacy_business_retired",
+                      "type": "string"
+                    },
+                    "ok": {
+                      "const": false,
+                      "type": "boolean"
+                    }
+                  },
+                  "required": [
+                    "ok",
+                    "error"
+                  ],
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Single-subscription business is retired"
           }
         },
         "summary": "Partner Withdrawal Create",
@@ -38364,6 +40038,8 @@
     },
     "/api/partner/withdrawals/{id}/cancel": {
       "post": {
+        "deprecated": true,
+        "description": "Retired in the independent-service deployment. Authorized requests return 410. The historical 200 schema is retained for upstream compatibility tooling only.",
         "operationId": "post_partner_withdrawal_cancel_route",
         "parameters": [
           {
@@ -38398,7 +40074,32 @@
                 }
               }
             },
-            "description": "JSON response"
+            "description": "Historical response (not served)"
+          },
+          "410": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "error": {
+                      "const": "legacy_business_retired",
+                      "type": "string"
+                    },
+                    "ok": {
+                      "const": false,
+                      "type": "boolean"
+                    }
+                  },
+                  "required": [
+                    "ok",
+                    "error"
+                  ],
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Single-subscription business is retired"
           }
         },
         "summary": "Partner Withdrawal Cancel",
@@ -38409,6 +40110,8 @@
     },
     "/api/payments": {
       "post": {
+        "deprecated": true,
+        "description": "Retired in the independent-service deployment. Authorized requests return 410. The historical 200 schema is retained for upstream compatibility tooling only.",
         "operationId": "post_create_payment_route",
         "requestBody": {
           "content": {
@@ -38468,7 +40171,32 @@
                 }
               }
             },
-            "description": "JSON response"
+            "description": "Historical response (not served)"
+          },
+          "410": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "error": {
+                      "const": "legacy_business_retired",
+                      "type": "string"
+                    },
+                    "ok": {
+                      "const": false,
+                      "type": "boolean"
+                    }
+                  },
+                  "required": [
+                    "ok",
+                    "error"
+                  ],
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Single-subscription business is retired"
           }
         },
         "security": [
@@ -38487,6 +40215,8 @@
     },
     "/api/payments/history": {
       "get": {
+        "deprecated": true,
+        "description": "Retired in the independent-service deployment. Authorized requests return 410. The historical 200 schema is retained for upstream compatibility tooling only.",
         "operationId": "get_payment_history_route",
         "responses": {
           "200": {
@@ -38526,7 +40256,32 @@
                 }
               }
             },
-            "description": "JSON response"
+            "description": "Historical response (not served)"
+          },
+          "410": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "error": {
+                      "const": "legacy_business_retired",
+                      "type": "string"
+                    },
+                    "ok": {
+                      "const": false,
+                      "type": "boolean"
+                    }
+                  },
+                  "required": [
+                    "ok",
+                    "error"
+                  ],
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Single-subscription business is retired"
           }
         },
         "security": [
@@ -38545,6 +40300,8 @@
     },
     "/api/payments/{payment_id}": {
       "get": {
+        "deprecated": true,
+        "description": "Retired in the independent-service deployment. Authorized requests return 410. The historical 200 schema is retained for upstream compatibility tooling only.",
         "operationId": "get_payment_status_route",
         "parameters": [
           {
@@ -38605,7 +40362,32 @@
                 }
               }
             },
-            "description": "JSON response"
+            "description": "Historical response (not served)"
+          },
+          "410": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "error": {
+                      "const": "legacy_business_retired",
+                      "type": "string"
+                    },
+                    "ok": {
+                      "const": false,
+                      "type": "boolean"
+                    }
+                  },
+                  "required": [
+                    "ok",
+                    "error"
+                  ],
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Single-subscription business is retired"
           }
         },
         "security": [
@@ -38624,6 +40406,8 @@
     },
     "/api/payments/{payment_id}/cancel": {
       "post": {
+        "deprecated": true,
+        "description": "Retired in the independent-service deployment. Authorized requests return 410. The historical 200 schema is retained for upstream compatibility tooling only.",
         "operationId": "post_cancel_payment_route",
         "parameters": [
           {
@@ -38663,7 +40447,32 @@
                 }
               }
             },
-            "description": "JSON response"
+            "description": "Historical response (not served)"
+          },
+          "410": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "error": {
+                      "const": "legacy_business_retired",
+                      "type": "string"
+                    },
+                    "ok": {
+                      "const": false,
+                      "type": "boolean"
+                    }
+                  },
+                  "required": [
+                    "ok",
+                    "error"
+                  ],
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Single-subscription business is retired"
           }
         },
         "security": [
@@ -38682,6 +40491,8 @@
     },
     "/api/payments/{payment_id}/qa/complete": {
       "post": {
+        "deprecated": true,
+        "description": "Retired in the independent-service deployment. Authorized requests return 410. The historical 200 schema is retained for upstream compatibility tooling only.",
         "operationId": "post_complete_qa_payment_route",
         "parameters": [
           {
@@ -38730,7 +40541,32 @@
                 }
               }
             },
-            "description": "JSON response"
+            "description": "Historical response (not served)"
+          },
+          "410": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "error": {
+                      "const": "legacy_business_retired",
+                      "type": "string"
+                    },
+                    "ok": {
+                      "const": false,
+                      "type": "boolean"
+                    }
+                  },
+                  "required": [
+                    "ok",
+                    "error"
+                  ],
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Single-subscription business is retired"
           }
         },
         "security": [
@@ -38749,6 +40585,8 @@
     },
     "/api/plans/viewed": {
       "post": {
+        "deprecated": true,
+        "description": "Retired in the independent-service deployment. Authorized requests return 410. The historical 200 schema is retained for upstream compatibility tooling only.",
         "operationId": "post_plans_viewed_route",
         "requestBody": {
           "content": {
@@ -38779,7 +40617,32 @@
                 }
               }
             },
-            "description": "JSON response"
+            "description": "Historical response (not served)"
+          },
+          "410": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "error": {
+                      "const": "legacy_business_retired",
+                      "type": "string"
+                    },
+                    "ok": {
+                      "const": false,
+                      "type": "boolean"
+                    }
+                  },
+                  "required": [
+                    "ok",
+                    "error"
+                  ],
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Single-subscription business is retired"
           }
         },
         "security": [
@@ -38798,6 +40661,8 @@
     },
     "/api/promo/apply": {
       "post": {
+        "deprecated": true,
+        "description": "Retired in the independent-service deployment. Authorized requests return 410. The historical 200 schema is retained for upstream compatibility tooling only.",
         "operationId": "post_apply_promo_route",
         "requestBody": {
           "content": {
@@ -38897,7 +40762,32 @@
                 }
               }
             },
-            "description": "JSON response"
+            "description": "Historical response (not served)"
+          },
+          "410": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "error": {
+                      "const": "legacy_business_retired",
+                      "type": "string"
+                    },
+                    "ok": {
+                      "const": false,
+                      "type": "boolean"
+                    }
+                  },
+                  "required": [
+                    "ok",
+                    "error"
+                  ],
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Single-subscription business is retired"
           }
         },
         "security": [
@@ -38916,6 +40806,8 @@
     },
     "/api/promo/status": {
       "post": {
+        "deprecated": true,
+        "description": "Retired in the independent-service deployment. Authorized requests return 410. The historical 200 schema is retained for upstream compatibility tooling only.",
         "operationId": "post_promo_status_route",
         "requestBody": {
           "content": {
@@ -39014,7 +40906,32 @@
                 }
               }
             },
-            "description": "JSON response"
+            "description": "Historical response (not served)"
+          },
+          "410": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "error": {
+                      "const": "legacy_business_retired",
+                      "type": "string"
+                    },
+                    "ok": {
+                      "const": false,
+                      "type": "boolean"
+                    }
+                  },
+                  "required": [
+                    "ok",
+                    "error"
+                  ],
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Single-subscription business is retired"
           }
         },
         "security": [
@@ -39033,6 +40950,8 @@
     },
     "/api/referral/welcome-bonus/claim": {
       "post": {
+        "deprecated": true,
+        "description": "Retired in the independent-service deployment. Authorized requests return 410. The historical 200 schema is retained for upstream compatibility tooling only.",
         "operationId": "post_referral_welcome_bonus_claim_route",
         "responses": {
           "200": {
@@ -39071,7 +40990,32 @@
                 }
               }
             },
-            "description": "JSON response"
+            "description": "Historical response (not served)"
+          },
+          "410": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "error": {
+                      "const": "legacy_business_retired",
+                      "type": "string"
+                    },
+                    "ok": {
+                      "const": false,
+                      "type": "boolean"
+                    }
+                  },
+                  "required": [
+                    "ok",
+                    "error"
+                  ],
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Single-subscription business is retired"
           }
         },
         "security": [
@@ -39290,6 +41234,8 @@
     },
     "/api/subscription-guides": {
       "get": {
+        "deprecated": true,
+        "description": "Retired in the independent-service deployment. Authorized requests return 410. The historical 200 schema is retained for upstream compatibility tooling only.",
         "operationId": "get_subscription_guides_route",
         "responses": {
           "200": {
@@ -39317,7 +41263,32 @@
                 }
               }
             },
-            "description": "JSON response"
+            "description": "Historical response (not served)"
+          },
+          "410": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "error": {
+                      "const": "legacy_business_retired",
+                      "type": "string"
+                    },
+                    "ok": {
+                      "const": false,
+                      "type": "boolean"
+                    }
+                  },
+                  "required": [
+                    "ok",
+                    "error"
+                  ],
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Single-subscription business is retired"
           }
         },
         "security": [
@@ -39336,6 +41307,8 @@
     },
     "/api/subscription-guides/public/{share_token}": {
       "get": {
+        "deprecated": true,
+        "description": "Retired in the independent-service deployment. Authorized requests return 410. The historical 200 schema is retained for upstream compatibility tooling only.",
         "operationId": "get_public_subscription_guides_route",
         "parameters": [
           {
@@ -39374,7 +41347,32 @@
                 }
               }
             },
-            "description": "JSON response"
+            "description": "Historical response (not served)"
+          },
+          "410": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "error": {
+                      "const": "legacy_business_retired",
+                      "type": "string"
+                    },
+                    "ok": {
+                      "const": false,
+                      "type": "boolean"
+                    }
+                  },
+                  "required": [
+                    "ok",
+                    "error"
+                  ],
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Single-subscription business is retired"
           }
         },
         "summary": "Public Subscription Guides",
@@ -39385,6 +41383,8 @@
     },
     "/api/subscription/auto-renew": {
       "post": {
+        "deprecated": true,
+        "description": "Retired in the independent-service deployment. Authorized requests return 410. The historical 200 schema is retained for upstream compatibility tooling only.",
         "operationId": "post_subscription_auto_renew_route",
         "requestBody": {
           "content": {
@@ -39427,7 +41427,32 @@
                 }
               }
             },
-            "description": "JSON response"
+            "description": "Historical response (not served)"
+          },
+          "410": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "error": {
+                      "const": "legacy_business_retired",
+                      "type": "string"
+                    },
+                    "ok": {
+                      "const": false,
+                      "type": "boolean"
+                    }
+                  },
+                  "required": [
+                    "ok",
+                    "error"
+                  ],
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Single-subscription business is retired"
           }
         },
         "security": [
@@ -39446,6 +41471,8 @@
     },
     "/api/subscription/quote": {
       "post": {
+        "deprecated": true,
+        "description": "Retired in the independent-service deployment. Authorized requests return 410. The historical 200 schema is retained for upstream compatibility tooling only.",
         "operationId": "post_subscription_quote_route",
         "requestBody": {
           "content": {
@@ -39617,7 +41644,32 @@
                 }
               }
             },
-            "description": "JSON response"
+            "description": "Historical response (not served)"
+          },
+          "410": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "error": {
+                      "const": "legacy_business_retired",
+                      "type": "string"
+                    },
+                    "ok": {
+                      "const": false,
+                      "type": "boolean"
+                    }
+                  },
+                  "required": [
+                    "ok",
+                    "error"
+                  ],
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Single-subscription business is retired"
           }
         },
         "security": [
@@ -39636,6 +41688,8 @@
     },
     "/api/subscription/quote-promo": {
       "post": {
+        "deprecated": true,
+        "description": "Retired in the independent-service deployment. Authorized requests return 410. The historical 200 schema is retained for upstream compatibility tooling only.",
         "operationId": "post_quote_promo_route",
         "requestBody": {
           "content": {
@@ -39763,7 +41817,32 @@
                 }
               }
             },
-            "description": "JSON response"
+            "description": "Historical response (not served)"
+          },
+          "410": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "error": {
+                      "const": "legacy_business_retired",
+                      "type": "string"
+                    },
+                    "ok": {
+                      "const": false,
+                      "type": "boolean"
+                    }
+                  },
+                  "required": [
+                    "ok",
+                    "error"
+                  ],
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Single-subscription business is retired"
           }
         },
         "security": [
@@ -39782,6 +41861,8 @@
     },
     "/api/subscription/reissue": {
       "post": {
+        "deprecated": true,
+        "description": "Retired in the independent-service deployment. Authorized requests return 410. The historical 200 schema is retained for upstream compatibility tooling only.",
         "operationId": "post_subscription_reissue_route",
         "requestBody": {
           "content": {
@@ -39824,7 +41905,32 @@
                 }
               }
             },
-            "description": "JSON response"
+            "description": "Historical response (not served)"
+          },
+          "410": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "error": {
+                      "const": "legacy_business_retired",
+                      "type": "string"
+                    },
+                    "ok": {
+                      "const": false,
+                      "type": "boolean"
+                    }
+                  },
+                  "required": [
+                    "ok",
+                    "error"
+                  ],
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Single-subscription business is retired"
           }
         },
         "security": [
@@ -40358,6 +42464,8 @@
     },
     "/api/tariffs/change": {
       "post": {
+        "deprecated": true,
+        "description": "Retired in the independent-service deployment. Authorized requests return 410. The historical 200 schema is retained for upstream compatibility tooling only.",
         "operationId": "post_tariff_change_route",
         "requestBody": {
           "content": {
@@ -40396,7 +42504,32 @@
                 }
               }
             },
-            "description": "JSON response"
+            "description": "Historical response (not served)"
+          },
+          "410": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "error": {
+                      "const": "legacy_business_retired",
+                      "type": "string"
+                    },
+                    "ok": {
+                      "const": false,
+                      "type": "boolean"
+                    }
+                  },
+                  "required": [
+                    "ok",
+                    "error"
+                  ],
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Single-subscription business is retired"
           }
         },
         "security": [
@@ -40415,6 +42548,8 @@
     },
     "/api/tariffs/change-options": {
       "get": {
+        "deprecated": true,
+        "description": "Retired in the independent-service deployment. Authorized requests return 410. The historical 200 schema is retained for upstream compatibility tooling only.",
         "operationId": "get_tariff_change_options_route",
         "responses": {
           "200": {
@@ -40599,7 +42734,32 @@
                 }
               }
             },
-            "description": "JSON response"
+            "description": "Historical response (not served)"
+          },
+          "410": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "error": {
+                      "const": "legacy_business_retired",
+                      "type": "string"
+                    },
+                    "ok": {
+                      "const": false,
+                      "type": "boolean"
+                    }
+                  },
+                  "required": [
+                    "ok",
+                    "error"
+                  ],
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Single-subscription business is retired"
           }
         },
         "security": [
@@ -40618,6 +42778,8 @@
     },
     "/api/tariffs/change-payment": {
       "post": {
+        "deprecated": true,
+        "description": "Retired in the independent-service deployment. Authorized requests return 410. The historical 200 schema is retained for upstream compatibility tooling only.",
         "operationId": "post_tariff_change_payment_route",
         "requestBody": {
           "content": {
@@ -40677,7 +42839,32 @@
                 }
               }
             },
-            "description": "JSON response"
+            "description": "Historical response (not served)"
+          },
+          "410": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "error": {
+                      "const": "legacy_business_retired",
+                      "type": "string"
+                    },
+                    "ok": {
+                      "const": false,
+                      "type": "boolean"
+                    }
+                  },
+                  "required": [
+                    "ok",
+                    "error"
+                  ],
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Single-subscription business is retired"
           }
         },
         "security": [
@@ -40696,6 +42883,8 @@
     },
     "/api/tariffs/topup-options": {
       "get": {
+        "deprecated": true,
+        "description": "Retired in the independent-service deployment. Authorized requests return 410. The historical 200 schema is retained for upstream compatibility tooling only.",
         "operationId": "get_tariff_topup_options_route",
         "responses": {
           "200": {
@@ -41083,7 +43272,32 @@
                 }
               }
             },
-            "description": "JSON response"
+            "description": "Historical response (not served)"
+          },
+          "410": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "error": {
+                      "const": "legacy_business_retired",
+                      "type": "string"
+                    },
+                    "ok": {
+                      "const": false,
+                      "type": "boolean"
+                    }
+                  },
+                  "required": [
+                    "ok",
+                    "error"
+                  ],
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Single-subscription business is retired"
           }
         },
         "security": [
@@ -41207,6 +43421,8 @@
     },
     "/api/trial/activate": {
       "post": {
+        "deprecated": true,
+        "description": "Retired in the independent-service deployment. Authorized requests return 410. The historical 200 schema is retained for upstream compatibility tooling only.",
         "operationId": "post_activate_trial_route",
         "responses": {
           "200": {
@@ -41270,7 +43486,32 @@
                 }
               }
             },
-            "description": "JSON response"
+            "description": "Historical response (not served)"
+          },
+          "410": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "error": {
+                      "const": "legacy_business_retired",
+                      "type": "string"
+                    },
+                    "ok": {
+                      "const": false,
+                      "type": "boolean"
+                    }
+                  },
+                  "required": [
+                    "ok",
+                    "error"
+                  ],
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Single-subscription business is retired"
           }
         },
         "security": [

@@ -703,26 +703,5 @@ class AutoRenewDalTests(IsolatedAsyncioTestCase):
         self.assertIn("auto_renew_cycles.cycle_id = 11", sql)
 
 
-def test_core_worker_registers_bounded_auto_renew_recovery() -> None:
-    tasks = {task.name: task for task in main_worker._core_worker_tasks()}
-    assert "AutoRenewRetryWorker" in tasks
-    enabled = tasks["AutoRenewRetryWorker"].enabled
-    assert enabled is not None
-    assert not enabled(
-        cast(
-            Any,
-            SimpleNamespace(
-                AUTO_RENEW_RETRY_ENABLED=False,
-                AUTO_RENEW_SCHEDULER_ENABLED=False,
-            ),
-        )
-    )
-    assert enabled(
-        cast(
-            Any,
-            SimpleNamespace(
-                AUTO_RENEW_RETRY_ENABLED=True,
-                AUTO_RENEW_SCHEDULER_ENABLED=False,
-            ),
-        )
-    )
+def test_core_worker_retires_auto_renew_recovery() -> None:
+    assert "AutoRenewRetryWorker" not in {task.name for task in main_worker._core_worker_tasks()}

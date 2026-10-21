@@ -224,11 +224,19 @@ async def _handle_panel_sync_event(ctx: PluginContext, payload: dict[str, Any]) 
         )
 
 
+class RetiredBusinessEventError(RuntimeError):
+    """Preserve old events for reconciliation without applying account entitlements."""
+
+
+async def _retired_business_event(ctx: PluginContext, payload: dict[str, Any]) -> None:
+    raise RetiredBusinessEventError("legacy_business_retired")
+
+
 def _core_queue_handlers() -> dict[str, QueueHandler]:
     return {
-        "yookassa": _handle_yookassa_event,
-        "panel": _handle_panel_event,
-        "panel_sync": _handle_panel_sync_event,
+        "yookassa": _retired_business_event,
+        "panel": _retired_business_event,
+        "panel_sync": _retired_business_event,
     }
 
 
@@ -276,7 +284,10 @@ async def _webhook_consumer(ctx: PluginContext, handlers: dict[str, QueueHandler
                 },
             )
             delivery_attempts = _webhook_delivery_attempts(event) + 1
-            if delivery_attempts >= settings.WEBHOOK_QUEUE_MAX_ATTEMPTS:
+            if (
+                isinstance(exc, RetiredBusinessEventError)
+                or delivery_attempts >= settings.WEBHOOK_QUEUE_MAX_ATTEMPTS
+            ):
                 moved = await dead_letter_webhook_event(
                     settings,
                     claimed,
@@ -537,52 +548,8 @@ def _core_worker_tasks() -> list[WorkerTaskSpec]:
     return [
         WorkerTaskSpec(name="AccountAccessSync", factory=_account_access_sync_task),
         WorkerTaskSpec(name="OutboundSettingsRefresh", factory=_outbound_settings_refresh_task),
-        WorkerTaskSpec(name="GiftActivationWorker", factory=_gift_activation_task),
-        WorkerTaskSpec(name="ReferralAccrualWorker", factory=_referral_accrual_task),
-        WorkerTaskSpec(
-            name="GiftDeliveryWorker",
-            factory=_gift_delivery_task,
-            enabled=lambda settings: bool(settings.smtp_delivery_configured),
-        ),
-        WorkerTaskSpec(
-            name="TariffTrafficWorker",
-            factory=_tariff_worker_task,
-            enabled=lambda settings: True,
-        ),
-        WorkerTaskSpec(
-            name="SubscriptionNotificationWorker",
-            factory=_subscription_notification_task,
-        ),
-        WorkerTaskSpec(
-            name="YooKassaReconciliationWorker",
-            factory=_yookassa_reconciliation_task,
-        ),
-        WorkerTaskSpec(
-            name="AutoRenewRetryWorker",
-            factory=_auto_renew_retry_task,
-            enabled=lambda settings: bool(
-                settings.AUTO_RENEW_RETRY_ENABLED or settings.AUTO_RENEW_SCHEDULER_ENABLED
-            ),
-        ),
-        WorkerTaskSpec(
-            name="WataReconciliationWorker",
-            factory=_wata_reconciliation_task,
-        ),
-        WorkerTaskSpec(
-            name="PaymentReconciliationWorker",
-            factory=_payment_reconciliation_task,
-        ),
-        WorkerTaskSpec(
-            name="RollyPayReconciliationWorker",
-            factory=_rollypay_reconciliation_task,
-        ),
-        WorkerTaskSpec(
-            name="PartnerProgramWorker",
-            factory=_partner_program_task,
-        ),
         WorkerTaskSpec(name="AdminBroadcastWorker", factory=_admin_broadcast_task),
         WorkerTaskSpec(name="BackupWorker", factory=_backup_worker_task),
-        WorkerTaskSpec(name="PanelSyncLoop", factory=_panel_sync_loop),
     ]
 
 

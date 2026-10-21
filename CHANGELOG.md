@@ -39,8 +39,12 @@
   Original activation request scopes survive merges and deletion. Account bans and unbans now
   persist synchronization jobs before contacting the panel and retry after outages or worker restarts. Every known identity
   is checked; unbanning preserves expired, exhausted and paused service restrictions. The admin
-  user page distinguishes pending changes from confirmed panel state and offers retry. Old
-  backend entry-point retirement, traffic enforcement and real-node acceptance remain in progress.
+  user page distinguishes pending changes from confirmed panel state and offers retry. The
+  deployed website now rejects old subscription/checkout mutations and subscription delivery
+  with HTTP 410, including implicit login bonuses. Payment and account-level panel webhooks
+  are retired; old entitlement workers no longer start, and queued core events move to the
+  dead-letter queue without applying entitlements or discarding their payloads. Telegram and
+  admin UI retirement, traffic enforcement and real-node acceptance remain in progress.
 
 - **Nested dialog keyboard focus.** Opening an emoji picker now transfers focus before
   the next keyboard event, so an immediate Escape closes the picker instead of its parent

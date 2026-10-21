@@ -1244,7 +1244,11 @@ export interface paths {
     /** Admin Gifts */
     get: operations["get_admin_gifts_route"];
     put?: never;
-    /** Admin Gift Create */
+    /**
+     * Admin Gift Create
+     * @deprecated
+     * @description Retired in the independent-service deployment. Authorized requests return 410. The historical 200 schema is retained for upstream compatibility tooling only.
+     */
     post: operations["post_admin_gift_create_route"];
     delete?: never;
     options?: never;
@@ -1295,7 +1299,11 @@ export interface paths {
     };
     get?: never;
     put?: never;
-    /** Admin Gift Revoke */
+    /**
+     * Admin Gift Revoke
+     * @deprecated
+     * @description Retired in the independent-service deployment. Authorized requests return 410. The historical 200 schema is retained for upstream compatibility tooling only.
+     */
     post: operations["post_admin_gift_revoke_route"];
     delete?: never;
     options?: never;
@@ -1466,7 +1474,11 @@ export interface paths {
     };
     get?: never;
     put?: never;
-    /** Admin Partner Application Approve */
+    /**
+     * Admin Partner Application Approve
+     * @deprecated
+     * @description Retired in the independent-service deployment. Authorized requests return 410. The historical 200 schema is retained for upstream compatibility tooling only.
+     */
     post: operations["post_admin_partner_application_approve_route"];
     delete?: never;
     options?: never;
@@ -1483,7 +1495,11 @@ export interface paths {
     };
     get?: never;
     put?: never;
-    /** Admin Partner Application Reject */
+    /**
+     * Admin Partner Application Reject
+     * @deprecated
+     * @description Retired in the independent-service deployment. Authorized requests return 410. The historical 200 schema is retained for upstream compatibility tooling only.
+     */
     post: operations["post_admin_partner_application_reject_route"];
     delete?: never;
     options?: never;
@@ -1500,7 +1516,11 @@ export interface paths {
     };
     get?: never;
     put?: never;
-    /** Admin Partner Application Reopen */
+    /**
+     * Admin Partner Application Reopen
+     * @deprecated
+     * @description Retired in the independent-service deployment. Authorized requests return 410. The historical 200 schema is retained for upstream compatibility tooling only.
+     */
     post: operations["post_admin_partner_application_reopen_route"];
     delete?: never;
     options?: never;
@@ -1551,7 +1571,11 @@ export interface paths {
     };
     get?: never;
     put?: never;
-    /** Admin Partner Withdrawal Fail */
+    /**
+     * Admin Partner Withdrawal Fail
+     * @deprecated
+     * @description Retired in the independent-service deployment. Authorized requests return 410. The historical 200 schema is retained for upstream compatibility tooling only.
+     */
     post: operations["post_admin_partner_withdrawal_fail_route"];
     delete?: never;
     options?: never;
@@ -1568,7 +1592,11 @@ export interface paths {
     };
     get?: never;
     put?: never;
-    /** Admin Partner Withdrawal Paid */
+    /**
+     * Admin Partner Withdrawal Paid
+     * @deprecated
+     * @description Retired in the independent-service deployment. Authorized requests return 410. The historical 200 schema is retained for upstream compatibility tooling only.
+     */
     post: operations["post_admin_partner_withdrawal_paid_route"];
     delete?: never;
     options?: never;
@@ -1585,7 +1613,11 @@ export interface paths {
     };
     get?: never;
     put?: never;
-    /** Admin Partner Withdrawal Processing */
+    /**
+     * Admin Partner Withdrawal Processing
+     * @deprecated
+     * @description Retired in the independent-service deployment. Authorized requests return 410. The historical 200 schema is retained for upstream compatibility tooling only.
+     */
     post: operations["post_admin_partner_withdrawal_processing_route"];
     delete?: never;
     options?: never;
@@ -1602,7 +1634,11 @@ export interface paths {
     };
     get?: never;
     put?: never;
-    /** Admin Partner Withdrawal Reject */
+    /**
+     * Admin Partner Withdrawal Reject
+     * @deprecated
+     * @description Retired in the independent-service deployment. Authorized requests return 410. The historical 200 schema is retained for upstream compatibility tooling only.
+     */
     post: operations["post_admin_partner_withdrawal_reject_route"];
     delete?: never;
     options?: never;
@@ -1619,7 +1655,11 @@ export interface paths {
     };
     get?: never;
     put?: never;
-    /** Admin Partner Withdrawal Reveal */
+    /**
+     * Admin Partner Withdrawal Reveal
+     * @deprecated
+     * @description Retired in the independent-service deployment. Authorized requests return 410. The historical 200 schema is retained for upstream compatibility tooling only.
+     */
     post: operations["post_admin_partner_withdrawal_reveal_route"];
     delete?: never;
     options?: never;
@@ -1637,7 +1677,11 @@ export interface paths {
     /** Admin Partners List */
     get: operations["get_admin_partners_list_route"];
     put?: never;
-    /** Admin Partner Create */
+    /**
+     * Admin Partner Create
+     * @deprecated
+     * @description Retired in the independent-service deployment. Authorized requests return 410. The historical 200 schema is retained for upstream compatibility tooling only.
+     */
     post: operations["post_admin_partner_create_route"];
     delete?: never;
     options?: never;
@@ -1689,7 +1733,11 @@ export interface paths {
     /** Admin Partner Bulk Referral Import Preview */
     get: operations["get_admin_partner_bulk_referral_import_preview_route"];
     put?: never;
-    /** Admin Partner Bulk Referral Import */
+    /**
+     * Admin Partner Bulk Referral Import
+     * @deprecated
+     * @description Retired in the independent-service deployment. Authorized requests return 410. The historical 200 schema is retained for upstream compatibility tooling only.
+     */
     post: operations["post_admin_partner_bulk_referral_import_route"];
     delete?: never;
     options?: never;
@@ -1723,7 +1771,11 @@ export interface paths {
     };
     get?: never;
     put?: never;
-    /** Admin Partner Balance Adjustment */
+    /**
+     * Admin Partner Balance Adjustment
+     * @deprecated
+     * @description Retired in the independent-service deployment. Authorized requests return 410. The historical 200 schema is retained for upstream compatibility tooling only.
+     */
     post: operations["post_admin_partner_balance_adjustment_route"];
     delete?: never;
     options?: never;
@@ -1740,7 +1792,11 @@ export interface paths {
     };
     get?: never;
     put?: never;
-    /** Admin Partner Close */
+    /**
+     * Admin Partner Close
+     * @deprecated
+     * @description Retired in the independent-service deployment. Authorized requests return 410. The historical 200 schema is retained for upstream compatibility tooling only.
+     */
     post: operations["post_admin_partner_close_route"];
     delete?: never;
     options?: never;
@@ -1757,7 +1813,11 @@ export interface paths {
     };
     get?: never;
     put?: never;
-    /** Admin Partner Rate */
+    /**
+     * Admin Partner Rate
+     * @deprecated
+     * @description Retired in the independent-service deployment. Authorized requests return 410. The historical 200 schema is retained for upstream compatibility tooling only.
+     */
     post: operations["post_admin_partner_rate_route"];
     delete?: never;
     options?: never;
@@ -1774,7 +1834,11 @@ export interface paths {
     };
     get?: never;
     put?: never;
-    /** Admin Partner Link Rotate */
+    /**
+     * Admin Partner Link Rotate
+     * @deprecated
+     * @description Retired in the independent-service deployment. Authorized requests return 410. The historical 200 schema is retained for upstream compatibility tooling only.
+     */
     post: operations["post_admin_partner_link_rotate_route"];
     delete?: never;
     options?: never;
@@ -1791,7 +1855,11 @@ export interface paths {
     };
     get?: never;
     put?: never;
-    /** Admin Partner Pause */
+    /**
+     * Admin Partner Pause
+     * @deprecated
+     * @description Retired in the independent-service deployment. Authorized requests return 410. The historical 200 schema is retained for upstream compatibility tooling only.
+     */
     post: operations["post_admin_partner_pause_route"];
     delete?: never;
     options?: never;
@@ -1809,7 +1877,11 @@ export interface paths {
     /** Admin Partner Referral Import Preview */
     get: operations["get_admin_partner_referral_import_preview_route"];
     put?: never;
-    /** Admin Partner Referral Import */
+    /**
+     * Admin Partner Referral Import
+     * @deprecated
+     * @description Retired in the independent-service deployment. Authorized requests return 410. The historical 200 schema is retained for upstream compatibility tooling only.
+     */
     post: operations["post_admin_partner_referral_import_route"];
     delete?: never;
     options?: never;
@@ -1826,7 +1898,11 @@ export interface paths {
     };
     get?: never;
     put?: never;
-    /** Admin Partner Resume */
+    /**
+     * Admin Partner Resume
+     * @deprecated
+     * @description Retired in the independent-service deployment. Authorized requests return 410. The historical 200 schema is retained for upstream compatibility tooling only.
+     */
     post: operations["post_admin_partner_resume_route"];
     delete?: never;
     options?: never;
@@ -1894,7 +1970,11 @@ export interface paths {
     };
     get?: never;
     put?: never;
-    /** Admin Payment Finalize */
+    /**
+     * Admin Payment Finalize
+     * @deprecated
+     * @description Retired in the independent-service deployment. Authorized requests return 410. The historical 200 schema is retained for upstream compatibility tooling only.
+     */
     post: operations["post_admin_payment_finalize_route"];
     delete?: never;
     options?: never;
@@ -1911,7 +1991,11 @@ export interface paths {
     };
     get?: never;
     put?: never;
-    /** Admin Payment Reverse */
+    /**
+     * Admin Payment Reverse
+     * @deprecated
+     * @description Retired in the independent-service deployment. Authorized requests return 410. The historical 200 schema is retained for upstream compatibility tooling only.
+     */
     post: operations["post_admin_payment_reverse_route"];
     delete?: never;
     options?: never;
@@ -2133,7 +2217,11 @@ export interface paths {
     /** Admin Promos List */
     get: operations["get_admin_promos_list_route"];
     put?: never;
-    /** Admin Promo Create */
+    /**
+     * Admin Promo Create
+     * @deprecated
+     * @description Retired in the independent-service deployment. Authorized requests return 410. The historical 200 schema is retained for upstream compatibility tooling only.
+     */
     post: operations["post_admin_promo_create_route"];
     delete?: never;
     options?: never;
@@ -2169,11 +2257,19 @@ export interface paths {
     get: operations["get_admin_promo_detail_route"];
     put?: never;
     post?: never;
-    /** Admin Promo Delete */
+    /**
+     * Admin Promo Delete
+     * @deprecated
+     * @description Retired in the independent-service deployment. Authorized requests return 410. The historical 200 schema is retained for upstream compatibility tooling only.
+     */
     delete: operations["delete_admin_promo_delete_route"];
     options?: never;
     head?: never;
-    /** Admin Promo Update */
+    /**
+     * Admin Promo Update
+     * @deprecated
+     * @description Retired in the independent-service deployment. Authorized requests return 410. The historical 200 schema is retained for upstream compatibility tooling only.
+     */
     patch: operations["patch_admin_promo_update_route"];
     trace?: never;
   };
@@ -2463,7 +2559,11 @@ export interface paths {
     };
     get?: never;
     put?: never;
-    /** Admin Sync */
+    /**
+     * Admin Sync
+     * @deprecated
+     * @description Retired in the independent-service deployment. Authorized requests return 410. The historical 200 schema is retained for upstream compatibility tooling only.
+     */
     post: operations["post_admin_sync_route"];
     delete?: never;
     options?: never;
@@ -2480,7 +2580,11 @@ export interface paths {
     };
     /** Admin Tariffs Get */
     get: operations["get_admin_tariffs_get_route"];
-    /** Admin Tariffs Save */
+    /**
+     * Admin Tariffs Save
+     * @deprecated
+     * @description Retired in the independent-service deployment. Authorized requests return 410. The historical 200 schema is retained for upstream compatibility tooling only.
+     */
     put: operations["put_admin_tariffs_save_route"];
     post?: never;
     delete?: never;
@@ -2499,7 +2603,11 @@ export interface paths {
     /** Admin Tariff Reconciliation Get */
     get: operations["get_admin_tariff_reconciliation_get_route"];
     put?: never;
-    /** Admin Tariff Reconciliation Apply */
+    /**
+     * Admin Tariff Reconciliation Apply
+     * @deprecated
+     * @description Retired in the independent-service deployment. Authorized requests return 410. The historical 200 schema is retained for upstream compatibility tooling only.
+     */
     post: operations["post_admin_tariff_reconciliation_apply_route"];
     delete?: never;
     options?: never;
@@ -2984,7 +3092,11 @@ export interface paths {
     };
     get?: never;
     put?: never;
-    /** Admin User Balance Adjustment */
+    /**
+     * Admin User Balance Adjustment
+     * @deprecated
+     * @description Retired in the independent-service deployment. Authorized requests return 410. The historical 200 schema is retained for upstream compatibility tooling only.
+     */
     post: operations["post_admin_user_balance_adjustment_route"];
     delete?: never;
     options?: never;
@@ -3001,7 +3113,11 @@ export interface paths {
     };
     get?: never;
     put?: never;
-    /** Admin User Balance Conversion */
+    /**
+     * Admin User Balance Conversion
+     * @deprecated
+     * @description Retired in the independent-service deployment. Authorized requests return 410. The historical 200 schema is retained for upstream compatibility tooling only.
+     */
     post: operations["post_admin_user_balance_conversion_route"];
     delete?: never;
     options?: never;
@@ -3035,7 +3151,11 @@ export interface paths {
     };
     get?: never;
     put?: never;
-    /** Admin User Extend */
+    /**
+     * Admin User Extend
+     * @deprecated
+     * @description Retired in the independent-service deployment. Authorized requests return 410. The historical 200 schema is retained for upstream compatibility tooling only.
+     */
     post: operations["post_admin_user_extend_route"];
     delete?: never;
     options?: never;
@@ -3052,7 +3172,11 @@ export interface paths {
     };
     get?: never;
     put?: never;
-    /** Admin User Hwid Device Limit */
+    /**
+     * Admin User Hwid Device Limit
+     * @deprecated
+     * @description Retired in the independent-service deployment. Authorized requests return 410. The historical 200 schema is retained for upstream compatibility tooling only.
+     */
     post: operations["post_admin_user_hwid_device_limit_route"];
     delete?: never;
     options?: never;
@@ -3154,7 +3278,11 @@ export interface paths {
     };
     get?: never;
     put?: never;
-    /** Admin User Premium Override */
+    /**
+     * Admin User Premium Override
+     * @deprecated
+     * @description Retired in the independent-service deployment. Authorized requests return 410. The historical 200 schema is retained for upstream compatibility tooling only.
+     */
     post: operations["post_admin_user_premium_override_route"];
     delete?: never;
     options?: never;
@@ -3188,7 +3316,11 @@ export interface paths {
     };
     get?: never;
     put?: never;
-    /** Admin User Regular Traffic Override */
+    /**
+     * Admin User Regular Traffic Override
+     * @deprecated
+     * @description Retired in the independent-service deployment. Authorized requests return 410. The historical 200 schema is retained for upstream compatibility tooling only.
+     */
     post: operations["post_admin_user_regular_traffic_override_route"];
     delete?: never;
     options?: never;
@@ -3205,7 +3337,11 @@ export interface paths {
     };
     get?: never;
     put?: never;
-    /** Admin User Reset Trial */
+    /**
+     * Admin User Reset Trial
+     * @deprecated
+     * @description Retired in the independent-service deployment. Authorized requests return 410. The historical 200 schema is retained for upstream compatibility tooling only.
+     */
     post: operations["post_admin_user_reset_trial_route"];
     delete?: never;
     options?: never;
@@ -3226,7 +3362,11 @@ export interface paths {
     delete?: never;
     options?: never;
     head?: never;
-    /** Admin User Squad Overrides */
+    /**
+     * Admin User Squad Overrides
+     * @deprecated
+     * @description Retired in the independent-service deployment. Authorized requests return 410. The historical 200 schema is retained for upstream compatibility tooling only.
+     */
     patch: operations["patch_admin_user_squad_overrides_route"];
     trace?: never;
   };
@@ -3239,7 +3379,11 @@ export interface paths {
     };
     get?: never;
     put?: never;
-    /** Admin User Squad Overrides Refresh */
+    /**
+     * Admin User Squad Overrides Refresh
+     * @deprecated
+     * @description Retired in the independent-service deployment. Authorized requests return 410. The historical 200 schema is retained for upstream compatibility tooling only.
+     */
     post: operations["post_admin_user_squad_overrides_refresh_route"];
     delete?: never;
     options?: never;
@@ -3256,7 +3400,11 @@ export interface paths {
     };
     get?: never;
     put?: never;
-    /** Admin User Subscription Reissue */
+    /**
+     * Admin User Subscription Reissue
+     * @deprecated
+     * @description Retired in the independent-service deployment. Authorized requests return 410. The historical 200 schema is retained for upstream compatibility tooling only.
+     */
     post: operations["post_admin_user_subscription_reissue_route"];
     delete?: never;
     options?: never;
@@ -3273,7 +3421,11 @@ export interface paths {
     };
     get?: never;
     put?: never;
-    /** Admin User Tariff */
+    /**
+     * Admin User Tariff
+     * @deprecated
+     * @description Retired in the independent-service deployment. Authorized requests return 410. The historical 200 schema is retained for upstream compatibility tooling only.
+     */
     post: operations["post_admin_user_tariff_route"];
     delete?: never;
     options?: never;
@@ -3307,7 +3459,11 @@ export interface paths {
     };
     get?: never;
     put?: never;
-    /** Admin User Traffic Grant */
+    /**
+     * Admin User Traffic Grant
+     * @deprecated
+     * @description Retired in the independent-service deployment. Authorized requests return 410. The historical 200 schema is retained for upstream compatibility tooling only.
+     */
     post: operations["post_admin_user_traffic_grant_route"];
     delete?: never;
     options?: never;
@@ -3324,7 +3480,11 @@ export interface paths {
     };
     get?: never;
     put?: never;
-    /** Admin User Traffic Strategy */
+    /**
+     * Admin User Traffic Strategy
+     * @deprecated
+     * @description Retired in the independent-service deployment. Authorized requests return 410. The historical 200 schema is retained for upstream compatibility tooling only.
+     */
     post: operations["post_admin_user_traffic_strategy_route"];
     delete?: never;
     options?: never;
@@ -3679,7 +3839,11 @@ export interface paths {
       path?: never;
       cookie?: never;
     };
-    /** Balance */
+    /**
+     * Balance
+     * @deprecated
+     * @description Retired in the independent-service deployment. Authorized requests return 410. The historical 200 schema is retained for upstream compatibility tooling only.
+     */
     get: operations["get_balance_route"];
     put?: never;
     post?: never;
@@ -3698,7 +3862,11 @@ export interface paths {
     };
     get?: never;
     put?: never;
-    /** Balance Topup */
+    /**
+     * Balance Topup
+     * @deprecated
+     * @description Retired in the independent-service deployment. Authorized requests return 410. The historical 200 schema is retained for upstream compatibility tooling only.
+     */
     post: operations["post_balance_topup_route"];
     delete?: never;
     options?: never;
@@ -3730,7 +3898,11 @@ export interface paths {
       path?: never;
       cookie?: never;
     };
-    /** Devices */
+    /**
+     * Devices
+     * @deprecated
+     * @description Retired in the independent-service deployment. Authorized requests return 410. The historical 200 schema is retained for upstream compatibility tooling only.
+     */
     get: operations["get_devices_route"];
     put?: never;
     post?: never;
@@ -3749,7 +3921,11 @@ export interface paths {
     };
     get?: never;
     put?: never;
-    /** Disconnect Device */
+    /**
+     * Disconnect Device
+     * @deprecated
+     * @description Retired in the independent-service deployment. Authorized requests return 410. The historical 200 schema is retained for upstream compatibility tooling only.
+     */
     post: operations["post_disconnect_device_route"];
     delete?: never;
     options?: never;
@@ -3766,7 +3942,11 @@ export interface paths {
     };
     get?: never;
     put?: never;
-    /** Rename Device */
+    /**
+     * Rename Device
+     * @deprecated
+     * @description Retired in the independent-service deployment. Authorized requests return 410. The historical 200 schema is retained for upstream compatibility tooling only.
+     */
     post: operations["post_rename_device_route"];
     delete?: never;
     options?: never;
@@ -3781,7 +3961,11 @@ export interface paths {
       path?: never;
       cookie?: never;
     };
-    /** Device Topup Options */
+    /**
+     * Device Topup Options
+     * @deprecated
+     * @description Retired in the independent-service deployment. Authorized requests return 410. The historical 200 schema is retained for upstream compatibility tooling only.
+     */
     get: operations["get_device_topup_options_route"];
     put?: never;
     post?: never;
@@ -3851,7 +4035,11 @@ export interface paths {
     };
     get?: never;
     put?: never;
-    /** Extension Checkout */
+    /**
+     * Extension Checkout
+     * @deprecated
+     * @description Retired in the independent-service deployment. Authorized requests return 410. The historical 200 schema is retained for upstream compatibility tooling only.
+     */
     post: operations["post_extension_checkout_route"];
     delete?: never;
     options?: never;
@@ -3866,7 +4054,11 @@ export interface paths {
       path?: never;
       cookie?: never;
     };
-    /** Extension Order */
+    /**
+     * Extension Order
+     * @deprecated
+     * @description Retired in the independent-service deployment. Authorized requests return 410. The historical 200 schema is retained for upstream compatibility tooling only.
+     */
     get: operations["get_extension_order_route"];
     put?: never;
     post?: never;
@@ -3883,10 +4075,18 @@ export interface paths {
       path?: never;
       cookie?: never;
     };
-    /** Extension Orders */
+    /**
+     * Extension Orders
+     * @deprecated
+     * @description Retired in the independent-service deployment. Authorized requests return 410. The historical 200 schema is retained for upstream compatibility tooling only.
+     */
     get: operations["get_extension_orders_route"];
     put?: never;
-    /** Extension Order Create */
+    /**
+     * Extension Order Create
+     * @deprecated
+     * @description Retired in the independent-service deployment. Authorized requests return 410. The historical 200 schema is retained for upstream compatibility tooling only.
+     */
     post: operations["post_extension_order_create_route"];
     delete?: never;
     options?: never;
@@ -3901,7 +4101,11 @@ export interface paths {
       path?: never;
       cookie?: never;
     };
-    /** Extension Payment Methods */
+    /**
+     * Extension Payment Methods
+     * @deprecated
+     * @description Retired in the independent-service deployment. Authorized requests return 410. The historical 200 schema is retained for upstream compatibility tooling only.
+     */
     get: operations["get_extension_payment_methods_route"];
     put?: never;
     post?: never;
@@ -3952,7 +4156,11 @@ export interface paths {
       path?: never;
       cookie?: never;
     };
-    /** Gifts */
+    /**
+     * Gifts
+     * @deprecated
+     * @description Retired in the independent-service deployment. Authorized requests return 410. The historical 200 schema is retained for upstream compatibility tooling only.
+     */
     get: operations["get_gifts_route"];
     put?: never;
     post?: never;
@@ -3971,7 +4179,11 @@ export interface paths {
     };
     get?: never;
     put?: never;
-    /** Gift Claim */
+    /**
+     * Gift Claim
+     * @deprecated
+     * @description Retired in the independent-service deployment. Authorized requests return 410. The historical 200 schema is retained for upstream compatibility tooling only.
+     */
     post: operations["post_gift_claim_route"];
     delete?: never;
     options?: never;
@@ -3986,7 +4198,11 @@ export interface paths {
       path?: never;
       cookie?: never;
     };
-    /** Gift Options */
+    /**
+     * Gift Options
+     * @deprecated
+     * @description Retired in the independent-service deployment. Authorized requests return 410. The historical 200 schema is retained for upstream compatibility tooling only.
+     */
     get: operations["get_gift_options_route"];
     put?: never;
     post?: never;
@@ -4005,7 +4221,11 @@ export interface paths {
     };
     get?: never;
     put?: never;
-    /** Gift Preview */
+    /**
+     * Gift Preview
+     * @deprecated
+     * @description Retired in the independent-service deployment. Authorized requests return 410. The historical 200 schema is retained for upstream compatibility tooling only.
+     */
     post: operations["post_gift_preview_route"];
     delete?: never;
     options?: never;
@@ -4091,7 +4311,11 @@ export interface paths {
     };
     get?: never;
     put?: never;
-    /** Partner Application Create */
+    /**
+     * Partner Application Create
+     * @deprecated
+     * @description Retired in the independent-service deployment. Authorized requests return 410. The historical 200 schema is retained for upstream compatibility tooling only.
+     */
     post: operations["post_partner_application_create_route"];
     delete?: never;
     options?: never;
@@ -4108,7 +4332,11 @@ export interface paths {
     };
     get?: never;
     put?: never;
-    /** Partner Balance Renew */
+    /**
+     * Partner Balance Renew
+     * @deprecated
+     * @description Retired in the independent-service deployment. Authorized requests return 410. The historical 200 schema is retained for upstream compatibility tooling only.
+     */
     post: operations["post_partner_balance_renew_route"];
     delete?: never;
     options?: never;
@@ -4123,7 +4351,11 @@ export interface paths {
       path?: never;
       cookie?: never;
     };
-    /** Partner Clients */
+    /**
+     * Partner Clients
+     * @deprecated
+     * @description Retired in the independent-service deployment. Authorized requests return 410. The historical 200 schema is retained for upstream compatibility tooling only.
+     */
     get: operations["get_partner_clients_route"];
     put?: never;
     post?: never;
@@ -4140,7 +4372,11 @@ export interface paths {
       path?: never;
       cookie?: never;
     };
-    /** Partner Commissions */
+    /**
+     * Partner Commissions
+     * @deprecated
+     * @description Retired in the independent-service deployment. Authorized requests return 410. The historical 200 schema is retained for upstream compatibility tooling only.
+     */
     get: operations["get_partner_commissions_route"];
     put?: never;
     post?: never;
@@ -4157,7 +4393,11 @@ export interface paths {
       path?: never;
       cookie?: never;
     };
-    /** Partner Overview */
+    /**
+     * Partner Overview
+     * @deprecated
+     * @description Retired in the independent-service deployment. Authorized requests return 410. The historical 200 schema is retained for upstream compatibility tooling only.
+     */
     get: operations["get_partner_overview_route"];
     put?: never;
     post?: never;
@@ -4174,10 +4414,18 @@ export interface paths {
       path?: never;
       cookie?: never;
     };
-    /** Partner Withdrawals */
+    /**
+     * Partner Withdrawals
+     * @deprecated
+     * @description Retired in the independent-service deployment. Authorized requests return 410. The historical 200 schema is retained for upstream compatibility tooling only.
+     */
     get: operations["get_partner_withdrawals_route"];
     put?: never;
-    /** Partner Withdrawal Create */
+    /**
+     * Partner Withdrawal Create
+     * @deprecated
+     * @description Retired in the independent-service deployment. Authorized requests return 410. The historical 200 schema is retained for upstream compatibility tooling only.
+     */
     post: operations["post_partner_withdrawal_create_route"];
     delete?: never;
     options?: never;
@@ -4194,7 +4442,11 @@ export interface paths {
     };
     get?: never;
     put?: never;
-    /** Partner Withdrawal Cancel */
+    /**
+     * Partner Withdrawal Cancel
+     * @deprecated
+     * @description Retired in the independent-service deployment. Authorized requests return 410. The historical 200 schema is retained for upstream compatibility tooling only.
+     */
     post: operations["post_partner_withdrawal_cancel_route"];
     delete?: never;
     options?: never;
@@ -4211,7 +4463,11 @@ export interface paths {
     };
     get?: never;
     put?: never;
-    /** Create Payment */
+    /**
+     * Create Payment
+     * @deprecated
+     * @description Retired in the independent-service deployment. Authorized requests return 410. The historical 200 schema is retained for upstream compatibility tooling only.
+     */
     post: operations["post_create_payment_route"];
     delete?: never;
     options?: never;
@@ -4226,7 +4482,11 @@ export interface paths {
       path?: never;
       cookie?: never;
     };
-    /** Payment History */
+    /**
+     * Payment History
+     * @deprecated
+     * @description Retired in the independent-service deployment. Authorized requests return 410. The historical 200 schema is retained for upstream compatibility tooling only.
+     */
     get: operations["get_payment_history_route"];
     put?: never;
     post?: never;
@@ -4243,7 +4503,11 @@ export interface paths {
       path?: never;
       cookie?: never;
     };
-    /** Payment Status */
+    /**
+     * Payment Status
+     * @deprecated
+     * @description Retired in the independent-service deployment. Authorized requests return 410. The historical 200 schema is retained for upstream compatibility tooling only.
+     */
     get: operations["get_payment_status_route"];
     put?: never;
     post?: never;
@@ -4262,7 +4526,11 @@ export interface paths {
     };
     get?: never;
     put?: never;
-    /** Cancel Payment */
+    /**
+     * Cancel Payment
+     * @deprecated
+     * @description Retired in the independent-service deployment. Authorized requests return 410. The historical 200 schema is retained for upstream compatibility tooling only.
+     */
     post: operations["post_cancel_payment_route"];
     delete?: never;
     options?: never;
@@ -4279,7 +4547,11 @@ export interface paths {
     };
     get?: never;
     put?: never;
-    /** Complete Qa Payment */
+    /**
+     * Complete Qa Payment
+     * @deprecated
+     * @description Retired in the independent-service deployment. Authorized requests return 410. The historical 200 schema is retained for upstream compatibility tooling only.
+     */
     post: operations["post_complete_qa_payment_route"];
     delete?: never;
     options?: never;
@@ -4296,7 +4568,11 @@ export interface paths {
     };
     get?: never;
     put?: never;
-    /** Plans Viewed */
+    /**
+     * Plans Viewed
+     * @deprecated
+     * @description Retired in the independent-service deployment. Authorized requests return 410. The historical 200 schema is retained for upstream compatibility tooling only.
+     */
     post: operations["post_plans_viewed_route"];
     delete?: never;
     options?: never;
@@ -4313,7 +4589,11 @@ export interface paths {
     };
     get?: never;
     put?: never;
-    /** Apply Promo */
+    /**
+     * Apply Promo
+     * @deprecated
+     * @description Retired in the independent-service deployment. Authorized requests return 410. The historical 200 schema is retained for upstream compatibility tooling only.
+     */
     post: operations["post_apply_promo_route"];
     delete?: never;
     options?: never;
@@ -4330,7 +4610,11 @@ export interface paths {
     };
     get?: never;
     put?: never;
-    /** Promo Status */
+    /**
+     * Promo Status
+     * @deprecated
+     * @description Retired in the independent-service deployment. Authorized requests return 410. The historical 200 schema is retained for upstream compatibility tooling only.
+     */
     post: operations["post_promo_status_route"];
     delete?: never;
     options?: never;
@@ -4347,7 +4631,11 @@ export interface paths {
     };
     get?: never;
     put?: never;
-    /** Referral Welcome Bonus Claim */
+    /**
+     * Referral Welcome Bonus Claim
+     * @deprecated
+     * @description Retired in the independent-service deployment. Authorized requests return 410. The historical 200 schema is retained for upstream compatibility tooling only.
+     */
     post: operations["post_referral_welcome_bonus_claim_route"];
     delete?: never;
     options?: never;
@@ -4430,7 +4718,11 @@ export interface paths {
       path?: never;
       cookie?: never;
     };
-    /** Subscription Guides */
+    /**
+     * Subscription Guides
+     * @deprecated
+     * @description Retired in the independent-service deployment. Authorized requests return 410. The historical 200 schema is retained for upstream compatibility tooling only.
+     */
     get: operations["get_subscription_guides_route"];
     put?: never;
     post?: never;
@@ -4447,7 +4739,11 @@ export interface paths {
       path?: never;
       cookie?: never;
     };
-    /** Public Subscription Guides */
+    /**
+     * Public Subscription Guides
+     * @deprecated
+     * @description Retired in the independent-service deployment. Authorized requests return 410. The historical 200 schema is retained for upstream compatibility tooling only.
+     */
     get: operations["get_public_subscription_guides_route"];
     put?: never;
     post?: never;
@@ -4466,7 +4762,11 @@ export interface paths {
     };
     get?: never;
     put?: never;
-    /** Subscription Auto Renew */
+    /**
+     * Subscription Auto Renew
+     * @deprecated
+     * @description Retired in the independent-service deployment. Authorized requests return 410. The historical 200 schema is retained for upstream compatibility tooling only.
+     */
     post: operations["post_subscription_auto_renew_route"];
     delete?: never;
     options?: never;
@@ -4483,7 +4783,11 @@ export interface paths {
     };
     get?: never;
     put?: never;
-    /** Subscription Quote */
+    /**
+     * Subscription Quote
+     * @deprecated
+     * @description Retired in the independent-service deployment. Authorized requests return 410. The historical 200 schema is retained for upstream compatibility tooling only.
+     */
     post: operations["post_subscription_quote_route"];
     delete?: never;
     options?: never;
@@ -4500,7 +4804,11 @@ export interface paths {
     };
     get?: never;
     put?: never;
-    /** Quote Promo */
+    /**
+     * Quote Promo
+     * @deprecated
+     * @description Retired in the independent-service deployment. Authorized requests return 410. The historical 200 schema is retained for upstream compatibility tooling only.
+     */
     post: operations["post_quote_promo_route"];
     delete?: never;
     options?: never;
@@ -4517,7 +4825,11 @@ export interface paths {
     };
     get?: never;
     put?: never;
-    /** Subscription Reissue */
+    /**
+     * Subscription Reissue
+     * @deprecated
+     * @description Retired in the independent-service deployment. Authorized requests return 410. The historical 200 schema is retained for upstream compatibility tooling only.
+     */
     post: operations["post_subscription_reissue_route"];
     delete?: never;
     options?: never;
@@ -4671,7 +4983,11 @@ export interface paths {
     };
     get?: never;
     put?: never;
-    /** Tariff Change */
+    /**
+     * Tariff Change
+     * @deprecated
+     * @description Retired in the independent-service deployment. Authorized requests return 410. The historical 200 schema is retained for upstream compatibility tooling only.
+     */
     post: operations["post_tariff_change_route"];
     delete?: never;
     options?: never;
@@ -4686,7 +5002,11 @@ export interface paths {
       path?: never;
       cookie?: never;
     };
-    /** Tariff Change Options */
+    /**
+     * Tariff Change Options
+     * @deprecated
+     * @description Retired in the independent-service deployment. Authorized requests return 410. The historical 200 schema is retained for upstream compatibility tooling only.
+     */
     get: operations["get_tariff_change_options_route"];
     put?: never;
     post?: never;
@@ -4705,7 +5025,11 @@ export interface paths {
     };
     get?: never;
     put?: never;
-    /** Tariff Change Payment */
+    /**
+     * Tariff Change Payment
+     * @deprecated
+     * @description Retired in the independent-service deployment. Authorized requests return 410. The historical 200 schema is retained for upstream compatibility tooling only.
+     */
     post: operations["post_tariff_change_payment_route"];
     delete?: never;
     options?: never;
@@ -4720,7 +5044,11 @@ export interface paths {
       path?: never;
       cookie?: never;
     };
-    /** Tariff Topup Options */
+    /**
+     * Tariff Topup Options
+     * @deprecated
+     * @description Retired in the independent-service deployment. Authorized requests return 410. The historical 200 schema is retained for upstream compatibility tooling only.
+     */
     get: operations["get_tariff_topup_options_route"];
     put?: never;
     post?: never;
@@ -4773,7 +5101,11 @@ export interface paths {
     };
     get?: never;
     put?: never;
-    /** Activate Trial */
+    /**
+     * Activate Trial
+     * @deprecated
+     * @description Retired in the independent-service deployment. Authorized requests return 410. The historical 200 schema is retained for upstream compatibility tooling only.
+     */
     post: operations["post_activate_trial_route"];
     delete?: never;
     options?: never;
@@ -15565,7 +15897,7 @@ export interface operations {
       };
     };
     responses: {
-      /** @description JSON response */
+      /** @description Historical response (not served) */
       200: {
         headers: {
           [name: string]: unknown;
@@ -15575,6 +15907,20 @@ export interface operations {
             gift: components["schemas"]["AdminGiftView"];
             /** @constant */
             ok: true;
+          };
+        };
+      };
+      /** @description Single-subscription business is retired */
+      410: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": {
+            /** @constant */
+            error: "legacy_business_retired";
+            /** @constant */
+            ok: false;
           };
         };
       };
@@ -15717,7 +16063,7 @@ export interface operations {
       };
     };
     responses: {
-      /** @description JSON response */
+      /** @description Historical response (not served) */
       200: {
         headers: {
           [name: string]: unknown;
@@ -15727,6 +16073,20 @@ export interface operations {
             gift: components["schemas"]["AdminGiftView"];
             /** @constant */
             ok: true;
+          };
+        };
+      };
+      /** @description Single-subscription business is retired */
+      410: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": {
+            /** @constant */
+            error: "legacy_business_retired";
+            /** @constant */
+            ok: false;
           };
         };
       };
@@ -15984,7 +16344,7 @@ export interface operations {
       };
     };
     responses: {
-      /** @description JSON response */
+      /** @description Historical response (not served) */
       200: {
         headers: {
           [name: string]: unknown;
@@ -15993,6 +16353,20 @@ export interface operations {
           "application/json": {
             /** @constant */
             ok: true;
+          };
+        };
+      };
+      /** @description Single-subscription business is retired */
+      410: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": {
+            /** @constant */
+            error: "legacy_business_retired";
+            /** @constant */
+            ok: false;
           };
         };
       };
@@ -16013,7 +16387,7 @@ export interface operations {
       };
     };
     responses: {
-      /** @description JSON response */
+      /** @description Historical response (not served) */
       200: {
         headers: {
           [name: string]: unknown;
@@ -16023,6 +16397,20 @@ export interface operations {
             application: components["schemas"]["AdminPartnerApplicationOut"];
             /** @constant */
             ok: true;
+          };
+        };
+      };
+      /** @description Single-subscription business is retired */
+      410: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": {
+            /** @constant */
+            error: "legacy_business_retired";
+            /** @constant */
+            ok: false;
           };
         };
       };
@@ -16039,7 +16427,7 @@ export interface operations {
     };
     requestBody?: never;
     responses: {
-      /** @description JSON response */
+      /** @description Historical response (not served) */
       200: {
         headers: {
           [name: string]: unknown;
@@ -16049,6 +16437,20 @@ export interface operations {
             application: components["schemas"]["AdminPartnerApplicationOut"];
             /** @constant */
             ok: true;
+          };
+        };
+      };
+      /** @description Single-subscription business is retired */
+      410: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": {
+            /** @constant */
+            error: "legacy_business_retired";
+            /** @constant */
+            ok: false;
           };
         };
       };
@@ -16118,7 +16520,7 @@ export interface operations {
       };
     };
     responses: {
-      /** @description JSON response */
+      /** @description Historical response (not served) */
       200: {
         headers: {
           [name: string]: unknown;
@@ -16128,6 +16530,20 @@ export interface operations {
             /** @constant */
             ok: true;
             withdrawal: components["schemas"]["AdminPartnerWithdrawalOut"];
+          };
+        };
+      };
+      /** @description Single-subscription business is retired */
+      410: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": {
+            /** @constant */
+            error: "legacy_business_retired";
+            /** @constant */
+            ok: false;
           };
         };
       };
@@ -16148,7 +16564,7 @@ export interface operations {
       };
     };
     responses: {
-      /** @description JSON response */
+      /** @description Historical response (not served) */
       200: {
         headers: {
           [name: string]: unknown;
@@ -16158,6 +16574,20 @@ export interface operations {
             /** @constant */
             ok: true;
             withdrawal: components["schemas"]["AdminPartnerWithdrawalOut"];
+          };
+        };
+      };
+      /** @description Single-subscription business is retired */
+      410: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": {
+            /** @constant */
+            error: "legacy_business_retired";
+            /** @constant */
+            ok: false;
           };
         };
       };
@@ -16178,7 +16608,7 @@ export interface operations {
       };
     };
     responses: {
-      /** @description JSON response */
+      /** @description Historical response (not served) */
       200: {
         headers: {
           [name: string]: unknown;
@@ -16188,6 +16618,20 @@ export interface operations {
             /** @constant */
             ok: true;
             withdrawal: components["schemas"]["AdminPartnerWithdrawalOut"];
+          };
+        };
+      };
+      /** @description Single-subscription business is retired */
+      410: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": {
+            /** @constant */
+            error: "legacy_business_retired";
+            /** @constant */
+            ok: false;
           };
         };
       };
@@ -16208,7 +16652,7 @@ export interface operations {
       };
     };
     responses: {
-      /** @description JSON response */
+      /** @description Historical response (not served) */
       200: {
         headers: {
           [name: string]: unknown;
@@ -16218,6 +16662,20 @@ export interface operations {
             /** @constant */
             ok: true;
             withdrawal: components["schemas"]["AdminPartnerWithdrawalOut"];
+          };
+        };
+      };
+      /** @description Single-subscription business is retired */
+      410: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": {
+            /** @constant */
+            error: "legacy_business_retired";
+            /** @constant */
+            ok: false;
           };
         };
       };
@@ -16234,7 +16692,7 @@ export interface operations {
     };
     requestBody?: never;
     responses: {
-      /** @description JSON response */
+      /** @description Historical response (not served) */
       200: {
         headers: {
           [name: string]: unknown;
@@ -16244,6 +16702,20 @@ export interface operations {
             /** @constant */
             ok: true;
             requisites: components["schemas"]["AdminPartnerRequisitesOut"];
+          };
+        };
+      };
+      /** @description Single-subscription business is retired */
+      410: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": {
+            /** @constant */
+            error: "legacy_business_retired";
+            /** @constant */
+            ok: false;
           };
         };
       };
@@ -16285,7 +16757,7 @@ export interface operations {
       };
     };
     responses: {
-      /** @description JSON response */
+      /** @description Historical response (not served) */
       200: {
         headers: {
           [name: string]: unknown;
@@ -16295,6 +16767,20 @@ export interface operations {
             /** @constant */
             ok: true;
             partner: components["schemas"]["PartnerProfileOut"];
+          };
+        };
+      };
+      /** @description Single-subscription business is retired */
+      410: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": {
+            /** @constant */
+            error: "legacy_business_retired";
+            /** @constant */
+            ok: false;
           };
         };
       };
@@ -16383,7 +16869,7 @@ export interface operations {
       };
     };
     responses: {
-      /** @description JSON response */
+      /** @description Historical response (not served) */
       200: {
         headers: {
           [name: string]: unknown;
@@ -16393,6 +16879,20 @@ export interface operations {
             /** @constant */
             ok: true;
             result: components["schemas"]["AdminPartnerBulkReferralImportResultOut"];
+          };
+        };
+      };
+      /** @description Single-subscription business is retired */
+      410: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": {
+            /** @constant */
+            error: "legacy_business_retired";
+            /** @constant */
+            ok: false;
           };
         };
       };
@@ -16438,7 +16938,7 @@ export interface operations {
       };
     };
     responses: {
-      /** @description JSON response */
+      /** @description Historical response (not served) */
       200: {
         headers: {
           [name: string]: unknown;
@@ -16447,6 +16947,20 @@ export interface operations {
           "application/json": {
             /** @constant */
             ok: true;
+          };
+        };
+      };
+      /** @description Single-subscription business is retired */
+      410: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": {
+            /** @constant */
+            error: "legacy_business_retired";
+            /** @constant */
+            ok: false;
           };
         };
       };
@@ -16467,7 +16981,7 @@ export interface operations {
       };
     };
     responses: {
-      /** @description JSON response */
+      /** @description Historical response (not served) */
       200: {
         headers: {
           [name: string]: unknown;
@@ -16477,6 +16991,20 @@ export interface operations {
             /** @constant */
             ok: true;
             partner: components["schemas"]["PartnerProfileOut"];
+          };
+        };
+      };
+      /** @description Single-subscription business is retired */
+      410: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": {
+            /** @constant */
+            error: "legacy_business_retired";
+            /** @constant */
+            ok: false;
           };
         };
       };
@@ -16497,7 +17025,7 @@ export interface operations {
       };
     };
     responses: {
-      /** @description JSON response */
+      /** @description Historical response (not served) */
       200: {
         headers: {
           [name: string]: unknown;
@@ -16507,6 +17035,20 @@ export interface operations {
             /** @constant */
             ok: true;
             partner: components["schemas"]["PartnerProfileOut"];
+          };
+        };
+      };
+      /** @description Single-subscription business is retired */
+      410: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": {
+            /** @constant */
+            error: "legacy_business_retired";
+            /** @constant */
+            ok: false;
           };
         };
       };
@@ -16523,7 +17065,7 @@ export interface operations {
     };
     requestBody?: never;
     responses: {
-      /** @description JSON response */
+      /** @description Historical response (not served) */
       200: {
         headers: {
           [name: string]: unknown;
@@ -16533,6 +17075,20 @@ export interface operations {
             /** @constant */
             ok: true;
             partner: components["schemas"]["PartnerProfileOut"];
+          };
+        };
+      };
+      /** @description Single-subscription business is retired */
+      410: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": {
+            /** @constant */
+            error: "legacy_business_retired";
+            /** @constant */
+            ok: false;
           };
         };
       };
@@ -16553,7 +17109,7 @@ export interface operations {
       };
     };
     responses: {
-      /** @description JSON response */
+      /** @description Historical response (not served) */
       200: {
         headers: {
           [name: string]: unknown;
@@ -16563,6 +17119,20 @@ export interface operations {
             /** @constant */
             ok: true;
             partner: components["schemas"]["PartnerProfileOut"];
+          };
+        };
+      };
+      /** @description Single-subscription business is retired */
+      410: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": {
+            /** @constant */
+            error: "legacy_business_retired";
+            /** @constant */
+            ok: false;
           };
         };
       };
@@ -16609,7 +17179,7 @@ export interface operations {
       };
     };
     responses: {
-      /** @description JSON response */
+      /** @description Historical response (not served) */
       200: {
         headers: {
           [name: string]: unknown;
@@ -16619,6 +17189,20 @@ export interface operations {
             /** @constant */
             ok: true;
             result: components["schemas"]["AdminPartnerReferralImportResultOut"];
+          };
+        };
+      };
+      /** @description Single-subscription business is retired */
+      410: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": {
+            /** @constant */
+            error: "legacy_business_retired";
+            /** @constant */
+            ok: false;
           };
         };
       };
@@ -16639,7 +17223,7 @@ export interface operations {
       };
     };
     responses: {
-      /** @description JSON response */
+      /** @description Historical response (not served) */
       200: {
         headers: {
           [name: string]: unknown;
@@ -16649,6 +17233,20 @@ export interface operations {
             /** @constant */
             ok: true;
             partner: components["schemas"]["PartnerProfileOut"];
+          };
+        };
+      };
+      /** @description Single-subscription business is retired */
+      410: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": {
+            /** @constant */
+            error: "legacy_business_retired";
+            /** @constant */
+            ok: false;
           };
         };
       };
@@ -16738,7 +17336,7 @@ export interface operations {
       };
     };
     responses: {
-      /** @description JSON response */
+      /** @description Historical response (not served) */
       200: {
         headers: {
           [name: string]: unknown;
@@ -16748,6 +17346,20 @@ export interface operations {
             /** @constant */
             ok: true;
             payment: components["schemas"]["PaymentDetailOut"];
+          };
+        };
+      };
+      /** @description Single-subscription business is retired */
+      410: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": {
+            /** @constant */
+            error: "legacy_business_retired";
+            /** @constant */
+            ok: false;
           };
         };
       };
@@ -16768,7 +17380,7 @@ export interface operations {
       };
     };
     responses: {
-      /** @description JSON response */
+      /** @description Historical response (not served) */
       200: {
         headers: {
           [name: string]: unknown;
@@ -16778,6 +17390,20 @@ export interface operations {
             /** @constant */
             ok: true;
             payment: components["schemas"]["PaymentDetailOut"];
+          };
+        };
+      };
+      /** @description Single-subscription business is retired */
+      410: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": {
+            /** @constant */
+            error: "legacy_business_retired";
+            /** @constant */
+            ok: false;
           };
         };
       };
@@ -17218,7 +17844,7 @@ export interface operations {
       };
     };
     responses: {
-      /** @description JSON response */
+      /** @description Historical response (not served) */
       200: {
         headers: {
           [name: string]: unknown;
@@ -17228,6 +17854,20 @@ export interface operations {
             /** @constant */
             ok: true;
             promo: components["schemas"]["PromoOut"];
+          };
+        };
+      };
+      /** @description Single-subscription business is retired */
+      410: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": {
+            /** @constant */
+            error: "legacy_business_retired";
+            /** @constant */
+            ok: false;
           };
         };
       };
@@ -17294,7 +17934,7 @@ export interface operations {
     };
     requestBody?: never;
     responses: {
-      /** @description JSON response */
+      /** @description Historical response (not served) */
       200: {
         headers: {
           [name: string]: unknown;
@@ -17303,6 +17943,20 @@ export interface operations {
           "application/json": {
             /** @constant */
             ok: true;
+          };
+        };
+      };
+      /** @description Single-subscription business is retired */
+      410: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": {
+            /** @constant */
+            error: "legacy_business_retired";
+            /** @constant */
+            ok: false;
           };
         };
       };
@@ -17323,7 +17977,7 @@ export interface operations {
       };
     };
     responses: {
-      /** @description JSON response */
+      /** @description Historical response (not served) */
       200: {
         headers: {
           [name: string]: unknown;
@@ -17333,6 +17987,20 @@ export interface operations {
             /** @constant */
             ok: true;
             promo: components["schemas"]["PromoOut"];
+          };
+        };
+      };
+      /** @description Single-subscription business is retired */
+      410: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": {
+            /** @constant */
+            error: "legacy_business_retired";
+            /** @constant */
+            ok: false;
           };
         };
       };
@@ -17913,7 +18581,7 @@ export interface operations {
     };
     requestBody?: never;
     responses: {
-      /** @description JSON response */
+      /** @description Historical response (not served) */
       200: {
         headers: {
           [name: string]: unknown;
@@ -17923,6 +18591,20 @@ export interface operations {
             /** @constant */
             ok: true;
           } & components["schemas"]["AdminSyncOut"];
+        };
+      };
+      /** @description Single-subscription business is retired */
+      410: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": {
+            /** @constant */
+            error: "legacy_business_retired";
+            /** @constant */
+            ok: false;
+          };
         };
       };
     };
@@ -17963,7 +18645,7 @@ export interface operations {
       };
     };
     responses: {
-      /** @description JSON response */
+      /** @description Historical response (not served) */
       200: {
         headers: {
           [name: string]: unknown;
@@ -17973,6 +18655,20 @@ export interface operations {
             /** @constant */
             ok: true;
           } & components["schemas"]["AdminTariffsOut"];
+        };
+      };
+      /** @description Single-subscription business is retired */
+      410: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": {
+            /** @constant */
+            error: "legacy_business_retired";
+            /** @constant */
+            ok: false;
+          };
         };
       };
     };
@@ -18013,7 +18709,7 @@ export interface operations {
       };
     };
     responses: {
-      /** @description JSON response */
+      /** @description Historical response (not served) */
       200: {
         headers: {
           [name: string]: unknown;
@@ -18023,6 +18719,20 @@ export interface operations {
             /** @constant */
             ok: true;
           } & components["schemas"]["AdminTariffReconciliationOut"];
+        };
+      };
+      /** @description Single-subscription business is retired */
+      410: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": {
+            /** @constant */
+            error: "legacy_business_retired";
+            /** @constant */
+            ok: false;
+          };
         };
       };
     };
@@ -19046,7 +19756,7 @@ export interface operations {
       };
     };
     responses: {
-      /** @description JSON response */
+      /** @description Historical response (not served) */
       200: {
         headers: {
           [name: string]: unknown;
@@ -19093,6 +19803,20 @@ export interface operations {
           };
         };
       };
+      /** @description Single-subscription business is retired */
+      410: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": {
+            /** @constant */
+            error: "legacy_business_retired";
+            /** @constant */
+            ok: false;
+          };
+        };
+      };
     };
   };
   post_admin_user_balance_conversion_route: {
@@ -19110,7 +19834,7 @@ export interface operations {
       };
     };
     responses: {
-      /** @description JSON response */
+      /** @description Historical response (not served) */
       200: {
         headers: {
           [name: string]: unknown;
@@ -19154,6 +19878,20 @@ export interface operations {
             };
             /** @constant */
             ok: true;
+          };
+        };
+      };
+      /** @description Single-subscription business is retired */
+      410: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": {
+            /** @constant */
+            error: "legacy_business_retired";
+            /** @constant */
+            ok: false;
           };
         };
       };
@@ -19205,7 +19943,7 @@ export interface operations {
       };
     };
     responses: {
-      /** @description JSON response */
+      /** @description Historical response (not served) */
       200: {
         headers: {
           [name: string]: unknown;
@@ -19215,6 +19953,20 @@ export interface operations {
             /** @constant */
             ok: true;
             subscription?: components["schemas"]["AdminSubscriptionOut"];
+          };
+        };
+      };
+      /** @description Single-subscription business is retired */
+      410: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": {
+            /** @constant */
+            error: "legacy_business_retired";
+            /** @constant */
+            ok: false;
           };
         };
       };
@@ -19235,7 +19987,7 @@ export interface operations {
       };
     };
     responses: {
-      /** @description JSON response */
+      /** @description Historical response (not served) */
       200: {
         headers: {
           [name: string]: unknown;
@@ -19245,6 +19997,20 @@ export interface operations {
             /** @constant */
             ok: true;
             subscription?: components["schemas"]["AdminSubscriptionOut"];
+          };
+        };
+      };
+      /** @description Single-subscription business is retired */
+      410: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": {
+            /** @constant */
+            error: "legacy_business_retired";
+            /** @constant */
+            ok: false;
           };
         };
       };
@@ -19407,7 +20173,7 @@ export interface operations {
       };
     };
     responses: {
-      /** @description JSON response */
+      /** @description Historical response (not served) */
       200: {
         headers: {
           [name: string]: unknown;
@@ -19417,6 +20183,20 @@ export interface operations {
             /** @constant */
             ok: true;
             subscription?: components["schemas"]["AdminSubscriptionOut"];
+          };
+        };
+      };
+      /** @description Single-subscription business is retired */
+      410: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": {
+            /** @constant */
+            error: "legacy_business_retired";
+            /** @constant */
+            ok: false;
           };
         };
       };
@@ -19468,7 +20248,7 @@ export interface operations {
       };
     };
     responses: {
-      /** @description JSON response */
+      /** @description Historical response (not served) */
       200: {
         headers: {
           [name: string]: unknown;
@@ -19478,6 +20258,20 @@ export interface operations {
             /** @constant */
             ok: true;
             subscription?: components["schemas"]["AdminSubscriptionOut"];
+          };
+        };
+      };
+      /** @description Single-subscription business is retired */
+      410: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": {
+            /** @constant */
+            error: "legacy_business_retired";
+            /** @constant */
+            ok: false;
           };
         };
       };
@@ -19494,7 +20288,7 @@ export interface operations {
     };
     requestBody?: never;
     responses: {
-      /** @description JSON response */
+      /** @description Historical response (not served) */
       200: {
         headers: {
           [name: string]: unknown;
@@ -19503,6 +20297,20 @@ export interface operations {
           "application/json": {
             /** @constant */
             ok: true;
+          };
+        };
+      };
+      /** @description Single-subscription business is retired */
+      410: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": {
+            /** @constant */
+            error: "legacy_business_retired";
+            /** @constant */
+            ok: false;
           };
         };
       };
@@ -19523,7 +20331,7 @@ export interface operations {
       };
     };
     responses: {
-      /** @description JSON response */
+      /** @description Historical response (not served) */
       200: {
         headers: {
           [name: string]: unknown;
@@ -19533,6 +20341,20 @@ export interface operations {
             /** @constant */
             ok: true;
             panel_squad_overrides: components["schemas"]["AdminPanelSquadOverridesOut"];
+          };
+        };
+      };
+      /** @description Single-subscription business is retired */
+      410: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": {
+            /** @constant */
+            error: "legacy_business_retired";
+            /** @constant */
+            ok: false;
           };
         };
       };
@@ -19549,7 +20371,7 @@ export interface operations {
     };
     requestBody?: never;
     responses: {
-      /** @description JSON response */
+      /** @description Historical response (not served) */
       200: {
         headers: {
           [name: string]: unknown;
@@ -19559,6 +20381,20 @@ export interface operations {
             /** @constant */
             ok: true;
             panel_squad_overrides: components["schemas"]["AdminPanelSquadOverridesOut"];
+          };
+        };
+      };
+      /** @description Single-subscription business is retired */
+      410: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": {
+            /** @constant */
+            error: "legacy_business_retired";
+            /** @constant */
+            ok: false;
           };
         };
       };
@@ -19575,7 +20411,7 @@ export interface operations {
     };
     requestBody?: never;
     responses: {
-      /** @description JSON response */
+      /** @description Historical response (not served) */
       200: {
         headers: {
           [name: string]: unknown;
@@ -19585,6 +20421,20 @@ export interface operations {
             email_sent: boolean;
             /** @constant */
             ok: true;
+          };
+        };
+      };
+      /** @description Single-subscription business is retired */
+      410: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": {
+            /** @constant */
+            error: "legacy_business_retired";
+            /** @constant */
+            ok: false;
           };
         };
       };
@@ -19605,7 +20455,7 @@ export interface operations {
       };
     };
     responses: {
-      /** @description JSON response */
+      /** @description Historical response (not served) */
       200: {
         headers: {
           [name: string]: unknown;
@@ -19615,6 +20465,20 @@ export interface operations {
             /** @constant */
             ok: true;
             subscription?: components["schemas"]["AdminSubscriptionOut"];
+          };
+        };
+      };
+      /** @description Single-subscription business is retired */
+      410: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": {
+            /** @constant */
+            error: "legacy_business_retired";
+            /** @constant */
+            ok: false;
           };
         };
       };
@@ -19661,7 +20525,7 @@ export interface operations {
       };
     };
     responses: {
-      /** @description JSON response */
+      /** @description Historical response (not served) */
       200: {
         headers: {
           [name: string]: unknown;
@@ -19676,6 +20540,20 @@ export interface operations {
             /** @constant */
             ok: true;
             subscription?: components["schemas"]["AdminSubscriptionOut"] | null;
+          };
+        };
+      };
+      /** @description Single-subscription business is retired */
+      410: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": {
+            /** @constant */
+            error: "legacy_business_retired";
+            /** @constant */
+            ok: false;
           };
         };
       };
@@ -19696,7 +20574,7 @@ export interface operations {
       };
     };
     responses: {
-      /** @description JSON response */
+      /** @description Historical response (not served) */
       200: {
         headers: {
           [name: string]: unknown;
@@ -19706,6 +20584,20 @@ export interface operations {
             /** @constant */
             ok: true;
             subscription?: components["schemas"]["AdminSubscriptionOut"];
+          };
+        };
+      };
+      /** @description Single-subscription business is retired */
+      410: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": {
+            /** @constant */
+            error: "legacy_business_retired";
+            /** @constant */
+            ok: false;
           };
         };
       };
@@ -20335,7 +21227,7 @@ export interface operations {
     };
     requestBody?: never;
     responses: {
-      /** @description JSON response */
+      /** @description Historical response (not served) */
       200: {
         headers: {
           [name: string]: unknown;
@@ -20378,6 +21270,20 @@ export interface operations {
           };
         };
       };
+      /** @description Single-subscription business is retired */
+      410: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": {
+            /** @constant */
+            error: "legacy_business_retired";
+            /** @constant */
+            ok: false;
+          };
+        };
+      };
     };
   };
   post_balance_topup_route: {
@@ -20393,7 +21299,7 @@ export interface operations {
       };
     };
     responses: {
-      /** @description JSON response */
+      /** @description Historical response (not served) */
       200: {
         headers: {
           [name: string]: unknown;
@@ -20412,6 +21318,20 @@ export interface operations {
             payment_id?: number;
             payment_url?: string | null;
             status?: string;
+          };
+        };
+      };
+      /** @description Single-subscription business is retired */
+      410: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": {
+            /** @constant */
+            error: "legacy_business_retired";
+            /** @constant */
+            ok: false;
           };
         };
       };
@@ -20449,7 +21369,7 @@ export interface operations {
     };
     requestBody?: never;
     responses: {
-      /** @description JSON response */
+      /** @description Historical response (not served) */
       200: {
         headers: {
           [name: string]: unknown;
@@ -20464,6 +21384,20 @@ export interface operations {
             /** @constant */
             ok: true;
             subscription_active?: boolean;
+          };
+        };
+      };
+      /** @description Single-subscription business is retired */
+      410: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": {
+            /** @constant */
+            error: "legacy_business_retired";
+            /** @constant */
+            ok: false;
           };
         };
       };
@@ -20482,7 +21416,7 @@ export interface operations {
       };
     };
     responses: {
-      /** @description JSON response */
+      /** @description Historical response (not served) */
       200: {
         headers: {
           [name: string]: unknown;
@@ -20491,6 +21425,20 @@ export interface operations {
           "application/json": {
             /** @constant */
             ok: true;
+          };
+        };
+      };
+      /** @description Single-subscription business is retired */
+      410: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": {
+            /** @constant */
+            error: "legacy_business_retired";
+            /** @constant */
+            ok: false;
           };
         };
       };
@@ -20509,7 +21457,7 @@ export interface operations {
       };
     };
     responses: {
-      /** @description JSON response */
+      /** @description Historical response (not served) */
       200: {
         headers: {
           [name: string]: unknown;
@@ -20519,6 +21467,20 @@ export interface operations {
             device: components["schemas"]["WebAppDeviceOut"];
             /** @constant */
             ok: true;
+          };
+        };
+      };
+      /** @description Single-subscription business is retired */
+      410: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": {
+            /** @constant */
+            error: "legacy_business_retired";
+            /** @constant */
+            ok: false;
           };
         };
       };
@@ -20533,7 +21495,7 @@ export interface operations {
     };
     requestBody?: never;
     responses: {
-      /** @description JSON response */
+      /** @description Historical response (not served) */
       200: {
         headers: {
           [name: string]: unknown;
@@ -20641,6 +21603,20 @@ export interface operations {
           };
         };
       };
+      /** @description Single-subscription business is retired */
+      410: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": {
+            /** @constant */
+            error: "legacy_business_retired";
+            /** @constant */
+            ok: false;
+          };
+        };
+      };
     };
   };
   get_documents_list_route: {
@@ -20728,7 +21704,7 @@ export interface operations {
       };
     };
     responses: {
-      /** @description JSON response */
+      /** @description Historical response (not served) */
       200: {
         headers: {
           [name: string]: unknown;
@@ -20738,6 +21714,20 @@ export interface operations {
             /** @constant */
             ok: true;
           } & components["schemas"]["ExtensionCheckoutOut"];
+        };
+      };
+      /** @description Single-subscription business is retired */
+      410: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": {
+            /** @constant */
+            error: "legacy_business_retired";
+            /** @constant */
+            ok: false;
+          };
         };
       };
     };
@@ -20751,7 +21741,7 @@ export interface operations {
     };
     requestBody?: never;
     responses: {
-      /** @description JSON response */
+      /** @description Historical response (not served) */
       200: {
         headers: {
           [name: string]: unknown;
@@ -20761,6 +21751,20 @@ export interface operations {
             /** @constant */
             ok: true;
             order: components["schemas"]["ExtensionOrderOut"];
+          };
+        };
+      };
+      /** @description Single-subscription business is retired */
+      410: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": {
+            /** @constant */
+            error: "legacy_business_retired";
+            /** @constant */
+            ok: false;
           };
         };
       };
@@ -20775,7 +21779,7 @@ export interface operations {
     };
     requestBody?: never;
     responses: {
-      /** @description JSON response */
+      /** @description Historical response (not served) */
       200: {
         headers: {
           [name: string]: unknown;
@@ -20785,6 +21789,20 @@ export interface operations {
             /** @constant */
             ok: true;
           } & components["schemas"]["ExtensionOrdersOut"];
+        };
+      };
+      /** @description Single-subscription business is retired */
+      410: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": {
+            /** @constant */
+            error: "legacy_business_retired";
+            /** @constant */
+            ok: false;
+          };
         };
       };
     };
@@ -20802,7 +21820,7 @@ export interface operations {
       };
     };
     responses: {
-      /** @description JSON response */
+      /** @description Historical response (not served) */
       200: {
         headers: {
           [name: string]: unknown;
@@ -20812,6 +21830,20 @@ export interface operations {
             /** @constant */
             ok: true;
             order: components["schemas"]["ExtensionOrderOut"];
+          };
+        };
+      };
+      /** @description Single-subscription business is retired */
+      410: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": {
+            /** @constant */
+            error: "legacy_business_retired";
+            /** @constant */
+            ok: false;
           };
         };
       };
@@ -20826,7 +21858,7 @@ export interface operations {
     };
     requestBody?: never;
     responses: {
-      /** @description JSON response */
+      /** @description Historical response (not served) */
       200: {
         headers: {
           [name: string]: unknown;
@@ -20836,6 +21868,20 @@ export interface operations {
             /** @constant */
             ok: true;
           } & components["schemas"]["ExtensionPaymentMethodsOut"];
+        };
+      };
+      /** @description Single-subscription business is retired */
+      410: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": {
+            /** @constant */
+            error: "legacy_business_retired";
+            /** @constant */
+            ok: false;
+          };
         };
       };
     };
@@ -20892,7 +21938,7 @@ export interface operations {
     };
     requestBody?: never;
     responses: {
-      /** @description JSON response */
+      /** @description Historical response (not served) */
       200: {
         headers: {
           [name: string]: unknown;
@@ -20903,6 +21949,20 @@ export interface operations {
             gifts: components["schemas"]["GiftView"][];
             /** @constant */
             ok: true;
+          };
+        };
+      };
+      /** @description Single-subscription business is retired */
+      410: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": {
+            /** @constant */
+            error: "legacy_business_retired";
+            /** @constant */
+            ok: false;
           };
         };
       };
@@ -20921,7 +21981,7 @@ export interface operations {
       };
     };
     responses: {
-      /** @description JSON response */
+      /** @description Historical response (not served) */
       200: {
         headers: {
           [name: string]: unknown;
@@ -20930,6 +21990,20 @@ export interface operations {
           "application/json": {
             /** @constant */
             ok: true;
+          };
+        };
+      };
+      /** @description Single-subscription business is retired */
+      410: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": {
+            /** @constant */
+            error: "legacy_business_retired";
+            /** @constant */
+            ok: false;
           };
         };
       };
@@ -20944,7 +22018,7 @@ export interface operations {
     };
     requestBody?: never;
     responses: {
-      /** @description JSON response */
+      /** @description Historical response (not served) */
       200: {
         headers: {
           [name: string]: unknown;
@@ -21030,6 +22104,20 @@ export interface operations {
           };
         };
       };
+      /** @description Single-subscription business is retired */
+      410: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": {
+            /** @constant */
+            error: "legacy_business_retired";
+            /** @constant */
+            ok: false;
+          };
+        };
+      };
     };
   };
   post_gift_preview_route: {
@@ -21045,7 +22133,7 @@ export interface operations {
       };
     };
     responses: {
-      /** @description JSON response */
+      /** @description Historical response (not served) */
       200: {
         headers: {
           [name: string]: unknown;
@@ -21055,6 +22143,20 @@ export interface operations {
             gift: components["schemas"]["GiftView"];
             /** @constant */
             ok: true;
+          };
+        };
+      };
+      /** @description Single-subscription business is retired */
+      410: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": {
+            /** @constant */
+            error: "legacy_business_retired";
+            /** @constant */
+            ok: false;
           };
         };
       };
@@ -21622,7 +22724,7 @@ export interface operations {
       };
     };
     responses: {
-      /** @description JSON response */
+      /** @description Historical response (not served) */
       200: {
         headers: {
           [name: string]: unknown;
@@ -21632,6 +22734,20 @@ export interface operations {
             application: components["schemas"]["PartnerApplicationOut"];
             /** @constant */
             ok: true;
+          };
+        };
+      };
+      /** @description Single-subscription business is retired */
+      410: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": {
+            /** @constant */
+            error: "legacy_business_retired";
+            /** @constant */
+            ok: false;
           };
         };
       };
@@ -21650,7 +22766,7 @@ export interface operations {
       };
     };
     responses: {
-      /** @description JSON response */
+      /** @description Historical response (not served) */
       200: {
         headers: {
           [name: string]: unknown;
@@ -21665,6 +22781,20 @@ export interface operations {
           };
         };
       };
+      /** @description Single-subscription business is retired */
+      410: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": {
+            /** @constant */
+            error: "legacy_business_retired";
+            /** @constant */
+            ok: false;
+          };
+        };
+      };
     };
   };
   get_partner_clients_route: {
@@ -21676,7 +22806,7 @@ export interface operations {
     };
     requestBody?: never;
     responses: {
-      /** @description JSON response */
+      /** @description Historical response (not served) */
       200: {
         headers: {
           [name: string]: unknown;
@@ -21692,6 +22822,20 @@ export interface operations {
           };
         };
       };
+      /** @description Single-subscription business is retired */
+      410: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": {
+            /** @constant */
+            error: "legacy_business_retired";
+            /** @constant */
+            ok: false;
+          };
+        };
+      };
     };
   };
   get_partner_commissions_route: {
@@ -21703,7 +22847,7 @@ export interface operations {
     };
     requestBody?: never;
     responses: {
-      /** @description JSON response */
+      /** @description Historical response (not served) */
       200: {
         headers: {
           [name: string]: unknown;
@@ -21719,6 +22863,20 @@ export interface operations {
           };
         };
       };
+      /** @description Single-subscription business is retired */
+      410: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": {
+            /** @constant */
+            error: "legacy_business_retired";
+            /** @constant */
+            ok: false;
+          };
+        };
+      };
     };
   };
   get_partner_overview_route: {
@@ -21730,7 +22888,7 @@ export interface operations {
     };
     requestBody?: never;
     responses: {
-      /** @description JSON response */
+      /** @description Historical response (not served) */
       200: {
         headers: {
           [name: string]: unknown;
@@ -21740,6 +22898,20 @@ export interface operations {
             /** @constant */
             ok: true;
           } & components["schemas"]["PartnerOverviewOut"];
+        };
+      };
+      /** @description Single-subscription business is retired */
+      410: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": {
+            /** @constant */
+            error: "legacy_business_retired";
+            /** @constant */
+            ok: false;
+          };
         };
       };
     };
@@ -21753,7 +22925,7 @@ export interface operations {
     };
     requestBody?: never;
     responses: {
-      /** @description JSON response */
+      /** @description Historical response (not served) */
       200: {
         headers: {
           [name: string]: unknown;
@@ -21766,6 +22938,20 @@ export interface operations {
             ok: true;
             total: number;
             withdrawals: components["schemas"]["PartnerWithdrawalOut"][];
+          };
+        };
+      };
+      /** @description Single-subscription business is retired */
+      410: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": {
+            /** @constant */
+            error: "legacy_business_retired";
+            /** @constant */
+            ok: false;
           };
         };
       };
@@ -21784,7 +22970,7 @@ export interface operations {
       };
     };
     responses: {
-      /** @description JSON response */
+      /** @description Historical response (not served) */
       200: {
         headers: {
           [name: string]: unknown;
@@ -21794,6 +22980,20 @@ export interface operations {
             /** @constant */
             ok: true;
             withdrawal: components["schemas"]["PartnerWithdrawalOut"];
+          };
+        };
+      };
+      /** @description Single-subscription business is retired */
+      410: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": {
+            /** @constant */
+            error: "legacy_business_retired";
+            /** @constant */
+            ok: false;
           };
         };
       };
@@ -21810,7 +23010,7 @@ export interface operations {
     };
     requestBody?: never;
     responses: {
-      /** @description JSON response */
+      /** @description Historical response (not served) */
       200: {
         headers: {
           [name: string]: unknown;
@@ -21820,6 +23020,20 @@ export interface operations {
             /** @constant */
             ok: true;
             withdrawal: components["schemas"]["PartnerWithdrawalOut"];
+          };
+        };
+      };
+      /** @description Single-subscription business is retired */
+      410: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": {
+            /** @constant */
+            error: "legacy_business_retired";
+            /** @constant */
+            ok: false;
           };
         };
       };
@@ -21838,7 +23052,7 @@ export interface operations {
       };
     };
     responses: {
-      /** @description JSON response */
+      /** @description Historical response (not served) */
       200: {
         headers: {
           [name: string]: unknown;
@@ -21860,6 +23074,20 @@ export interface operations {
           };
         };
       };
+      /** @description Single-subscription business is retired */
+      410: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": {
+            /** @constant */
+            error: "legacy_business_retired";
+            /** @constant */
+            ok: false;
+          };
+        };
+      };
     };
   };
   get_payment_history_route: {
@@ -21871,7 +23099,7 @@ export interface operations {
     };
     requestBody?: never;
     responses: {
-      /** @description JSON response */
+      /** @description Historical response (not served) */
       200: {
         headers: {
           [name: string]: unknown;
@@ -21884,6 +23112,20 @@ export interface operations {
             /** @constant */
             ok: true;
             total: number;
+          };
+        };
+      };
+      /** @description Single-subscription business is retired */
+      410: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": {
+            /** @constant */
+            error: "legacy_business_retired";
+            /** @constant */
+            ok: false;
           };
         };
       };
@@ -21900,7 +23142,7 @@ export interface operations {
     };
     requestBody?: never;
     responses: {
-      /** @description JSON response */
+      /** @description Historical response (not served) */
       200: {
         headers: {
           [name: string]: unknown;
@@ -21922,6 +23164,20 @@ export interface operations {
           };
         };
       };
+      /** @description Single-subscription business is retired */
+      410: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": {
+            /** @constant */
+            error: "legacy_business_retired";
+            /** @constant */
+            ok: false;
+          };
+        };
+      };
     };
   };
   post_cancel_payment_route: {
@@ -21935,7 +23191,7 @@ export interface operations {
     };
     requestBody?: never;
     responses: {
-      /** @description JSON response */
+      /** @description Historical response (not served) */
       200: {
         headers: {
           [name: string]: unknown;
@@ -21946,6 +23202,20 @@ export interface operations {
             ok: true;
             payment_id: number;
             status: string;
+          };
+        };
+      };
+      /** @description Single-subscription business is retired */
+      410: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": {
+            /** @constant */
+            error: "legacy_business_retired";
+            /** @constant */
+            ok: false;
           };
         };
       };
@@ -21962,7 +23232,7 @@ export interface operations {
     };
     requestBody?: never;
     responses: {
-      /** @description JSON response */
+      /** @description Historical response (not served) */
       200: {
         headers: {
           [name: string]: unknown;
@@ -21975,6 +23245,20 @@ export interface operations {
             ok: true;
             payment_id: number;
             status: string;
+          };
+        };
+      };
+      /** @description Single-subscription business is retired */
+      410: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": {
+            /** @constant */
+            error: "legacy_business_retired";
+            /** @constant */
+            ok: false;
           };
         };
       };
@@ -21993,7 +23277,7 @@ export interface operations {
       };
     };
     responses: {
-      /** @description JSON response */
+      /** @description Historical response (not served) */
       200: {
         headers: {
           [name: string]: unknown;
@@ -22002,6 +23286,20 @@ export interface operations {
           "application/json": {
             /** @constant */
             ok: true;
+          };
+        };
+      };
+      /** @description Single-subscription business is retired */
+      410: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": {
+            /** @constant */
+            error: "legacy_business_retired";
+            /** @constant */
+            ok: false;
           };
         };
       };
@@ -22020,7 +23318,7 @@ export interface operations {
       };
     };
     responses: {
-      /** @description JSON response */
+      /** @description Historical response (not served) */
       200: {
         headers: {
           [name: string]: unknown;
@@ -22047,6 +23345,20 @@ export interface operations {
           };
         };
       };
+      /** @description Single-subscription business is retired */
+      410: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": {
+            /** @constant */
+            error: "legacy_business_retired";
+            /** @constant */
+            ok: false;
+          };
+        };
+      };
     };
   };
   post_promo_status_route: {
@@ -22062,7 +23374,7 @@ export interface operations {
       };
     };
     responses: {
-      /** @description JSON response */
+      /** @description Historical response (not served) */
       200: {
         headers: {
           [name: string]: unknown;
@@ -22089,6 +23401,20 @@ export interface operations {
           };
         };
       };
+      /** @description Single-subscription business is retired */
+      410: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": {
+            /** @constant */
+            error: "legacy_business_retired";
+            /** @constant */
+            ok: false;
+          };
+        };
+      };
     };
   };
   post_referral_welcome_bonus_claim_route: {
@@ -22100,7 +23426,7 @@ export interface operations {
     };
     requestBody?: never;
     responses: {
-      /** @description JSON response */
+      /** @description Historical response (not served) */
       200: {
         headers: {
           [name: string]: unknown;
@@ -22112,6 +23438,20 @@ export interface operations {
             end_date_text: string | null;
             /** @constant */
             ok: true;
+          };
+        };
+      };
+      /** @description Single-subscription business is retired */
+      410: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": {
+            /** @constant */
+            error: "legacy_business_retired";
+            /** @constant */
+            ok: false;
           };
         };
       };
@@ -22225,7 +23565,7 @@ export interface operations {
     };
     requestBody?: never;
     responses: {
-      /** @description JSON response */
+      /** @description Historical response (not served) */
       200: {
         headers: {
           [name: string]: unknown;
@@ -22235,6 +23575,20 @@ export interface operations {
             /** @constant */
             ok: true;
           } & components["schemas"]["SubscriptionGuidesOut"];
+        };
+      };
+      /** @description Single-subscription business is retired */
+      410: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": {
+            /** @constant */
+            error: "legacy_business_retired";
+            /** @constant */
+            ok: false;
+          };
         };
       };
     };
@@ -22250,7 +23604,7 @@ export interface operations {
     };
     requestBody?: never;
     responses: {
-      /** @description JSON response */
+      /** @description Historical response (not served) */
       200: {
         headers: {
           [name: string]: unknown;
@@ -22260,6 +23614,20 @@ export interface operations {
             /** @constant */
             ok: true;
           } & components["schemas"]["PublicSubscriptionGuidesOut"];
+        };
+      };
+      /** @description Single-subscription business is retired */
+      410: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": {
+            /** @constant */
+            error: "legacy_business_retired";
+            /** @constant */
+            ok: false;
+          };
         };
       };
     };
@@ -22277,7 +23645,7 @@ export interface operations {
       };
     };
     responses: {
-      /** @description JSON response */
+      /** @description Historical response (not served) */
       200: {
         headers: {
           [name: string]: unknown;
@@ -22289,6 +23657,20 @@ export interface operations {
             ok: true;
             provider: string;
             provider_label: string;
+          };
+        };
+      };
+      /** @description Single-subscription business is retired */
+      410: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": {
+            /** @constant */
+            error: "legacy_business_retired";
+            /** @constant */
+            ok: false;
           };
         };
       };
@@ -22307,7 +23689,7 @@ export interface operations {
       };
     };
     responses: {
-      /** @description JSON response */
+      /** @description Historical response (not served) */
       200: {
         headers: {
           [name: string]: unknown;
@@ -22348,6 +23730,20 @@ export interface operations {
           };
         };
       };
+      /** @description Single-subscription business is retired */
+      410: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": {
+            /** @constant */
+            error: "legacy_business_retired";
+            /** @constant */
+            ok: false;
+          };
+        };
+      };
     };
   };
   post_quote_promo_route: {
@@ -22363,7 +23759,7 @@ export interface operations {
       };
     };
     responses: {
-      /** @description JSON response */
+      /** @description Historical response (not served) */
       200: {
         headers: {
           [name: string]: unknown;
@@ -22398,6 +23794,20 @@ export interface operations {
           };
         };
       };
+      /** @description Single-subscription business is retired */
+      410: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": {
+            /** @constant */
+            error: "legacy_business_retired";
+            /** @constant */
+            ok: false;
+          };
+        };
+      };
     };
   };
   post_subscription_reissue_route: {
@@ -22413,7 +23823,7 @@ export interface operations {
       };
     };
     responses: {
-      /** @description JSON response */
+      /** @description Historical response (not served) */
       200: {
         headers: {
           [name: string]: unknown;
@@ -22425,6 +23835,20 @@ export interface operations {
             /** @constant */
             ok: true;
             telegram_sent: boolean;
+          };
+        };
+      };
+      /** @description Single-subscription business is retired */
+      410: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": {
+            /** @constant */
+            error: "legacy_business_retired";
+            /** @constant */
+            ok: false;
           };
         };
       };
@@ -22688,7 +24112,7 @@ export interface operations {
       };
     };
     responses: {
-      /** @description JSON response */
+      /** @description Historical response (not served) */
       200: {
         headers: {
           [name: string]: unknown;
@@ -22699,6 +24123,20 @@ export interface operations {
             ok: true;
             subscription_id: number;
             tariff_key: string;
+          };
+        };
+      };
+      /** @description Single-subscription business is retired */
+      410: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": {
+            /** @constant */
+            error: "legacy_business_retired";
+            /** @constant */
+            ok: false;
           };
         };
       };
@@ -22713,7 +24151,7 @@ export interface operations {
     };
     requestBody?: never;
     responses: {
-      /** @description JSON response */
+      /** @description Historical response (not served) */
       200: {
         headers: {
           [name: string]: unknown;
@@ -22768,6 +24206,20 @@ export interface operations {
           };
         };
       };
+      /** @description Single-subscription business is retired */
+      410: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": {
+            /** @constant */
+            error: "legacy_business_retired";
+            /** @constant */
+            ok: false;
+          };
+        };
+      };
     };
   };
   post_tariff_change_payment_route: {
@@ -22783,7 +24235,7 @@ export interface operations {
       };
     };
     responses: {
-      /** @description JSON response */
+      /** @description Historical response (not served) */
       200: {
         headers: {
           [name: string]: unknown;
@@ -22805,6 +24257,20 @@ export interface operations {
           };
         };
       };
+      /** @description Single-subscription business is retired */
+      410: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": {
+            /** @constant */
+            error: "legacy_business_retired";
+            /** @constant */
+            ok: false;
+          };
+        };
+      };
     };
   };
   get_tariff_topup_options_route: {
@@ -22816,7 +24282,7 @@ export interface operations {
     };
     requestBody?: never;
     responses: {
-      /** @description JSON response */
+      /** @description Historical response (not served) */
       200: {
         headers: {
           [name: string]: unknown;
@@ -22924,6 +24390,20 @@ export interface operations {
           };
         };
       };
+      /** @description Single-subscription business is retired */
+      410: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": {
+            /** @constant */
+            error: "legacy_business_retired";
+            /** @constant */
+            ok: false;
+          };
+        };
+      };
     };
   };
   get_theme_effects_route: {
@@ -22982,7 +24462,7 @@ export interface operations {
     };
     requestBody?: never;
     responses: {
-      /** @description JSON response */
+      /** @description Historical response (not served) */
       200: {
         headers: {
           [name: string]: unknown;
@@ -22998,6 +24478,20 @@ export interface operations {
             /** @constant */
             ok: true;
             traffic_gb: number | null;
+          };
+        };
+      };
+      /** @description Single-subscription business is retired */
+      410: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": {
+            /** @constant */
+            error: "legacy_business_retired";
+            /** @constant */
+            ok: false;
           };
         };
       };
