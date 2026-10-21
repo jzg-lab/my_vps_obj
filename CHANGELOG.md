@@ -43,8 +43,11 @@
   deployed website now rejects old subscription/checkout mutations and subscription delivery
   with HTTP 410, including implicit login bonuses. Payment and account-level panel webhooks
   are retired; old entitlement workers no longer start, and queued core events move to the
-  dead-letter queue without applying entitlements or discarding their payloads. Telegram and
-  admin UI retirement, traffic enforcement and real-node acceptance remain in progress.
+  dead-letter queue without applying entitlements or discarding their payloads. The independent
+  admin UI hides retired subscription operations, account-level quotas and sales settings; stale
+  subscription filters and deep links no longer present a competing service model. Account
+  lifecycle actions remain available, and historical payments are read-only. Telegram
+  retirement, traffic enforcement and real-node acceptance remain in progress.
 
 - **Nested dialog keyboard focus.** Opening an emoji picker now transfers focus before
   the next keyboard event, so an immediate Escape closes the picker instead of its parent

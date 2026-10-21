@@ -6195,6 +6195,7 @@
   "admin_settings_group_provider_recurring": "Автоплатежи",
   "admin_settings_group_provider_card_recurring": "Автоплатежи картой",
   "admin_settings_group_provider_sbp_recurring": "Автоплатежи через СБП",
+  "admin_services_payment_history_only": "История платежей доступна только для просмотра. Новые услуги подключаются в списке услуг пользователя; онлайн-оплата недоступна.",
   "admin_services_plans_title": "Тарифы услуг",
   "admin_services_plans_subtitle": "Настройка шаблонов независимых услуг",
   "admin_services_exits_title": "Выделенные выходы",

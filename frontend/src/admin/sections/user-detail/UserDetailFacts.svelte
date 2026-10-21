@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { getAdminServiceModel } from "$lib/admin/context";
   import { AdminButton, AdminCopyableValue } from "$components/patterns/admin/index.js";
   import { ExternalLink, UsersRound } from "$components/ui/icons.js";
   import type { AdminUser } from "$lib/admin/stores/usersStore";
@@ -9,6 +10,8 @@
     TranslateFn,
     UsersStoreBridge,
   } from "./userDetailTypes";
+
+  const serviceModel = getAdminServiceModel();
   let {
     at,
     usersStore,
@@ -47,7 +50,7 @@
 </script>
 
 <ul class="admin-meta-list admin-user-facts">
-  {#if openedUser.panel_username && openedUser.panel_username !== openedUser.minishop_id}
+  {#if !serviceModel.independent && openedUser.panel_username && openedUser.panel_username !== openedUser.minishop_id}
     <li>
       <span>{at("user_panel_username", {}, "Panel username")}</span>
       <strong>
@@ -84,82 +87,83 @@
     >
   </li>
 
-  <li>
-    <span>{at("user_label_vpn_last_connected", {}, "Last VPN connection")}</span><strong
-      >{vpnLastConnectionLabel(openedUserDetail)}</strong
-    >
-  </li>
-  <li>
-    <span>{at("user_label_ref_code", {}, "Referral Code")}</span>
-    <strong>
-      {#if referralCode}
-        <AdminCopyableValue
-          wrap
-          value={referralCode}
-          copyLabel={copyLabel(referralCode)}
-          kind="referral-code"
-          oncopy={copyValue}
-        />
-      {:else}
-        —
-      {/if}
-    </strong>
-  </li>
-  <li class="admin-user-ref-row">
-    <span>{at("user_label_invited_by", {}, "Invited by")}</span>
-    <strong class="admin-user-ref-value">
-      {#if referralInviter}
-        <span>{userDisplayName(referralInviter)}</span>
-        <small>ID {referralInviter.minishop_id || "—"}</small>
-      {:else}
-        <span>{at("user_invited_by_none", {}, "—")}</span>
-      {/if}
-    </strong>
-    {#if referralInviter}
-      <AdminButton
-        size="icon"
-        variant="icon"
-        title={at("user_open_related", {}, "Open user card")}
-        aria-label={at("user_open_related", {}, "Open user card")}
-        onclick={() => openRelatedUser(referralInviter)}
+  {#if !serviceModel.independent}<li>
+      <span>{at("user_label_vpn_last_connected", {}, "Last VPN connection")}</span><strong
+        >{vpnLastConnectionLabel(openedUserDetail)}</strong
       >
-        <ExternalLink size={14} />
-      </AdminButton>
-    {/if}
-  </li>
-  {#if partnerAttribution}
-    <li class="admin-user-ref-row">
-      <span>{at("user_label_partner_attribution", {}, "Partner attribution")}</span>
-      <strong class="admin-user-ref-value">
-        <span>{partnerAttribution.display_label}</span>
-        <small>
-          ID {partnerAttribution.partner_id} · {at("user_partner_client_id", {}, "Client")}
-          {partnerAttribution.public_client_id}
-        </small>
+    </li>
+    <li>
+      <span>{at("user_label_ref_code", {}, "Referral Code")}</span>
+      <strong>
+        {#if referralCode}
+          <AdminCopyableValue
+            wrap
+            value={referralCode}
+            copyLabel={copyLabel(referralCode)}
+            kind="referral-code"
+            oncopy={copyValue}
+          />
+        {:else}
+          —
+        {/if}
       </strong>
+    </li>
+    <li class="admin-user-ref-row">
+      <span>{at("user_label_invited_by", {}, "Invited by")}</span>
+      <strong class="admin-user-ref-value">
+        {#if referralInviter}
+          <span>{userDisplayName(referralInviter)}</span>
+          <small>ID {referralInviter.minishop_id || "—"}</small>
+        {:else}
+          <span>{at("user_invited_by_none", {}, "—")}</span>
+        {/if}
+      </strong>
+      {#if referralInviter}
+        <AdminButton
+          size="icon"
+          variant="icon"
+          title={at("user_open_related", {}, "Open user card")}
+          aria-label={at("user_open_related", {}, "Open user card")}
+          onclick={() => openRelatedUser(referralInviter)}
+        >
+          <ExternalLink size={14} />
+        </AdminButton>
+      {/if}
+    </li>
+    {#if partnerAttribution}
+      <li class="admin-user-ref-row">
+        <span>{at("user_label_partner_attribution", {}, "Partner attribution")}</span>
+        <strong class="admin-user-ref-value">
+          <span>{partnerAttribution.display_label}</span>
+          <small>
+            ID {partnerAttribution.partner_id} · {at("user_partner_client_id", {}, "Client")}
+            {partnerAttribution.public_client_id}
+          </small>
+        </strong>
+        <AdminButton
+          size="icon"
+          variant="icon"
+          title={at("user_open_partner", {}, "Open partner card")}
+          aria-label={at("user_open_partner", {}, "Open partner card")}
+          onclick={() => onOpenPartnerCard(String(partnerAttribution.partner_id))}
+        >
+          <ExternalLink size={14} />
+        </AdminButton>
+      </li>
+    {/if}
+    <li class="admin-user-ref-row">
+      <span>{at("user_label_invited_users", {}, "Invited users")}</span>
+      <strong>{referralInviteesTotal}</strong>
       <AdminButton
-        size="icon"
-        variant="icon"
-        title={at("user_open_partner", {}, "Open partner card")}
-        aria-label={at("user_open_partner", {}, "Open partner card")}
-        onclick={() => onOpenPartnerCard(String(partnerAttribution.partner_id))}
+        data-admin-action="open-user-referrals"
+        size="sm"
+        variant="ghost"
+        disabled={referralInviteesTotal <= 0}
+        onclick={() => usersStore.openUserReferrals(0)}
       >
-        <ExternalLink size={14} />
+        <UsersRound size={14} />
+        {at("user_invitees_open", {}, "Show")}
       </AdminButton>
     </li>
   {/if}
-  <li class="admin-user-ref-row">
-    <span>{at("user_label_invited_users", {}, "Invited users")}</span>
-    <strong>{referralInviteesTotal}</strong>
-    <AdminButton
-      data-admin-action="open-user-referrals"
-      size="sm"
-      variant="ghost"
-      disabled={referralInviteesTotal <= 0}
-      onclick={() => usersStore.openUserReferrals(0)}
-    >
-      <UsersRound size={14} />
-      {at("user_invitees_open", {}, "Show")}
-    </AdminButton>
-  </li>
 </ul>

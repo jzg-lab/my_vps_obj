@@ -1,6 +1,8 @@
 ﻿<script lang="ts">
+  import { getAdminServiceModel } from "$lib/admin/context";
   import { getUsersStore } from "$lib/admin/context";
   import { onMount } from "svelte";
+  import { INDEPENDENT_ACCOUNT_FILTERS } from "$lib/admin/independentServices";
   import { trafficOfLabel } from "../../lib/admin/format.js";
   import { TableHandler } from "@vincjo/datatables";
   import UsersView from "./users/UsersView.svelte";
@@ -11,6 +13,8 @@
     type UsersRouteFilters,
   } from "../../lib/admin/usersRouteFilters";
   import type { AdminBadgeVariant } from "$components/patterns/admin/types";
+
+  const serviceModel = getAdminServiceModel();
 
   type TranslateFn = (key: string, params?: Record<string, unknown>, fallback?: string) => string;
   type SelectOption = { value: string; label: string };
@@ -90,37 +94,41 @@
     Math.max(1, Math.ceil(Number(usersTotal || 0) / USERS_PAGE_SIZE))
   );
 
-  const USERS_FILTER_OPTIONS = $derived([
-    { value: "all", label: at("filter_all", {}, "All") },
-    { value: "active", label: at("filter_not_banned", {}, "Not banned") },
-    { value: "banned", label: at("filter_banned", {}, "Banned") },
-    { value: "active_today", label: at("filter_active_today", {}, "Registered today") },
-    { value: "referred", label: at("filter_referred", {}, "Referred users") },
-    {
-      value: "active_subscription",
-      label: at("filter_active_subscription", {}, "With active subscription"),
-    },
-    { value: "paid", label: at("stats_label_paid_subs", {}, "Paid users") },
-    { value: "free", label: at("stats_label_free_users", {}, "With free subscription") },
-    { value: "trial", label: at("stats_label_trial_users", {}, "With trial subscription") },
-    {
-      value: "inactive_subscription",
-      label: at("filter_inactive_subscription", {}, "Without active subscription"),
-    },
-    {
-      value: "expired_subscription",
-      label: at("filter_expired_subscription", {}, "With expired subscription"),
-    },
-    {
-      value: "unmapped_tariff",
-      label: at("filter_unmapped_tariff", {}, "Active subscription without tariff"),
-    },
-    { value: "tg_linked", label: at("filter_tg_linked", {}, "With Telegram") },
-    { value: "no_tg", label: at("filter_no_tg", {}, "No Telegram") },
-    { value: "email_linked", label: at("filter_email_linked", {}, "With email") },
-    { value: "no_email", label: at("filter_no_email", {}, "No email") },
-    { value: "panel_linked", label: at("filter_panel_linked", {}, "With panel") },
-  ] satisfies SelectOption[]);
+  const USERS_FILTER_OPTIONS = $derived(
+    [
+      { value: "all", label: at("filter_all", {}, "All") },
+      { value: "active", label: at("filter_not_banned", {}, "Not banned") },
+      { value: "banned", label: at("filter_banned", {}, "Banned") },
+      { value: "active_today", label: at("filter_active_today", {}, "Registered today") },
+      { value: "referred", label: at("filter_referred", {}, "Referred users") },
+      {
+        value: "active_subscription",
+        label: at("filter_active_subscription", {}, "With active subscription"),
+      },
+      { value: "paid", label: at("stats_label_paid_subs", {}, "Paid users") },
+      { value: "free", label: at("stats_label_free_users", {}, "With free subscription") },
+      { value: "trial", label: at("stats_label_trial_users", {}, "With trial subscription") },
+      {
+        value: "inactive_subscription",
+        label: at("filter_inactive_subscription", {}, "Without active subscription"),
+      },
+      {
+        value: "expired_subscription",
+        label: at("filter_expired_subscription", {}, "With expired subscription"),
+      },
+      {
+        value: "unmapped_tariff",
+        label: at("filter_unmapped_tariff", {}, "Active subscription without tariff"),
+      },
+      { value: "tg_linked", label: at("filter_tg_linked", {}, "With Telegram") },
+      { value: "no_tg", label: at("filter_no_tg", {}, "No Telegram") },
+      { value: "email_linked", label: at("filter_email_linked", {}, "With email") },
+      { value: "no_email", label: at("filter_no_email", {}, "No email") },
+      { value: "panel_linked", label: at("filter_panel_linked", {}, "With panel") },
+    ].filter(
+      (item) => !serviceModel.independent || INDEPENDENT_ACCOUNT_FILTERS.has(item.value)
+    ) satisfies SelectOption[]
+  );
 
   const SORT_COLUMNS = {
     user: { asc: "name_asc", desc: "name_desc", defaultDirection: "asc" },
@@ -231,6 +239,16 @@
   }
 
   function userTableColumns(): UserTableColumn[] {
+    if (serviceModel.independent)
+      return [
+        { key: "user", label: at("user", {}, "User"), sort: SORT_COLUMNS.user },
+        { key: "status", label: at("status", {}, "Status") },
+        {
+          key: "registration",
+          label: at("users_col_registration", {}, "Registered"),
+          sort: SORT_COLUMNS.registration,
+        },
+      ];
     return [
       { key: "user", label: at("user", {}, "User"), sort: SORT_COLUMNS.user },
       ...(userBalanceEnabled
@@ -357,18 +375,22 @@
   );
   const activeUsersFilterCount = $derived(activeUserFilterChips.length);
   const userTableHeaders = $derived(userTableColumns().map((column) => column.label));
-  const userTableWidths = $derived([
-    "220px",
-    ...(userBalanceEnabled ? ["118px"] : []),
-    ...(partnerBalanceEnabled ? ["136px"] : []),
-    "128px",
-    "112px",
-    "78px",
-    "88px",
-    "96px",
-    "112px",
-    "112px",
-  ]);
+  const userTableWidths = $derived(
+    serviceModel.independent
+      ? ["55%", "20%", "25%"]
+      : [
+          "220px",
+          ...(userBalanceEnabled ? ["118px"] : []),
+          ...(partnerBalanceEnabled ? ["136px"] : []),
+          "128px",
+          "112px",
+          "78px",
+          "88px",
+          "96px",
+          "112px",
+          "112px",
+        ]
+  );
   const userTableColumnCount = $derived(userTableHeaders.length);
 
   onMount(() => {
@@ -416,7 +438,15 @@
   {sortTitle}
   {toggleUsersSortForColumn}
   {resolvedAvatarUrl}
-  {panelStatusBadge}
+  panelStatusBadge={(user) =>
+    serviceModel.independent
+      ? {
+          label: user.is_banned
+            ? at("filter_banned", {}, "Banned")
+            : at("filter_not_banned", {}, "Not banned"),
+          variant: user.is_banned ? "danger" : "success",
+        }
+      : panelStatusBadge(user)}
   {userInitials}
   {userDisplayName}
   {userSecondaryName}

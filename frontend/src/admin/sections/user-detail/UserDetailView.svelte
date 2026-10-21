@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { getAdminServiceModel } from "$lib/admin/context";
   import UserServices from "../services/UserServices.svelte";
   import { AdminButton } from "$components/patterns/admin/index.js";
   import { RefreshCw } from "$components/ui/icons.js";
@@ -30,6 +31,8 @@
     UserLogRow,
     UsersStoreBridge,
   } from "./userDetailTypes";
+
+  const serviceModel = getAdminServiceModel();
 
   const settingsStore = getSettingsStore();
 
@@ -210,6 +213,9 @@
 
   $effect(() => {
     const selected = String(usersStore.userDetailTab || "");
+    if (serviceModel.independent && selected === "subscription") {
+      usersStore.userDetailTab = "actions";
+    }
     if (selected === "notifications") {
       notificationsOpen = true;
       usersStore.userDetailTab = "subscription";
@@ -267,10 +273,15 @@
         userId={openedUser.user_id}
         banned={Boolean(openedUser.is_banned)}
       />{/key}
-    {#if openedUserDetail}
+    {#if openedUserDetail && !serviceModel.independent}
       <UserDetailLinks {at} {usersStore} {openedUserDetail} />
     {/if}
-    <UserDetailStats {at} {openedUser} {openedUserDetail} {fmtMoney} />
+    {#if !serviceModel.independent}<UserDetailStats
+        {at}
+        {openedUser}
+        {openedUserDetail}
+        {fmtMoney}
+      />{/if}
     {#if userDetailLoading}
       <div class="admin-user-page-state" aria-busy="true" aria-live="polite">
         <p class="admin-muted">{at("loading", {}, "Loading…")}</p>
@@ -292,10 +303,12 @@
             class="admin-tabs-root admin-user-tabs-root"
           >
             <Tabs.List class="admin-tabs-list">
-              <Tabs.Trigger value="subscription" class="admin-tabs-trigger"
-                >{at("user_tab_subscription", {}, "Subscription")}</Tabs.Trigger
-              >
-              <Tabs.Trigger value="actions" class="admin-tabs-trigger"
+              {#if !serviceModel.independent}<Tabs.Trigger
+                  value="subscription"
+                  class="admin-tabs-trigger"
+                  >{at("user_tab_subscription", {}, "Subscription")}</Tabs.Trigger
+                >
+              {/if}<Tabs.Trigger value="actions" class="admin-tabs-trigger"
                 >{at("user_tab_actions", {}, "Actions")}</Tabs.Trigger
               >
               <Tabs.Trigger value="activity" class="admin-tabs-trigger"
@@ -314,37 +327,37 @@
               {/each}
             </Tabs.List>
 
-            <UserSubscriptionTab
-              {at}
-              {openedUserDetail}
-              {fmtDate}
-              {subscriptionDisplayLabel}
-              {pretty}
-              {hwidLimitLabel}
-              {trafficOfLabel}
-              {trafficLeftLabel}
-              {trafficPercentValue}
-              {trialSummaryText}
-            >
-              {#snippet quickActions()}
-                <UserQuickActionsBlock
-                  {at}
-                  {userActionBusy}
-                  {extendTariffItems}
-                  {extendTariffsLoading}
-                  {userExtendDaysValid}
-                  {userExtendTariffValid}
-                  {extendTariffRequired}
-                  extraHwidDevices={Number(
-                    openedUserDetail.active_subscription?.extra_hwid_devices || 0
-                  )}
-                  activeSubscriptionEndDate={String(
-                    openedUserDetail.active_subscription?.end_date || ""
-                  )}
-                  {selectExtendTariff}
-                />
-              {/snippet}
-            </UserSubscriptionTab>
+            {#if !serviceModel.independent}<UserSubscriptionTab
+                {at}
+                {openedUserDetail}
+                {fmtDate}
+                {subscriptionDisplayLabel}
+                {pretty}
+                {hwidLimitLabel}
+                {trafficOfLabel}
+                {trafficLeftLabel}
+                {trafficPercentValue}
+                {trialSummaryText}
+              >
+                {#snippet quickActions()}
+                  <UserQuickActionsBlock
+                    {at}
+                    {userActionBusy}
+                    {extendTariffItems}
+                    {extendTariffsLoading}
+                    {userExtendDaysValid}
+                    {userExtendTariffValid}
+                    {extendTariffRequired}
+                    extraHwidDevices={Number(
+                      openedUserDetail.active_subscription?.extra_hwid_devices || 0
+                    )}
+                    activeSubscriptionEndDate={String(
+                      openedUserDetail.active_subscription?.end_date || ""
+                    )}
+                    {selectExtendTariff}
+                  />
+                {/snippet}
+              </UserSubscriptionTab>{/if}
 
             <UserActivityTab
               {at}

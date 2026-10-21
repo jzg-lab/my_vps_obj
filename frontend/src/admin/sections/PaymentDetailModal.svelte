@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { getAdminServiceModel } from "$lib/admin/context";
   import { adminDurationLabel } from "$lib/admin/tariffPeriods";
   import { getPaymentsStore } from "$lib/admin/context";
   import {
@@ -22,6 +23,8 @@
   import { demoPartnerAttributionForPayment } from "$lib/webapp/mockApi/partnerProgram.js";
   import { partnerStatusVariant } from "$lib/admin/partnerProgramUi.js";
   import PaymentPurchasesCell from "./PaymentPurchasesCell.svelte";
+
+  const serviceModel = getAdminServiceModel();
 
   type TranslateFn = (key: string, params?: Record<string, unknown>, fallback?: string) => string;
   type MetaRow = {
@@ -608,7 +611,7 @@
             </ul>
           </section>
 
-          {#if payment.can_manual_finalize || payment.can_reverse || payment.status === "succeeded" || actionMode}
+          {#if !serviceModel.independent && (payment.can_manual_finalize || payment.can_reverse || payment.status === "succeeded" || actionMode)}
             <section class="admin-payment-panel admin-payment-actions-panel">
               <div class="admin-payment-panel-head">
                 <Database size={16} />

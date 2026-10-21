@@ -745,6 +745,7 @@ export function buildAppAdminPanelProps({
 }: AppAdminPanelPropsDeps): AdminPanelProps {
   const shellView = getShellView();
   return buildAdminPanelProps({
+    independentServices: cfg.serviceModel === "independent",
     adminActiveSection,
     api,
     apiBlob,

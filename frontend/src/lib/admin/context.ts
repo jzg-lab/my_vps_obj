@@ -18,6 +18,10 @@ import type { UsersStore } from "./stores/usersStore";
 import type { RoleApi } from "./roleApi";
 import type { ApiClient } from "../webapp/publicApi";
 
+export const [getAdminServiceModel, setAdminServiceModel] = createContext<{
+  readonly independent: boolean;
+}>();
+
 export const [getPromosStore, setPromosStore] = createContext<PromosStore>();
 export const [getAdsStore, setAdsStore] = createContext<AdsStore>();
 export const [getHealthStore, setHealthStore] = createContext<HealthStore>();

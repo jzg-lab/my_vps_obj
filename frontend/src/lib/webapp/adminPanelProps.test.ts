@@ -31,6 +31,12 @@ const base = {
 };
 
 describe("buildAdminPanelProps", () => {
+  it("passes the independent service policy to the separately mounted admin bundle", () => {
+    expect(buildAdminPanelProps({ ...base, independentServices: true }).independentServices).toBe(
+      true
+    );
+    expect(buildAdminPanelProps(base).independentServices).toBe(false);
+  });
   it("uses the active admin section when the shell is already on admin", () => {
     expect(buildAdminPanelProps(base)).toMatchObject({
       appRepositoryUrl: "https://minishop.minidoc.cc/",

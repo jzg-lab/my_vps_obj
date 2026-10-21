@@ -1,4 +1,5 @@
 ﻿<script lang="ts">
+  import { getAdminServiceModel } from "$lib/admin/context";
   import { getTariffsStore, getUsersStore } from "$lib/admin/context";
   import UserDetailDialogs from "./user-detail/UserDetailDialogs.svelte";
   import UserDetailView from "./user-detail/UserDetailView.svelte";
@@ -8,6 +9,8 @@
   import type { AdminUser } from "$lib/admin/stores/usersStore";
   import { trafficStrategyOptions as buildTrafficStrategyOptions } from "$lib/admin/tariffSettings";
   import "./UserDetailPage.css";
+
+  const serviceModel = getAdminServiceModel();
 
   type TranslateFn = (key: string, params?: Record<string, unknown>, fallback?: string) => string;
   type MoneyFormatter = (value: unknown, currency?: string | null) => string;
@@ -454,6 +457,7 @@
 
   $effect(() => {
     if (
+      !serviceModel.independent &&
       openedUser &&
       !tariffsLoadRequested &&
       !tariffsState.tariffsLoading &&
@@ -465,7 +469,12 @@
   });
 
   $effect(() => {
-    if (openedUser && !tariffsState.panelSquadsLoading && !tariffsState.panelSquads.length) {
+    if (
+      !serviceModel.independent &&
+      openedUser &&
+      !tariffsState.panelSquadsLoading &&
+      !tariffsState.panelSquads.length
+    ) {
       void tariffsStore.loadPanelSquads();
     }
   });

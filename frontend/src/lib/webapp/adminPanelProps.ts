@@ -8,6 +8,7 @@ import { documentationBaseUrlForVersion } from "./documentationUrl.js";
 
 export type AdminPanelPropsInput = {
   adminActiveSection: string;
+  independentServices?: boolean;
   api: unknown;
   apiBlob: unknown;
   appFaviconUrl: unknown;
@@ -36,6 +37,7 @@ export type AdminPanelPropsInput = {
 
 export function buildAdminPanelProps({
   adminActiveSection,
+  independentServices = false,
   api,
   apiBlob,
   appFaviconUrl,
@@ -61,6 +63,7 @@ export function buildAdminPanelProps({
   t,
 }: AdminPanelPropsInput): Record<string, unknown> {
   return {
+    independentServices,
     api,
     apiBlob,
     onClose,

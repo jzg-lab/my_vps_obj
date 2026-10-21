@@ -1,5 +1,6 @@
 <script lang="ts">
-  import { getSettingsStore, getTranslationsStore } from "$lib/admin/context";
+  import { getAdminServiceModel, getSettingsStore, getTranslationsStore } from "$lib/admin/context";
+  import { independentSettingsSections } from "$lib/admin/independentServices";
   import * as UiIcons from "$components/ui/icons.js";
   import SettingsContent from "./settings/SettingsContent.svelte";
   import SettingsIconPicker from "./settings/SettingsIconPicker.svelte";
@@ -76,11 +77,16 @@
     onNavigateSection?: (section: string) => void;
   } = $props();
 
+  const serviceModel = getAdminServiceModel();
   const settingsStore = getSettingsStore();
   const translationsStore = getTranslationsStore();
 
   const rawSettingsSections = $derived((settingsStore.settingsSections || []) as SettingsSection[]);
-  const settingsSections = $derived(rawSettingsSections as AdminSettingsSection[]);
+  const settingsSections = $derived(
+    serviceModel.independent
+      ? independentSettingsSections(rawSettingsSections as AdminSettingsSection[])
+      : (rawSettingsSections as AdminSettingsSection[])
+  );
   const settingsLoading = $derived(Boolean(settingsStore.settingsLoading));
   const settingsDirty = $derived((settingsStore.settingsDirty || {}) as SettingsDirtyState);
   const settingsSaving = $derived(Boolean(settingsStore.settingsSaving));
@@ -114,7 +120,7 @@
   let settingsSearchHighlightTimer = $state<ReturnType<typeof window.setTimeout> | null>(null);
 
   const allSettingsSectionIds = $derived([
-    ...PROGRAM_SETTINGS_SECTION_IDS,
+    ...(serviceModel.independent ? [] : PROGRAM_SETTINGS_SECTION_IDS),
     ...visibleSettingsSections.map((section) => section.id),
   ]);
   const settingsAllOpen = $derived(
@@ -252,6 +258,7 @@
   }
 
   function programSearchEntries(): SettingsSearchEntry[] {
+    if (serviceModel.independent) return [];
     return [
       {
         key: "REFERRAL_PROGRAM_SETTINGS",
@@ -520,7 +527,10 @@
     const firstSegment = resolvedPath[0]?.toLowerCase();
     const legacyProgram =
       firstSegment === "marketing" ? resolvedPath[1]?.toLowerCase() : firstSegment;
-    if (legacyProgram === "referral" || legacyProgram === "partner") {
+    if (
+      !serviceModel.independent &&
+      (legacyProgram === "referral" || legacyProgram === "partner")
+    ) {
       settingsPathSyncing = true;
       try {
         if (!settingsOpenSections.includes(legacyProgram)) {

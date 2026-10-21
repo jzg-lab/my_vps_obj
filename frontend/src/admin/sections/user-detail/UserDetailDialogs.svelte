@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { getAdminServiceModel } from "$lib/admin/context";
   import { getUsersStore } from "$lib/admin/context";
   import { ImageViewer, ScrollArea } from "$components/ui/index.js";
   import Dialog from "$components/ui/dialog.svelte";
@@ -14,6 +15,8 @@
   import type { AdminUser } from "$lib/admin/stores/usersStore";
   import type { DateFormatter, TranslateFn } from "./userDetailTypes";
   import type { AdminSortColumn } from "$lib/admin/tableSort.js";
+
+  const serviceModel = getAdminServiceModel();
 
   type Props = {
     at: TranslateFn;
@@ -234,7 +237,7 @@
 </Dialog>
 
 <Dialog
-  open={userTariffHwidConfirmOpen}
+  open={!serviceModel.independent && userTariffHwidConfirmOpen}
   title={at("user_tariff_hwid_confirm_title", {}, "Apply the tariff HWID limit?")}
   description={at(
     "user_tariff_hwid_confirm_subtitle",
@@ -291,7 +294,7 @@
 </Dialog>
 
 <Dialog
-  open={userSubscriptionReissueOpen}
+  open={!serviceModel.independent && userSubscriptionReissueOpen}
   title={at("user_subscription_reissue_confirm_title", {}, "Reset subscription link?")}
   description={at(
     "user_subscription_reissue_confirm_subtitle",

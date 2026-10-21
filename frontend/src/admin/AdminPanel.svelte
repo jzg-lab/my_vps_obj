@@ -1,5 +1,10 @@
 ﻿<script lang="ts">
   import { onMount, untrack } from "svelte";
+  import { setAdminServiceModel } from "$lib/admin/context";
+  import {
+    RETIRED_ADMIN_SECTIONS,
+    independentAccountFilters,
+  } from "$lib/admin/independentServices";
   import { Tooltip } from "$components/ui/primitives.js";
 
   import AdminPanelLayout from "./AdminPanelLayout.svelte";
@@ -78,6 +83,7 @@
     onClose = () => {},
     onToast = () => {},
     initialSection = "stats",
+    independentServices = false,
     initialSettingsPath = [],
     initialPaymentId = null,
     initialPaymentUserId = null,
@@ -105,6 +111,7 @@
     onClose?: () => void;
     onToast?: (message: string) => void;
     initialSection?: string;
+    independentServices?: boolean;
     initialSettingsPath?: SettingsPath;
     initialPaymentId?: number | null;
     initialPaymentUserId?: number | string | null;
@@ -130,6 +137,12 @@
 
   const at: TranslateFn = (key, params = {}, fallback = "") =>
     t(`admin_${key}`, params, fallback || key);
+
+  setAdminServiceModel({
+    get independent() {
+      return independentServices;
+    },
+  });
 
   function initialApi(): AdminApi {
     return api;
@@ -184,7 +197,10 @@
   const visibleSections: AdminSectionDescriptor[] = $derived.by(() => {
     void $adminExtensionRevision;
     return ADMIN_SECTIONS.filter(
-      (section) => !section.hideInNavigation && isAdminSectionVisible(section, featureSet)
+      (section) =>
+        !section.hideInNavigation &&
+        isAdminSectionVisible(section, featureSet) &&
+        !(independentServices && RETIRED_ADMIN_SECTIONS.has(section.id))
     );
   });
   const NAV_GROUPS: NavGroup[] = $derived.by(() => {
@@ -225,8 +241,10 @@
   // waiting for feature discovery keeps its slug and renders its own locked or
   // pending state. Only slugs unknown to the registry fall back to the
   // dashboard.
-  const normalizeSection = (value: unknown): AdminSectionId =>
-    resolveAdminSectionId(value) || "stats";
+  const normalizeSection = (value: unknown): AdminSectionId => {
+    const section = resolveAdminSectionId(value) || "stats";
+    return independentServices && RETIRED_ADMIN_SECTIONS.has(section) ? "service-plans" : section;
+  };
   const settingsPathKey = (path: unknown): string => (Array.isArray(path) ? path : []).join("/");
 
   function initialActiveSection(): AdminSectionId {
@@ -416,13 +434,15 @@
 
   function readCurrentUsersRouteFilters(): UsersRouteFilters {
     if (typeof window === "undefined") return DEFAULT_USERS_ROUTE_FILTERS;
-    return readUsersRouteFilters(window.location.search);
+    const filters = readUsersRouteFilters(window.location.search);
+    return independentServices ? independentAccountFilters(filters) : filters;
   }
 
   function applyUsersRouteFilters(
     filters: UsersRouteFilters,
     { resetQuery = false }: { resetQuery?: boolean } = {}
   ): boolean {
+    if (independentServices) filters = independentAccountFilters(filters);
     const previous = currentUsersRouteFilters();
     const changed = !usersRouteFiltersEqual(previous, filters);
     if (!changed && !resetQuery) return false;

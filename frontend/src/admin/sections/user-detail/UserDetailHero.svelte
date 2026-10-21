@@ -1,10 +1,13 @@
 <script lang="ts">
+  import { getAdminServiceModel } from "$lib/admin/context";
   import { AdminBadge, AdminButton, AdminCopyableValue } from "$components/patterns/admin/index.js";
   import { Copy, ExternalLink } from "$components/ui/icons.js";
   import type { Snippet } from "svelte";
   import type { AdminUser } from "$lib/admin/stores/usersStore";
   import type { AdminUserDetail } from "$lib/admin/stores/usersStoreState";
   import type { DateFormatter, TranslateFn, UsersStoreBridge } from "./userDetailTypes";
+
+  const serviceModel = getAdminServiceModel();
 
   let {
     at,
@@ -124,12 +127,14 @@
             ? at("badge_banned", {}, "Banned")
             : at("badge_active", {}, "Active")}
         </AdminBadge>
-        <AdminBadge variant={openedUserDetail.active_subscription ? "success" : "muted"}>
-          {openedUserDetail.active_subscription
-            ? at("badge_subscription", {}, "Subscription")
-            : at("badge_no_subscription", {}, "No subscription")}
-        </AdminBadge>
-        {#if openedUser.telegram_id}
+        {#if !serviceModel.independent}<AdminBadge
+            variant={openedUserDetail.active_subscription ? "success" : "muted"}
+          >
+            {openedUserDetail.active_subscription
+              ? at("badge_subscription", {}, "Subscription")
+              : at("badge_no_subscription", {}, "No subscription")}
+          </AdminBadge>
+        {/if}{#if openedUser.telegram_id}
           <AdminBadge
             variant={telegramStatus === "blocked"
               ? "danger"
@@ -153,7 +158,7 @@
     {/if}
   </div>
   <div class="admin-user-hero-actions">
-    {#if openedUserDetail?.panel_user_url}
+    {#if !serviceModel.independent && openedUserDetail?.panel_user_url}
       <a
         class="admin-btn admin-btn-sm admin-btn-ghost"
         data-admin-action="open-remnawave-user"

@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { getPaymentsStore } from "$lib/admin/context";
+  import { getAdminServiceModel, getPaymentsStore } from "$lib/admin/context";
   import { onMount } from "svelte";
   import {
     AdminPagination,
@@ -28,6 +28,7 @@
     onOpenUserCard?: (userId: number) => void;
   } = $props();
 
+  const serviceModel = getAdminServiceModel();
   const paymentsStore = getPaymentsStore();
   let searchQuery = $state(paymentsStore.paymentsSearch);
   const PAYMENTS_PAGE_SIZE = 25;
@@ -44,6 +45,10 @@
     paymentsStore.loadPayments();
   });
 </script>
+
+{#if serviceModel.independent}
+  <p class="admin-muted">{at("services_payment_history_only")}</p>
+{/if}
 
 <AdminListToolbar
   total={paymentsTotal}

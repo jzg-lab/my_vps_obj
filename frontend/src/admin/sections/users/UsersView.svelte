@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { getAdminServiceModel } from "$lib/admin/context";
   import { Input } from "$components/ui/index.js";
   import { DollarSign, Sliders, X, UsersRound } from "$components/ui/icons.js";
   import Dialog from "$components/ui/dialog.svelte";
@@ -19,6 +20,8 @@
   import type { AdminUser } from "$lib/admin/stores/usersStore";
   import type { AdminBadgeVariant } from "$components/patterns/admin/types";
   import UserMobileCard from "./UserMobileCard.svelte";
+
+  const serviceModel = getAdminServiceModel();
 
   type TranslateFn = (key: string, params?: Record<string, unknown>, fallback?: string) => string;
   type SelectOption = { value: string; label: string };
@@ -163,29 +166,30 @@
     />
   </Label.Root>
 
-  <Label.Root class="admin-toolbar-field admin-users-filter-field">
-    <span class="admin-toolbar-field-label">{at("panel_status", {}, "Panel status")}</span>
-    <AdminSelect
-      value={usersPanelStatus}
-      items={USERS_PANEL_STATUS_OPTIONS}
-      class="admin-toolbar-select"
-      ariaLabel={at("panel_status", {}, "Panel status")}
-      onValueChange={updateUsersPanelStatus}
-    />
-  </Label.Root>
+  {#if !serviceModel.independent}<Label.Root class="admin-toolbar-field admin-users-filter-field">
+      <span class="admin-toolbar-field-label">{at("panel_status", {}, "Panel status")}</span>
+      <AdminSelect
+        value={usersPanelStatus}
+        items={USERS_PANEL_STATUS_OPTIONS}
+        class="admin-toolbar-select"
+        ariaLabel={at("panel_status", {}, "Panel status")}
+        onValueChange={updateUsersPanelStatus}
+      />
+    </Label.Root>
 
-  <Label.Root class="admin-toolbar-field admin-users-filter-field">
-    <span class="admin-toolbar-field-label"
-      >{at("premium_traffic_filter_label", {}, "Premium traffic")}</span
-    >
-    <AdminSelect
-      value={usersPremiumTraffic}
-      items={USERS_PREMIUM_TRAFFIC_OPTIONS}
-      class="admin-toolbar-select"
-      ariaLabel={at("premium_traffic_filter_label", {}, "Premium traffic")}
-      onValueChange={updateUsersPremiumTraffic}
-    />
-  </Label.Root>
+    <Label.Root class="admin-toolbar-field admin-users-filter-field">
+      <span class="admin-toolbar-field-label"
+        >{at("premium_traffic_filter_label", {}, "Premium traffic")}</span
+      >
+      <AdminSelect
+        value={usersPremiumTraffic}
+        items={USERS_PREMIUM_TRAFFIC_OPTIONS}
+        class="admin-toolbar-select"
+        ariaLabel={at("premium_traffic_filter_label", {}, "Premium traffic")}
+        onValueChange={updateUsersPremiumTraffic}
+      />
+    </Label.Root>
+  {/if}
 {/snippet}
 
 {#snippet renderActiveUserFilterChips()}
@@ -266,29 +270,29 @@
       />
     </Label.Root>
 
-    <Label.Root class="admin-toolbar-field">
-      <span class="admin-toolbar-field-label">{at("panel_status", {}, "Panel status")}</span>
-      <AdminSelect
-        value={usersPanelStatus}
-        items={USERS_PANEL_STATUS_OPTIONS}
-        class="admin-toolbar-select"
-        ariaLabel={at("panel_status", {}, "Panel status")}
-        onValueChange={updateToolbarPanelStatus}
-      />
-    </Label.Root>
+    {#if !serviceModel.independent}<Label.Root class="admin-toolbar-field">
+        <span class="admin-toolbar-field-label">{at("panel_status", {}, "Panel status")}</span>
+        <AdminSelect
+          value={usersPanelStatus}
+          items={USERS_PANEL_STATUS_OPTIONS}
+          class="admin-toolbar-select"
+          ariaLabel={at("panel_status", {}, "Panel status")}
+          onValueChange={updateToolbarPanelStatus}
+        />
+      </Label.Root>
 
-    <Label.Root class="admin-toolbar-field">
-      <span class="admin-toolbar-field-label"
-        >{at("premium_traffic_filter_label", {}, "Premium traffic")}</span
-      >
-      <AdminSelect
-        value={usersPremiumTraffic}
-        items={USERS_PREMIUM_TRAFFIC_OPTIONS}
-        class="admin-toolbar-select"
-        ariaLabel={at("premium_traffic_filter_label", {}, "Premium traffic")}
-        onValueChange={updateToolbarPremiumTraffic}
-      />
-    </Label.Root>
+      <Label.Root class="admin-toolbar-field">
+        <span class="admin-toolbar-field-label"
+          >{at("premium_traffic_filter_label", {}, "Premium traffic")}</span
+        >
+        <AdminSelect
+          value={usersPremiumTraffic}
+          items={USERS_PREMIUM_TRAFFIC_OPTIONS}
+          class="admin-toolbar-select"
+          ariaLabel={at("premium_traffic_filter_label", {}, "Premium traffic")}
+          onValueChange={updateToolbarPremiumTraffic}
+        />
+      </Label.Root>{/if}
   {/snippet}
   {#snippet footer()}{@render renderActiveUserFilterChips()}{/snippet}
 </AdminListToolbar>
@@ -334,8 +338,9 @@
 
 <div
   class="admin-users-table-wrap"
-  class:has-user-balance={userBalanceEnabled}
-  class:has-partner-balance={partnerBalanceEnabled}
+  class:independent-services={serviceModel.independent}
+  class:has-user-balance={!serviceModel.independent && userBalanceEnabled}
+  class:has-partner-balance={!serviceModel.independent && partnerBalanceEnabled}
 >
   {#if usersLoading}
     <AdminTableSkeleton
@@ -404,75 +409,76 @@
                 avatarUrl={avatar}
               />
             </td>
-            {#if userBalanceEnabled}
-              <td
-                class="admin-users-cell-money"
-                data-label={at("users_col_user_balance", {}, "Balance")}
-              >
-                <span class="admin-user-balance-value">{rowBalance(user, "user")}</span>
-              </td>
-            {/if}
-            {#if partnerBalanceEnabled}
-              <td
-                class="admin-users-cell-money"
-                data-label={at("users_col_partner_balance", {}, "Partner balance")}
-              >
-                <span class="admin-user-balance-value">{rowBalance(user, "partner")}</span>
-              </td>
-            {/if}
-            <td
-              class="admin-users-cell-premium"
-              data-label={at("premium_traffic_filter_label", {}, "Premium traffic")}
-            >
-              {#if user.premium_traffic && user.premium_traffic.state !== "none"}
-                <AdminBadge
-                  variant={premiumTrafficBadgeVariant(user.premium_traffic)}
-                  class="admin-user-premium-badge"
+            {#if !serviceModel.independent}
+              {#if userBalanceEnabled}
+                <td
+                  class="admin-users-cell-money"
+                  data-label={at("users_col_user_balance", {}, "Balance")}
                 >
-                  {premiumTrafficBadgeText(user.premium_traffic)}
-                </AdminBadge>
-              {:else}
-                <span class="admin-user-premium-placeholder"
-                  >{at("premium_traffic_na", {}, "—")}</span
-                >
+                  <span class="admin-user-balance-value">{rowBalance(user, "user")}</span>
+                </td>
               {/if}
-            </td>
-            <td
-              class="admin-users-cell-money"
-              data-label={at("users_col_payments_total", {}, "Paid total")}
-            >
-              <AdminBadge variant="success" class="admin-user-money-badge">
-                {rowPaymentsTotal(user)}
-              </AdminBadge>
-            </td>
-            <td
-              class="admin-users-cell-counter"
-              data-label={at("users_col_payments_count", {}, "Payments")}
-            >
-              <span class="admin-user-counter">
-                <DollarSign size={12} />
-                <span>{user.payments_count ?? 0}</span>
-              </span>
-            </td>
-            <td
-              class="admin-users-cell-counter"
-              data-label={at("users_col_invited", {}, "Invited")}
-            >
-              <span class="admin-user-counter">
-                <UsersRound size={13} />
-                <span>{user.invited_users_count ?? 0}</span>
-              </span>
-            </td>
-            <td data-label={at("status", {}, "Status")}>
+              {#if partnerBalanceEnabled}
+                <td
+                  class="admin-users-cell-money"
+                  data-label={at("users_col_partner_balance", {}, "Partner balance")}
+                >
+                  <span class="admin-user-balance-value">{rowBalance(user, "partner")}</span>
+                </td>
+              {/if}
+              <td
+                class="admin-users-cell-premium"
+                data-label={at("premium_traffic_filter_label", {}, "Premium traffic")}
+              >
+                {#if user.premium_traffic && user.premium_traffic.state !== "none"}
+                  <AdminBadge
+                    variant={premiumTrafficBadgeVariant(user.premium_traffic)}
+                    class="admin-user-premium-badge"
+                  >
+                    {premiumTrafficBadgeText(user.premium_traffic)}
+                  </AdminBadge>
+                {:else}
+                  <span class="admin-user-premium-placeholder"
+                    >{at("premium_traffic_na", {}, "—")}</span
+                  >
+                {/if}
+              </td>
+              <td
+                class="admin-users-cell-money"
+                data-label={at("users_col_payments_total", {}, "Paid total")}
+              >
+                <AdminBadge variant="success" class="admin-user-money-badge">
+                  {rowPaymentsTotal(user)}
+                </AdminBadge>
+              </td>
+              <td
+                class="admin-users-cell-counter"
+                data-label={at("users_col_payments_count", {}, "Payments")}
+              >
+                <span class="admin-user-counter">
+                  <DollarSign size={12} />
+                  <span>{user.payments_count ?? 0}</span>
+                </span>
+              </td>
+              <td
+                class="admin-users-cell-counter"
+                data-label={at("users_col_invited", {}, "Invited")}
+              >
+                <span class="admin-user-counter">
+                  <UsersRound size={13} />
+                  <span>{user.invited_users_count ?? 0}</span>
+                </span>
+              </td>
+            {/if}<td data-label={at("status", {}, "Status")}>
               <AdminBadge variant={badge.variant}>{badge.label}</AdminBadge>
             </td>
-            <td
-              class="admin-users-cell-date admin-cell-mono"
-              data-label={at("users_col_subscription_expires", {}, "Expires")}
-            >
-              {fmtDateShort(user.subscription_expires_at || user.panel_status_expired_at)}
-            </td>
-            <td
+            {#if !serviceModel.independent}<td
+                class="admin-users-cell-date admin-cell-mono"
+                data-label={at("users_col_subscription_expires", {}, "Expires")}
+              >
+                {fmtDateShort(user.subscription_expires_at || user.panel_status_expired_at)}
+              </td>
+            {/if}<td
               class="admin-users-cell-date admin-cell-mono"
               data-label={at("users_col_registration", {}, "Registered")}
             >
@@ -638,7 +644,7 @@
   }
 
   @media (min-width: 721px) {
-    .admin-users-table-wrap :global(.admin-users-table) {
+    .admin-users-table-wrap:not(.independent-services) :global(.admin-users-table) {
       min-width: 1080px;
     }
 

@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { getAdminServiceModel } from "$lib/admin/context";
   import { onMount, tick } from "svelte";
   import { getRoleApi, getUsersStore } from "$lib/admin/context";
   import { AdminButton } from "$components/patterns/admin/index.js";
@@ -8,6 +9,8 @@
   import type { TranslateFn, DateFormatter } from "./userDetailTypes";
   import UserMergeDialog from "./UserMergeDialog.svelte";
   import AccountAccessStatus from "./AccountAccessStatus.svelte";
+
+  const serviceModel = getAdminServiceModel();
 
   let {
     at,
@@ -141,16 +144,16 @@
         {at("btn_ban", {}, "Block user")}
       </AdminButton>
     {/if}
-    <AdminButton
-      variant="dangerSoft"
-      data-admin-action="request-user-subscription-reissue"
-      onclick={() => usersStore.updateState({ userSubscriptionReissueOpen: true })}
-      disabled={userActionBusy}
-    >
-      <Key size={14} />
-      {at("user_btn_reissue_subscription", {}, "Reset subscription link")}
-    </AdminButton>
-    <AdminButton
+    {#if !serviceModel.independent}<AdminButton
+        variant="dangerSoft"
+        data-admin-action="request-user-subscription-reissue"
+        onclick={() => usersStore.updateState({ userSubscriptionReissueOpen: true })}
+        disabled={userActionBusy}
+      >
+        <Key size={14} />
+        {at("user_btn_reissue_subscription", {}, "Reset subscription link")}
+      </AdminButton>
+    {/if}<AdminButton
       variant="danger"
       data-admin-action="request-user-delete"
       onclick={() => usersStore.updateState({ userDeleteOpen: true })}

@@ -6195,6 +6195,7 @@
   "admin_settings_group_provider_recurring": "Recurring payments",
   "admin_settings_group_provider_card_recurring": "Card recurring payments",
   "admin_settings_group_provider_sbp_recurring": "SBP recurring payments",
+  "admin_services_payment_history_only": "Historical payments are read-only. New services are opened from the user's service list; online payments are not available.",
   "admin_services_plans_title": "Service plans",
   "admin_services_plans_subtitle": "Configure templates for independent services",
   "admin_services_exits_title": "Dedicated exits",

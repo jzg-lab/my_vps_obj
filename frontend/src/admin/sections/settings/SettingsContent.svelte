@@ -25,7 +25,7 @@
   import NotificationDeliveryMatrix from "./NotificationDeliveryMatrix.svelte";
   import MenuButtonsField from "./MenuButtonsField.svelte";
   import TelegramMenuAppearance from "./TelegramMenuAppearance.svelte";
-  import { getAdminApi, getSettingsStore } from "$lib/admin/context";
+  import { getAdminApi, getAdminServiceModel, getSettingsStore } from "$lib/admin/context";
   import { createTelegramMenuSettingsAdapter } from "./telegramMenuSettings";
   import ProgramSettingsSections from "./marketing/ProgramSettingsSections.svelte";
   import {
@@ -66,6 +66,7 @@
   type TranslateFn = (key: string, params?: Record<string, unknown>, fallback?: string) => string;
   type SettingsDirtyState = Record<string, SettingsDirtyEntry>;
   type DynamicComponent = ComponentType<SvelteComponent<Record<string, unknown>>>;
+  const serviceModel = getAdminServiceModel();
   const telegramMenuSettings = createTelegramMenuSettingsAdapter(getSettingsStore(), getAdminApi());
   onMount(telegramMenuSettings.subscribeDraftInvalidation);
   let {
@@ -856,14 +857,14 @@
     </div>
   </div>
   <div class="admin-accordion">
-    <ProgramSettingsSections
-      {at}
-      {highlightedSettingKey}
-      {settingsOpenSections}
-      {toggleSettingsSection}
-      {onNavigateSection}
-      {onOpenSettingsPath}
-    />
+    {#if !serviceModel.independent}<ProgramSettingsSections
+        {at}
+        {highlightedSettingKey}
+        {settingsOpenSections}
+        {toggleSettingsSection}
+        {onNavigateSection}
+        {onOpenSettingsPath}
+      />{/if}
     {#each visibleSettingsSections as section (section.id)}
       {@const dirtyInSection = section.fields.filter((f) => Boolean(settingsDirty[f.key])).length}
       {@const overriddenInSection = section.fields.filter((f) => isOverridden(f)).length}

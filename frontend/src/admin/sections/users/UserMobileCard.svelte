@@ -1,8 +1,11 @@
 <script lang="ts">
+  import { getAdminServiceModel } from "$lib/admin/context";
   import { DollarSign, UsersRound } from "$components/ui/icons.js";
   import { AdminBadge, AdminUserCell } from "$components/patterns/admin/index.js";
   import type { AdminUser } from "$lib/admin/stores/usersStore";
   import type { AdminBadgeVariant } from "$components/patterns/admin/types";
+
+  const serviceModel = getAdminServiceModel();
 
   type TranslateFn = (key: string, params?: Record<string, unknown>, fallback?: string) => string;
   type TrafficBadge =
@@ -78,63 +81,66 @@
       <AdminBadge variant={badge.variant}>{badge.label}</AdminBadge>
     </div>
 
-    <dl class="admin-user-mobile-metrics">
-      {#if userBalanceEnabled}
+    {#if !serviceModel.independent}<dl class="admin-user-mobile-metrics">
+        {#if userBalanceEnabled}
+          <div>
+            <dt>{at("users_col_user_balance", {}, "Balance")}</dt>
+            <dd class="admin-user-balance-value">{rowBalance(user, "user")}</dd>
+          </div>
+        {/if}
+        {#if partnerBalanceEnabled}
+          <div>
+            <dt>{at("users_col_partner_balance", {}, "Partner balance")}</dt>
+            <dd class="admin-user-balance-value">{rowBalance(user, "partner")}</dd>
+          </div>
+        {/if}
         <div>
-          <dt>{at("users_col_user_balance", {}, "Balance")}</dt>
-          <dd class="admin-user-balance-value">{rowBalance(user, "user")}</dd>
+          <dt>{at("premium_traffic_filter_label", {}, "Premium traffic")}</dt>
+          <dd>
+            {#if user.premium_traffic && user.premium_traffic.state !== "none"}
+              <AdminBadge
+                variant={premiumTrafficBadgeVariant(user.premium_traffic)}
+                class="admin-user-premium-badge"
+              >
+                {premiumTrafficBadgeText(user.premium_traffic)}
+              </AdminBadge>
+            {:else}
+              <span class="admin-user-premium-placeholder">{at("premium_traffic_na", {}, "—")}</span
+              >
+            {/if}
+          </dd>
         </div>
-      {/if}
-      {#if partnerBalanceEnabled}
         <div>
-          <dt>{at("users_col_partner_balance", {}, "Partner balance")}</dt>
-          <dd class="admin-user-balance-value">{rowBalance(user, "partner")}</dd>
-        </div>
-      {/if}
-      <div>
-        <dt>{at("premium_traffic_filter_label", {}, "Premium traffic")}</dt>
-        <dd>
-          {#if user.premium_traffic && user.premium_traffic.state !== "none"}
-            <AdminBadge
-              variant={premiumTrafficBadgeVariant(user.premium_traffic)}
-              class="admin-user-premium-badge"
-            >
-              {premiumTrafficBadgeText(user.premium_traffic)}
+          <dt>{at("users_col_payments_total", {}, "Paid total")}</dt>
+          <dd>
+            <AdminBadge variant="success" class="admin-user-money-badge">
+              {rowPaymentsTotal(user)}
             </AdminBadge>
-          {:else}
-            <span class="admin-user-premium-placeholder">{at("premium_traffic_na", {}, "—")}</span>
-          {/if}
-        </dd>
-      </div>
-      <div>
-        <dt>{at("users_col_payments_total", {}, "Paid total")}</dt>
-        <dd>
-          <AdminBadge variant="success" class="admin-user-money-badge">
-            {rowPaymentsTotal(user)}
-          </AdminBadge>
-        </dd>
-      </div>
-      <div>
-        <dt>{at("users_col_payments_count", {}, "Payments")}</dt>
-        <dd class="admin-user-counter">
-          <DollarSign size={12} />
-          <span>{user.payments_count ?? 0}</span>
-        </dd>
-      </div>
-      <div>
-        <dt>{at("users_col_invited", {}, "Invited")}</dt>
-        <dd class="admin-user-counter">
-          <UsersRound size={13} />
-          <span>{user.invited_users_count ?? 0}</span>
-        </dd>
-      </div>
-    </dl>
-
+          </dd>
+        </div>
+        <div>
+          <dt>{at("users_col_payments_count", {}, "Payments")}</dt>
+          <dd class="admin-user-counter">
+            <DollarSign size={12} />
+            <span>{user.payments_count ?? 0}</span>
+          </dd>
+        </div>
+        <div>
+          <dt>{at("users_col_invited", {}, "Invited")}</dt>
+          <dd class="admin-user-counter">
+            <UsersRound size={13} />
+            <span>{user.invited_users_count ?? 0}</span>
+          </dd>
+        </div>
+      </dl>
+    {/if}
     <dl class="admin-user-mobile-dates">
-      <div>
-        <dt>{at("users_col_subscription_expires", {}, "Expires")}</dt>
-        <dd>{fmtDateShort(user.subscription_expires_at || user.panel_status_expired_at)}</dd>
-      </div>
+      {#if !serviceModel.independent}
+        <div>
+          <dt>{at("users_col_subscription_expires", {}, "Expires")}</dt>
+          <dd>{fmtDateShort(user.subscription_expires_at || user.panel_status_expired_at)}</dd>
+        </div>
+      {/if}
       <div>
         <dt>{at("users_col_registration", {}, "Registered")}</dt>
         <dd>{fmtDateShort(user.registration_date)}</dd>
