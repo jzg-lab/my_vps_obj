@@ -46,6 +46,7 @@ from bot.plugins import (
     collect_worker_tasks,
     run_setup,
 )
+from bot.services.account_access_sync import AccountAccessWorker
 from bot.services.admin_broadcast_delivery import AdminBroadcastDeliveryService
 from bot.services.admin_broadcast_worker import AdminBroadcastWorker
 from bot.services.auto_renew_retry_worker import AutoRenewRetryWorker
@@ -528,8 +529,13 @@ async def _outbound_settings_refresh_task(ctx: PluginContext) -> None:
         await asyncio.sleep(5)
 
 
+async def _account_access_sync_task(ctx: PluginContext) -> None:
+    await AccountAccessWorker(ctx.require_session_factory(), ctx.require_panel_service()).run()
+
+
 def _core_worker_tasks() -> list[WorkerTaskSpec]:
     return [
+        WorkerTaskSpec(name="AccountAccessSync", factory=_account_access_sync_task),
         WorkerTaskSpec(name="OutboundSettingsRefresh", factory=_outbound_settings_refresh_task),
         WorkerTaskSpec(name="GiftActivationWorker", factory=_gift_activation_task),
         WorkerTaskSpec(name="ReferralAccrualWorker", factory=_referral_accrual_task),

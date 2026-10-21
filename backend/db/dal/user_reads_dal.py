@@ -221,6 +221,19 @@ async def count_all_users(session: AsyncSession) -> int:
     return result.scalar_one()
 
 
+def normalize_panel_user_reference(value: Any) -> str:
+    raw_reference = str(value or "").strip()
+    if not raw_reference:
+        return ""
+    if raw_reference.isdecimal():
+        numeric_id = int(raw_reference)
+        return str(numeric_id) if numeric_id > 0 else ""
+    try:
+        return str(UUID(raw_reference))
+    except ValueError:
+        return ""
+
+
 async def get_panel_user_uuids_for_user(
     session: AsyncSession,
     user_id: int,
@@ -243,17 +256,7 @@ async def get_panel_user_uuids_for_user(
     seen: set[str] = set()
 
     def add_uuid(value: Any) -> None:
-        raw_reference = str(value or "").strip()
-        if not raw_reference:
-            return
-        if raw_reference.isdecimal():
-            numeric_id = int(raw_reference)
-            panel_uuid = str(numeric_id) if numeric_id > 0 else ""
-        else:
-            try:
-                panel_uuid = str(UUID(raw_reference))
-            except ValueError:
-                panel_uuid = ""
+        panel_uuid = normalize_panel_user_reference(value)
         if panel_uuid and panel_uuid not in seen:
             seen.add(panel_uuid)
             panel_uuids.append(panel_uuid)

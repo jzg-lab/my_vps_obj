@@ -1,4 +1,5 @@
 import { demoAdminUserById } from "./users.js";
+import type { components } from "$lib/api/openapi.generated";
 import { adminBroadcastDemoResponse } from "./adminBroadcasts";
 import { loadDemoDocuments, storeDemoDocuments } from "./documentsState";
 import { DEV_MOCK } from "../previewMock.js";
@@ -39,6 +40,7 @@ import {
 } from "./users";
 
 const demoInformationPages = new Map<string, string>();
+const accountAccess = new Map<number, components["schemas"]["AccountAccessSyncOut"]>();
 const demoDocuments = loadDemoDocuments();
 
 function demoSortValue(value: unknown): AdminSortValue {
@@ -237,6 +239,31 @@ export function demoApiResponse(
     const id = Number(user?.user_id);
     const detail = DATASET.adminUserDetails?.[String(id)];
     if (!detail) return { ok: false, error: "not_found" };
+    if (parts[4] === "ban" && method === "POST") {
+      const banned = jsonBody(options).banned === true;
+      if (user) user.is_banned = banned;
+      if (detail.user) detail.user.is_banned = banned;
+      const access_sync = {
+        pending: true,
+        last_error: "panel_access_unconfirmed",
+        attempted_at: new Date().toISOString(),
+      };
+      accountAccess.set(id, access_sync);
+      return { ok: true, user: clone(detail.user), access_sync };
+    }
+    if (parts[4] === "access-sync") {
+      const access_sync = accountAccess.get(id) || {
+        pending: false,
+        last_error: null,
+        attempted_at: null,
+      };
+      if (method === "POST" && access_sync.pending) {
+        access_sync.pending = false;
+        access_sync.last_error = null;
+        access_sync.attempted_at = new Date().toISOString();
+      }
+      return { ok: true, access_sync: clone(access_sync) };
+    }
     const decoratedDetail = {
       ...withDemoReferralSummary(detail),
       panel_user_url: detail.panel_user_url || "https://panel.example.com/dashboard/open/user/77",

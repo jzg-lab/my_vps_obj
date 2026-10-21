@@ -13,11 +13,20 @@ from sqlalchemy import func, select, text
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_async_engine
 
 from bot.app.web.admin_api_impl import users_actions
+from bot.services.account_access_sync import set_account_ban, synchronize_account_access
 from db.dal.user_services_dal import ServiceConflict, activate_service, save_plan
 from db.migrator.chain_0107_user_services import _upgrade
 from db.migrator.chain_0108_service_account_history import _upgrade as upgrade_history
+from db.migrator.chain_0109_account_access_sync import _upgrade as upgrade_access
 from db.models import Base, User
-from db.service_models import DedicatedExit, ServiceConnection, ServiceOrder, UserService
+from db.service_models import (
+    AccountAccessSync,
+    DedicatedExit,
+    ServiceConnection,
+    ServiceOrder,
+    UserService,
+)
+from tests.unit.test_admin_user_ban import AccessPanel
 from tests.unit.test_user_services import sample_terms
 
 DATABASE_URL = os.environ.get("CORE_PERFORMANCE_TEST_DATABASE_URL", "")
@@ -41,6 +50,7 @@ def scenario(run: Callable[[async_sessionmaker[AsyncSession]], Awaitable[None]])
                     "user_services",
                     "service_connections",
                     "dedicated_exits",
+                    "account_access_sync",
                 }
                 await connection.run_sync(
                     lambda conn: Base.metadata.create_all(
@@ -56,6 +66,8 @@ def scenario(run: Callable[[async_sessionmaker[AsyncSession]], Awaitable[None]])
                 await connection.run_sync(_upgrade)
                 await connection.run_sync(upgrade_history)
                 await connection.run_sync(upgrade_history)
+                await connection.run_sync(upgrade_access)
+                await connection.run_sync(upgrade_access)
             factory = async_sessionmaker(engine, expire_on_commit=False, autoflush=False)
             async with factory.begin() as session:
                 session.add_all([User(user_id=1), User(user_id=2)])
@@ -283,5 +295,88 @@ def test_delete_holds_owner_lock_until_remote_revocation_and_detachment() -> Non
             assert await session.get(User, 2) is None
             retained = await session.get(UserService, service.id)
             assert retained and retained.user_id is None and retained.desired_status == "cancelled"
+
+    scenario(run)
+
+
+def test_access_upgrade_queues_existing_bans_without_reopening_completed_jobs() -> None:
+    async def run(factory: async_sessionmaker[AsyncSession]) -> None:
+        async with factory.begin() as session:
+            user = await session.get(User, 2)
+            assert user
+            user.is_banned = True
+        async with factory.begin() as session:
+            await session.execute(text("DROP TABLE account_access_sync"))
+            connection = await session.connection()
+            await connection.run_sync(upgrade_access)
+            await connection.run_sync(upgrade_access)
+            job = await session.get(AccountAccessSync, 2)
+            assert job and job.pending
+            assert await session.get(AccountAccessSync, 1) is None
+            job.pending = False
+        async with factory.begin() as session:
+            connection = await session.connection()
+            await connection.run_sync(upgrade_access)
+            job = await session.get(AccountAccessSync, 2)
+            assert job and not job.pending
+
+    scenario(run)
+
+
+def test_unban_waits_for_running_sync_then_queues_the_latest_intent() -> None:
+    async def run(factory: async_sessionmaker[AsyncSession]) -> None:
+        async with factory.begin() as session:
+            plan = await save_plan(session, terms=sample_terms(), enabled=True, actor_id=1)
+            service, _, _ = await activate_service(
+                session,
+                user_id=2,
+                actor_id=1,
+                plan_id=plan.id,
+                expected_revision=1,
+                idempotency_key="sync-race",
+            )
+            connection = await session.get(ServiceConnection, service.id)
+            assert connection
+            connection.panel_user_uuid = "11"
+            connection.state = "ready"
+            await set_account_ban(session, user_id=2, actor_id=1, banned=True)
+        started, finish = asyncio.Event(), asyncio.Event()
+        panel = AccessPanel()
+        panel.states["11"] = "ACTIVE"
+
+        async def update(user_uuid: str, enable: bool, log_response: bool = False) -> bool:
+            started.set()
+            await finish.wait()
+            return await panel.update_user_status_on_panel(user_uuid, enable, log_response)
+
+        blocking_panel = SimpleNamespace(
+            update_user_status_on_panel=update,
+            get_user_by_uuid_lookup=panel.get_user_by_uuid_lookup,
+        )
+
+        async def sync() -> None:
+            async with factory() as session:
+                await synchronize_account_access(session, 2, blocking_panel)
+
+        async def unban() -> None:
+            async with factory.begin() as session:
+                await set_account_ban(session, user_id=2, actor_id=1, banned=False)
+
+        running = asyncio.create_task(sync())
+        try:
+            await asyncio.wait_for(started.wait(), timeout=5)
+            waiting = asyncio.create_task(unban())
+            await asyncio.sleep(0.05)
+            assert not waiting.done()
+        finally:
+            finish.set()
+        await asyncio.wait_for(asyncio.gather(running, waiting), timeout=5)
+        assert panel.states["11"] == "DISABLED"
+        async with factory() as session:
+            user = await session.get(User, 2)
+            job = await session.get(AccountAccessSync, 2)
+            assert user and not user.is_banned and job and job.pending
+            await synchronize_account_access(session, 2, panel)
+        assert panel.states["11"] == "ACTIVE"
 
     scenario(run)

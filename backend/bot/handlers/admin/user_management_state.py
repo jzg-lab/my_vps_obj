@@ -9,6 +9,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from bot.keyboards.inline.admin_keyboards import get_back_to_admin_panel_keyboard
 from bot.middlewares.i18n import JsonI18n
+from bot.services.account_access_sync import set_account_ban, synchronize_access_after_commit
 from bot.services.broadcast_personalization import (
     known_shortcodes,
     telegram_html_error,
@@ -27,6 +28,7 @@ from bot.utils.callback_answer import (
 )
 from config.settings import Settings
 from db.dal import message_log_dal, subscription_dal, user_dal
+from db.dal.user_services_dal import ServiceConflict
 
 from .broadcast_shortcodes import (
     bot_username_for_shortcodes,
@@ -445,25 +447,32 @@ async def process_ban_user_handler(
         return
 
     try:
-        # Check if user is already banned
-        if user_model.is_banned:
-            await message.answer(_("admin_user_already_banned"))
-            await state.clear()
+        actor = message.from_user
+        if actor is None:
+            await message.answer(_("wa_auth_access_denied"))
             return
-
-        # Ban the user
-        await user_dal.update_user(session, user_model.user_id, {"is_banned": True})
-
-        # Update on panel if user has panel UUID
-        if user_model.panel_user_uuid:
-            await panel_service.update_user_status_on_panel(user_model.panel_user_uuid, False)
-
+        target_id = int(user_model.user_id)
+        await set_account_ban(
+            session,
+            user_id=target_id,
+            actor_id=await require_telegram_account_id(session, actor.id),
+            banned=True,
+        )
         await session.commit()
-
-        await message.answer(_("admin_user_ban_success", input=hcode(input_text)))
+        pending = await synchronize_access_after_commit(session, target_id, panel_service)
+        await message.answer(
+            _("admin_account_access_saved_pending")
+            if pending
+            else _("admin_user_ban_success", input=hcode(input_text))
+        )
+    except ServiceConflict as exc:
+        await session.rollback()
+        await message.answer(
+            _("wa_auth_access_denied" if exc.code == "forbidden" else "admin_user_ban_error")
+        )
 
     except Exception as e:
-        logger.error("Error banning user %s: %s", user_model.user_id, e)
+        logger.error("Error banning user from admin input: %s", e)
         await session.rollback()
         await message.answer(_("admin_user_ban_error"))
 
@@ -495,25 +504,32 @@ async def process_unban_user_handler(
         return
 
     try:
-        # Check if user is not banned
-        if not user_model.is_banned:
-            await message.answer(_("admin_user_not_banned"))
-            await state.clear()
+        actor = message.from_user
+        if actor is None:
+            await message.answer(_("wa_auth_access_denied"))
             return
-
-        # Unban the user
-        await user_dal.update_user(session, user_model.user_id, {"is_banned": False})
-
-        # Update on panel if user has panel UUID
-        if user_model.panel_user_uuid:
-            await panel_service.update_user_status_on_panel(user_model.panel_user_uuid, True)
-
+        target_id = int(user_model.user_id)
+        await set_account_ban(
+            session,
+            user_id=target_id,
+            actor_id=await require_telegram_account_id(session, actor.id),
+            banned=False,
+        )
         await session.commit()
-
-        await message.answer(_("admin_user_unban_success", input=hcode(input_text)))
+        pending = await synchronize_access_after_commit(session, target_id, panel_service)
+        await message.answer(
+            _("admin_account_access_saved_pending")
+            if pending
+            else _("admin_user_unban_success", input=hcode(input_text))
+        )
+    except ServiceConflict as exc:
+        await session.rollback()
+        await message.answer(
+            _("wa_auth_access_denied" if exc.code == "forbidden" else "admin_user_unban_error")
+        )
 
     except Exception as e:
-        logger.error("Error unbanning user %s: %s", user_model.user_id, e)
+        logger.error("Error unbanning user from admin input: %s", e)
         await session.rollback()
         await message.answer(_("admin_user_unban_error"))
 

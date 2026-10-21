@@ -12,6 +12,7 @@ from bot.app.web.route_contracts import (
     register_contract,
     schema_ref,
 )
+from bot.app.web.service_schemas import AccountAccessSyncOut
 from bot.app.web.webapp.contract_schemas import BALANCE_SCHEMA
 from bot.app.web.webapp.notification_preference_schemas import (
     NotificationPreferencesOut,
@@ -65,7 +66,6 @@ from .users_balance import (
 )
 from .users_common import (
     _ADMIN_SUBSCRIPTION_RESPONSE_SCHEMA,
-    _ADMIN_USER_RESPONSE_SCHEMA,
     _bulk_user_avatar_keys,
     _serialize_admin_user_with_avatar,
 )
@@ -292,8 +292,10 @@ register_contract(
     "admin_user_ban_route",
     RouteContract(
         request_model=AdminUserBanBody,
-        response_schema=_ADMIN_USER_RESPONSE_SCHEMA,
-        models=(AdminUserOut,),
+        response_schema=ok_envelope_with(
+            {"user": schema_ref(AdminUserOut), "access_sync": schema_ref(AccountAccessSyncOut)}
+        ),
+        models=(AdminUserOut, AccountAccessSyncOut),
     ),
 )
 register_contract(

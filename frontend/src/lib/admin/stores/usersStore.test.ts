@@ -13,6 +13,31 @@ function makeStore(api = vi.fn()) {
 }
 
 describe("usersStore", () => {
+  it("keeps the saved ban visible while panel synchronization is pending", async () => {
+    const api = vi.fn().mockResolvedValue({
+      ok: true,
+      user: { user_id: 42, is_banned: true },
+      access_sync: { pending: true, last_error: "panel_access_unconfirmed", attempted_at: null },
+    });
+    const onToast = vi.fn();
+    const store = createUsersStore({ api, onToast, at: (key) => key });
+    store.updateState({ openedUser: { user_id: 42, is_banned: false } });
+    await store.applyBanToggle(true);
+    expect(store.openedUser?.is_banned).toBe(true);
+    expect(store.userActionBusy).toBe(false);
+    expect(onToast).toHaveBeenCalledWith("account_access_saved_pending");
+    expect(onToast).not.toHaveBeenCalledWith("user_banned");
+  });
+
+  it("retains the previous ban state when saving fails", async () => {
+    const api = vi.fn().mockRejectedValue(new Error("unavailable"));
+    const store = makeStore(api);
+    store.updateState({ openedUser: { user_id: 42, is_banned: true } });
+    await store.applyBanToggle(false);
+    expect(store.openedUser?.is_banned).toBe(true);
+    expect(store.userActionBusy).toBe(false);
+  });
+
   it("reports whether the shared clipboard path copied a user value", async () => {
     const onToast = vi.fn();
     const copy = vi.fn().mockResolvedValueOnce(true).mockResolvedValueOnce(false);

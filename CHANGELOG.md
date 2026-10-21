@@ -34,8 +34,11 @@
   merges now move service ownership without pooling entitlements or replacing connection
   identities. Deletion requires released dedicated exits and revoked connections, then retains
   detached service/activation history accessible through admin APIs. Original activation request
-  scopes survive merges and deletion. Full account-ban enforcement, old backend entry-point
-  retirement, traffic enforcement and real-node acceptance are still in progress.
+  scopes survive merges and deletion. Account bans and unbans now persist synchronization jobs
+  before contacting the panel and retry after outages or worker restarts. Every known identity
+  is checked; unbanning preserves expired, exhausted and paused service restrictions. The admin
+  user page distinguishes pending changes from confirmed panel state and offers retry. Old
+  backend entry-point retirement, traffic enforcement and real-node acceptance remain in progress.
 
 - **Nested dialog keyboard focus.** Opening an emoji picker now transfers focus before
   the next keyboard event, so an immediate Escape closes the picker instead of its parent

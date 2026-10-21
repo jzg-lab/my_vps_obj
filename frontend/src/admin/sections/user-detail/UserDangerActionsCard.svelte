@@ -7,6 +7,7 @@
   import type { AdminUserDetail } from "$lib/admin/stores/usersStoreState";
   import type { TranslateFn, DateFormatter } from "./userDetailTypes";
   import UserMergeDialog from "./UserMergeDialog.svelte";
+  import AccountAccessStatus from "./AccountAccessStatus.svelte";
 
   let {
     at,
@@ -89,6 +90,13 @@
     <strong>{at("user_danger_zone_title", {}, "Danger Zone")}</strong>
     <small>{at("user_danger_zone_subtitle", {}, "Confirm first. Deletion is permanent.")}</small>
   </header>
+  {#if targetId}<AccountAccessStatus
+      userId={targetId}
+      banned={openedUserIsBanned}
+      actionBusy={userActionBusy}
+      {at}
+      {fmtDate}
+    />{/if}
   <div class="admin-action-grid">
     <AdminButton
       variant="dangerSoft"

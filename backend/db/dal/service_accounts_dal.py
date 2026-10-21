@@ -3,8 +3,15 @@
 from sqlalchemy import select, update
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from db.dal.account_access_dal import enqueue_access_sync
 from db.dal.user_services_dal import ServiceConflict
-from db.service_models import DedicatedExit, ServiceConnection, ServiceOrder, UserService
+from db.service_models import (
+    AccountAccessSync,
+    DedicatedExit,
+    ServiceConnection,
+    ServiceOrder,
+    UserService,
+)
 
 
 async def deletion_connections(session: AsyncSession, user_id: int) -> list[ServiceConnection]:
@@ -42,6 +49,9 @@ async def detach_history(session: AsyncSession, user_id: int) -> None:
 
 
 async def merge_history(session: AsyncSession, source_id: int, target_id: int) -> None:
+    source_job = await session.get(AccountAccessSync, source_id)
+    if source_job is not None and source_job.pending:
+        await enqueue_access_sync(session, target_id)
     # Request scope, terms, dates, connection identities and resource bindings stay intact.
     for model in (UserService, ServiceOrder):
         await session.execute(

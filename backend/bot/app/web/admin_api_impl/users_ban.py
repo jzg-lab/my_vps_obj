@@ -9,8 +9,10 @@ from bot.app.web.context import (
     get_settings,
 )
 from bot.app.web.request_parsing import parse_body_or_400
-from bot.services.account_roles import can_ban_account
-from db.dal import user_dal
+from bot.app.web.service_schemas import AccountAccessSyncOut
+from bot.services.account_access_sync import set_account_ban, synchronize_access_after_commit
+from db.dal.user_services_dal import ServiceConflict
+from db.service_models import AccountAccessSync
 
 from .auth import _require_admin_user_id
 from .common import _error, _ok, _serialize_user
@@ -33,43 +35,21 @@ async def admin_user_ban_route(request: web.Request) -> web.Response:
         panel_service = getattr(subscription_service, "panel_service", None)
     async_session_factory = get_session_factory(request)
     async with async_session_factory() as session:
-        user = await user_dal.get_user_by_id(session, target_id)
-        if not user:
-            return _error(404, "not_found")
-
-        if desired and not await can_ban_account(session, actor_id, target_id):
+        try:
+            user = await set_account_ban(
+                session, user_id=target_id, actor_id=actor_id, banned=desired
+            )
+        except ServiceConflict as exc:
             await session.rollback()
-            return _error(403, "forbidden")
-
-        panel_user_uuids = await user_dal.get_panel_user_uuids_for_user(
-            session, target_id, user=user
-        )
-        if panel_user_uuids and panel_service is None:
-            await session.rollback()
-            return _error(503, "panel_service_unavailable")
-
-        for panel_uuid in panel_user_uuids:
-            try:
-                panel_updated = await panel_service.update_user_status_on_panel(
-                    panel_uuid, not desired
-                )
-            except Exception:
-                logger.warning(
-                    "Admin webapp failed to set panel user %s banned=%s for user %s",
-                    panel_uuid,
-                    desired,
-                    target_id,
-                    exc_info=True,
-                )
-                await session.rollback()
-                return _error(502, "panel_status_update_failed")
-
-            if not panel_updated:
-                await session.rollback()
-                return _error(502, "panel_status_update_failed")
-
-        user.is_banned = desired
+            return _error(exc.status, exc.code)
         await session.commit()
         await session.refresh(user)
-    await _invalidate_after_admin_user_mutation(settings, target_id)
-    return _ok({"user": _serialize_user(user)})
+        result = _serialize_user(user)
+        await synchronize_access_after_commit(session, target_id, panel_service)
+        job = await session.get(AccountAccessSync, target_id)
+        sync_result = AccountAccessSyncOut.from_job(job)
+    try:
+        await _invalidate_after_admin_user_mutation(settings, target_id)
+    except Exception:
+        logger.exception("Saved account ban cache invalidation failed for user %s", target_id)
+    return _ok({"user": result, "access_sync": sync_result.model_dump(mode="json")})

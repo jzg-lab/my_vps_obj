@@ -2940,6 +2940,24 @@ export interface paths {
     patch?: never;
     trace?: never;
   };
+  "/api/admin/users/{user_id}/access-sync": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** Admin Account Access */
+    get: operations["get_admin_account_access_route"];
+    put?: never;
+    /** Admin Account Access */
+    post: operations["post_admin_account_access_route"];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
   "/api/admin/users/{user_id}/avatar": {
     parameters: {
       query?: never;
@@ -4767,6 +4785,15 @@ export interface paths {
 export type webhooks = Record<string, never>;
 export interface components {
   schemas: {
+    /** AccountAccessSyncOut */
+    AccountAccessSyncOut: {
+      /** Attempted At */
+      attempted_at: string | null;
+      /** Last Error */
+      last_error: string | null;
+      /** Pending */
+      pending: boolean;
+    };
     /** AdAssignBody */
     AdAssignBody: {
       /**
@@ -18930,6 +18957,58 @@ export interface operations {
       };
     };
   };
+  get_admin_account_access_route: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        user_id: number;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description JSON response */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": {
+            access_sync: components["schemas"]["AccountAccessSyncOut"];
+            /** @constant */
+            ok: true;
+          };
+        };
+      };
+    };
+  };
+  post_admin_account_access_route: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        user_id: number;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description JSON response */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": {
+            access_sync: components["schemas"]["AccountAccessSyncOut"];
+            /** @constant */
+            ok: true;
+          };
+        };
+      };
+    };
+  };
   get_admin_user_avatar_route: {
     parameters: {
       query?: never;
@@ -19102,6 +19181,7 @@ export interface operations {
         };
         content: {
           "application/json": {
+            access_sync: components["schemas"]["AccountAccessSyncOut"];
             /** @constant */
             ok: true;
             user: components["schemas"]["AdminUserOut"];

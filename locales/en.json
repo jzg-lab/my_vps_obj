@@ -2504,7 +2504,7 @@
   "admin_user_msg_confirm_recipient": "Recipient: {name}",
   "admin_user_btn_confirm_send": "Confirm Send",
   "admin_user_ban_confirm_title": "Ban user?",
-  "admin_user_ban_confirm_subtitle": "{name} will no longer be able to interact with the bot. This can be undone later.",
+  "admin_user_ban_confirm_subtitle": "{name} will lose account access. All service connections will be disabled, with automatic retries until the panel confirms the change. This can be undone later.",
   "admin_user_subscription_reissue_confirm_title": "Reset subscription link?",
   "admin_user_subscription_reissue_confirm_subtitle": "The panel will revoke the current link and generate a new one. Every device still using the old link will be disconnected. If the user has a linked email and email delivery is configured, the new link will be emailed to them.",
   "admin_user_subscription_reissue_confirm": "Reset link",
@@ -6332,5 +6332,13 @@
   "admin_error_dedicated_exit_reclaim_required": "Reclaim this account’s dedicated exits before deleting the login account. Service and activation history will be retained.",
   "admin_error_service_connection_unconfirmed": "A service connection has an unconfirmed provisioning result. Reconcile it before deleting the account.",
   "admin_error_service_connection_revoke_required": "Revoke all service connections before deleting the account.",
-  "admin_services_idempotency_owner_changed": "This request belongs to a service whose account has changed or been deleted. Check its history before opening a new service."
+  "admin_services_idempotency_owner_changed": "This request belongs to a service whose account has changed or been deleted. Check its history before opening a new service.",
+  "admin_account_access_title": "Connection synchronization",
+  "admin_account_access_load_failed": "Unable to load connection synchronization status. Refresh to try again.",
+  "admin_account_access_pending": "Pending synchronization",
+  "admin_account_access_confirmed": "Panel state confirmed",
+  "admin_account_access_not_requested": "No account connection change requested",
+  "admin_account_access_saved_pending": "Account status is saved. Connection changes are still pending; automatic retries will continue.",
+  "admin_account_access_last_attempt": "Last attempt",
+  "admin_account_access_retry": "Retry synchronization"
 }

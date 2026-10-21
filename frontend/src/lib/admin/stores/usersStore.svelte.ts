@@ -16,6 +16,7 @@ import { AdminUsersError, createUsersStoreQueries } from "./usersStoreQueries";
 import { createUsersStoreSquadOverrideActions } from "./usersStoreSquadOverrides";
 import { createUsersStoreSubscriptionReissueAction } from "./usersStoreSubscriptionReissue";
 import { createUsersStoreNotificationPreferenceActions } from "./usersStoreNotificationPreferences";
+import { createUsersStoreAccessActions } from "./usersStoreAccess";
 import { createUsersStoreBalanceActions } from "./usersStoreBalanceActions";
 import { buildAdminUserActionPath, buildAdminUserPath } from "../../webapp/publicApi";
 import {
@@ -458,49 +459,15 @@ export function createUsersStore({
     void copyText(text, successMessage, onToast);
   }
 
-  function requestBanToggle() {
-    const s = readStateSnapshot();
-    if (!s.openedUser) return;
-    if (s.openedUser.is_banned) {
-      applyBanToggle(false);
-    } else {
-      applyState((st) => ({ ...st, userBanConfirmOpen: true }));
-    }
-  }
-
-  async function applyBanToggle(banned: boolean) {
-    const s = readStateSnapshot();
-    const openedUser = s.openedUser;
-    if (!openedUser) return;
-    applyState((st) => ({ ...st, userActionBusy: true }));
-    try {
-      const res = await api(buildAdminUserActionPath(openedUser.user_id, "ban"), {
-        method: "POST",
-        body: JSON.stringify({ banned }),
-      });
-      if (res?.ok) {
-        invalidateUsersQueries(openedUser.user_id);
-        applyState((st) => {
-          const updatedUser: AdminUser = { ...openedUser, is_banned: banned };
-          return {
-            ...st,
-            openedUser: updatedUser,
-            users: st.users.map((u: AdminUser) =>
-              u.user_id === updatedUser.user_id ? updatedUser : u
-            ),
-            userBanConfirmOpen: false,
-          };
-        });
-        onToast(
-          banned ? at("user_banned", {}, "User banned") : at("user_unbanned", {}, "User unbanned")
-        );
-      } else onToast(adminErrorMessage(res, at));
-    } catch (error) {
-      reportUserActionError(error);
-    } finally {
-      applyState((st) => ({ ...st, userActionBusy: false }));
-    }
-  }
+  const accessActions = createUsersStoreAccessActions({
+    api,
+    onToast,
+    at,
+    readStateSnapshot,
+    applyState,
+    invalidateUsersQueries,
+    reportUserActionError,
+  });
 
   async function sendTelegramProfileLink() {
     const s = readStateSnapshot();
@@ -968,8 +935,7 @@ export function createUsersStore({
     openUser,
     closeUser,
     copyToClipboard,
-    requestBanToggle,
-    applyBanToggle,
+    ...accessActions,
     sendTelegramProfileLink,
     extendUser,
     changeUserTariff,

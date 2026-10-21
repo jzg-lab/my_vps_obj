@@ -7,7 +7,7 @@ from aiogram.utils.keyboard import InlineKeyboardBuilder
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from bot.middlewares.i18n import JsonI18n
-from bot.services.account_roles import can_ban_account
+from bot.services.account_access_sync import set_account_ban, synchronize_access_after_commit
 from bot.services.panel_api_service import PanelApiService
 from bot.services.subscription_service_impl.core import SubscriptionService
 from bot.services.telegram_account import require_telegram_account_id
@@ -17,6 +17,7 @@ from bot.utils.callback_answer import (
 )
 from config.settings import Settings
 from db.dal import message_log_dal, subscription_dal, user_dal
+from db.dal.user_services_dal import ServiceConflict
 from db.models import User
 
 from .user_management_common import (
@@ -362,28 +363,19 @@ async def handle_toggle_ban(
     try:
         new_ban_status = not user.is_banned
 
-        if new_ban_status and (
-            not callback.from_user
-            or not await can_ban_account(
-                session,
-                await require_telegram_account_id(session, callback.from_user.id),
-                user.user_id,
-            )
-        ):
-            await session.rollback()
+        if not callback.from_user:
             await callback.answer(_("wa_auth_access_denied"), show_alert=True)
             return
-
-        # Update in database
-        await user_dal.update_user(session, user.user_id, {"is_banned": new_ban_status})
-
-        # Update on panel if user has panel UUID
-        if user.panel_user_uuid:
-            await panel_service.update_user_status_on_panel(
-                user.panel_user_uuid, not new_ban_status
-            )
-
+        target_id = int(user.user_id)
+        user = await set_account_ban(
+            session,
+            user_id=target_id,
+            actor_id=await require_telegram_account_id(session, callback.from_user.id),
+            banned=new_ban_status,
+        )
         await session.commit()
+        pending = await synchronize_access_after_commit(session, target_id, panel_service)
+        await session.refresh(user)
 
         status_text = (
             _("admin_user_ban_action_banned")
@@ -391,15 +383,29 @@ async def handle_toggle_ban(
             else _("admin_user_ban_action_unbanned")
         )
         await callback.answer(
-            _("admin_user_ban_toggle_success", status=status_text), show_alert=True
+            (
+                _("admin_account_access_saved_pending")
+                if pending
+                else _("admin_user_ban_toggle_success", status=status_text)
+            ),
+            show_alert=True,
         )
 
         # Refresh user card with updated ban status
-        user.is_banned = new_ban_status  # Update local object
         await handle_refresh_user_card(
             callback, user, subscription_service, session, settings, i18n_instance, lang
         )
 
+    except ServiceConflict as exc:
+        await session.rollback()
+        await callback.answer(
+            _(
+                "wa_auth_access_denied"
+                if exc.code == "forbidden"
+                else "admin_user_ban_toggle_error"
+            ),
+            show_alert=True,
+        )
     except Exception as e:
         logger.error("Error toggling ban for user %s: %s", user.user_id, e)
         await session.rollback()

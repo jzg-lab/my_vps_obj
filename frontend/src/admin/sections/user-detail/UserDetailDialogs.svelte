@@ -211,7 +211,7 @@
     ? at(
         "user_ban_confirm_subtitle",
         { name: userDisplayName(openedUser) },
-        "{name} will no longer be able to interact with the bot. This can be undone later."
+        "{name} will lose account access. All service connections will be disabled, with automatic retries until the panel confirms the change. This can be undone later."
       )
     : ""}
   closeLabel={at("close", {}, "Close")}

@@ -2504,7 +2504,7 @@
   "admin_user_msg_confirm_recipient": "Получатель: {name}",
   "admin_user_btn_confirm_send": "Подтвердить отправку",
   "admin_user_ban_confirm_title": "Заблокировать пользователя?",
-  "admin_user_ban_confirm_subtitle": "{name} больше не сможет взаимодействовать с ботом. Действие можно отменить позже.",
+  "admin_user_ban_confirm_subtitle": "{name} потеряет доступ к аккаунту. Все подключения услуг будут отключены; попытки продолжатся до подтверждения панелью. Блокировку можно отменить позже.",
   "admin_user_subscription_reissue_confirm_title": "Сбросить ссылку подписки?",
   "admin_user_subscription_reissue_confirm_subtitle": "Панель отзовёт текущую ссылку и сгенерирует новую. Все устройства, подключённые по старой ссылке, будут отключены. Если у пользователя привязан email и настроена почта, новая ссылка будет отправлена ему письмом.",
   "admin_user_subscription_reissue_confirm": "Сбросить ссылку",
@@ -6332,5 +6332,13 @@
   "admin_error_dedicated_exit_reclaim_required": "Перед удалением аккаунта освободите его выделенные IP. История услуг и активаций сохранится.",
   "admin_error_service_connection_unconfirmed": "Результат создания подключения услуги не подтверждён. Сначала выполните сверку.",
   "admin_error_service_connection_revoke_required": "Перед удалением аккаунта отзовите все подключения услуг.",
-  "admin_services_idempotency_owner_changed": "Этот запрос относится к услуге, чей аккаунт изменён или удалён. Проверьте историю перед новой активацией."
+  "admin_services_idempotency_owner_changed": "Этот запрос относится к услуге, чей аккаунт изменён или удалён. Проверьте историю перед новой активацией.",
+  "admin_account_access_title": "Синхронизация подключений",
+  "admin_account_access_load_failed": "Не удалось загрузить состояние синхронизации. Обновите и попробуйте снова.",
+  "admin_account_access_pending": "Ожидает синхронизации",
+  "admin_account_access_confirmed": "Состояние панели подтверждено",
+  "admin_account_access_not_requested": "Изменение подключений аккаунта не запрошено",
+  "admin_account_access_saved_pending": "Статус аккаунта сохранён. Подключения ещё синхронизируются; автоматические попытки продолжатся.",
+  "admin_account_access_last_attempt": "Последняя попытка",
+  "admin_account_access_retry": "Повторить синхронизацию"
 }

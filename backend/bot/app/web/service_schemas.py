@@ -1,6 +1,6 @@
 """Typed contracts for the project's unified plans and independent services."""
 
-from datetime import UTC, datetime
+from datetime import datetime
 from decimal import Decimal
 from ipaddress import IPv4Address, IPv6Address
 from typing import Literal
@@ -9,15 +9,31 @@ from uuid import UUID
 from pydantic import ConfigDict, Field, StrictBool, field_validator
 
 from bot.app.web.http_contracts import HttpBodyModel, HttpResponseModel
+from bot.services.user_service_access import service_status
 from config.service_periods import as_utc
 from config.service_plans import ServicePlanTerms
 from db.service_models import (
+    AccountAccessSync,
     DedicatedExit,
     ServiceConnection,
     ServiceOrder,
     ServicePlan,
     UserService,
 )
+
+
+class AccountAccessSyncOut(HttpResponseModel):
+    pending: bool
+    last_error: str | None
+    attempted_at: datetime | None
+
+    @classmethod
+    def from_job(cls, job: AccountAccessSync | None) -> "AccountAccessSyncOut":
+        return cls(
+            pending=bool(job and job.pending),
+            last_error=job.last_error if job else None,
+            attempted_at=as_utc(job.attempted_at) if job and job.attempted_at else None,
+        )
 
 
 class ServicePlanBody(HttpBodyModel):
@@ -133,21 +149,7 @@ class UserServiceOut(HttpResponseModel):
     ) -> "UserServiceOut":
         terms = ServicePlanTerms.model_validate(service.terms)
         state = connection.state if connection is not None else "pending"
-        if banned:
-            status = "account_banned"
-        elif service.desired_status != "active":
-            status = service.desired_status
-        elif as_utc(service.expires_at) <= datetime.now(UTC):
-            status = "expired"
-        elif service.used_bytes >= service.quota_bytes:
-            status = "exhausted"
-        elif state != "ready" or (
-            terms.resource_type == "dedicated"
-            and (resource is None or resource.verified_at is None or not resource.enabled)
-        ):
-            status = "pending"
-        else:
-            status = "active"
+        status = service_status(service, connection, resource, banned=banned)
         return cls(
             id=service.id,
             user_id=service.user_id,

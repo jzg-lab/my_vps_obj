@@ -300,6 +300,9 @@ async def admin_dedicated_exit_create_route(request: web.Request) -> web.Respons
 
 
 def setup_service_admin_routes(app: web.Application) -> None:
+    from bot.app.web.account_access_routes import setup_account_access_routes
+
+    setup_account_access_routes(app)
     _register_contracts()
     app.router.add_get("/api/admin/service-plans", admin_service_plans_route)
     app.router.add_post("/api/admin/service-plans", admin_service_plan_create_route)

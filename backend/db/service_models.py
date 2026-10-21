@@ -18,6 +18,17 @@ from sqlalchemy.orm import Mapped, mapped_column
 from db.base import Base
 
 
+class AccountAccessSync(Base):
+    __tablename__ = "account_access_sync"
+
+    user_id: Mapped[int] = mapped_column(
+        BigInteger, ForeignKey("users.user_id", ondelete="CASCADE"), primary_key=True
+    )
+    pending: Mapped[bool] = mapped_column(Boolean, nullable=False, default=True, index=True)
+    last_error: Mapped[str | None] = mapped_column(String(64))
+    attempted_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+
+
 class ServicePlan(Base):
     __tablename__ = "service_plans"
     __table_args__ = (CheckConstraint("revision > 0", name="ck_service_plan_revision"),)
