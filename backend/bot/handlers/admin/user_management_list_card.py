@@ -7,6 +7,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from bot.middlewares.i18n import JsonI18n
 from bot.services.panel_api_service import PanelApiService
 from bot.services.subscription_service_impl.core import SubscriptionService
+from bot.services.telegram_service_model import INDEPENDENT_SERVICES
 from bot.utils.callback_answer import callback_data, callback_message
 from config.settings import Settings
 from db.dal import user_dal
@@ -56,7 +57,12 @@ async def user_card_from_list_handler(
 
     # Create keyboard with back to list button
     keyboard = get_user_card_keyboard(
-        user_id, i18n, current_lang, user.referred_by_id, telegram_id=user.telegram_id
+        user_id,
+        i18n,
+        current_lang,
+        user.referred_by_id,
+        telegram_id=user.telegram_id,
+        independent_services=bool(i18n_data.get(INDEPENDENT_SERVICES)),
     )
     keyboard.button(
         text=_("admin_user_back_to_list_button"), callback_data=f"admin_action:users_list:{page}"
@@ -79,6 +85,7 @@ async def user_card_from_list_handler(
             referral_service,
             settings=settings,
             bot_username=bot_username,
+            independent_services=bool(i18n_data.get(INDEPENDENT_SERVICES)),
         )
         markup = keyboard.as_markup()
 

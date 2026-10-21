@@ -10,6 +10,7 @@ from bot.middlewares.i18n import JsonI18n
 from bot.services.panel_api_service import PanelApiService
 from bot.services.referral_service import ReferralService
 from bot.services.subscription_service_impl.core import SubscriptionService
+from bot.services.telegram_service_model import INDEPENDENT_SERVICES
 from bot.states.admin_states import AdminStates
 from bot.utils.callback_answer import (
     callback_data,
@@ -175,6 +176,7 @@ async def process_user_search_handler(
             referral_service,
             settings=settings,
             bot_username=bot_username,
+            independent_services=bool(i18n_data.get(INDEPENDENT_SERVICES)),
         )
         keyboard = get_user_card_keyboard(
             user_model.user_id,
@@ -182,6 +184,7 @@ async def process_user_search_handler(
             current_lang,
             user_model.referred_by_id,
             telegram_id=user_model.telegram_id,
+            independent_services=bool(i18n_data.get(INDEPENDENT_SERVICES)),
         )
 
         await _send_with_profile_link_fallback(
@@ -278,6 +281,7 @@ async def user_action_handler(
             settings,
             i18n,
             current_lang,
+            independent_services=bool(i18n_data.get(INDEPENDENT_SERVICES)),
         )
     elif action == "send_message":
         await handle_send_message_prompt(callback, state, user, i18n, current_lang)
@@ -291,7 +295,14 @@ async def user_action_handler(
         await handle_view_user_invitees(callback, user, session, i18n, current_lang, page=page)
     elif action == "refresh":
         await handle_refresh_user_card(
-            callback, user, subscription_service, session, settings, i18n, current_lang
+            callback,
+            user,
+            subscription_service,
+            session,
+            settings,
+            i18n,
+            current_lang,
+            independent_services=bool(i18n_data.get(INDEPENDENT_SERVICES)),
         )
     elif action == "delete_user":
         await handle_delete_user_prompt(

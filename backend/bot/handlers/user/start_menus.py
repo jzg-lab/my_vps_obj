@@ -13,6 +13,7 @@ from bot.middlewares.i18n import JsonI18n
 from bot.services.partner_program_service import PartnerProgramService
 from bot.services.subscription_service_impl.core import SubscriptionService
 from bot.services.telegram_account import require_telegram_account_id
+from bot.services.telegram_service_model import INDEPENDENT_SERVICES, send_service_portal
 from bot.utils.callback_answer import (
     callback_message,
     message_from_user,
@@ -49,6 +50,9 @@ async def send_main_menu(
     session: AsyncSession,
     is_edit: bool = False,
 ) -> None:
+    if i18n_data.get(INDEPENDENT_SERVICES):
+        await send_service_portal(target_event, settings, i18n_data, is_edit=is_edit)
+        return
     current_lang = i18n_data.get("current_language", settings.DEFAULT_LANGUAGE)
     i18n: JsonI18n | None = i18n_data.get("i18n_instance")
 
@@ -139,6 +143,9 @@ async def send_bot_interface_menu(
     session: AsyncSession,
     is_edit: bool = False,
 ) -> None:
+    if i18n_data.get(INDEPENDENT_SERVICES):
+        await send_service_portal(target_event, settings, i18n_data, is_edit=is_edit)
+        return
     current_lang = i18n_data.get("current_language", settings.DEFAULT_LANGUAGE)
     i18n: JsonI18n | None = i18n_data.get("i18n_instance")
 

@@ -237,6 +237,7 @@ def _core_queue_handlers() -> dict[str, QueueHandler]:
         "yookassa": _retired_business_event,
         "panel": _retired_business_event,
         "panel_sync": _retired_business_event,
+        "retired_telegram_payment": _retired_business_event,
     }
 
 

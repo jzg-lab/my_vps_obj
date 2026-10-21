@@ -180,7 +180,9 @@ def test_runtime_keeps_only_account_and_operational_workers() -> None:
     }
 
 
-@pytest.mark.parametrize("provider", ["yookassa", "panel", "panel_sync"])
+@pytest.mark.parametrize(
+    "provider", ["yookassa", "panel", "panel_sync", "retired_telegram_payment"]
+)
 @pytest.mark.parametrize("moved", [True, False])
 def test_old_queued_events_are_preserved_without_entitlements_or_ack(
     provider: str,

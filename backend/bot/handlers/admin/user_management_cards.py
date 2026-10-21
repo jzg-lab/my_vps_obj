@@ -13,6 +13,7 @@ from bot.middlewares.i18n import JsonI18n
 from bot.services.referral_service import ReferralService
 from bot.services.registration_invite_gate import referral_program_enabled
 from bot.services.subscription_service_impl.core import SubscriptionService
+from bot.services.telegram_service_model import independent_keyboard
 from bot.utils.install_links import ensure_user_install_guide_share_url
 from bot.utils.telegram_markup import (
     is_profile_link_error,
@@ -44,6 +45,7 @@ def get_user_card_keyboard(
     referrer_id: int | None = None,
     *,
     telegram_id: int | None = None,
+    independent_services: bool = False,
 ) -> InlineKeyboardBuilder:
     """Generate keyboard for user management actions"""
     _ = lambda key, **kwargs: i18n_instance.gettext(lang, key, **kwargs)
@@ -124,7 +126,7 @@ def get_user_card_keyboard(
         builder.adjust(2, 1, 2, 2, 1, 3, 1, 2)
     else:
         builder.adjust(2, 1, 2, 2, 1, 3, quick_links_count, 1, 2)
-    return builder
+    return independent_keyboard(builder) if independent_services else builder
 
 
 async def _send_with_profile_link_fallback(
@@ -166,6 +168,7 @@ async def format_user_card(
     *,
     settings: Settings | None = None,
     bot_username: str | None = None,
+    independent_services: bool = False,
 ) -> str:
     """Format user information as a detailed card"""
     _ = lambda key, **kwargs: i18n_instance.gettext(lang, key, **kwargs)
@@ -205,6 +208,10 @@ async def format_user_card(
     # Ban status
     ban_status = _("admin_user_status_banned") if user.is_banned else _("admin_user_status_active")
     card_parts.append(f"{_('admin_user_status_label')} {ban_status}")
+
+    if independent_services:
+        card_parts.append(_("admin_independent_services_hint"))
+        return "\n".join(card_parts)
 
     # Referral info
     if user.referred_by_id:

@@ -4,6 +4,7 @@ from bot.filters.admin_filter import AdminFilter
 from bot.handlers import inline_mode
 from bot.handlers.admin import admin_router_aggregate
 from bot.handlers.user import user_router_aggregate
+from bot.middlewares.legacy_business import LegacyBusinessMiddleware
 from bot.plugins import PluginContext, setup_bot_plugins
 from config.settings import Settings
 
@@ -13,6 +14,11 @@ def build_root_router(
     plugin_context: PluginContext | None = None,
 ) -> Router:
     root = Router(name="root")
+    retirement = LegacyBusinessMiddleware(settings)
+    root.message.middleware(retirement)
+    root.callback_query.middleware(retirement)
+    root.inline_query.middleware(retirement)
+    root.pre_checkout_query.middleware(retirement)
 
     # Allow all updates only in private chats (messages, callback queries, etc.)
     root.message.filter(F.chat.type == "private")

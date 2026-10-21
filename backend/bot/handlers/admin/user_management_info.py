@@ -220,6 +220,8 @@ async def handle_refresh_user_card(
     settings: Settings,
     i18n_instance: JsonI18n,
     lang: str,
+    *,
+    independent_services: bool = False,
 ) -> None:
     """Refresh user card with latest information"""
     try:
@@ -242,6 +244,7 @@ async def handle_refresh_user_card(
             referral_service,
             settings=settings,
             bot_username=bot_username,
+            independent_services=independent_services,
         )
         keyboard = get_user_card_keyboard(
             fresh_user.user_id,
@@ -249,6 +252,7 @@ async def handle_refresh_user_card(
             lang,
             fresh_user.referred_by_id,
             telegram_id=fresh_user.telegram_id,
+            independent_services=independent_services,
         )
         markup = keyboard.as_markup()
 

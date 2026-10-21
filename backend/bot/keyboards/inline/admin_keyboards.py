@@ -4,12 +4,14 @@ from aiogram.types import InlineKeyboardMarkup
 from aiogram.utils.keyboard import InlineKeyboardBuilder, InlineKeyboardButton
 
 from bot.middlewares.i18n import JsonI18n
+from bot.services.telegram_service_model import independent_keyboard
+from bot.utils.mini_app_url import subscription_mini_app_path_url
 from config.settings import Settings
 from db.models import User
 
 
 def get_admin_panel_keyboard(
-    i18n_instance: JsonI18n, lang: str, settings: Settings
+    i18n_instance: JsonI18n, lang: str, settings: Settings, *, independent_services: bool = False
 ) -> InlineKeyboardMarkup:
     _ = lambda key, **kwargs: i18n_instance.gettext(lang, key, **kwargs)
     builder = InlineKeyboardBuilder()
@@ -38,6 +40,11 @@ def get_admin_panel_keyboard(
         text=_(key="admin_system_functions_section"), callback_data="admin_section:system_functions"
     )
 
+    if independent_services:
+        builder = independent_keyboard(builder)
+        url = subscription_mini_app_path_url(settings, "admin/service-plans")
+        if url:
+            builder.button(text=_("admin_independent_services_open"), url=url)
     builder.adjust(1)
     return builder.as_markup()
 
@@ -59,7 +66,9 @@ def get_stats_monitoring_keyboard(i18n_instance: JsonI18n, lang: str) -> InlineK
     return builder.as_markup()
 
 
-def get_user_management_keyboard(i18n_instance: JsonI18n, lang: str) -> InlineKeyboardMarkup:
+def get_user_management_keyboard(
+    i18n_instance: JsonI18n, lang: str, *, independent_services: bool = False
+) -> InlineKeyboardMarkup:
     _ = lambda key, **kwargs: i18n_instance.gettext(lang, key, **kwargs)
     builder = InlineKeyboardBuilder()
 
@@ -77,6 +86,8 @@ def get_user_management_keyboard(i18n_instance: JsonI18n, lang: str) -> InlineKe
     )
 
     builder.button(text=_(key="back_to_admin_panel_button"), callback_data="admin_action:main")
+    if independent_services:
+        builder = independent_keyboard(builder)
     builder.adjust(2, 2, 1)
     return builder.as_markup()
 
@@ -121,7 +132,9 @@ def get_promo_marketing_keyboard(i18n_instance: JsonI18n, lang: str) -> InlineKe
     return builder.as_markup()
 
 
-def get_system_functions_keyboard(i18n_instance: JsonI18n, lang: str) -> InlineKeyboardMarkup:
+def get_system_functions_keyboard(
+    i18n_instance: JsonI18n, lang: str, *, independent_services: bool = False
+) -> InlineKeyboardMarkup:
     _ = lambda key, **kwargs: i18n_instance.gettext(lang, key, **kwargs)
     builder = InlineKeyboardBuilder()
 
@@ -132,6 +145,8 @@ def get_system_functions_keyboard(i18n_instance: JsonI18n, lang: str) -> InlineK
     )
 
     builder.button(text=_(key="back_to_admin_panel_button"), callback_data="admin_action:main")
+    if independent_services:
+        builder = independent_keyboard(builder)
     builder.adjust(2, 1, 1)
     return builder.as_markup()
 

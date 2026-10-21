@@ -19,6 +19,7 @@ from bot.services.broadcast_personalization import (
     telegram_html_error,
     unknown_shortcodes,
 )
+from bot.services.telegram_service_model import INDEPENDENT_SERVICES
 from bot.states.admin_states import AdminStates
 from bot.utils import (
     MessageContent,
@@ -296,7 +297,12 @@ async def cancel_broadcast_at_prompt_stage(
 
     await callback_message(callback).answer(
         _(key="admin_panel_title"),
-        reply_markup=get_admin_panel_keyboard(i18n, current_lang, settings),
+        reply_markup=get_admin_panel_keyboard(
+            i18n,
+            current_lang,
+            settings,
+            independent_services=bool(i18n_data.get(INDEPENDENT_SERVICES)),
+        ),
     )
 
 

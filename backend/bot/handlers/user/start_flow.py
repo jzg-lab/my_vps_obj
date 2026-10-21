@@ -22,6 +22,7 @@ from bot.services.registration_invite_gate import (
 )
 from bot.services.subscription_service_impl.core import SubscriptionService
 from bot.services.telegram_notifications import TELEGRAM_NOTIFICATIONS_ENABLED
+from bot.services.telegram_service_model import INDEPENDENT_SERVICES
 from bot.utils.callback_answer import (
     message_bot,
     message_from_user,
@@ -119,6 +120,7 @@ async def start_command_handler(
     ticket_match: re.Match | None = None,
     notifications_match: re.Match | None = None,
 ) -> None:
+    independent_services = bool(i18n_data.get(INDEPENDENT_SERVICES))
     await state.clear()
     current_lang = i18n_data.get("current_language", settings.DEFAULT_LANGUAGE)
     i18n: JsonI18n | None = i18n_data.get("i18n_instance")
@@ -178,12 +180,14 @@ async def start_command_handler(
                 i18n,
                 current_lang,
                 referral_service,
+                independent_services=bool(i18n_data.get(INDEPENDENT_SERVICES)),
             )
             keyboard = get_user_card_keyboard(
                 target_user.user_id,
                 i18n,
                 current_lang,
                 target_user.referred_by_id,
+                independent_services=bool(i18n_data.get(INDEPENDENT_SERVICES)),
             )
 
             await _send_with_profile_link_fallback(
@@ -314,7 +318,7 @@ async def start_command_handler(
             user_id = int(db_user.user_id)
 
             if created:
-                if partner_code:
+                if partner_code and not independent_services:
                     await PartnerProgramService(settings).attribute_user(
                         session,
                         user=db_user,
@@ -322,10 +326,11 @@ async def start_command_handler(
                         source="partner_telegram_link",
                         registered_via_partner_link=True,
                     )
-                await PartnerProgramService(settings).auto_enroll_user(
-                    session,
-                    user=db_user,
-                )
+                if not independent_services:
+                    await PartnerProgramService(settings).auto_enroll_user(
+                        session,
+                        user=db_user,
+                    )
                 try:
                     await session.commit()
                 except Exception as commit_error:
@@ -342,7 +347,11 @@ async def start_command_handler(
 
                 # Auto-grant referral welcome bonus to newly registered referred users.
                 referral_welcome_days = max(0, int(settings.referral_settings.welcome_bonus_days))
-                if (referred_by_user_id or partner_code) and referral_welcome_days > 0:
+                if (
+                    not independent_services
+                    and (referred_by_user_id or partner_code)
+                    and referral_welcome_days > 0
+                ):
                     try:
                         locked_user = await user_dal.lock_user_by_id(session, user_id)
                         eligible_source = bool(
@@ -461,7 +470,7 @@ async def start_command_handler(
             update_payload["telegram_notifications_blocked_at"] = None
         # Set referral only if not already set AND user is not currently active.
         # This allows previously subscribed but currently inactive users to be attributed.
-        if referred_by_user_id and db_user.referred_by_id is None:
+        if not independent_services and referred_by_user_id and db_user.referred_by_id is None:
             try:
                 is_active_now = await subscription_service.has_active_subscription(session, user_id)
             except Exception:
@@ -513,7 +522,9 @@ async def start_command_handler(
     ):
         return
 
-    open_referral_page_for_existing_user = should_open_referral_from_start and is_existing_user
+    open_referral_page_for_existing_user = (
+        not independent_services and should_open_referral_from_start and is_existing_user
+    )
 
     # Send welcome message if not disabled
     if (
@@ -527,7 +538,7 @@ async def start_command_handler(
         await message.answer(_("telegram_notifications_started"), parse_mode="HTML")
 
     # Auto-apply promo code if provided via start parameter
-    if promo_code_to_apply:
+    if promo_code_to_apply and not independent_services:
         try:
             from bot.services.promo_code_service import PromoCheckoutRequired, PromoCodeService
 

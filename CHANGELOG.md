@@ -47,7 +47,12 @@
   admin UI hides retired subscription operations, account-level quotas and sales settings; stale
   subscription filters and deep links no longer present a competing service model. Account
   lifecycle actions remain available, and historical payments are read-only. Telegram
-  retirement, traffic enforcement and real-node acceptance remain in progress.
+  menus now direct service management to the website; old entitlement callbacks, stale input
+  states and built-in payment handlers are retired after normal authorization. Registration,
+  language and account lifecycle actions remain available without implicit subscription grants.
+  Pre-checkout is rejected; received historical payment receipts enter the existing queue for
+  dead-letter reconciliation without granting entitlements. Traffic enforcement, connection
+  delivery and real-node acceptance remain in progress.
 
 - **Nested dialog keyboard focus.** Opening an emoji picker now transfers focus before
   the next keyboard event, so an immediate Escape closes the picker instead of its parent

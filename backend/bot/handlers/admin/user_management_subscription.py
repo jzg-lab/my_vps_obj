@@ -356,6 +356,8 @@ async def handle_toggle_ban(
     settings: Settings,
     i18n_instance: JsonI18n,
     lang: str,
+    *,
+    independent_services: bool = False,
 ) -> None:
     """Toggle user ban status"""
     _ = lambda key, **kwargs: i18n_instance.gettext(lang, key, **kwargs)
@@ -393,7 +395,14 @@ async def handle_toggle_ban(
 
         # Refresh user card with updated ban status
         await handle_refresh_user_card(
-            callback, user, subscription_service, session, settings, i18n_instance, lang
+            callback,
+            user,
+            subscription_service,
+            session,
+            settings,
+            i18n_instance,
+            lang,
+            independent_services=independent_services,
         )
 
     except ServiceConflict as exc:

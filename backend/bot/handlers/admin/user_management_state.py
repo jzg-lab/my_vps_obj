@@ -19,6 +19,7 @@ from bot.services.panel_api_service import PanelApiService
 from bot.services.referral_service import ReferralService
 from bot.services.subscription_service_impl.core import SubscriptionService
 from bot.services.telegram_account import require_telegram_account_id
+from bot.services.telegram_service_model import INDEPENDENT_SERVICES
 from bot.states.admin_states import AdminStates
 from bot.utils import MessageContent, get_message_content, send_direct_message
 from bot.utils.callback_answer import (
@@ -127,6 +128,7 @@ async def process_subscription_days_handler(
                     referral_service,
                     settings=settings,
                     bot_username=bot_username,
+                    independent_services=bool(i18n_data.get(INDEPENDENT_SERVICES)),
                 )
                 keyboard = get_user_card_keyboard(
                     user.user_id,
@@ -134,6 +136,7 @@ async def process_subscription_days_handler(
                     current_lang,
                     user.referred_by_id,
                     telegram_id=user.telegram_id,
+                    independent_services=bool(i18n_data.get(INDEPENDENT_SERVICES)),
                 )
 
                 await _send_with_profile_link_fallback(
@@ -292,6 +295,7 @@ async def process_direct_message_handler(
                 referral_service,
                 settings=settings,
                 bot_username=card_bot_username,
+                independent_services=bool(i18n_data.get(INDEPENDENT_SERVICES)),
             )
             keyboard = get_user_card_keyboard(
                 target_user.user_id,
@@ -299,6 +303,7 @@ async def process_direct_message_handler(
                 current_lang,
                 target_user.referred_by_id,
                 telegram_id=target_user.telegram_id,
+                independent_services=bool(i18n_data.get(INDEPENDENT_SERVICES)),
             )
 
             await _send_with_profile_link_fallback(
@@ -631,6 +636,7 @@ async def process_premium_override_bonus_handler(
             referral_service,
             settings=settings,
             bot_username=bot_username,
+            independent_services=bool(i18n_data.get(INDEPENDENT_SERVICES)),
         )
         keyboard = get_user_card_keyboard(
             target_user.user_id,
@@ -638,6 +644,7 @@ async def process_premium_override_bonus_handler(
             current_lang,
             target_user.referred_by_id,
             telegram_id=target_user.telegram_id,
+            independent_services=bool(i18n_data.get(INDEPENDENT_SERVICES)),
         )
         await _send_with_profile_link_fallback(
             message.answer,
@@ -753,6 +760,7 @@ async def process_hwid_device_limit_handler(
             referral_service,
             settings=settings,
             bot_username=bot_username,
+            independent_services=bool(i18n_data.get(INDEPENDENT_SERVICES)),
         )
         keyboard = get_user_card_keyboard(
             target_user.user_id,
@@ -760,6 +768,7 @@ async def process_hwid_device_limit_handler(
             current_lang,
             target_user.referred_by_id,
             telegram_id=target_user.telegram_id,
+            independent_services=bool(i18n_data.get(INDEPENDENT_SERVICES)),
         )
         await _send_with_profile_link_fallback(
             message.answer,
@@ -870,6 +879,7 @@ async def process_traffic_grant_gb_handler(
             referral_service,
             settings=settings,
             bot_username=bot_username,
+            independent_services=bool(i18n_data.get(INDEPENDENT_SERVICES)),
         )
         keyboard = get_user_card_keyboard(
             target_user.user_id,
@@ -877,6 +887,7 @@ async def process_traffic_grant_gb_handler(
             current_lang,
             target_user.referred_by_id,
             telegram_id=target_user.telegram_id,
+            independent_services=bool(i18n_data.get(INDEPENDENT_SERVICES)),
         )
         await _send_with_profile_link_fallback(
             message.answer,

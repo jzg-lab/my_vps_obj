@@ -16,6 +16,7 @@ from bot.keyboards.inline.admin_keyboards import (
 from bot.middlewares.i18n import JsonI18n
 from bot.services.panel_api_service import PanelApiService
 from bot.services.subscription_service_impl.core import SubscriptionService
+from bot.services.telegram_service_model import INDEPENDENT_SERVICES
 from bot.utils.callback_answer import callback_data, callback_message
 from bot.utils.message_queue import get_queue_manager
 from config.settings import Settings
@@ -52,7 +53,12 @@ async def admin_panel_command_handler(
     _ = lambda key, **kwargs: i18n.gettext(current_lang, key, **kwargs)
     await message.answer(
         _(key="admin_panel_title"),
-        reply_markup=get_admin_panel_keyboard(i18n, current_lang, settings),
+        reply_markup=get_admin_panel_keyboard(
+            i18n,
+            current_lang,
+            settings,
+            independent_services=bool(i18n_data.get(INDEPENDENT_SERVICES)),
+        ),
     )
 
 
@@ -174,12 +180,22 @@ async def admin_panel_actions_callback_handler(
         try:
             await callback_message(callback).edit_text(
                 _(key="admin_panel_title"),
-                reply_markup=get_admin_panel_keyboard(i18n, current_lang, settings),
+                reply_markup=get_admin_panel_keyboard(
+                    i18n,
+                    current_lang,
+                    settings,
+                    independent_services=bool(i18n_data.get(INDEPENDENT_SERVICES)),
+                ),
             )
         except Exception:
             await callback_message(callback).answer(
                 _(key="admin_panel_title"),
-                reply_markup=get_admin_panel_keyboard(i18n, current_lang, settings),
+                reply_markup=get_admin_panel_keyboard(
+                    i18n,
+                    current_lang,
+                    settings,
+                    independent_services=bool(i18n_data.get(INDEPENDENT_SERVICES)),
+                ),
             )
         await callback.answer()
     else:
@@ -216,7 +232,11 @@ async def admin_section_handler(
         elif section == "user_management":
             await callback_message(callback).edit_text(
                 _("admin_user_management_section"),
-                reply_markup=get_user_management_keyboard(i18n, current_lang),
+                reply_markup=get_user_management_keyboard(
+                    i18n,
+                    current_lang,
+                    independent_services=bool(i18n_data.get(INDEPENDENT_SERVICES)),
+                ),
             )
         elif section == "ban_management":
             await callback_message(callback).edit_text(
@@ -231,7 +251,11 @@ async def admin_section_handler(
         elif section == "system_functions":
             await callback_message(callback).edit_text(
                 _("admin_system_functions_section"),
-                reply_markup=get_system_functions_keyboard(i18n, current_lang),
+                reply_markup=get_system_functions_keyboard(
+                    i18n,
+                    current_lang,
+                    independent_services=bool(i18n_data.get(INDEPENDENT_SERVICES)),
+                ),
             )
         else:
             await callback.answer(_("admin_unknown_action"), show_alert=True)
@@ -242,7 +266,12 @@ async def admin_section_handler(
         logger.error("Error handling admin section %s: %s", section, e)
         await callback_message(callback).answer(
             _("error_occurred_try_again"),
-            reply_markup=get_admin_panel_keyboard(i18n, current_lang, settings),
+            reply_markup=get_admin_panel_keyboard(
+                i18n,
+                current_lang,
+                settings,
+                independent_services=bool(i18n_data.get(INDEPENDENT_SERVICES)),
+            ),
         )
         await callback.answer()
 
