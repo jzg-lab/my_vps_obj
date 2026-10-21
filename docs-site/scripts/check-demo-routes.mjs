@@ -15,7 +15,7 @@ const sectionsEnd = source.indexOf('\n];', sectionsStart);
 if (sectionsStart < 0 || sectionsEnd < 0) {
   throw new Error('Could not read CORE_ADMIN_SECTIONS from the admin section registry.');
 }
-const sectionIds = [...source.slice(sectionsStart, sectionsEnd).matchAll(/^    id: "([a-z_]+)",/gm)].map(
+const sectionIds = [...source.slice(sectionsStart, sectionsEnd).matchAll(/^    id: "([a-z0-9_-]+)",/gm)].map(
   (match) => match[1],
 );
 if (!sectionIds.length) throw new Error('No core admin section IDs found in the registry.');

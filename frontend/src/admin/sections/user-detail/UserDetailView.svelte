@@ -1,4 +1,5 @@
 <script lang="ts">
+  import UserServices from "../services/UserServices.svelte";
   import { AdminButton } from "$components/patterns/admin/index.js";
   import { RefreshCw } from "$components/ui/icons.js";
   import UserDetailLinks from "./UserDetailLinks.svelte";
@@ -261,6 +262,11 @@
         {/if}
       {/snippet}
     </UserDetailHero>
+    {#key openedUser.user_id}<UserServices
+        {at}
+        userId={openedUser.user_id}
+        banned={Boolean(openedUser.is_banned)}
+      />{/key}
     {#if openedUserDetail}
       <UserDetailLinks {at} {usersStore} {openedUserDetail} />
     {/if}

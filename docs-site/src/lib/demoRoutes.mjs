@@ -17,6 +17,8 @@ export const demoUserRoutes = [
 export const demoAdminRoutes = [
   "stats",
   "users",
+  "service-plans",
+  "dedicated-exits",
   "payments",
   "promos",
   "gifts",

@@ -111,6 +111,32 @@ export const ADMIN_SECTION_GROUPS = mergeAdminSectionGroups(
 
 const CORE_ADMIN_SECTIONS: AdminSectionDescriptor[] = [
   {
+    id: "service-plans",
+    group: "operations",
+    order: 11,
+    i18nKey: "services_plans_title",
+    fallbackLabel: "Service plans",
+    titleI18nKey: "services_plans_title",
+    fallbackTitle: "Service plans",
+    subtitleI18nKey: "services_plans_subtitle",
+    fallbackSubtitle: "Configure independent service terms",
+    icon: Coins,
+    loadComponent: () => import("./ServicePlansSection.svelte").then((module) => module.default),
+  },
+  {
+    id: "dedicated-exits",
+    group: "operations",
+    order: 12,
+    i18nKey: "services_exits_title",
+    fallbackLabel: "Dedicated exits",
+    titleI18nKey: "services_exits_title",
+    fallbackTitle: "Dedicated exits",
+    subtitleI18nKey: "services_exits_subtitle",
+    fallbackSubtitle: "Register fixed exclusive IP resources",
+    icon: Database,
+    loadComponent: () => import("./DedicatedExitsSection.svelte").then((module) => module.default),
+  },
+  {
     id: "stats",
     group: "overview",
     order: 10,

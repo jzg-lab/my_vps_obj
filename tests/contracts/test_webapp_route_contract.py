@@ -386,6 +386,15 @@ class WebAppRouteContractTests(unittest.TestCase):
 
         self.assertEqual(match_info.handler.__name__, "index_route")
 
+    def test_independent_service_admin_pages_use_the_core_shell(self):
+        app = web.Application()
+        webapp_routes.setup_subscription_webapp_routes(app)
+        for path in ("/admin/service-plans", "/admin/dedicated-exits"):
+            with self.subTest(path=path):
+                request = make_mocked_request("GET", path, app=app)
+                match_info = asyncio.run(app.router.resolve(request))
+                self.assertEqual(match_info.handler.__name__, "index_route")
+
     def test_admin_root_route_with_trailing_slash_is_registered(self):
         app = web.Application()
         subscription_webapp.setup_subscription_webapp_routes(app)

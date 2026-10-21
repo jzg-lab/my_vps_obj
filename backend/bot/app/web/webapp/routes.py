@@ -269,7 +269,8 @@ def setup_subscription_webapp_routes(app: web.Application) -> None:
     app.router.add_get(
         (
             "/admin/{section:stats|users|payments|gifts|promos|ads|broadcast|logs|tariffs|"
-            "appearance|settings|translations|support|backups|partners|documents|plugins}"
+            "appearance|settings|translations|support|backups|partners|documents|plugins|"
+            "service-plans|dedicated-exits}"
         ),
         index_route,
     )

@@ -21,11 +21,14 @@
   payments and outbound notifications by default. Upstream publication workflows are restricted
   to the upstream repository.
 - **Independent service records.** Administrators can define shared-node or dedicated-exit
-  plan templates and manually open separate services through authenticated APIs. Each opening
+  plan templates and manually open separate services through authenticated APIs and new admin
+  pages. The plan editor supports both resource types and total/monthly allowances; dedicated
+  exits have an inventory page, and user details show separate service records. Each opening
   retains its commercial terms and price; retries return the original service. Dedicated-exit
   reservations are exclusive, and user reads are scoped to the authenticated account. New
-  services remain pending until panel delivery is implemented; the new UI, account lifecycle,
-  traffic enforcement and real-node acceptance are still in progress.
+  services remain pending until panel delivery is implemented. The admin activation form retains
+  uncertain requests across reloads for idempotent retry. User-home replacement, account
+  lifecycle, traffic enforcement and real-node acceptance are still in progress.
 
 - **Nested dialog keyboard focus.** Opening an emoji picker now transfers focus before
   the next keyboard event, so an immediate Escape closes the picker instead of its parent

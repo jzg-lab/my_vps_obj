@@ -1,3 +1,4 @@
+import { independentServicesDemoResponse } from "./mockApi/independentServices";
 import { buildAdminDemoFixtures } from "./mockApi/adminFixtures";
 import { adminFallbackResponse } from "./mockApi/adminFallback";
 import { defaultClone, type MockApiContext } from "./mockApi/dataset";
@@ -22,6 +23,8 @@ export async function mockApi(
     clone = defaultClone,
   } = context;
   await new Promise((resolve) => window.setTimeout(resolve, 120));
+  const independentServices = independentServicesDemoResponse(path, options);
+  if (independentServices !== undefined) return independentServices;
   const cleanPath = String(path || "").split("?")[0];
   const paymentHistory = paymentHistoryDemoResponse(path);
   if (paymentHistory !== undefined) return paymentHistory;
