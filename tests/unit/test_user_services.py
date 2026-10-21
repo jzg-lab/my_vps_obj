@@ -95,7 +95,7 @@ def test_plan_terms_reject_ambiguous_or_invalid_entitlements(changes: dict[str, 
         sample_terms(**changes)
 
 
-class UserServicesTests(IsolatedAsyncioTestCase):
+class ServiceDatabaseTestCase(IsolatedAsyncioTestCase):
     async def asyncSetUp(self) -> None:
         self.engine = create_async_engine("sqlite+aiosqlite://")
 
@@ -126,6 +126,8 @@ class UserServicesTests(IsolatedAsyncioTestCase):
                 idempotency_key=key,
             )
 
+
+class UserServicesTests(ServiceDatabaseTestCase):
     async def test_replay_and_separate_instances_preserve_original_price(self) -> None:
         first, order, _ = await self.activate()
         replay, same_order, duplicate = await self.activate()

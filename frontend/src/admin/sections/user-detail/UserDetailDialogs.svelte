@@ -324,7 +324,7 @@
   description={at(
     "user_delete_confirm_subtitle",
     {},
-    "This action is irreversible. Bot database records and the Remnawave Panel user will be deleted."
+    "This permanently deletes the login account and panel connections. Independent service and activation history is retained. Reclaim dedicated exits first."
   )}
   closeLabel={at("close", {}, "Close")}
   onclose={() => usersStore.updateState({ userDeleteOpen: false })}

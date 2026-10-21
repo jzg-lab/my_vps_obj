@@ -459,7 +459,7 @@
   "admin_traffic_grant_regular_done": "✅ +{gb} ГБ обычного трафика выдано пользователю {user} (ID: {user_id})",
   "admin_traffic_grant_premium_done": "✅ +{gb} ГБ премиум-трафика выдано пользователю {user} (ID: {user_id})",
   "admin_user_delete_not_allowed": "❌ У вас нет прав для удаления пользователей.",
-  "admin_user_delete_confirmation_prompt": "⚠️ Вы хотите полностью удалить пользователя {user_id} из бота и панели.\n\nОтправьте указанный ID пользователя, чтобы подтвердить удаление.\nЛюбой другой ответ отменит операцию.",
+  "admin_user_delete_confirmation_prompt": "⚠️ Удалить аккаунт {user_id} и его подключения в панели? Сначала освободите выделенные IP. История независимых услуг и активаций сохранится.\n\nОтправьте ID пользователя для подтверждения. Любой другой ответ отменит операцию.",
   "admin_user_delete_state_missing": "⚠️ Нет активной операции удаления. Начните заново.",
   "admin_user_delete_cancelled": "Удаление отменено.",
   "admin_user_delete_mismatch": "⚠️ ID не совпадает. Удаление отменено.",
@@ -2511,7 +2511,7 @@
   "admin_user_subscription_reissued": "Ссылка подписки перевыпущена",
   "admin_user_subscription_reissued_email": "Ссылка подписки перевыпущена. Новая ссылка отправлена пользователю на email",
   "admin_user_delete_confirm_title": "Удалить пользователя?",
-  "admin_user_delete_confirm_subtitle": "Действие необратимо. Удалятся записи в БД бота и пользователь в Remnawave Panel.",
+  "admin_user_delete_confirm_subtitle": "Аккаунт для входа и подключения в панели будут удалены безвозвратно. История независимых услуг и активаций сохранится. Сначала освободите выделенные IP.",
   "admin_user_btn_confirm_delete": "Подтвердить удаление",
   "admin_btn_add_premium_squad": "Добавить premium-сквад",
   "admin_tariff_col_volume_gb": "Объём, GB",
@@ -6328,5 +6328,9 @@
   "wa_services_exit_pending": "Ожидает проверки",
   "wa_services_connection_pending": "Услуга оформлена. Администратор готовит подключение; ссылка подписки пока недоступна.",
   "wa_services_connection_unavailable": "Выдача ссылки подписки пока недоступна. Обратитесь к администратору за помощью с подключением.",
-  "wa_services_monthly_hint": "Лимит обновляется каждый календарный месяц от исходной даты подключения. Неиспользованный трафик не переносится."
+  "wa_services_monthly_hint": "Лимит обновляется каждый календарный месяц от исходной даты подключения. Неиспользованный трафик не переносится.",
+  "admin_error_dedicated_exit_reclaim_required": "Перед удалением аккаунта освободите его выделенные IP. История услуг и активаций сохранится.",
+  "admin_error_service_connection_unconfirmed": "Результат создания подключения услуги не подтверждён. Сначала выполните сверку.",
+  "admin_error_service_connection_revoke_required": "Перед удалением аккаунта отзовите все подключения услуг.",
+  "admin_services_idempotency_owner_changed": "Этот запрос относится к услуге, чей аккаунт изменён или удалён. Проверьте историю перед новой активацией."
 }

@@ -103,7 +103,7 @@ class ServiceCatalogPlanOut(HttpResponseModel):
 
 class UserServiceOut(HttpResponseModel):
     id: str
-    user_id: int
+    user_id: int | None
     plan_id: str
     plan_revision: int
     name: str
@@ -175,7 +175,7 @@ class UserServiceOut(HttpResponseModel):
 
 class ServiceOrderOut(HttpResponseModel):
     id: str
-    user_id: int
+    user_id: int | None
     service_id: str
     actor_id: int
     kind: str

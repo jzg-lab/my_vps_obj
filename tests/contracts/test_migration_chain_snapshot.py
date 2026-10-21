@@ -124,6 +124,7 @@ EXPECTED_CORE_MIGRATION_IDS = [
     "0105_provider_mandates",
     "0106_support_connector",
     "0107_user_services",
+    "0108_service_account_history",
 ]
 
 

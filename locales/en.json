@@ -459,7 +459,7 @@
   "admin_traffic_grant_regular_done": "✅ +{gb} GB of regular traffic granted to {user} (ID: {user_id})",
   "admin_traffic_grant_premium_done": "✅ +{gb} GB of premium traffic granted to {user} (ID: {user_id})",
   "admin_user_delete_not_allowed": "❌ You are not permitted to delete users.",
-  "admin_user_delete_confirmation_prompt": "⚠️ You are about to delete user {user_id} from the bot and the panel.\n\nSend the user ID shown above to confirm.\nAny other reply will cancel the operation.",
+  "admin_user_delete_confirmation_prompt": "⚠️ Delete login account {user_id} and its panel connections? Dedicated exits must be reclaimed first. Independent service and activation history will be retained.\n\nSend the user ID above to confirm. Any other reply cancels.",
   "admin_user_delete_state_missing": "⚠️ No active delete operation. Start again.",
   "admin_user_delete_cancelled": "Deletion cancelled.",
   "admin_user_delete_mismatch": "⚠️ ID mismatch. Deletion aborted.",
@@ -2511,7 +2511,7 @@
   "admin_user_subscription_reissued": "Subscription link reissued",
   "admin_user_subscription_reissued_email": "Subscription link reissued. The new link was emailed to the user",
   "admin_user_delete_confirm_title": "Delete user?",
-  "admin_user_delete_confirm_subtitle": "This action is irreversible. Bot database records and the Remnawave Panel user will be deleted.",
+  "admin_user_delete_confirm_subtitle": "This permanently deletes the login account and panel connections. Independent service and activation history is retained. Reclaim dedicated exits first.",
   "admin_user_btn_confirm_delete": "Confirm Delete",
   "admin_btn_add_premium_squad": "Add premium squad",
   "admin_tariff_col_volume_gb": "Volume, GB",
@@ -6328,5 +6328,9 @@
   "wa_services_exit_pending": "Awaiting verification",
   "wa_services_connection_pending": "Your service is recorded. The administrator is preparing its connection; a subscription link is not available yet.",
   "wa_services_connection_unavailable": "Subscription delivery is not available yet. Contact the administrator for connection assistance.",
-  "wa_services_monthly_hint": "The allowance resets each calendar month from the original activation date. Unused traffic does not carry over."
+  "wa_services_monthly_hint": "The allowance resets each calendar month from the original activation date. Unused traffic does not carry over.",
+  "admin_error_dedicated_exit_reclaim_required": "Reclaim this account’s dedicated exits before deleting the login account. Service and activation history will be retained.",
+  "admin_error_service_connection_unconfirmed": "A service connection has an unconfirmed provisioning result. Reconcile it before deleting the account.",
+  "admin_error_service_connection_revoke_required": "Revoke all service connections before deleting the account.",
+  "admin_services_idempotency_owner_changed": "This request belongs to a service whose account has changed or been deleted. Check its history before opening a new service."
 }

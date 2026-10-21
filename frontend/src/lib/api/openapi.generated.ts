@@ -11244,7 +11244,7 @@ export interface components {
         [key: string]: unknown;
       };
       /** User Id */
-      user_id: number;
+      user_id: number | null;
     };
     /** ServicePlanBody */
     ServicePlanBody: {
@@ -12428,7 +12428,7 @@ export interface components {
       /** Used Bytes */
       used_bytes: number;
       /** User Id */
-      user_id: number;
+      user_id: number | null;
     };
     /** WebAppAccountMergePayload */
     WebAppAccountMergePayload: {

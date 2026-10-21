@@ -582,8 +582,10 @@ async def merge_users(
         .values(**subscription_update_values)
     )
     from .extension_accounts_dal import merge as merge_extension_accounts
+    from .service_accounts_dal import merge_history
 
     await merge_extension_accounts(session, source_user_id, target_user_id)
+    await merge_history(session, source_user_id, target_user_id)
     await merge_promo_activation_history(session, source, target)
     await reassign_invitation_relations(session, source_user_id, target_user_id)
     await session.execute(

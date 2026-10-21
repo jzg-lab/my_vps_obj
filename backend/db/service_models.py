@@ -44,7 +44,7 @@ class UserService(Base):
     )
 
     id: Mapped[str] = mapped_column(String(32), primary_key=True)
-    user_id: Mapped[int] = mapped_column(
+    user_id: Mapped[int | None] = mapped_column(
         BigInteger, ForeignKey("users.user_id", ondelete="RESTRICT"), index=True
     )
     plan_id: Mapped[str] = mapped_column(
@@ -65,12 +65,18 @@ class UserService(Base):
 
 class ServiceOrder(Base):
     __tablename__ = "service_orders"
-    __table_args__ = (UniqueConstraint("user_id", "idempotency_key", name="uq_service_order_key"),)
+    __table_args__ = (
+        UniqueConstraint(
+            "request_owner_id", "idempotency_key", name="uq_service_order_request_key"
+        ),
+    )
 
     id: Mapped[str] = mapped_column(String(32), primary_key=True)
-    user_id: Mapped[int] = mapped_column(
+    user_id: Mapped[int | None] = mapped_column(
         BigInteger, ForeignKey("users.user_id", ondelete="RESTRICT"), index=True
     )
+    # Original request scope survives ownership transfers and account deletion.
+    request_owner_id: Mapped[int] = mapped_column(BigInteger, nullable=False)
     service_id: Mapped[str] = mapped_column(
         String(32), ForeignKey("user_services.id", ondelete="RESTRICT"), index=True
     )

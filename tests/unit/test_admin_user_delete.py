@@ -18,6 +18,9 @@ class FakeSession:
     async def __aexit__(self, exc_type, exc, tb):
         return False
 
+    async def flush(self):
+        pass
+
     async def commit(self):
         self.committed = True
 
@@ -26,6 +29,11 @@ class FakeSession:
 
 
 class AdminUserDeleteRouteTests(unittest.IsolatedAsyncioTestCase):
+    def setUp(self):
+        patcher = patch.object(users_actions, "deletion_connections", AsyncMock(return_value=[]))
+        patcher.start()
+        self.addCleanup(patcher.stop)
+
     def _request(self, session: FakeSession, app_overrides=None):
         app = {
             "settings": SimpleNamespace(),
@@ -57,7 +65,7 @@ class AdminUserDeleteRouteTests(unittest.IsolatedAsyncioTestCase):
 
         with (
             patch.object(users_actions, "_require_admin_user_id", return_value=100),
-            patch.object(admin_users.user_dal, "get_user_by_id", AsyncMock(return_value=user)),
+            patch.object(admin_users.user_dal, "lock_user_by_id", AsyncMock(return_value=user)),
             patch.object(
                 admin_users.user_dal,
                 "get_panel_user_uuids_for_user",
@@ -101,7 +109,7 @@ class AdminUserDeleteRouteTests(unittest.IsolatedAsyncioTestCase):
 
         with (
             patch.object(users_actions, "_require_admin_user_id", return_value=100),
-            patch.object(admin_users.user_dal, "get_user_by_id", AsyncMock(return_value=user)),
+            patch.object(admin_users.user_dal, "lock_user_by_id", AsyncMock(return_value=user)),
             patch.object(
                 admin_users.user_dal,
                 "get_panel_user_uuids_for_user",
@@ -155,7 +163,7 @@ class AdminUserDeleteRouteTests(unittest.IsolatedAsyncioTestCase):
 
         with (
             patch.object(users_actions, "_require_admin_user_id", return_value=100),
-            patch.object(admin_users.user_dal, "get_user_by_id", AsyncMock(return_value=user)),
+            patch.object(admin_users.user_dal, "lock_user_by_id", AsyncMock(return_value=user)),
             patch.object(
                 admin_users.user_dal,
                 "get_panel_user_uuids_for_user",
@@ -196,7 +204,7 @@ class AdminUserDeleteRouteTests(unittest.IsolatedAsyncioTestCase):
 
         with (
             patch.object(users_actions, "_require_admin_user_id", return_value=100),
-            patch.object(admin_users.user_dal, "get_user_by_id", AsyncMock(return_value=user)),
+            patch.object(admin_users.user_dal, "lock_user_by_id", AsyncMock(return_value=user)),
             patch.object(
                 admin_users.user_dal,
                 "get_panel_user_uuids_for_user",
@@ -226,7 +234,7 @@ class AdminUserDeleteRouteTests(unittest.IsolatedAsyncioTestCase):
 
         with (
             patch.object(users_actions, "_require_admin_user_id", return_value=100),
-            patch.object(admin_users.user_dal, "get_user_by_id", AsyncMock(return_value=user)),
+            patch.object(admin_users.user_dal, "lock_user_by_id", AsyncMock(return_value=user)),
             patch.object(
                 admin_users.user_dal,
                 "get_panel_user_uuids_for_user",

@@ -4,16 +4,20 @@ import asyncio
 import os
 from collections.abc import Awaitable, Callable
 from datetime import UTC, datetime
+from types import SimpleNamespace
+from unittest.mock import AsyncMock, patch
 from uuid import UUID, uuid4
 
 import pytest
 from sqlalchemy import func, select, text
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_async_engine
 
+from bot.app.web.admin_api_impl import users_actions
 from db.dal.user_services_dal import ServiceConflict, activate_service, save_plan
 from db.migrator.chain_0107_user_services import _upgrade
+from db.migrator.chain_0108_service_account_history import _upgrade as upgrade_history
 from db.models import Base, User
-from db.service_models import DedicatedExit, ServiceOrder, UserService
+from db.service_models import DedicatedExit, ServiceConnection, ServiceOrder, UserService
 from tests.unit.test_user_services import sample_terms
 
 DATABASE_URL = os.environ.get("CORE_PERFORMANCE_TEST_DATABASE_URL", "")
@@ -50,6 +54,8 @@ def scenario(run: Callable[[async_sessionmaker[AsyncSession]], Awaitable[None]])
                 )
                 await connection.run_sync(_upgrade)
                 await connection.run_sync(_upgrade)
+                await connection.run_sync(upgrade_history)
+                await connection.run_sync(upgrade_history)
             factory = async_sessionmaker(engine, expire_on_commit=False, autoflush=False)
             async with factory.begin() as session:
                 session.add_all([User(user_id=1), User(user_id=2)])
@@ -141,6 +147,8 @@ def test_ban_committed_while_activation_waits_prevents_grant() -> None:
 
         async def create() -> None:
             async with factory.begin() as session:
+                cached_user = await session.get(User, 1)
+                assert cached_user and not cached_user.is_banned
                 await activate_service(
                     session,
                     user_id=1,
@@ -160,5 +168,120 @@ def test_ban_committed_while_activation_waits_prevents_grant() -> None:
             assert not pending.done()
         with pytest.raises(ServiceConflict, match="account_banned"):
             await pending
+
+    scenario(run)
+
+
+def test_history_upgrade_backfills_existing_orders_and_is_repeatable() -> None:
+    async def run(factory: async_sessionmaker[AsyncSession]) -> None:
+        async with factory.begin() as session:
+            plan = await save_plan(session, terms=sample_terms(), enabled=True, actor_id=1)
+            service, order, _ = await activate_service(
+                session,
+                user_id=2,
+                actor_id=1,
+                plan_id=plan.id,
+                expected_revision=1,
+                idempotency_key="before-upgrade",
+            )
+            # Reconstruct the previous schema with existing data, only in this disposable schema.
+            await session.execute(text("DROP INDEX uq_service_order_request_key"))
+            await session.execute(text("ALTER TABLE service_orders DROP COLUMN request_owner_id"))
+            await session.execute(
+                text(
+                    "ALTER TABLE service_orders ADD CONSTRAINT uq_service_order_key "
+                    "UNIQUE (user_id, idempotency_key)"
+                )
+            )
+            await session.execute(
+                text("ALTER TABLE service_orders ALTER COLUMN user_id SET NOT NULL")
+            )
+            await session.execute(
+                text("ALTER TABLE user_services ALTER COLUMN user_id SET NOT NULL")
+            )
+        async with factory.begin() as session:
+            connection = await session.connection()
+            await connection.run_sync(upgrade_history)
+            await connection.run_sync(upgrade_history)
+        async with factory.begin() as session:
+            replay, same_order, duplicate = await activate_service(
+                session,
+                user_id=2,
+                actor_id=1,
+                plan_id=plan.id,
+                expected_revision=1,
+                idempotency_key="before-upgrade",
+            )
+            assert duplicate and replay.id == service.id and same_order.id == order.id
+            assert same_order.request_owner_id == 2 and same_order.snapshot == order.snapshot
+
+    scenario(run)
+
+
+def test_delete_holds_owner_lock_until_remote_revocation_and_detachment() -> None:
+    async def run(factory: async_sessionmaker[AsyncSession]) -> None:
+        async with factory.begin() as session:
+            plan = await save_plan(session, terms=sample_terms(), enabled=True, actor_id=1)
+            service, _, _ = await activate_service(
+                session,
+                user_id=2,
+                actor_id=1,
+                plan_id=plan.id,
+                expected_revision=1,
+                idempotency_key="before-delete",
+            )
+            connection = await session.get(ServiceConnection, service.id)
+            assert connection
+            connection.panel_user_uuid = str(UUID(int=50))
+            connection.state = "ready"
+        started, finish = asyncio.Event(), asyncio.Event()
+
+        async def delete_remote(*_args: object, **_kwargs: object) -> bool:
+            started.set()
+            await finish.wait()
+            return True
+
+        request = SimpleNamespace(
+            app={
+                "settings": SimpleNamespace(),
+                "async_session_factory": factory,
+                "panel_service": SimpleNamespace(
+                    delete_user_from_panel=delete_remote,
+                    get_user_by_uuid_lookup=AsyncMock(return_value={"not_found": True}),
+                ),
+            },
+            match_info={"user_id": "2"},
+        )
+
+        async def activate() -> None:
+            async with factory.begin() as session:
+                await activate_service(
+                    session,
+                    user_id=2,
+                    actor_id=1,
+                    plan_id=plan.id,
+                    expected_revision=1,
+                    idempotency_key="during-delete",
+                )
+
+        with (
+            patch.object(users_actions, "_require_admin_user_id", return_value=1),
+            patch.object(users_actions, "_invalidate_after_admin_user_mutation", AsyncMock()),
+        ):
+            deleting = asyncio.create_task(users_actions.admin_user_delete_route(request))
+            await asyncio.wait_for(started.wait(), timeout=5)
+            opening = asyncio.create_task(activate())
+            try:
+                await asyncio.sleep(0.05)
+                assert not opening.done()
+            finally:
+                finish.set()
+            assert (await deleting).status == 200
+            with pytest.raises(ServiceConflict, match="user_not_found"):
+                await opening
+        async with factory() as session:
+            assert await session.get(User, 2) is None
+            retained = await session.get(UserService, service.id)
+            assert retained and retained.user_id is None and retained.desired_status == "cancelled"
 
     scenario(run)

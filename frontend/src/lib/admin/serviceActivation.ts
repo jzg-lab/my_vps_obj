@@ -60,6 +60,7 @@ export async function submitServiceActivation(
     "exit_unavailable",
     "shared_plan_cannot_bind_exit",
     "idempotency_conflict",
+    "idempotency_owner_changed",
     "invalid_payload",
   ]);
   if ("error" in response && rejected.has(String(response.error)))

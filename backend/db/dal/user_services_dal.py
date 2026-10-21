@@ -8,7 +8,6 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from config.service_periods import as_utc, monthly_period
 from config.service_plans import ServicePlanTerms
-from db.models import User
 from db.service_models import (
     DedicatedExit,
     ServiceConnection,
@@ -71,8 +70,10 @@ async def activate_service(
     now: datetime | None = None,
 ) -> tuple[UserService, ServiceOrder, bool]:
     now = as_utc(now or datetime.now(UTC))
+    from .user_dal import lock_user_by_id
+
     # Serialize activation/replays with bans and account merges on the same owner row.
-    user = await session.scalar(select(User).where(User.user_id == user_id).with_for_update())
+    user = await lock_user_by_id(session, user_id)
     if user is None:
         raise ServiceConflict("user_not_found", 404)
     if user.is_banned:
@@ -84,15 +85,16 @@ async def activate_service(
     }
     previous = await session.scalar(
         select(ServiceOrder).where(
-            ServiceOrder.user_id == user_id, ServiceOrder.idempotency_key == idempotency_key
+            ServiceOrder.request_owner_id == user_id,
+            ServiceOrder.idempotency_key == idempotency_key,
         )
     )
     if previous is not None:
         if previous.kind != "activate" or previous.request != command:
             raise ServiceConflict("idempotency_conflict")
         service = await session.get(UserService, previous.service_id)
-        if service is None:
-            raise ServiceConflict("service_not_found", 404)
+        if service is None or service.user_id != user_id:
+            raise ServiceConflict("idempotency_owner_changed")
         return service, previous, True
     plan = await session.scalar(
         select(ServicePlan).where(ServicePlan.id == plan_id).with_for_update()
@@ -147,6 +149,7 @@ async def activate_service(
     order = ServiceOrder(
         id=uuid4().hex,
         user_id=user_id,
+        request_owner_id=user_id,
         service_id=service.id,
         actor_id=actor_id,
         kind="activate",
@@ -186,7 +189,7 @@ async def list_plans(
 
 
 async def list_services(
-    session: AsyncSession, *, user_id: int, limit: int, offset: int
+    session: AsyncSession, *, user_id: int | None, limit: int, offset: int
 ) -> tuple[list[tuple[UserService, ServiceConnection | None, DedicatedExit | None]], int]:
     total = int(
         await session.scalar(
@@ -225,7 +228,7 @@ async def get_service_resource(
 
 
 async def list_orders(
-    session: AsyncSession, *, user_id: int, limit: int, offset: int
+    session: AsyncSession, *, user_id: int | None, limit: int, offset: int
 ) -> tuple[list[ServiceOrder], int]:
     total = int(
         await session.scalar(

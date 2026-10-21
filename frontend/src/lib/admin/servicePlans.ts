@@ -106,6 +106,7 @@ export function serviceErrorKey(failure: unknown): string {
     "account_banned",
     "user_not_found",
     "idempotency_conflict",
+    "idempotency_owner_changed",
     "services_invalid_terms",
     "services_resource_required",
   ];

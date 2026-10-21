@@ -13,10 +13,13 @@ from bot.app.web.context import (
 )
 from bot.app.web.request_parsing import parse_body_or_400
 from bot.app.web.webapp.subscription_reissue import send_subscription_reissue_email
+from bot.services.account_deletion import is_panel_user_confirmed_absent
 from bot.services.subscription_reissue_access import AccessRotationBusy, reissue_subscription_access
 from config.settings import Settings
 from config.traffic_strategy import canonical_traffic_limit_strategy
 from db.dal import message_log_dal, subscription_dal, user_dal
+from db.dal.service_accounts_dal import deletion_connections
+from db.dal.user_services_dal import ServiceConflict
 
 from .auth import _require_admin_user_id
 from .common import (
@@ -54,24 +57,6 @@ from .users_listing import (
 logger = logging.getLogger(__name__)
 
 
-async def _is_panel_user_confirmed_absent(panel_service: object, panel_uuid: str) -> bool:
-    lookup = getattr(panel_service, "get_user_by_uuid_lookup", None)
-    if not callable(lookup):
-        return False
-
-    try:
-        result = await lookup(panel_uuid, log_response=False)
-    except Exception:
-        logger.warning(
-            "Admin webapp could not verify whether panel user %s is absent.",
-            panel_uuid,
-            exc_info=True,
-        )
-        return False
-
-    return isinstance(result, dict) and result.get("not_found") is True
-
-
 async def admin_user_delete_route(request: web.Request) -> web.Response:
     actor_id = _require_admin_user_id(request)
     target_id = int(request.match_info["user_id"])
@@ -83,14 +68,29 @@ async def admin_user_delete_route(request: web.Request) -> web.Response:
         panel_service = getattr(subscription_service, "panel_service", None)
     async_session_factory: sessionmaker = get_session_factory(request)
     async with async_session_factory() as session:
-        user = await user_dal.get_user_by_id(session, target_id)
+        user = await user_dal.lock_user_by_id(session, target_id)
         if not user:
             return _error(404, "not_found")
+
+        try:
+            connections = await deletion_connections(session, target_id)
+        except ServiceConflict as exc:
+            await session.rollback()
+            return _error(exc.status, exc.code)
 
         panel_user_uuids = await user_dal.get_panel_user_uuids_for_user(
             session,
             target_id,
             user=user,
+        )
+        service_references = {c.panel_user_uuid for c in connections if c.panel_user_uuid}
+        panel_user_uuids = list(
+            dict.fromkeys(
+                [
+                    *panel_user_uuids,
+                    *(c.panel_user_uuid for c in connections if c.panel_user_uuid),
+                ]
+            )
         )
         if panel_user_uuids and panel_service is None:
             await session.rollback()
@@ -112,14 +112,14 @@ async def admin_user_delete_route(request: web.Request) -> web.Response:
                 await session.rollback()
                 return _error(502, "panel_delete_failed", str(exc))
 
-            if not panel_deleted:
-                panel_deleted = await _is_panel_user_confirmed_absent(
+            if not panel_deleted or panel_uuid in service_references:
+                panel_deleted = await is_panel_user_confirmed_absent(
                     panel_service,
                     panel_uuid,
                 )
                 if panel_deleted:
                     logger.info(
-                        "Panel user %s is already absent; continuing local user deletion.",
+                        "Panel user %s is confirmed absent; continuing local user deletion.",
                         panel_uuid,
                     )
 
@@ -131,6 +131,10 @@ async def admin_user_delete_route(request: web.Request) -> web.Response:
                     f"Failed to delete panel user {panel_uuid}",
                 )
 
+        for connection in connections:
+            connection.state = "revoked"
+            connection.last_error = None
+        await session.flush()
         ok = await user_dal.delete_user_and_relations(session, target_id)
         if not ok:
             await session.rollback()

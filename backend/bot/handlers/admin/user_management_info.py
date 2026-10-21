@@ -8,6 +8,7 @@ from aiogram.utils.markdown import hcode
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from bot.middlewares.i18n import JsonI18n
+from bot.services.account_deletion import is_panel_user_confirmed_absent
 from bot.services.account_roles import is_admin as account_is_admin
 from bot.services.panel_api_service import PanelApiService
 from bot.services.referral_service import ReferralService
@@ -18,6 +19,8 @@ from bot.utils.callback_answer import (
 )
 from config.settings import Settings
 from db.dal import message_log_dal, user_dal
+from db.dal.service_accounts_dal import deletion_connections
+from db.dal.user_services_dal import ServiceConflict
 from db.models import User
 
 from .user_management_cards import (
@@ -419,7 +422,7 @@ async def process_delete_user_confirmation_handler(
         await state.clear()
         return
 
-    user_model = await user_dal.get_user_by_id(session, target_user_id)
+    user_model = await user_dal.lock_user_by_id(session, target_user_id)
     if not user_model:
         await message.answer(
             _(
@@ -430,13 +433,25 @@ async def process_delete_user_confirmation_handler(
         return
 
     try:
+        connections = await deletion_connections(session, target_user_id)
         panel_user_uuids = await user_dal.get_panel_user_uuids_for_user(
             session,
             target_user_id,
             user=user_model,
         )
+        service_references = {c.panel_user_uuid for c in connections if c.panel_user_uuid}
+        panel_user_uuids = list(
+            dict.fromkeys(
+                [
+                    *panel_user_uuids,
+                    *(c.panel_user_uuid for c in connections if c.panel_user_uuid),
+                ]
+            )
+        )
         for panel_uuid in panel_user_uuids:
             panel_deleted = await panel_service.delete_user_from_panel(panel_uuid)
+            if not panel_deleted or panel_uuid in service_references:
+                panel_deleted = await is_panel_user_confirmed_absent(panel_service, panel_uuid)
             if not panel_deleted:
                 await message.answer(
                     _(
@@ -447,6 +462,10 @@ async def process_delete_user_confirmation_handler(
                 await state.clear()
                 return
 
+        for connection in connections:
+            connection.state = "revoked"
+            connection.last_error = None
+        await session.flush()
         deleted = await user_dal.delete_user_and_relations(session, target_user_id)
         if not deleted:
             await message.answer(
@@ -475,6 +494,9 @@ async def process_delete_user_confirmation_handler(
             ),
             parse_mode="HTML",
         )
+    except ServiceConflict as exc:
+        await session.rollback()
+        await message.answer(_("admin_error_" + exc.code))
     except Exception as e:
         logger.exception("Error deleting user %s: %s", target_user_id, e)
         await session.rollback()

@@ -31,8 +31,11 @@
   services with separate usage, expiry and details, including visible overage and sync status.
   A sanitized catalog explains manual activation. This deployment hides the old customer
   checkout, top-up and marketing flows while retaining account/security settings. Account
-  lifecycle, old backend entry-point retirement, traffic enforcement and real-node acceptance
-  are still in progress.
+  merges now move service ownership without pooling entitlements or replacing connection
+  identities. Deletion requires released dedicated exits and revoked connections, then retains
+  detached service/activation history accessible through admin APIs. Original activation request
+  scopes survive merges and deletion. Full account-ban enforcement, old backend entry-point
+  retirement, traffic enforcement and real-node acceptance are still in progress.
 
 - **Nested dialog keyboard focus.** Opening an emoji picker now transfers focus before
   the next keyboard event, so an immediate Escape closes the picker instead of its parent

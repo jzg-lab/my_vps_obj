@@ -205,12 +205,14 @@ class UserDalMergeTests(unittest.IsolatedAsyncioTestCase):
         user = SimpleNamespace(user_id=42)
         session = SimpleNamespace(
             get=AsyncMock(return_value=None),
+            scalar=AsyncMock(return_value=None),
+            scalars=AsyncMock(return_value=[]),
             execute=AsyncMock(side_effect=lambda stmt: FakeResult()),
             delete=AsyncMock(),
             flush=AsyncMock(),
         )
 
-        with patch("db.dal.user_delete_dal.get_user_by_id", AsyncMock(return_value=user)) as lookup:
+        with patch("db.dal.user_dal.lock_user_by_id", AsyncMock(return_value=user)) as lookup:
             deleted = await user_dal.delete_user_and_relations(session, 42)
 
         lookup.assert_awaited_once_with(session, 42)

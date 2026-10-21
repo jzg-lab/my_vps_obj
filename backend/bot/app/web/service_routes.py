@@ -110,7 +110,13 @@ def _pagination(request: web.Request) -> tuple[int, int]:
     return limit, offset
 
 
-def _query_user(request: web.Request) -> int:
+def _query_user(request: web.Request) -> int | None:
+    if "deleted" in request.query:
+        if request.query["deleted"] == "true" and "user_id" not in request.query:
+            return None
+        raise web.HTTPBadRequest(
+            text='{"ok":false,"error":"invalid_history_filter"}', content_type="application/json"
+        )
     try:
         user_id = int(request.query["user_id"])
         if not -(2**53 - 1) <= user_id <= 2**53 - 1 or user_id == 0:
@@ -124,7 +130,11 @@ def _query_user(request: web.Request) -> int:
 
 async def _service_out(session: AsyncSession, service: UserService) -> UserServiceOut:
     connection, resource = await user_services_dal.get_service_resource(session, service.id)
-    user = await user_dal.get_user_by_id(session, service.user_id)
+    user = (
+        await user_dal.get_user_by_id(session, service.user_id)
+        if service.user_id is not None
+        else None
+    )
     return UserServiceOut.from_orm_service(
         service, connection, resource, banned=bool(user and user.is_banned)
     )
@@ -191,20 +201,20 @@ async def admin_service_activate_route(request: web.Request) -> web.Response:
     )
 
 
-async def _list_services(request: web.Request, user_id: int, *, admin: bool) -> web.Response:
+async def _list_services(request: web.Request, user_id: int | None, *, admin: bool) -> web.Response:
     limit, offset = _pagination(request)
     async with get_session_factory(request)() as session:
-        user = await user_dal.get_user_by_id(session, user_id)
-        if user is None:
+        user = await user_dal.get_user_by_id(session, user_id) if user_id is not None else None
+        if user is None and (user_id is not None or not admin):
             return _error(404, "user_not_found")
-        if not admin and user.is_banned:
+        if not admin and user and user.is_banned:
             return _error(403, "account_banned")
         rows, total = await user_services_dal.list_services(
             session, user_id=user_id, limit=limit, offset=offset
         )
         services = [
             UserServiceOut.from_orm_service(
-                service, connection, resource, banned=bool(user.is_banned)
+                service, connection, resource, banned=bool(user and user.is_banned)
             ).model_dump(mode="json")
             for service, connection, resource in rows
         ]

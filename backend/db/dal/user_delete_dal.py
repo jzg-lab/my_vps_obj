@@ -34,17 +34,18 @@ from ..models import (
     WebAuthnChallenge,
 )
 from ..partner_models import PartnerApplication, PartnerClient, PartnerProfile
-from .user_reads_dal import get_user_by_id
+from .service_accounts_dal import detach_history
 
 
 async def delete_user_and_relations(session: AsyncSession, user_id: int) -> bool:
-    """Completely remove a user and all dependent records from the database.
+    """Remove login data while retaining detached service and financial history."""
+    from .user_dal import lock_user_by_id
 
-    This helper ensures we do not leave dangling foreign keys or orphaned data.
-    """
-    user = await get_user_by_id(session, user_id)
+    user = await lock_user_by_id(session, user_id)
     if not user:
         return False
+
+    await detach_history(session, user_id)
 
     # Ensure referral pointers do not block deletion
     await session.execute(

@@ -45,15 +45,18 @@ describe("activation retry", () => {
     expect(api.mock.calls[0]).toEqual(api.mock.calls[1]);
     expect(pendingServiceActivation(cache, 17)).toBeNull();
   });
-  it("allows a corrected selection only after an explicit transactional rejection", async () => {
-    const cache = storage();
-    const api = vi.fn().mockResolvedValue({ ok: false, error: "plan_revision_changed" });
-    await expect(submitServiceActivation(api, cache, body)).rejects.toEqual({
-      ok: false,
-      error: "plan_revision_changed",
-    });
-    expect(pendingServiceActivation(cache, 17)).toBeNull();
-  });
+  it.each(["plan_revision_changed", "idempotency_owner_changed"])(
+    "clears a definitively rejected request: %s",
+    async (error) => {
+      const cache = storage();
+      const api = vi.fn().mockResolvedValue({ ok: false, error });
+      await expect(submitServiceActivation(api, cache, body)).rejects.toEqual({
+        ok: false,
+        error,
+      });
+      expect(pendingServiceActivation(cache, 17)).toBeNull();
+    }
+  );
   it("retains unknown server results and refuses to POST without durable retry storage", async () => {
     const cache = storage();
     const api = vi.fn().mockResolvedValue({ ok: false, error: "internal_error" });
