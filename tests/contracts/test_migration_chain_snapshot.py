@@ -126,6 +126,7 @@ EXPECTED_CORE_MIGRATION_IDS = [
     "0107_user_services",
     "0108_service_account_history",
     "0109_account_access_sync",
+    "0110_service_provisioning",
 ]
 
 

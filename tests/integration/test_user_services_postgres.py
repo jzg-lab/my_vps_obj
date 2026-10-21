@@ -5,19 +5,23 @@ import os
 from collections.abc import Awaitable, Callable
 from datetime import UTC, datetime
 from types import SimpleNamespace
+from typing import cast
 from unittest.mock import AsyncMock, patch
 from uuid import UUID, uuid4
 
 import pytest
 from sqlalchemy import func, select, text
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_async_engine
+from sqlalchemy.orm import sessionmaker
 
 from bot.app.web.admin_api_impl import users_actions
 from bot.services.account_access_sync import set_account_ban, synchronize_account_access
+from bot.services.service_provisioning import provision_service_identity
 from db.dal.user_services_dal import ServiceConflict, activate_service, save_plan
 from db.migrator.chain_0107_user_services import _upgrade
 from db.migrator.chain_0108_service_account_history import _upgrade as upgrade_history
 from db.migrator.chain_0109_account_access_sync import _upgrade as upgrade_access
+from db.migrator.chain_0110_service_provisioning import _upgrade as upgrade_provisioning
 from db.models import Base, User
 from db.service_models import (
     AccountAccessSync,
@@ -27,6 +31,7 @@ from db.service_models import (
     UserService,
 )
 from tests.unit.test_admin_user_ban import AccessPanel
+from tests.unit.test_service_provisioning import panel_fixture
 from tests.unit.test_user_services import sample_terms
 
 DATABASE_URL = os.environ.get("CORE_PERFORMANCE_TEST_DATABASE_URL", "")
@@ -68,6 +73,8 @@ def scenario(run: Callable[[async_sessionmaker[AsyncSession]], Awaitable[None]])
                 await connection.run_sync(upgrade_history)
                 await connection.run_sync(upgrade_access)
                 await connection.run_sync(upgrade_access)
+                await connection.run_sync(upgrade_provisioning)
+                await connection.run_sync(upgrade_provisioning)
             factory = async_sessionmaker(engine, expire_on_commit=False, autoflush=False)
             async with factory.begin() as session:
                 session.add_all([User(user_id=1), User(user_id=2)])
@@ -103,6 +110,36 @@ def test_concurrent_retries_create_exactly_one_service_and_order() -> None:
         assert sum(not duplicate for _, duplicate in results) == 1
         async with factory() as session:
             assert await session.scalar(select(func.count()).select_from(ServiceOrder)) == 1
+
+    scenario(run)
+
+
+def test_parallel_provisioning_prepares_one_disabled_identity() -> None:
+    async def run(factory: async_sessionmaker[AsyncSession]) -> None:
+        async with factory.begin() as session:
+            plan = await save_plan(session, terms=sample_terms(), enabled=True, actor_id=1)
+            service, _, _ = await activate_service(
+                session,
+                user_id=1,
+                actor_id=1,
+                plan_id=plan.id,
+                expected_revision=1,
+                idempotency_key="prepare",
+            )
+        panel, remote_users = panel_fixture()
+        await asyncio.gather(
+            *(
+                provision_service_identity(cast(sessionmaker, factory), service.id, panel)
+                for _ in range(8)
+            )
+        )
+        panel.create_panel_user.assert_awaited_once()
+        assert len(remote_users) == 1
+        assert next(iter(remote_users.values()))["status"] == "DISABLED"
+        async with factory() as session:
+            connection = await session.get(ServiceConnection, service.id)
+            assert connection is not None and connection.panel_user_uuid == "1"
+            assert connection.state == "pending" and connection.last_error is None
 
     scenario(run)
 

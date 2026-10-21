@@ -115,6 +115,7 @@ class ServiceConnection(Base):
     panel_user_uuid: Mapped[str | None] = mapped_column(String(36), unique=True)
     state: Mapped[str] = mapped_column(String(16), nullable=False, default="pending")
     last_error: Mapped[str | None] = mapped_column(String(128))
+    attempted_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
 
 
 class DedicatedExit(Base):

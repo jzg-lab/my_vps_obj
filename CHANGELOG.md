@@ -26,7 +26,7 @@
   exits have an inventory page, and user details show separate service records. Each opening
   retains its commercial terms and price; retries return the original service. Dedicated-exit
   reservations are exclusive, and user reads are scoped to the authenticated account. New
-  services remain pending until panel delivery is implemented. The admin activation form retains
+  services remain pending until metering and connection delivery are implemented. The admin activation form retains
   uncertain requests across reloads for idempotent retry. The user home now lists independent
   services with separate usage, expiry and details, including visible overage and sync status.
   A sanitized catalog explains manual activation. This deployment hides the old customer
@@ -52,7 +52,11 @@
   language and account lifecycle actions remain available without implicit subscription grants.
   Pre-checkout is rejected; received historical payment receipts enter the existing queue for
   dead-letter reconciliation without granting entitlements. Traffic enforcement, connection
-  delivery and real-node acceptance remain in progress.
+  delivery and real-node acceptance remain in progress. A dedicated worker now prepares
+  disabled service identities with exact groups, quota and expiry, without account-level
+  identity fields. Durable uncertainty markers protect account deletion after interrupted
+  requests; retries reconcile the same identity, reject ownership conflicts, and never
+  recreate a missing bound identity. Preparation remains pending and does not enable access.
 
 - **Nested dialog keyboard focus.** Opening an emoji picker now transfers focus before
   the next keyboard event, so an immediate Escape closes the picker instead of its parent

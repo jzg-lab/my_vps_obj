@@ -38,6 +38,7 @@ from .chain_0106_support_connector import CHAIN_0106_SUPPORT_CONNECTOR
 from .chain_0107_user_services import CHAIN_0107_USER_SERVICES
 from .chain_0108_service_account_history import CHAIN_0108_SERVICE_ACCOUNT_HISTORY
 from .chain_0109_account_access_sync import CHAIN_0109_ACCOUNT_ACCESS_SYNC
+from .chain_0110_service_provisioning import CHAIN_0110_SERVICE_PROVISIONING
 from .engine import Migration
 
 MIGRATIONS: list[Migration] = [
@@ -77,4 +78,5 @@ MIGRATIONS: list[Migration] = [
     *CHAIN_0107_USER_SERVICES,
     *CHAIN_0108_SERVICE_ACCOUNT_HISTORY,
     *CHAIN_0109_ACCOUNT_ACCESS_SYNC,
+    *CHAIN_0110_SERVICE_PROVISIONING,
 ]
