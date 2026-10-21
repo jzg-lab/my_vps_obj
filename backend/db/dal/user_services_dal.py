@@ -169,11 +169,15 @@ async def activate_service(
 
 
 async def list_plans(
-    session: AsyncSession, *, limit: int, offset: int
+    session: AsyncSession, *, limit: int, offset: int, enabled_only: bool = False
 ) -> tuple[list[ServicePlan], int]:
-    total = int(await session.scalar(select(func.count()).select_from(ServicePlan)) or 0)
+    filters = [ServicePlan.enabled.is_(True)] if enabled_only else []
+    total = int(
+        await session.scalar(select(func.count()).select_from(ServicePlan).where(*filters)) or 0
+    )
     rows = await session.scalars(
         select(ServicePlan)
+        .where(*filters)
         .order_by(ServicePlan.created_at.desc(), ServicePlan.id)
         .limit(limit)
         .offset(offset)

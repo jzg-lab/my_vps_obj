@@ -1,3 +1,4 @@
+import { seedIndependentServicesDemo } from "../mockApi/independentServices.js";
 import { DEMO_DATASET } from "../demoDataset.js";
 import { withDemoAvatar } from "../demoAvatars.js";
 import { readStoredDemoLanguage } from "../demoMockRuntime.js";
@@ -253,6 +254,12 @@ export function applyPreviewMock(kind: unknown): void {
   const mode = String(kind || "")
     .trim()
     .toLowerCase();
+
+  if (mode === "services" || mode === "services-empty") {
+    DEV_MOCK.config.serviceModel = "independent";
+    seedIndependentServicesDemo(Number(DEV_MOCK.data.user.id), mode === "services-empty");
+    return;
+  }
 
   if (mode === "tariff-limits" || mode === "tariff-limits-purchase") {
     applyTariffLimitsDemo();

@@ -1,3 +1,4 @@
+import { independentServiceScreen } from "./independentServices.js";
 import { activeTabForWebappSection } from "./sectionAvailability.js";
 import {
   resolveInitialLoadRoute,
@@ -34,6 +35,7 @@ type ModalState = {
 };
 
 type AppLoadExecutorDeps = {
+  independentServices?: boolean;
   adminRuntime: AdminRuntime;
   applyPostLoadBillingDeeplinks: (input: ApplyPostLoadBillingDeeplinksInput) => void;
   currentSearchParams: () => URLSearchParams;
@@ -77,6 +79,7 @@ function defaultPaymentMethodId(payload: WebappRecord): string {
 }
 
 export function createAppLoadExecutor({
+  independentServices = false,
   adminRuntime,
   applyPostLoadBillingDeeplinks,
   currentSearchParams,
@@ -116,9 +119,8 @@ export function createAppLoadExecutor({
       section: options.section,
     });
     const perfProbe = createLoadPerfProbe(currentQuery.has("perfprobe"), initialRoute.routeSection);
-    const installGuidesPromise = initialRoute.shouldPreloadInstallGuides
-      ? loadInstallGuides()
-      : null;
+    const installGuidesPromise =
+      !independentServices && initialRoute.shouldPreloadInstallGuides ? loadInstallGuides() : null;
     const pendingAdminPreload =
       initialRoute.routeSection === "admin"
         ? adminRuntime.preloadAdminBundle().catch(() => false)
@@ -188,6 +190,8 @@ export function createAppLoadExecutor({
     }
     perfProbe.mark("admin");
 
+    if (independentServices) section = independentServiceScreen(section);
+
     const supportRoute = resolveSupportLoadRoute({
       pathname: routePathnameFromLocation(),
       routePrefix,
@@ -219,6 +223,11 @@ export function createAppLoadExecutor({
       section,
     });
     perfProbe.mark("section");
+
+    if (independentServices) {
+      perfProbe.finish(section);
+      return payload;
+    }
 
     const modalState = getModalState();
     if (modalState.topupModalOpen) await loadTopupOptions(modalState.topupKind);

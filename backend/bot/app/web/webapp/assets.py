@@ -537,6 +537,7 @@ def _build_webapp_bootstrap_payload(request: web.Request) -> dict[str, Any]:
 
     return {
         "config": {
+            "serviceModel": "independent",
             "title": webapp_settings.title,
             "primaryColor": webapp_settings.primary_color,
             "userThemeModeEnabled": bool(webapp_settings.user_theme_mode_enabled),

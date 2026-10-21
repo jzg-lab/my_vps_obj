@@ -9,6 +9,7 @@
   type Action = () => void;
 
   type Props = {
+    paymentsVisible?: boolean;
     extensionNavigation?: UserNavigationItem[];
     activeTab?: string;
     brand?: Record<string, unknown>;
@@ -39,6 +40,7 @@
   };
 
   let {
+    paymentsVisible = true,
     extensionNavigation = [],
     screen = "home",
     activeTab = "home",
@@ -87,6 +89,7 @@
   {@render children?.()}
 
   <BottomNav
+    {paymentsVisible}
     {extensionNavigation}
     {activeTab}
     {screen}

@@ -55,8 +55,39 @@ const exits: DedicatedExit[] = [
   },
 ];
 const services: UserService[] = [];
+let demoOwner = 0;
 const requests = new Map<string, UserService>();
 const id = () => crypto.randomUUID().replaceAll("-", "");
+
+export function seedIndependentServicesDemo(owner: number, empty = false) {
+  demoOwner = owner;
+  services.length = 0;
+  if (empty) return;
+  for (let index = 0; index < 12; index++) {
+    const monthly = index === 1;
+    services.push({
+      id: String(index + 10).padStart(32, "0"),
+      user_id: owner,
+      plan_id: plans[monthly ? 1 : 0].id,
+      plan_revision: 1,
+      name: monthly ? "Demo dedicated" : "Demo total",
+      description: "",
+      resource_type: monthly ? "dedicated" : "shared",
+      traffic_rule: monthly ? "monthly" : "total",
+      quota_bytes: 100 * 2 ** 30,
+      used_bytes: (index === 0 ? 117 : index === 1 ? 23 : 0) * 2 ** 30,
+      starts_at: stamp,
+      expires_at: "2027-01-20T04:00:00Z",
+      cycle_started_at: monthly ? stamp : null,
+      cycle_ends_at: monthly ? "2026-11-22T04:00:00Z" : null,
+      last_usage_sync_at: index < 2 ? stamp : null,
+      status: index === 0 ? "exhausted" : "pending",
+      connection_state: "pending",
+      exit_ip: monthly ? "192.0.2.10" : null,
+      exit_verified: false,
+    });
+  }
+}
 
 export function independentServicesDemoResponse(path: string, options: RequestInit): unknown {
   const url = new URL(path, "https://example.test");
@@ -64,6 +95,21 @@ export function independentServicesDemoResponse(path: string, options: RequestIn
   const method = options.method || "GET";
   const offset = Number(url.searchParams.get("offset") || 0);
   const limit = Number(url.searchParams.get("limit") || 100);
+  if (route === "/service-catalog" && method === "GET") {
+    const rows = plans
+      .filter((plan) => plan.enabled)
+      .map((plan) => {
+        const { squad_uuids: _squads, resource_pool: _pool, ...terms } = plan.terms;
+        return { id: plan.id, ...terms };
+      });
+    return { ok: true, plans: rows.slice(offset, offset + limit), total: rows.length };
+  }
+  if (route.startsWith("/services/") && method === "GET") {
+    const service = services.find(
+      (item) => item.id === route.split("/").pop() && item.user_id === demoOwner
+    );
+    return service ? { ok: true, service } : { ok: false, error: "service_not_found" };
+  }
   if (route === "/admin/service-plans" && method === "GET")
     return { ok: true, plans: plans.slice(offset, offset + limit), total: plans.length };
   if (route === "/admin/service-plans" && method === "POST") {
@@ -146,7 +192,9 @@ export function independentServicesDemoResponse(path: string, options: RequestIn
   }
   if (route === "/admin/services" || route === "/services") {
     const owner = Number(url.searchParams.get("user_id") || 0);
-    const rows = services.filter((item) => route === "/services" || item.user_id === owner);
+    const rows = services.filter(
+      (item) => item.user_id === (route === "/services" ? demoOwner : owner)
+    );
     return { ok: true, services: rows.slice(offset, offset + limit), total: rows.length };
   }
   return undefined;

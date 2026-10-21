@@ -607,6 +607,7 @@ class WebAppAssetTests(unittest.IsolatedAsyncioTestCase):
         )
 
         payload = subscription_webapp._build_webapp_bootstrap_payload(request)
+        self.assertEqual(payload["config"]["serviceModel"], "independent")
 
         self.assertEqual(payload["config"]["serverStatusUrl"], "https://status.example.com")
         self.assertFalse(payload["config"]["serverStatusInternal"])

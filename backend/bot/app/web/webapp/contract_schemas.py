@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import Any
+from typing import Any, Literal
 
 from pydantic import ConfigDict, Field
 
@@ -40,6 +40,7 @@ class WebappBootstrapLanguageOut(HttpResponseModel):
 
 
 class WebappBootstrapConfigOut(HttpResponseModel):
+    service_model: Literal["independent"] | None = Field(default=None, alias="serviceModel")
     model_config = ConfigDict(extra="allow", populate_by_name=True)
 
     title: str

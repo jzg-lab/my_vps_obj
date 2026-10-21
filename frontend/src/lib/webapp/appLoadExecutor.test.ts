@@ -329,3 +329,15 @@ describe("createAppLoadExecutor", () => {
     expect(billingStore.loadTariffChangeOptions).toHaveBeenCalledOnce();
   });
 });
+
+it("independent services skip checkout activation and old section loaders even on deep links", async () => {
+  const { deps, executor } = createDeps({
+    deps: { independentServices: true },
+    state: { pathname: "/install", windowSearch: "?topup=regular&promo=GIFT7" },
+  });
+  await executor.loadData();
+  expect(shellState.screen).toBe("home");
+  expect(deps.loadInstallGuides).not.toHaveBeenCalled();
+  expect(deps.applyPostLoadBillingDeeplinks).not.toHaveBeenCalled();
+  expect(deps.loadSectionData).toHaveBeenCalledWith(expect.objectContaining({ section: "home" }));
+});

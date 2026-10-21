@@ -22,6 +22,7 @@ from bot.app.web.service_schemas import (
     DedicatedExitBody,
     DedicatedExitOut,
     ServiceActivationBody,
+    ServiceCatalogPlanOut,
     ServiceOrderOut,
     ServicePlanBody,
     ServicePlanOut,
@@ -38,6 +39,7 @@ from db.service_models import (
 
 def _register_contracts() -> None:
     for name, model, key, body, many, security in (
+        ("service_catalog_route", ServiceCatalogPlanOut, "plans", None, True, USER_SECURITY),
         ("admin_service_plans_route", ServicePlanOut, "plans", None, True, ADMIN_SECURITY),
         (
             "admin_service_plan_create_route",
@@ -218,6 +220,20 @@ async def user_services_route(request: web.Request) -> web.Response:
     return await _list_services(request, _require_user_id(request), admin=False)
 
 
+async def service_catalog_route(request: web.Request) -> web.Response:
+    user_id = _require_user_id(request)
+    limit, offset = _pagination(request)
+    async with get_session_factory(request)() as session:
+        user = await user_dal.get_user_by_id(session, user_id)
+        if user is None or user.is_banned:
+            return _error(403, "account_banned")
+        rows, total = await user_services_dal.list_plans(
+            session, limit=limit, offset=offset, enabled_only=True
+        )
+        plans = [ServiceCatalogPlanOut.from_orm_plan(row).model_dump(mode="json") for row in rows]
+    return _ok({"plans": plans, "total": total})
+
+
 async def user_service_route(request: web.Request) -> web.Response:
     user_id = _require_user_id(request)
     async with get_session_factory(request)() as session:
@@ -287,5 +303,6 @@ def setup_service_admin_routes(app: web.Application) -> None:
 
 def setup_service_user_routes(app: web.Application) -> None:
     _register_contracts()
+    app.router.add_get("/api/service-catalog", service_catalog_route)
     app.router.add_get("/api/services", user_services_route)
     app.router.add_get("/api/services/{service_id}", user_service_route)

@@ -302,6 +302,36 @@ class UserServicesTests(IsolatedAsyncioTestCase):
         user_headers = {"Authorization": "Bearer " + create_webapp_session_token(settings, 2)}
         async with TestClient(TestServer(app)) as client:
             assert (await client.get("/api/services")).status == 401
+            assert (await client.get("/api/service-catalog")).status == 401
+            async with self.sessions.begin() as session:
+                await save_plan(
+                    session, terms=sample_terms(name="Hidden"), enabled=False, actor_id=1
+                )
+            response = await client.get("/api/service-catalog?limit=1", headers=user_headers)
+            catalog = await response.json()
+            assert response.status == 200 and catalog["total"] == 1
+            assert catalog["plans"][0] == {
+                "id": self.plan.id,
+                "name": "Configured plan",
+                "description": "",
+                "resource_type": "shared",
+                "traffic_rule": "total",
+                "quota_bytes": 10_000,
+                "validity_days": 90,
+                "price": "12.30",
+                "currency": "CNY",
+            }
+            response = await client.get("/api/service-catalog?offset=1", headers=user_headers)
+            assert (await response.json())["plans"] == []
+            assert (
+                await client.get("/api/service-catalog?limit=0", headers=user_headers)
+            ).status == 400
+            banned_headers = {"Authorization": "Bearer " + create_webapp_session_token(settings, 3)}
+            assert (await client.get("/api/service-catalog", headers=banned_headers)).status == 403
+            assert (
+                await client.post("/api/service-catalog", json={}, headers=user_headers)
+            ).status == 405
+
             assert (
                 await client.get("/api/admin/service-plans", headers=user_headers)
             ).status == 403

@@ -14568,6 +14568,76 @@
         "title": "ServiceActivationBody",
         "type": "object"
       },
+      "ServiceCatalogPlanOut": {
+        "description": "Customer-visible terms; panel groups and resource inventory stay private.",
+        "properties": {
+          "currency": {
+            "title": "Currency",
+            "type": "string"
+          },
+          "description": {
+            "title": "Description",
+            "type": "string"
+          },
+          "id": {
+            "title": "Id",
+            "type": "string"
+          },
+          "name": {
+            "title": "Name",
+            "type": "string"
+          },
+          "price": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
+                "type": "string"
+              }
+            ],
+            "title": "Price"
+          },
+          "quota_bytes": {
+            "title": "Quota Bytes",
+            "type": "integer"
+          },
+          "resource_type": {
+            "enum": [
+              "shared",
+              "dedicated"
+            ],
+            "title": "Resource Type",
+            "type": "string"
+          },
+          "traffic_rule": {
+            "enum": [
+              "total",
+              "monthly"
+            ],
+            "title": "Traffic Rule",
+            "type": "string"
+          },
+          "validity_days": {
+            "title": "Validity Days",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "description",
+          "resource_type",
+          "traffic_rule",
+          "quota_bytes",
+          "validity_days",
+          "price",
+          "currency"
+        ],
+        "title": "ServiceCatalogPlanOut",
+        "type": "object"
+      },
       "ServiceOrderOut": {
         "properties": {
           "actor_id": {
@@ -18915,6 +18985,19 @@
           "serverStatusUrl": {
             "title": "Serverstatusurl",
             "type": "string"
+          },
+          "serviceModel": {
+            "anyOf": [
+              {
+                "const": "independent",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Servicemodel"
           },
           "supportUrl": {
             "title": "Supporturl",
@@ -38842,6 +38925,56 @@
         "summary": "Referral Welcome Bonus Claim",
         "tags": [
           "referral"
+        ]
+      }
+    },
+    "/api/service-catalog": {
+      "get": {
+        "operationId": "get_service_catalog_route",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "ok": {
+                      "const": true,
+                      "type": "boolean"
+                    },
+                    "plans": {
+                      "items": {
+                        "$ref": "#/components/schemas/ServiceCatalogPlanOut"
+                      },
+                      "type": "array"
+                    },
+                    "total": {
+                      "type": "integer"
+                    }
+                  },
+                  "required": [
+                    "ok",
+                    "plans",
+                    "total"
+                  ],
+                  "type": "object"
+                }
+              }
+            },
+            "description": "JSON response"
+          }
+        },
+        "security": [
+          {
+            "UserSession": []
+          },
+          {
+            "UserBearer": []
+          }
+        ],
+        "summary": "Service Catalog",
+        "tags": [
+          "service-catalog"
         ]
       }
     },

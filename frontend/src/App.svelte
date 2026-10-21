@@ -605,6 +605,7 @@
   });
 
   const appLoadExecutor = createAppLoadExecutor({
+    independentServices: CFG.serviceModel === "independent",
     adminRuntime,
     applyPostLoadBillingDeeplinks,
     currentSearchParams,

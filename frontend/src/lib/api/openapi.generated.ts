@@ -4337,6 +4337,23 @@ export interface paths {
     patch?: never;
     trace?: never;
   };
+  "/api/service-catalog": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** Service Catalog */
+    get: operations["get_service_catalog_route"];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
   "/api/services": {
     parameters: {
       query?: never;
@@ -11177,6 +11194,36 @@ export interface components {
       /** User Id */
       user_id: number;
     };
+    /**
+     * ServiceCatalogPlanOut
+     * @description Customer-visible terms; panel groups and resource inventory stay private.
+     */
+    ServiceCatalogPlanOut: {
+      /** Currency */
+      currency: string;
+      /** Description */
+      description: string;
+      /** Id */
+      id: string;
+      /** Name */
+      name: string;
+      /** Price */
+      price: number | string;
+      /** Quota Bytes */
+      quota_bytes: number;
+      /**
+       * Resource Type
+       * @enum {string}
+       */
+      resource_type: "shared" | "dedicated";
+      /**
+       * Traffic Rule
+       * @enum {string}
+       */
+      traffic_rule: "total" | "monthly";
+      /** Validity Days */
+      validity_days: number;
+    };
     /** ServiceOrderOut */
     ServiceOrderOut: {
       /** Actor Id */
@@ -13121,6 +13168,11 @@ export interface components {
       serverStatusShowOnHome: boolean;
       /** Serverstatusurl */
       serverStatusUrl: string;
+      /**
+       * Servicemodel
+       * @default null
+       */
+      serviceModel: "independent" | null;
       /** Supporturl */
       supportUrl: string;
       /** Telegramloginbotid */
@@ -21980,6 +22032,31 @@ export interface operations {
             end_date_text: string | null;
             /** @constant */
             ok: true;
+          };
+        };
+      };
+    };
+  };
+  get_service_catalog_route: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description JSON response */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": {
+            /** @constant */
+            ok: true;
+            plans: components["schemas"]["ServiceCatalogPlanOut"][];
+            total: number;
           };
         };
       };

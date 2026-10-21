@@ -28,6 +28,7 @@
   } from "$lib/webapp/types.js";
 
   type Props = {
+    independentServices?: boolean;
     api: ApiClient["api"];
     accountStore: AccountStore;
     actionsStore: ActionsStore;
@@ -75,6 +76,7 @@
   };
 
   let {
+    independentServices = false,
     api,
     accountStore,
     actionsStore,
@@ -140,7 +142,7 @@
   });
 </script>
 
-<QaPaymentDialog {api} {loadData} {t} />
+{#if !independentServices}<QaPaymentDialog {api} {loadData} {t} />{/if}
 <AccountMergeDialog
   {api}
   currentLang={user.language_code || "ru"}
@@ -151,6 +153,7 @@
 />
 
 <PaymentDialogs
+  {independentServices}
   {api}
   bind:linkEmailCode={accountStore.linkEmailCode}
   bind:linkEmailFieldError={accountStore.linkEmailFieldError}
@@ -228,141 +231,143 @@
   confirmSetPassword={accountStore.confirmSetPassword}
 />
 
-<SubscriptionReissueDialog
-  {subscriptionReissueDialogOpen}
-  {subscriptionReissueBusy}
-  {confirmSubscriptionReissue}
-  {closeSubscriptionReissueDialog}
-  {t}
-/>
+{#if !independentServices}
+  <SubscriptionReissueDialog
+    {subscriptionReissueDialogOpen}
+    {subscriptionReissueBusy}
+    {confirmSubscriptionReissue}
+    {closeSubscriptionReissueDialog}
+    {t}
+  />
 
-<DeviceRenameDialog
-  open={devicesStore.deviceRenameOpen}
-  busy={devicesStore.deviceRenameBusy}
-  device={devicesStore.deviceToRename}
-  bind:value={devicesStore.deviceRenameValue}
-  error={devicesStore.deviceRenameError}
-  onsave={() => devicesStore.renameDevice()}
-  onreset={() => devicesStore.renameDevice("")}
-  onclose={devicesStore.closeDeviceRenameDialog}
-  {t}
-/>
+  <DeviceRenameDialog
+    open={devicesStore.deviceRenameOpen}
+    busy={devicesStore.deviceRenameBusy}
+    device={devicesStore.deviceToRename}
+    bind:value={devicesStore.deviceRenameValue}
+    error={devicesStore.deviceRenameError}
+    onsave={() => devicesStore.renameDevice()}
+    onreset={() => devicesStore.renameDevice("")}
+    onclose={devicesStore.closeDeviceRenameDialog}
+    {t}
+  />
 
-<TributeCreatorCancelDialog
-  step={creatorCancelStep}
-  busy={autoRenewBusy}
-  onClose={closeCreatorCancelDialog}
-  onOpenTribute={openCreatorCancellationLink}
-  onAlreadyCancelled={openCreatorCancelConfirmation}
-  onConfirm={confirmCreatorCancellation}
-  onBack={backToCreatorCancelOptions}
-  {t}
-/>
+  <TributeCreatorCancelDialog
+    step={creatorCancelStep}
+    busy={autoRenewBusy}
+    onClose={closeCreatorCancelDialog}
+    onOpenTribute={openCreatorCancellationLink}
+    onAlreadyCancelled={openCreatorCancelConfirmation}
+    onConfirm={confirmCreatorCancellation}
+    onBack={backToCreatorCancelOptions}
+    {t}
+  />
 
-<TariffDialogs
-  {api}
-  bind:changeConfirmOpen={billingStore.changeConfirmOpen}
-  bind:changeModalOpen={billingStore.changeModalOpen}
-  bind:deviceTopupModalOpen={billingStore.deviceTopupModalOpen}
-  bind:selectedChangeAction={billingStore.selectedChangeAction}
-  bind:selectedChangeTarget={billingStore.selectedChangeTarget}
-  bind:selectedDeviceTopupPlan={billingStore.selectedDeviceTopupPlan}
-  bind:selectedMethod={billingStore.selectedMethod}
-  bind:selectedTopupPlan={billingStore.selectedTopupPlan}
-  bind:topupModalOpen={billingStore.topupModalOpen}
-  applyTariffChange={billingStore.applyTariffChange}
-  changeOptions={billingStore.changeOptions}
-  {closeDeviceTopupModal}
-  closeTariffChangeConfirm={billingStore.closeTariffChangeConfirm}
-  closeTariffChangeModal={billingStore.closeTariffChangeModal}
-  closeTopupModal={billingStore.closeTopupModal}
-  checkoutPromoInput={billingStore.checkoutPromoInput}
-  checkoutPromoAppliedCode={billingStore.checkoutPromoAppliedCode}
-  checkoutPromoIsError={billingStore.checkoutPromoIsError}
-  checkoutPromoPriceText={billingStore.checkoutPromoPriceText}
-  checkoutPromoEffectiveAmount={billingStore.checkoutPromoEffectiveAmount}
-  checkoutPromoStatus={billingStore.checkoutPromoStatus}
-  checkoutPromoDiscountPercent={billingStore.checkoutPromoDiscountPercent}
-  checkoutPromoAppliesTo={billingStore.checkoutPromoAppliesTo}
-  checkoutPromoMinSubscriptionDays={billingStore.checkoutPromoMinSubscriptionDays}
-  checkoutPromoMinTrafficGb={billingStore.checkoutPromoMinTrafficGb}
-  applyCheckoutPromo={billingStore.applyCheckoutPromo}
-  clearCheckoutPromo={billingStore.clearCheckoutPromo}
-  setCheckoutPromoInput={billingStore.setCheckoutPromoInput}
-  createDeviceTopupPayment={billingStore.createDeviceTopupPayment}
-  createTopupPayment={billingStore.createTopupPayment}
-  deviceTopupOptions={billingStore.deviceTopupOptions}
-  {methods}
-  {paymentMethodsDisplayMode}
-  openTariffChangeConfirm={billingStore.openTariffChangeConfirm}
-  payBusy={billingStore.payBusy}
-  {singleTariffMode}
-  {subscription}
-  tariffActionBusy={billingStore.tariffActionBusy}
-  topupKind={billingStore.topupKind}
-  topupOptions={billingStore.topupOptions}
-  {trafficMode}
-  {t}
-/>
+  <TariffDialogs
+    {api}
+    bind:changeConfirmOpen={billingStore.changeConfirmOpen}
+    bind:changeModalOpen={billingStore.changeModalOpen}
+    bind:deviceTopupModalOpen={billingStore.deviceTopupModalOpen}
+    bind:selectedChangeAction={billingStore.selectedChangeAction}
+    bind:selectedChangeTarget={billingStore.selectedChangeTarget}
+    bind:selectedDeviceTopupPlan={billingStore.selectedDeviceTopupPlan}
+    bind:selectedMethod={billingStore.selectedMethod}
+    bind:selectedTopupPlan={billingStore.selectedTopupPlan}
+    bind:topupModalOpen={billingStore.topupModalOpen}
+    applyTariffChange={billingStore.applyTariffChange}
+    changeOptions={billingStore.changeOptions}
+    {closeDeviceTopupModal}
+    closeTariffChangeConfirm={billingStore.closeTariffChangeConfirm}
+    closeTariffChangeModal={billingStore.closeTariffChangeModal}
+    closeTopupModal={billingStore.closeTopupModal}
+    checkoutPromoInput={billingStore.checkoutPromoInput}
+    checkoutPromoAppliedCode={billingStore.checkoutPromoAppliedCode}
+    checkoutPromoIsError={billingStore.checkoutPromoIsError}
+    checkoutPromoPriceText={billingStore.checkoutPromoPriceText}
+    checkoutPromoEffectiveAmount={billingStore.checkoutPromoEffectiveAmount}
+    checkoutPromoStatus={billingStore.checkoutPromoStatus}
+    checkoutPromoDiscountPercent={billingStore.checkoutPromoDiscountPercent}
+    checkoutPromoAppliesTo={billingStore.checkoutPromoAppliesTo}
+    checkoutPromoMinSubscriptionDays={billingStore.checkoutPromoMinSubscriptionDays}
+    checkoutPromoMinTrafficGb={billingStore.checkoutPromoMinTrafficGb}
+    applyCheckoutPromo={billingStore.applyCheckoutPromo}
+    clearCheckoutPromo={billingStore.clearCheckoutPromo}
+    setCheckoutPromoInput={billingStore.setCheckoutPromoInput}
+    createDeviceTopupPayment={billingStore.createDeviceTopupPayment}
+    createTopupPayment={billingStore.createTopupPayment}
+    deviceTopupOptions={billingStore.deviceTopupOptions}
+    {methods}
+    {paymentMethodsDisplayMode}
+    openTariffChangeConfirm={billingStore.openTariffChangeConfirm}
+    payBusy={billingStore.payBusy}
+    {singleTariffMode}
+    {subscription}
+    tariffActionBusy={billingStore.tariffActionBusy}
+    topupKind={billingStore.topupKind}
+    topupOptions={billingStore.topupOptions}
+    {trafficMode}
+    {t}
+  />
 
-<Dialog
-  open={activationSuccessDialogOpen}
-  title={t("wa_activation_success_title", {}, "Everything is successfully activated")}
-  description={activationSuccessUseInstallGuides
-    ? t(
-        "wa_activation_success_install_hint",
-        {},
-        "Press OK and follow the setup instructions for your device."
-      )
-    : t(
-        "wa_activation_success_connect_hint",
-        {},
-        "Press OK and we will open the Remnawave subscription page for setup."
-      )}
-  closeLabel={t("wa_close")}
-  onclose={closeActivationSuccessDialog}
-  class="activation-success-dialog webapp-activation-success-dialog"
->
-  {#snippet titleIcon()}
-    <CheckCircle2 size={23} />
-  {/snippet}
-  <div class="activation-success-dialog-body">
-    <Button class="wide" onclick={closeActivationSuccessDialog}>
-      {t("wa_ok", {}, "OK")}
-    </Button>
-  </div>
-</Dialog>
+  <Dialog
+    open={activationSuccessDialogOpen}
+    title={t("wa_activation_success_title", {}, "Everything is successfully activated")}
+    description={activationSuccessUseInstallGuides
+      ? t(
+          "wa_activation_success_install_hint",
+          {},
+          "Press OK and follow the setup instructions for your device."
+        )
+      : t(
+          "wa_activation_success_connect_hint",
+          {},
+          "Press OK and we will open the Remnawave subscription page for setup."
+        )}
+    closeLabel={t("wa_close")}
+    onclose={closeActivationSuccessDialog}
+    class="activation-success-dialog webapp-activation-success-dialog"
+  >
+    {#snippet titleIcon()}
+      <CheckCircle2 size={23} />
+    {/snippet}
+    <div class="activation-success-dialog-body">
+      <Button class="wide" onclick={closeActivationSuccessDialog}>
+        {t("wa_ok", {}, "OK")}
+      </Button>
+    </div>
+  </Dialog>
 
-<Dialog
-  open={promoDeeplinkOpen}
-  title={promoDeeplinkTitle}
-  description={promoDeeplinkMessage}
-  closeLabel={t("wa_close")}
-  onclose={actionsStore.closePromoDeeplink}
-  class="promo-deeplink-dialog"
->
-  {#snippet titleIcon()}
-    {#if promoDeeplinkStatus === "activated"}
-      <Gift size={23} />
-    {:else if promoDeeplinkStatus === "already_used"}
-      <Info size={23} />
-    {:else}
-      <TriangleAlert size={23} />
-    {/if}
-  {/snippet}
-  <div class="promo-deeplink-dialog-body">
-    {#if promoDeeplinkStatus === "activated" && promoDeeplinkEffectSummary}
-      <p class="promo-deeplink-effect">
-        <strong>{promoDeeplinkCode}</strong>
-        <span class="meta-separator" aria-hidden="true"></span>
-        {promoDeeplinkEffectSummary}
-      </p>
-    {/if}
-    <Button class="wide" onclick={actionsStore.closePromoDeeplink}>
-      {t("wa_ok", {}, "OK")}
-    </Button>
-  </div>
-</Dialog>
+  <Dialog
+    open={promoDeeplinkOpen}
+    title={promoDeeplinkTitle}
+    description={promoDeeplinkMessage}
+    closeLabel={t("wa_close")}
+    onclose={actionsStore.closePromoDeeplink}
+    class="promo-deeplink-dialog"
+  >
+    {#snippet titleIcon()}
+      {#if promoDeeplinkStatus === "activated"}
+        <Gift size={23} />
+      {:else if promoDeeplinkStatus === "already_used"}
+        <Info size={23} />
+      {:else}
+        <TriangleAlert size={23} />
+      {/if}
+    {/snippet}
+    <div class="promo-deeplink-dialog-body">
+      {#if promoDeeplinkStatus === "activated" && promoDeeplinkEffectSummary}
+        <p class="promo-deeplink-effect">
+          <strong>{promoDeeplinkCode}</strong>
+          <span class="meta-separator" aria-hidden="true"></span>
+          {promoDeeplinkEffectSummary}
+        </p>
+      {/if}
+      <Button class="wide" onclick={actionsStore.closePromoDeeplink}>
+        {t("wa_ok", {}, "OK")}
+      </Button>
+    </div>
+  </Dialog>
+{/if}
 
 <style>
   .promo-deeplink-dialog-body {

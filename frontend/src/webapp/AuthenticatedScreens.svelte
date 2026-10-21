@@ -21,6 +21,7 @@
   import UserExtensions from "./extensions/UserExtensions.svelte";
   import type { UserNavigationItem } from "$lib/webapp/extensionHost";
   import WebAppShell from "./WebAppShell.svelte";
+  import ServicesScreen from "./screens/ServicesScreen.svelte";
   import HomeScreen from "./screens/HomeScreen.svelte";
   import ScreenLoading from "./screens/ScreenLoading.svelte";
   import SettingsScreen from "./screens/SettingsScreen.svelte";
@@ -53,6 +54,7 @@
   type LoadDevicesAction = (force?: boolean) => void;
 
   type Props = {
+    independentServices?: boolean;
     apiClient?: ApiClient;
     routePrefix?: string;
     api: ApiClient["api"];
@@ -185,6 +187,7 @@
   };
 
   let {
+    independentServices = false,
     apiClient,
     routePrefix = "",
     api,
@@ -419,7 +422,8 @@
   activeTab={extensionParent || activeTab}
   {brandTitle}
   {brand}
-  {devicesEnabled}
+  devicesEnabled={!independentServices && devicesEnabled}
+  paymentsVisible={!independentServices}
   supportEnabled={supportEnabled || extensionSections.includes("support")}
   {supportUnreadCount}
   {supportUnreadLoading}
@@ -431,10 +435,10 @@
   {goHome}
   {goInvite}
   {goPartner}
-  bonusesNavigationVisible={programEntryPlacement.bonusesNavigationVisible ||
-    extensionSections.includes("invite")}
-  partnerNavigationVisible={programEntryPlacement.partnerNavigationVisible}
-  partnerSettingsVisible={programEntryPlacement.partnerSettingsVisible}
+  bonusesNavigationVisible={!independentServices &&
+    (programEntryPlacement.bonusesNavigationVisible || extensionSections.includes("invite"))}
+  partnerNavigationVisible={!independentServices && programEntryPlacement.partnerNavigationVisible}
+  partnerSettingsVisible={!independentServices && programEntryPlacement.partnerSettingsVisible}
   {goSupport}
   {goSettings}
   {goNotifications}
@@ -453,7 +457,9 @@
     bind:parentSection={extensionParent}
     bind:sections={extensionSections}
   >
-    {#if screen === "home"}
+    {#if screen === "home" && independentServices}
+      <ServicesScreen {api} {t} {brand} {brandTitle} />
+    {:else if screen === "home"}
       <HomeScreen
         {appSettings}
         {balance}
@@ -618,6 +624,7 @@
       {/if}
     {:else if screen === "settings"}
       <SettingsScreen
+        paymentsVisible={!independentServices}
         {api}
         qrLoginEnabled={(
           (appSettings.auth_providers || appSettings.authProviders || []) as string[]
@@ -634,14 +641,15 @@
         {languageClickGuardArmed}
         bind:languageMenuOpen
         {languageOptions}
-        {menuButtons}
+        menuButtons={independentServices ? [] : menuButtons}
         {privacyPolicyUrl}
         {profileAvatarUrl}
         {profileEmail}
         {profileTelegramId}
         {balance}
-        partnerSettingsVisible={programEntryPlacement.partnerSettingsVisible}
-        promoActivationVisible={programEntryPlacement.promoSettingsVisible}
+        partnerSettingsVisible={!independentServices &&
+          programEntryPlacement.partnerSettingsVisible}
+        promoActivationVisible={!independentServices && programEntryPlacement.promoSettingsVisible}
         {promoBusy}
         {promoCode}
         {promoFieldError}
@@ -697,7 +705,9 @@
         {openLinkEmailDialog}
         {openSetPasswordDialog}
         {subscriptionReissueBusy}
-        subscriptionReissueVisible={subscriptionReissueEnabled && Boolean(subscription?.active)}
+        subscriptionReissueVisible={!independentServices &&
+          subscriptionReissueEnabled &&
+          Boolean(subscription?.active)}
         {openSubscriptionReissueDialog}
         {t}
         {telegramMiniAppContext}
@@ -718,7 +728,7 @@
       {/if}
     {/if}
   </UserExtensions>
-  {#if balance.enabled}
+  {#if !independentServices && balance.enabled}
     <BalanceTopupDialog
       {api}
       bind:open={balanceTopupOpen}

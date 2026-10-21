@@ -22,6 +22,7 @@
   type Action = () => void;
 
   type Props = {
+    paymentsVisible?: boolean;
     extensionNavigation?: UserNavigationItem[];
     activeTab?: string;
     brand?: Record<string, unknown>;
@@ -51,6 +52,7 @@
   };
 
   let {
+    paymentsVisible = true,
     extensionNavigation = [],
     activeTab = "home",
     brand = {},
@@ -219,15 +221,17 @@
     </button>
   {/each}
   <div class="rail-settings-subnav">
-    <button
-      data-webapp-action="open-payment-history"
-      class:active={screen === "payment-history"}
-      type="button"
-      onclick={onPaymentHistory}
-    >
-      <CreditCardCheck size={18} />
-      <span class="bottom-nav-label">{t("wa_payment_history_title")}</span>
-    </button>
+    {#if paymentsVisible}
+      <button
+        data-webapp-action="open-payment-history"
+        class:active={screen === "payment-history"}
+        type="button"
+        onclick={onPaymentHistory}
+      >
+        <CreditCardCheck size={18} />
+        <span class="bottom-nav-label">{t("wa_payment_history_title")}</span>
+      </button>
+    {/if}
     <button class:active={screen === "notifications"} type="button" onclick={onNotifications}>
       <Megaphone size={18} />
       <span class="bottom-nav-label"

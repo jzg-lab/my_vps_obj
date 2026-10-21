@@ -26,6 +26,7 @@
   import AuthScreen from "./auth/AuthScreen.svelte";
   import CheckoutEntryScreen from "./checkout/CheckoutEntryScreen.svelte";
   import PaymentCheckoutDialog from "./payment-dialogs/PaymentCheckoutDialog.svelte";
+  import { independentServiceScreen } from "$lib/webapp/independentServices.js";
   import GiftFeature from "./gifts/GiftFeature.svelte";
   import type { CheckoutDeeplink } from "$lib/webapp/deeplinks.js";
   import {
@@ -146,7 +147,8 @@
   const subscriptionReissueBusy = $derived(viewState.subscriptionReissueBusy);
   const cfg = $derived(viewState.cfg);
   const checkoutDeeplink = $derived(viewState.checkoutDeeplink);
-  const checkoutEntryRequested = $derived(viewState.checkoutEntryRequested);
+  const independentServices = $derived(cfg.serviceModel === "independent");
+  const checkoutEntryRequested = $derived(!independentServices && viewState.checkoutEntryRequested);
   const checkoutPlans = $derived(viewState.checkoutPlans);
   const languageBusy = $derived(viewState.languageBusy);
   const languageClickGuard = $derived(viewState.languageClickGuard);
@@ -366,26 +368,30 @@
 </script>
 
 <div class="app-shell {shellToneClass} {shellThemeClass}" style={shellStyle}>
-  <GiftFeature
-    api={stores.api}
-    billing={stores.giftBillingStore}
-    userId={String(user?.id ?? "")}
-    userLabel={String(user?.email || user?.username || user?.id || "")}
-    loggedIn={mode === "app"}
-    guestPromptBlocked={checkoutEntryRequested}
-    enabled={typeof appSettings.gifts_enabled === "boolean" ? appSettings.gifts_enabled : undefined}
-    {methods}
-    {paymentMethodsDisplayMode}
-    {pendingPayment}
-    {checkoutAddonValueAnimationEnabled}
-    {checkoutAddonEditorExpandedByDefault}
-    {t}
-    {termUnitLabel}
-    onactivated={async () => {
-      await stores.dataClient.loadData({ fresh: true });
-      goHome();
-    }}
-  />
+  {#if !independentServices}
+    <GiftFeature
+      api={stores.api}
+      billing={stores.giftBillingStore}
+      userId={String(user?.id ?? "")}
+      userLabel={String(user?.email || user?.username || user?.id || "")}
+      loggedIn={mode === "app"}
+      guestPromptBlocked={checkoutEntryRequested}
+      enabled={typeof appSettings.gifts_enabled === "boolean"
+        ? appSettings.gifts_enabled
+        : undefined}
+      {methods}
+      {paymentMethodsDisplayMode}
+      {pendingPayment}
+      {checkoutAddonValueAnimationEnabled}
+      {checkoutAddonEditorExpandedByDefault}
+      {t}
+      {termUnitLabel}
+      onactivated={async () => {
+        await stores.dataClient.loadData({ fresh: true });
+        goHome();
+      }}
+    />
+  {/if}
   {#if mode === "bootError"}
     <div class="loader" role="alert">
       <BrandMark {brand} size="md" />
@@ -582,12 +588,13 @@
     {/if}
   {:else}
     <AuthenticatedScreens
+      {independentServices}
       apiClient={stores.dataClient.apiClient}
       {routePrefix}
       api={stores.api}
       {accountStore}
       {activateTrial}
-      {activeTab}
+      activeTab={independentServices ? independentServiceScreen(activeTab) : activeTab}
       {appSettings}
       {balance}
       {applyPromo}
@@ -680,7 +687,7 @@
       {referralWelcomeBonusDays}
       {regularTrafficTopupBarClickable}
       {regularTrafficTopupUnlocked}
-      {screen}
+      screen={independentServices ? independentServiceScreen(screen) : screen}
       {serverStatusInternal}
       {serverStatusShowOnHome}
       {compactHomeEnabled}
@@ -714,6 +721,7 @@
     />
 
     <AuthenticatedDialogs
+      {independentServices}
       api={stores.api}
       loadData={() => stores.dataClient.loadData({ fresh: true })}
       {accountStore}

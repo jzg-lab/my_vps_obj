@@ -37,6 +37,7 @@
   type CheckoutPromoAction = (options?: CheckoutPromoOptions) => unknown;
 
   let {
+    independentServices = false,
     api,
     createPayment = () => {},
     deviceConfirmOpen = false,
@@ -114,6 +115,7 @@
     verifyLinkEmailCode = () => {},
     confirmSetPassword = () => {},
   }: {
+    independentServices?: boolean;
     api: ApiClient["api"];
     createPayment?: BalancePaymentAction;
     deviceConfirmOpen?: boolean;
@@ -194,68 +196,70 @@
 
   $effect(() => {
     const currency = String(selectedPlan?.currency || "").toUpperCase();
-    if (!currency) return;
+    if (independentServices || !currency) return;
     void loadPartnerBalanceSnapshot(api, currency).catch(() => {});
   });
 </script>
 
-<PaymentCheckoutDialog
-  {api}
-  {createPayment}
-  {hasMultipleTariffs}
-  {methods}
-  {paymentMethodsDisplayMode}
-  {checkoutAddonValueAnimationEnabled}
-  {checkoutAddonEditorExpandedByDefault}
-  {pendingPayment}
-  {payBusy}
-  bind:paymentModalOpen
-  bind:paymentStep
-  {plans}
-  bind:selectedMethod
-  bind:selectedPlan
-  {selectedTariff}
-  bind:selectedTariffKey
-  {selectedTariffPlans}
-  bind:renewHwidDevices
-  {singleTariffMode}
-  {subscription}
-  {subscriptionPurchaseDescription}
-  {tariffCatalog}
-  {tariffMode}
-  {trafficMode}
-  {closePaymentModal}
-  {checkoutPromoAppliedCode}
-  {checkoutPromoInput}
-  {checkoutPromoIsError}
-  {checkoutPromoPriceText}
-  {checkoutPromoEffectiveAmount}
-  {checkoutPromoStatus}
-  {checkoutPromoDiscountPercent}
-  {checkoutPromoAppliesTo}
-  {checkoutPromoMinSubscriptionDays}
-  {checkoutPromoMinTrafficGb}
-  {checkoutAddonPreset}
-  {applyCheckoutPromo}
-  {backToTariffList}
-  {clearCheckoutPromo}
-  {continueWithSelectedTariff}
-  {resumePendingPayment}
-  {cancelPendingPayment}
-  {selectTariff}
-  {setCheckoutPromoInput}
-  {t}
-  {termUnitLabel}
-/>
+{#if !independentServices}
+  <PaymentCheckoutDialog
+    {api}
+    {createPayment}
+    {hasMultipleTariffs}
+    {methods}
+    {paymentMethodsDisplayMode}
+    {checkoutAddonValueAnimationEnabled}
+    {checkoutAddonEditorExpandedByDefault}
+    {pendingPayment}
+    {payBusy}
+    bind:paymentModalOpen
+    bind:paymentStep
+    {plans}
+    bind:selectedMethod
+    bind:selectedPlan
+    {selectedTariff}
+    bind:selectedTariffKey
+    {selectedTariffPlans}
+    bind:renewHwidDevices
+    {singleTariffMode}
+    {subscription}
+    {subscriptionPurchaseDescription}
+    {tariffCatalog}
+    {tariffMode}
+    {trafficMode}
+    {closePaymentModal}
+    {checkoutPromoAppliedCode}
+    {checkoutPromoInput}
+    {checkoutPromoIsError}
+    {checkoutPromoPriceText}
+    {checkoutPromoEffectiveAmount}
+    {checkoutPromoStatus}
+    {checkoutPromoDiscountPercent}
+    {checkoutPromoAppliesTo}
+    {checkoutPromoMinSubscriptionDays}
+    {checkoutPromoMinTrafficGb}
+    {checkoutAddonPreset}
+    {applyCheckoutPromo}
+    {backToTariffList}
+    {clearCheckoutPromo}
+    {continueWithSelectedTariff}
+    {resumePendingPayment}
+    {cancelPendingPayment}
+    {selectTariff}
+    {setCheckoutPromoInput}
+    {t}
+    {termUnitLabel}
+  />
 
-<DeviceDisconnectDialog
-  {deviceConfirmOpen}
-  {deviceDisconnectBusy}
-  {deviceToDisconnect}
-  {disconnectDevice}
-  {closeDeviceDisconnectDialog}
-  {t}
-/>
+  <DeviceDisconnectDialog
+    {deviceConfirmOpen}
+    {deviceDisconnectBusy}
+    {deviceToDisconnect}
+    {disconnectDevice}
+    {closeDeviceDisconnectDialog}
+    {t}
+  />
+{/if}
 
 <SetPasswordDialog
   {setPasswordBusy}

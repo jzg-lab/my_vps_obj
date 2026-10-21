@@ -1,6 +1,7 @@
 """Typed contracts for the project's unified plans and independent services."""
 
 from datetime import UTC, datetime
+from decimal import Decimal
 from ipaddress import IPv4Address, IPv6Address
 from typing import Literal
 from uuid import UUID
@@ -68,6 +69,35 @@ class ServicePlanOut(HttpResponseModel):
             terms=ServicePlanTerms.model_validate(plan.terms),
             enabled=plan.enabled,
             updated_at=as_utc(plan.updated_at),
+        )
+
+
+class ServiceCatalogPlanOut(HttpResponseModel):
+    """Customer-visible terms; panel groups and resource inventory stay private."""
+
+    id: str
+    name: str
+    description: str
+    resource_type: Literal["shared", "dedicated"]
+    traffic_rule: Literal["total", "monthly"]
+    quota_bytes: int
+    validity_days: int
+    price: Decimal
+    currency: str
+
+    @classmethod
+    def from_orm_plan(cls, plan: ServicePlan) -> "ServiceCatalogPlanOut":
+        terms = ServicePlanTerms.model_validate(plan.terms)
+        return cls(
+            id=plan.id,
+            name=terms.name,
+            description=terms.description,
+            resource_type=terms.resource_type,
+            traffic_rule=terms.traffic_rule,
+            quota_bytes=terms.quota_bytes,
+            validity_days=terms.validity_days,
+            price=terms.price,
+            currency=terms.currency,
         )
 
 

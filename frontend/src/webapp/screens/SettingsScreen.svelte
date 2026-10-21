@@ -46,6 +46,7 @@
   } from "$lib/webapp/types.js";
 
   type Props = {
+    paymentsVisible?: boolean;
     routePrefix?: string;
     currentLang?: string;
     balance?: BalanceView;
@@ -108,6 +109,7 @@
   };
 
   let {
+    paymentsVisible = true,
     routePrefix = "",
     currentLang = "ru",
     balance = {} as BalanceView,
@@ -221,7 +223,7 @@
         {/if}
         <small>{profileTelegramId}</small>
       </div>
-      {#if shouldShowUserBalance(balance)}
+      {#if paymentsVisible && shouldShowUserBalance(balance)}
         {#if balance.enabled}
           <button
             class="settings-profile-balance"
@@ -271,19 +273,21 @@
     </div>
   {/if}
   <div class="settings-links-block">
-    <button
-      data-webapp-action="open-payment-history"
-      class="settings-row settings-row-payments"
-      type="button"
-      onclick={openPaymentHistory}
-    >
-      <CreditCardCheck size={21} />
-      <span>
-        <strong>{t("wa_payment_history_title")}</strong>
-        <small>{t("wa_payment_history_hint")}</small>
-      </span>
-      <ArrowRight size={17} />
-    </button>
+    {#if paymentsVisible}
+      <button
+        data-webapp-action="open-payment-history"
+        class="settings-row settings-row-payments"
+        type="button"
+        onclick={openPaymentHistory}
+      >
+        <CreditCardCheck size={21} />
+        <span>
+          <strong>{t("wa_payment_history_title")}</strong>
+          <small>{t("wa_payment_history_hint")}</small>
+        </span>
+        <ArrowRight size={17} />
+      </button>
+    {/if}
     {#if qrLoginEnabled && api}
       <button
         data-webapp-action="scan-qr-login"

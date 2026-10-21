@@ -27,8 +27,12 @@
   retains its commercial terms and price; retries return the original service. Dedicated-exit
   reservations are exclusive, and user reads are scoped to the authenticated account. New
   services remain pending until panel delivery is implemented. The admin activation form retains
-  uncertain requests across reloads for idempotent retry. User-home replacement, account
-  lifecycle, traffic enforcement and real-node acceptance are still in progress.
+  uncertain requests across reloads for idempotent retry. The user home now lists independent
+  services with separate usage, expiry and details, including visible overage and sync status.
+  A sanitized catalog explains manual activation. This deployment hides the old customer
+  checkout, top-up and marketing flows while retaining account/security settings. Account
+  lifecycle, old backend entry-point retirement, traffic enforcement and real-node acceptance
+  are still in progress.
 
 - **Nested dialog keyboard focus.** Opening an emoji picker now transfers focus before
   the next keyboard event, so an immediate Escape closes the picker instead of its parent
