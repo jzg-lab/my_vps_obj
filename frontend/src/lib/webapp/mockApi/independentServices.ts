@@ -1,6 +1,7 @@
 import type { components } from "$lib/api/openapi.generated.js";
 import { jsonBody } from "../demoMockRuntime.js";
 import type { ServicePlan, DedicatedExit, UserService } from "$lib/admin/servicePlans.js";
+import type { ServiceOrder } from "$lib/admin/serviceHistory";
 
 const stamp = "2026-10-22T04:00:00Z";
 const uuid = "11111111-1111-4111-8111-111111111111";
@@ -55,6 +56,48 @@ const exits: DedicatedExit[] = [
   },
 ];
 const services: UserService[] = [];
+const orders: ServiceOrder[] = [];
+const archived: UserService[] = Array.from({ length: 26 }, (_, index) => ({
+  id: (200 + index).toString(16).padStart(32, "0"),
+  user_id: null,
+  plan_id: plans[0].id,
+  plan_revision: 1,
+  name: `Archived plan ${index + 1}`,
+  description: "",
+  resource_type: "shared",
+  traffic_rule: "total",
+  quota_bytes: 100 * 2 ** 30,
+  used_bytes: 10 * 2 ** 30,
+  starts_at: stamp,
+  expires_at: "2027-01-20T04:00:00Z",
+  cycle_started_at: null,
+  cycle_ends_at: null,
+  last_usage_sync_at: stamp,
+  status: "cancelled",
+  connection_state: "revoked",
+  exit_ip: null,
+  exit_verified: false,
+}));
+for (const service of archived)
+  orders.push({
+    id: `f${service.id.slice(1)}`,
+    user_id: null,
+    service_id: service.id,
+    actor_id: 42,
+    kind: "activate",
+    created_at: stamp,
+    snapshot: {
+      terms: { ...plans[0].terms, name: service.name, price: "19.90" },
+      plan_id: service.plan_id,
+      plan_revision: 1,
+      starts_at: stamp,
+      expires_at: service.expires_at,
+      exit_id: null,
+      fulfillment: "manual",
+    },
+  });
+let historyFailureShown = false;
+let orderFailureShown = false;
 let demoOwner = 0;
 const requests = new Map<string, UserService>();
 const id = () => crypto.randomUUID().replaceAll("-", "");
@@ -153,7 +196,13 @@ export function independentServicesDemoResponse(path: string, options: RequestIn
     const body = jsonBody(options) as components["schemas"]["ServiceActivationBody"];
     const key = `${body.user_id}:${body.idempotency_key}`;
     const previous = requests.get(key);
-    if (previous) return { ok: true, service: previous, duplicate: true, order: {} };
+    if (previous)
+      return {
+        ok: true,
+        service: previous,
+        duplicate: true,
+        order: orders.find((item) => item.service_id === previous.id),
+      };
     const plan = plans.find((item) => item.id === body.plan_id);
     if (!plan?.enabled) return { ok: false, error: "plan_disabled" };
     if (plan.revision !== body.expected_revision)
@@ -188,9 +237,49 @@ export function independentServicesDemoResponse(path: string, options: RequestIn
     if (resource) resource.service_id = service.id;
     services.unshift(service);
     requests.set(key, service);
-    return { ok: true, service, duplicate: false, order: {} };
+    const order: ServiceOrder = {
+      id: id(),
+      user_id: body.user_id,
+      service_id: service.id,
+      actor_id: 42,
+      kind: "activate",
+      created_at: stamp,
+      snapshot: {
+        terms: structuredClone(plan.terms),
+        plan_id: plan.id,
+        plan_revision: plan.revision,
+        starts_at: service.starts_at,
+        expires_at: service.expires_at,
+        exit_id: resource?.id || null,
+        fulfillment: "manual",
+      },
+    };
+    orders.unshift(order);
+    return { ok: true, service, duplicate: false, order };
+  }
+  const scenario = new URLSearchParams(window.location.search).get("mock");
+  if (route === "/admin/service-orders") {
+    if (scenario === "history-orders-retry" && !orderFailureShown) {
+      orderFailureShown = true;
+      return { ok: false, error: "unavailable" };
+    }
+    const owner =
+      url.searchParams.get("deleted") === "true" ? null : Number(url.searchParams.get("user_id"));
+    const selected = url.searchParams.get("service_id");
+    const rows = orders.filter(
+      (order) => order.user_id === owner && (!selected || order.service_id === selected)
+    );
+    return { ok: true, orders: rows.slice(offset, offset + limit), total: rows.length };
   }
   if (route === "/admin/services" || route === "/services") {
+    if (route === "/admin/services" && url.searchParams.get("deleted") === "true") {
+      if (scenario === "history-retry" && !historyFailureShown) {
+        historyFailureShown = true;
+        return { ok: false, error: "unavailable" };
+      }
+      const rows = scenario === "history-empty" ? [] : archived;
+      return { ok: true, services: rows.slice(offset, offset + limit), total: rows.length };
+    }
     const owner = Number(url.searchParams.get("user_id") || 0);
     const rows = services.filter(
       (item) => item.user_id === (route === "/services" ? demoOwner : owner)

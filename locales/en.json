@@ -6340,5 +6340,21 @@
   "admin_account_access_not_requested": "No account connection change requested",
   "admin_account_access_saved_pending": "Account status is saved. Connection changes are still pending; automatic retries will continue.",
   "admin_account_access_last_attempt": "Last attempt",
-  "admin_account_access_retry": "Retry synchronization"
+  "admin_account_access_retry": "Retry synchronization",
+  "admin_services_history_title": "Service history",
+  "admin_services_history_subtitle": "Retained records from deleted accounts",
+  "admin_services_history_hint": "These services belong to deleted login accounts. Open a record to review its original activation terms and price.",
+  "admin_services_no_history": "No retained service records.",
+  "admin_services_order_history": "Activation history",
+  "admin_services_view_history": "View history",
+  "admin_services_order_history_hint": "Original activation snapshots. Prices are recorded terms, not payment confirmations. All dates use Beijing time (UTC+8).",
+  "admin_services_orders_count": "Records",
+  "admin_services_no_orders": "No activation records found.",
+  "admin_services_order_id": "Record ID",
+  "admin_services_recorded_price": "Recorded price",
+  "admin_services_period": "Original validity",
+  "admin_services_actor": "Administrator ID",
+  "admin_services_recorded_at": "Recorded at",
+  "admin_services_snapshot_unavailable": "Saved terms are unavailable.",
+  "admin_services_load_failed": "Could not load the records. Refresh to retry."
 }

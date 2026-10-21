@@ -67,7 +67,7 @@
   <AdminSectionHeader title={at("account_access_title")} />
   {#if failed}<p role="alert">{at("account_access_load_failed")}</p>
   {:else if status}
-    <AdminBadge variant={status.pending ? "warning" : "muted"}>
+    <AdminBadge wrap variant={status.pending ? "warning" : "muted"}>
       {at(
         status.pending
           ? "account_access_pending"

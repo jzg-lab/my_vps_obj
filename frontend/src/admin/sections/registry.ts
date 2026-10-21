@@ -111,6 +111,19 @@ export const ADMIN_SECTION_GROUPS = mergeAdminSectionGroups(
 
 const CORE_ADMIN_SECTIONS: AdminSectionDescriptor[] = [
   {
+    id: "service-history",
+    group: "operations",
+    order: 13,
+    i18nKey: "services_history_title",
+    fallbackLabel: "Service history",
+    titleI18nKey: "services_history_title",
+    fallbackTitle: "Service history",
+    subtitleI18nKey: "services_history_subtitle",
+    fallbackSubtitle: "Retained records from deleted accounts",
+    icon: FileText,
+    loadComponent: () => import("./ServiceHistorySection.svelte").then((module) => module.default),
+  },
+  {
     id: "service-plans",
     group: "operations",
     order: 11,

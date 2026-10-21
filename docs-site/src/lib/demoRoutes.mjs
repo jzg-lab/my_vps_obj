@@ -19,6 +19,7 @@ export const demoAdminRoutes = [
   "users",
   "service-plans",
   "dedicated-exits",
+  "service-history",
   "payments",
   "promos",
   "gifts",

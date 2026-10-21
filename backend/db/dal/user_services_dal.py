@@ -228,17 +228,22 @@ async def get_service_resource(
 
 
 async def list_orders(
-    session: AsyncSession, *, user_id: int | None, limit: int, offset: int
+    session: AsyncSession,
+    *,
+    user_id: int | None,
+    limit: int,
+    offset: int,
+    service_id: str | None = None,
 ) -> tuple[list[ServiceOrder], int]:
+    filters = [ServiceOrder.user_id == user_id]
+    if service_id is not None:
+        filters.append(ServiceOrder.service_id == service_id)
     total = int(
-        await session.scalar(
-            select(func.count()).select_from(ServiceOrder).where(ServiceOrder.user_id == user_id)
-        )
-        or 0
+        await session.scalar(select(func.count()).select_from(ServiceOrder).where(*filters)) or 0
     )
     rows = await session.scalars(
         select(ServiceOrder)
-        .where(ServiceOrder.user_id == user_id)
+        .where(*filters)
         .order_by(ServiceOrder.created_at.desc(), ServiceOrder.id)
         .limit(limit)
         .offset(offset)

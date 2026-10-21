@@ -25,6 +25,7 @@
     closeLabel?: string;
     onclose?: () => void;
     class?: string;
+    size?: "default" | "wide";
     scrollType?: ScrollType;
     showCloseButton?: boolean;
     /** Hosts with an async first control can defer focus until that control mounts. */
@@ -47,6 +48,7 @@
     closeLabel = "Close",
     onclose = () => {},
     class: className = "",
+    size = "default",
     scrollType = "auto",
     showCloseButton = true,
     focusOnOpen = true,
@@ -135,6 +137,7 @@
       <section
         bind:this={card}
         class={cn("dialog-card", footer && "dialog-card-with-footer", className)}
+        class:dialog-card-wide={size === "wide"}
         in:fly={cardIn()}
         out:fly={cardOut()}
       >
@@ -186,6 +189,9 @@
 {/if}
 
 <style>
+  .dialog-card-wide {
+    width: min(1120px, 100%);
+  }
   .dialog-card-with-footer {
     grid-template-rows: auto minmax(0, 1fr) auto;
   }

@@ -72,6 +72,13 @@ for (const width of [1440, 390]) {
       2
     );
     await expect(services.getByText("100 GiB", { exact: true })).toHaveCount(2);
+    await services.getByRole("button", { name: "История", exact: true }).first().click();
+    const historyDialog = page.getByRole("dialog");
+    await expect(historyDialog.locator("tbody tr")).toHaveCount(1);
+    await expect(historyDialog).toContainText("29.90 CNY");
+    await expect(historyDialog).toContainText("Demo total");
+    await page.keyboard.press("Escape");
+    await expect(historyDialog).toHaveCount(0);
     const badges = services.locator(".service-status");
     for (const badge of await badges.all()) {
       const bounds = await badge.evaluate((node) => {

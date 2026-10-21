@@ -1,5 +1,7 @@
 """Core HTTP routes for administrator-managed independent services."""
 
+import re
+
 from aiohttp import web
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -263,9 +265,12 @@ async def admin_service_orders_route(request: web.Request) -> web.Response:
     _require_admin_user_id(request)
     user_id = _query_user(request)
     limit, offset = _pagination(request)
+    service_id = request.query.get("service_id")
+    if service_id is not None and re.fullmatch(r"[0-9a-f]{32}", service_id) is None:
+        return _error(400, "invalid_service_id")
     async with get_session_factory(request)() as session:
         rows, total = await user_services_dal.list_orders(
-            session, user_id=user_id, limit=limit, offset=offset
+            session, user_id=user_id, limit=limit, offset=offset, service_id=service_id
         )
         orders = [ServiceOrderOut.from_orm_order(row).model_dump(mode="json") for row in rows]
     return _ok({"orders": orders, "total": total})

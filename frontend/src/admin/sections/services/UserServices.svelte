@@ -1,4 +1,7 @@
 <script lang="ts">
+  import { onDestroy } from "svelte";
+  import { serviceDate as date } from "$lib/webapp/independentServices";
+  import ServiceOrdersDialog from "./ServiceOrdersDialog.svelte";
   import { getAdminApi } from "$lib/admin/context.js";
   import {
     AdminBadge,
@@ -19,35 +22,30 @@
     at,
     userId,
     banned = false,
-  }: { at: ServiceTranslate; userId: number; banned?: boolean } = $props();
+  }: { at: ServiceTranslate; userId: number | null; banned?: boolean } = $props();
   const api = getAdminApi();
   let services = $state<UserService[]>([]);
-  let total = $state(0);
+  let total = $state<number | undefined>();
   let page = $state(0);
   let loading = $state(false);
   let failed = $state(false);
   let activationOpen = $state(false);
+  let selected = $state<UserService | null>(null);
+  let controller: AbortController | null = null;
   let request = 0;
-  const date = (value: string) =>
-    new Intl.DateTimeFormat("sv-SE", {
-      year: "numeric",
-      month: "2-digit",
-      day: "2-digit",
-      hour: "2-digit",
-      minute: "2-digit",
-      hourCycle: "h23",
-      timeZone: "Asia/Shanghai",
-    }).format(new Date(value));
-  async function load(currentPage: number, owner: number) {
+  async function load(currentPage: number, owner: number | null) {
     const id = ++request;
+    controller?.abort();
+    controller = new AbortController();
     loading = true;
     failed = false;
     try {
       const result = unwrap(
         await api(
           builtApiPath<"/api/admin/services">(
-            `/admin/services?user_id=${owner}&limit=25&offset=${currentPage * 25}`
-          )
+            `/admin/services?${owner === null ? "deleted=true" : `user_id=${owner}`}&limit=25&offset=${currentPage * 25}`
+          ),
+          { signal: controller.signal }
         )
       );
       if (id === request) {
@@ -61,32 +59,50 @@
     }
   }
   $effect(() => {
+    void userId;
+    page = 0;
+    total = undefined;
+    selected = null;
+    activationOpen = false;
+  });
+  $effect(() => {
+    void banned;
     void load(page, userId);
+  });
+  onDestroy(() => {
+    request++;
+    controller?.abort();
   });
 </script>
 
-<section class="user-services" aria-label={at("services_title")} aria-busy={loading}>
-  <h3>{at("services_title")}</h3>
+<section
+  class="user-services"
+  aria-label={at(userId === null ? "services_history_title" : "services_title")}
+  aria-busy={loading}
+>
+  {#if userId === null}<p>{at("services_history_hint")}</p>{:else}<h3>
+      {at("services_title")}
+    </h3>{/if}
   <AdminListToolbar {total} totalLabel={at("services_count")}>
     {#snippet actions()}<AdminButton disabled={loading} onclick={() => load(page, userId)}
         >{at("refresh")}</AdminButton
-      ><AdminButton
-        variant="primary"
-        disabled={banned}
-        onclick={() => {
-          activationOpen = true;
-        }}>{at("services_activate")}</AdminButton
-      >{/snippet}
+      >{#if userId !== null}<AdminButton
+          variant="primary"
+          disabled={banned}
+          onclick={() => {
+            activationOpen = true;
+          }}>{at("services_activate")}</AdminButton
+        >{/if}{/snippet}
   </AdminListToolbar>
-  {#if failed}<p role="alert">{at("services_request_failed")}</p>{:else if loading}<p role="status">
+  {#if failed}<p role="alert">{at("services_load_failed")}</p>{:else if loading}<p role="status">
       {at("loading")}
     </p>{:else if !services.length}<AdminEmptyState tone="card"
-      >{at("services_no_services")}</AdminEmptyState
+      >{at(userId === null ? "services_no_history" : "services_no_services")}</AdminEmptyState
     >{:else}
     <AdminTable
       ><thead
         ><tr
-          >{#each ["services_name", "status", "services_used", "services_remaining", "services_expires", "services_next_reset", "services_exit_ip"] as key}<th
+          >{#each ["services_name", "status", "services_used", "services_remaining", "services_expires", "services_next_reset", "services_exit_ip", "services_order_history"] as key}<th
               >{at(key)}</th
             >{/each}</tr
         ></thead
@@ -133,29 +149,37 @@
                   >{/if}
               </div></td
             >
+            <td data-label={at("services_order_history")}
+              ><AdminButton
+                size="sm"
+                onclick={() => {
+                  selected = service;
+                }}>{at("services_view_history")}</AdminButton
+              ></td
+            >
           </tr>{/each}
       </tbody></AdminTable
     >
   {/if}
-  <AdminPagination
-    {page}
-    pageCount={Math.ceil(total / 25)}
-    {total}
-    disabled={loading}
-    onPageChange={(value) => {
-      page = value;
-    }}
-    prevLabel={at("services_previous")}
-    nextLabel={at("services_next")}
-    pageLabel={at("services_page")}
-    ofLabel={at("services_of")}
-    totalLabel={at("services_count")}
-    jumpLabel={at("services_page")}
-    jumpAriaLabel={at("services_go_page")}
-    goLabel={at("services_go_page")}
-  />
+  {#if total !== undefined}<AdminPagination
+      {page}
+      pageCount={Math.ceil(total / 25)}
+      {total}
+      disabled={loading || failed}
+      onPageChange={(value) => {
+        page = value;
+      }}
+      prevLabel={at("services_previous")}
+      nextLabel={at("services_next")}
+      pageLabel={at("services_page")}
+      ofLabel={at("services_of")}
+      totalLabel={at("services_count")}
+      jumpLabel={at("services_page")}
+      jumpAriaLabel={at("services_go_page")}
+      goLabel={at("services_go_page")}
+    />{/if}
 </section>
-{#if activationOpen}<ServiceActivationDialog
+{#if activationOpen && userId !== null}<ServiceActivationDialog
     {api}
     {at}
     {userId}
@@ -168,6 +192,15 @@
       void load(0, userId);
     }}
   />{/if}
+
+{#if selected}{#key selected.id}<ServiceOrdersDialog
+      {api}
+      {at}
+      service={selected}
+      onclose={() => {
+        selected = null;
+      }}
+    />{/key}{/if}
 
 <style>
   .user-services {

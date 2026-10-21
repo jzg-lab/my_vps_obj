@@ -33,9 +33,11 @@
   checkout, top-up and marketing flows while retaining account/security settings. Account
   merges now move service ownership without pooling entitlements or replacing connection
   identities. Deletion requires released dedicated exits and revoked connections, then retains
-  detached service/activation history accessible through admin APIs. Original activation request
-  scopes survive merges and deletion. Account bans and unbans now persist synchronization jobs
-  before contacting the panel and retry after outages or worker restarts. Every known identity
+  detached service/activation history accessible through admin APIs and a paginated archive page.
+  Each service also opens its own activation history, showing original prices, quotas and dates
+  without substituting current plan terms; recorded prices are not payment confirmations.
+  Original activation request scopes survive merges and deletion. Account bans and unbans now
+  persist synchronization jobs before contacting the panel and retry after outages or worker restarts. Every known identity
   is checked; unbanning preserves expired, exhausted and paused service restrictions. The admin
   user page distinguishes pending changes from confirmed panel state and offers retry. Old
   backend entry-point retirement, traffic enforcement and real-node acceptance remain in progress.

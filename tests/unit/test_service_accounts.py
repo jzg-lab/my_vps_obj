@@ -229,3 +229,36 @@ class ServiceAccountTests(ServiceDatabaseTestCase):
                 )
                 assert (await response.json())[key] == []
             assert (await client.get("/api/services?deleted=true")).status == 401
+
+    @pytest.mark.filterwarnings(
+        "ignore:It is recommended to use web.RequestKey: aiohttp.web_exceptions.NotAppKeyWarning"
+    )
+    async def test_order_filter_preserves_account_scope_and_total(self) -> None:
+        first, order, _ = await self.activate(user_id=2)
+        second, _, _ = await self.activate(user_id=2, key="second")
+        live, _, _ = await self.activate(user_id=1)
+        assert (await self.delete_account()).status == 200
+        settings = Settings(POSTGRES_USER="test", POSTGRES_PASSWORD="test", _env_file=None)
+        app = web.Application(middlewares=[admin_auth_middleware])
+        app[SESSION_FACTORY] = self.sessions
+        app[SETTINGS] = settings
+        setup_service_admin_routes(app)
+        headers = {"Authorization": "Bearer " + create_webapp_session_token(settings, 1)}
+        async with TestClient(TestServer(app)) as client:
+            path = f"/api/admin/service-orders?deleted=true&service_id={first.id}"
+            response = await client.get(path, headers=headers)
+            body = await response.json()
+            assert body["total"] == 1 and body["orders"][0]["id"] == order.id
+            assert body["orders"][0]["snapshot"]["terms"]["price"] == "12.30"
+            response = await client.get(path + "&offset=1", headers=headers)
+            assert (await response.json())["orders"] == []
+            for query in (
+                f"deleted=true&service_id={live.id}",
+                f"user_id=1&service_id={second.id}",
+            ):
+                response = await client.get("/api/admin/service-orders?" + query, headers=headers)
+                assert (await response.json()) == {"ok": True, "orders": [], "total": 0}
+            response = await client.get(
+                "/api/admin/service-orders?deleted=true&service_id=invalid", headers=headers
+            )
+            assert response.status == 400

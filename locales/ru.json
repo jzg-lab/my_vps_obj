@@ -6340,5 +6340,21 @@
   "admin_account_access_not_requested": "Изменение подключений аккаунта не запрошено",
   "admin_account_access_saved_pending": "Статус аккаунта сохранён. Подключения ещё синхронизируются; автоматические попытки продолжатся.",
   "admin_account_access_last_attempt": "Последняя попытка",
-  "admin_account_access_retry": "Повторить синхронизацию"
+  "admin_account_access_retry": "Повторить синхронизацию",
+  "admin_services_history_title": "История услуг",
+  "admin_services_history_subtitle": "Сохранённые записи удалённых аккаунтов",
+  "admin_services_history_hint": "Услуги удалённых аккаунтов. Откройте запись, чтобы сверить исходные условия подключения и цену.",
+  "admin_services_no_history": "Сохранённых услуг пока нет.",
+  "admin_services_order_history": "История подключений",
+  "admin_services_view_history": "История",
+  "admin_services_order_history_hint": "Исходные условия подключения. Цена — условие тарифа, а не подтверждение оплаты. Все даты указаны по Пекину (UTC+8).",
+  "admin_services_orders_count": "Записи",
+  "admin_services_no_orders": "Записи подключений не найдены.",
+  "admin_services_order_id": "ID записи",
+  "admin_services_recorded_price": "Исходная цена",
+  "admin_services_period": "Исходный срок",
+  "admin_services_actor": "ID оператора",
+  "admin_services_recorded_at": "Дата записи",
+  "admin_services_snapshot_unavailable": "Сохранённые условия недоступны.",
+  "admin_services_load_failed": "Не удалось загрузить записи. Обновите страницу списка и повторите попытку."
 }
