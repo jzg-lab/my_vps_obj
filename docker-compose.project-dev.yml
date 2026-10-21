@@ -1,0 +1,81 @@
+# Apply after docker-compose-dev.yml and docker-compose.remnawave-dev.yml.
+# Local source builds only; no real nodes, payment credentials or public tunnel.
+x-build-proxy: &build-proxy
+  HTTP_PROXY: ${DEV_BUILD_PROXY:-}
+  HTTPS_PROXY: ${DEV_BUILD_PROXY:-}
+
+services:
+  postgres:
+    container_name: my-vps-obj-postgres
+  redis:
+    container_name: my-vps-obj-redis
+  plugin-store-init:
+    image: my-vps-obj-backend:dev
+    build:
+      args: *build-proxy
+  migrate:
+    container_name: my-vps-obj-migrate
+    image: my-vps-obj-backend:dev
+    build:
+      args: *build-proxy
+  backend:
+    container_name: my-vps-obj-backend
+    image: my-vps-obj-backend:dev
+    build:
+      args: *build-proxy
+  worker:
+    container_name: my-vps-obj-worker
+    image: my-vps-obj-worker:dev
+    build:
+      args: *build-proxy
+    environment:
+      PANEL_API_URL: http://remnawave:3000/api
+      PANEL_API_KEY: ${REMNAWAVE_DEV_API_TOKEN}
+    depends_on:
+      remnawave:
+        condition: service_healthy
+      dev-seed:
+        condition: service_completed_successfully
+  frontend:
+    container_name: my-vps-obj-frontend
+    image: my-vps-obj-frontend:dev
+    build:
+      args: *build-proxy
+    depends_on:
+      backend:
+        condition: service_healthy
+        restart: true
+  remnawave:
+    container_name: my-vps-obj-panel
+  remnawave-db:
+    container_name: my-vps-obj-panel-db
+  remnawave-redis:
+    container_name: my-vps-obj-panel-redis
+  remnawave-subscription-page:
+    container_name: my-vps-obj-subscription-page
+  remnawave-dev-seed:
+    container_name: my-vps-obj-panel-seed
+    volumes:
+      - ./deploy/dev/seed-project-panel.sql:/seed/seed-project-panel.sql:ro
+    command: ["sh", "-ec", "psql -v ON_ERROR_STOP=1 -f /seed/seed-project-panel.sql"]
+  dev-seed:
+    container_name: my-vps-obj-seed
+    volumes:
+      - ./deploy/dev/seed-project-accounts.sql:/seed/seed-project-accounts.sql:ro
+    command: ["sh", "-ec", "psql -v ON_ERROR_STOP=1 -f /seed/seed-project-accounts.sql"]
+  newt:
+    profiles: [external-tunnel]
+
+networks:
+  remnawave-minishop:
+    name: my-vps-obj-dev-network
+
+volumes:
+  remnawave-minishop-db-data:
+    name: my-vps-obj-dev-db
+  remnawave-minishop-redis-data:
+    name: my-vps-obj-dev-redis
+  remnawave-dev-db-data:
+    name: my-vps-obj-dev-panel-db
+  remnawave-dev-valkey-socket:
+    name: my-vps-obj-dev-panel-socket

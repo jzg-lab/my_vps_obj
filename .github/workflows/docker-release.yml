@@ -21,6 +21,7 @@ permissions:
 
 jobs:
   validate:
+    if: github.repository == '3252a8/remnawave-minishop'
     name: Validate release source
     runs-on: ubuntu-latest
     outputs:

@@ -63,6 +63,11 @@
     "check:e2e": "npm --prefix frontend run test:e2e",
     "check:frontend": "npm --prefix frontend run check && npm --prefix frontend run test && npm --prefix frontend run build && npm run check:e2e",
     "check:quick": "npm run check:lockfiles && npm run lint && npm test && npm run build:webapp",
-    "check": "npm run check:lockfiles && npm run check:docs && npm run check:backend && npm run check:frontend"
+    "check": "npm run check:lockfiles && npm run check:docs && npm run check:backend && npm run check:frontend",
+    "project:config": "docker compose --project-name my-vps-obj --env-file .env.project-dev -f docker-compose-dev.yml -f docker-compose.remnawave-dev.yml -f docker-compose.project-dev.yml --profile seed config --quiet",
+    "project:up": "docker compose --project-name my-vps-obj --env-file .env.project-dev -f docker-compose-dev.yml -f docker-compose.remnawave-dev.yml -f docker-compose.project-dev.yml --profile seed up -d --build postgres redis remnawave-db remnawave-redis remnawave remnawave-dev-seed remnawave-subscription-page migrate dev-seed backend worker frontend",
+    "project:down": "docker compose --project-name my-vps-obj --env-file .env.project-dev -f docker-compose-dev.yml -f docker-compose.remnawave-dev.yml -f docker-compose.project-dev.yml --profile seed down",
+    "project:ps": "docker compose --project-name my-vps-obj --env-file .env.project-dev -f docker-compose-dev.yml -f docker-compose.remnawave-dev.yml -f docker-compose.project-dev.yml --profile seed ps",
+    "project:logs": "docker compose --project-name my-vps-obj --env-file .env.project-dev -f docker-compose-dev.yml -f docker-compose.remnawave-dev.yml -f docker-compose.project-dev.yml --profile seed logs --tail=80 backend worker frontend"
   }
 }

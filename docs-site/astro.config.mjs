@@ -82,6 +82,16 @@ export default defineConfig({
       ],
       sidebar: [
         {
+          label: '我的 VPN · 二开项目',
+          items: [
+            { label: '需求基线', slug: 'reference/requirements' },
+            { label: '产品设计', slug: 'reference/product-design' },
+            { label: '架构评估', slug: 'reference/architecture-assessment' },
+            { label: '实施计划', slug: 'reference/implementation-plan' },
+            { label: '本地开发', slug: 'development/project-local' },
+          ],
+        },
+        {
           label: 'Начало работы',
           items: [
             { label: 'Главная', link: '/' },

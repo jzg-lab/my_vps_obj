@@ -15,6 +15,7 @@ permissions:
 
 jobs:
   refresh:
+    if: github.repository == '3252a8/remnawave-minishop'
     name: Refresh snapshot
     runs-on: ubuntu-latest
     steps:

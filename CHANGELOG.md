@@ -15,6 +15,12 @@
 
 ### Добавлено
 
+- **my_vps_obj development foundation.** The derived project keeps its agreed requirements,
+  product design and implementation plan alongside the Minishop source. A dedicated local
+  Compose overlay builds project images, isolates service names and data volumes, and disables
+  payments and outbound notifications by default. Upstream publication workflows are restricted
+  to the upstream repository. Multi-service business logic and real-node integration are pending.
+
 - **Надёжные обработчики поддержки.** Внешние интеграции получают ограниченный контекст
   владельца выбранного обращения, события новых сообщений после сохранения и постраничную
   сверку изменений. Условная отправка проверяет версию диалога, статус и назначенного

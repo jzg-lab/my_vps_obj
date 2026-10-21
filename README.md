@@ -1,4 +1,18 @@
-# Remnawave Minishop
+# 我的 VPN · my_vps_obj
+
+基于 **Minishop v3.8.2** 二次开发的统一套餐项目。一个账号可拥有多份独立服务，是本项目接下来要实现的核心；当前正在建立可运行的开发基础，原有单套餐页面不代表多服务功能已完成。
+
+- [需求基线](docs/requirements.md)：管理员自由配置套餐、独立流量与有效期、一期人工开通。
+- [产品设计](docs/product-design.md) · [架构方案](docs/architecture-assessment.md) · [实施计划](docs/implementation-plan.md)。
+- [本地启动与测试](docs/development/project-local.md)：独立开发数据、源码构建、测试登录，不操作线上节点。
+
+一期先做网站、管理后台和通用客户端接入，不接支付，自有 App 后续开发。套餐、订单快照、用户服务和节点身份将在同一工程内统一改造。具体进度见实施计划，未完成能力不作上线承诺。
+
+上游基线提交：`04b0ca5e210a33209bbf15485003865ee29304bc`。保留 [MIT 许可](LICENSE)、版权和 Git 历史；以下为上游说明，其功能范围和部署命令不等同于本项目 MVP。新开发环境请使用上面的本地启动文档。
+
+---
+
+# Remnawave Minishop（上游说明）
 
 ![Remnawave Minishop](docs/remnawave-minishop.webp)
 

@@ -1,5 +1,22 @@
 # AGENTS.md
 
+## my_vps_obj project decisions
+
+Read [requirements](docs/requirements.md), [product design](docs/product-design.md),
+[implementation plan](docs/implementation-plan.md) and the relevant local docs first.
+Use first principles and the smallest complete change; distinguish verified behavior
+from proposed behavior. Ask about unresolved business rules before implementing them.
+
+This is a Minishop-derived project, not a plugin-only implementation. Keep one account
+with multiple independent services as the target. The MVP uses manual admin activation,
+no payments, and general subscription clients; a first-party App comes later. Traffic
+means upload + download payload; user experience takes priority over a zero-overage promise.
+Use the isolated [project development stand](docs/development/project-local.md).
+Never treat existing production 3x-ui nodes as disposable test infrastructure.
+
+Retain the upstream conventions below. If `.codegraph/` exists, use CodeGraph before
+text searches for code understanding; do not create an index without a user request.
+
 Entry point for AI agents. The single source of truth for conventions, architecture, and
 enforced quality gates is [CONTRIBUTING.md](CONTRIBUTING.md) (written in Russian) — **read it
 before changing code.** Architecture overview: [docs/architecture.md](docs/architecture.md).

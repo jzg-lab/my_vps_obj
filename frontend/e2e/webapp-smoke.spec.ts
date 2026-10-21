@@ -736,12 +736,21 @@ async function assertMobileExtendTariffSelectDoesNotTapThrough(
   const targetItem = items.nth(Math.min(2, itemCount - 1));
   await expect(targetItem).toBeVisible();
   const targetLabel = (await targetItem.locator("span").first().innerText()).trim();
-  const itemReceivesPointer = await targetItem.evaluate((item) => {
-    const rect = item.getBoundingClientRect();
-    const hit = document.elementFromPoint(rect.left + rect.width / 2, rect.top + rect.height / 2);
-    return Boolean(hit && (hit === item || item.contains(hit)));
-  });
-  expect(itemReceivesPointer, `${phase}: select option must receive pointer events`).toBe(true);
+  // Visibility can precede the select's opening animation and final hit-test position.
+  await expect
+    .poll(
+      () =>
+        targetItem.evaluate((item) => {
+          const rect = item.getBoundingClientRect();
+          const hit = document.elementFromPoint(
+            rect.left + rect.width / 2,
+            rect.top + rect.height / 2
+          );
+          return Boolean(hit && (hit === item || item.contains(hit)));
+        }),
+      { message: `${phase}: select option must receive pointer events` }
+    )
+    .toBe(true);
 
   await targetItem.click();
   await expect(extendTariffTrigger).toContainText(targetLabel);

@@ -146,6 +146,8 @@ graphify-out/
 .pytest_cache/
 .mypy_cache/
 .ruff_cache/
+/research/
+/experiments/
 venv/
 
 # PyCharm

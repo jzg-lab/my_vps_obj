@@ -15,6 +15,7 @@ permissions:
 
 jobs:
   publish:
+    if: github.repository == '3252a8/remnawave-minishop'
     uses: ./.github/workflows/_docker-publish-ghcr.yml
     with:
       source_ref: ${{ github.sha }}

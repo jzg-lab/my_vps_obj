@@ -126,3 +126,6 @@ data/docs/*
 .minishop-restore.lock
 .venv/
 .tmp
+
+# Local research captures may contain deployment or account information.
+/research/
