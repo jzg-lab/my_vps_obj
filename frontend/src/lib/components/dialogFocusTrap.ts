@@ -3,7 +3,9 @@ const FOCUSABLE_SELECTOR =
 
 export function focusFirstDialogControl(getDialog: () => HTMLElement | null): void {
   if (typeof window === "undefined") return;
-  window.requestAnimationFrame(() => {
+  // Focus after Svelte mounts the controls, before another keyboard event can
+  // reach the parent dialog. Waiting for a frame leaves Escape on its trigger.
+  queueMicrotask(() => {
     getDialog()?.querySelector<HTMLElement>(FOCUSABLE_SELECTOR)?.focus();
   });
 }

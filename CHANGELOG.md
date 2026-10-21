@@ -19,7 +19,17 @@
   product design and implementation plan alongside the Minishop source. A dedicated local
   Compose overlay builds project images, isolates service names and data volumes, and disables
   payments and outbound notifications by default. Upstream publication workflows are restricted
-  to the upstream repository. Multi-service business logic and real-node integration are pending.
+  to the upstream repository.
+- **Independent service records.** Administrators can define shared-node or dedicated-exit
+  plan templates and manually open separate services through authenticated APIs. Each opening
+  retains its commercial terms and price; retries return the original service. Dedicated-exit
+  reservations are exclusive, and user reads are scoped to the authenticated account. New
+  services remain pending until panel delivery is implemented; the new UI, account lifecycle,
+  traffic enforcement and real-node acceptance are still in progress.
+
+- **Nested dialog keyboard focus.** Opening an emoji picker now transfers focus before
+  the next keyboard event, so an immediate Escape closes the picker instead of its parent
+  editor. Existing focus-restoration assertions remain in place.
 
 - **Надёжные обработчики поддержки.** Внешние интеграции получают ограниченный контекст
   владельца выбранного обращения, события новых сообщений после сохранения и постраничную

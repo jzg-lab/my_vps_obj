@@ -1,0 +1,116 @@
+"""Independent user services; never reuse the account's legacy subscription identity."""
+
+from datetime import datetime
+
+from sqlalchemy import (
+    JSON,
+    BigInteger,
+    Boolean,
+    CheckConstraint,
+    DateTime,
+    ForeignKey,
+    Integer,
+    String,
+    UniqueConstraint,
+)
+from sqlalchemy.orm import Mapped, mapped_column
+
+from db.base import Base
+
+
+class ServicePlan(Base):
+    __tablename__ = "service_plans"
+    __table_args__ = (CheckConstraint("revision > 0", name="ck_service_plan_revision"),)
+
+    id: Mapped[str] = mapped_column(String(32), primary_key=True)
+    revision: Mapped[int] = mapped_column(Integer, nullable=False)
+    terms: Mapped[dict[str, object]] = mapped_column(JSON, nullable=False)
+    enabled: Mapped[bool] = mapped_column(Boolean, nullable=False)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
+    updated_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
+    updated_by: Mapped[int] = mapped_column(BigInteger, nullable=False)
+
+
+class UserService(Base):
+    __tablename__ = "user_services"
+    __table_args__ = (
+        CheckConstraint("quota_bytes > 0", name="ck_user_service_quota"),
+        CheckConstraint("used_bytes >= 0", name="ck_user_service_used"),
+        CheckConstraint("expires_at > starts_at", name="ck_user_service_dates"),
+        CheckConstraint(
+            "desired_status IN ('active', 'paused', 'cancelled')",
+            name="ck_user_service_desired_status",
+        ),
+    )
+
+    id: Mapped[str] = mapped_column(String(32), primary_key=True)
+    user_id: Mapped[int] = mapped_column(
+        BigInteger, ForeignKey("users.user_id", ondelete="RESTRICT"), index=True
+    )
+    plan_id: Mapped[str] = mapped_column(
+        String(32), ForeignKey("service_plans.id", ondelete="RESTRICT")
+    )
+    plan_revision: Mapped[int] = mapped_column(Integer, nullable=False)
+    terms: Mapped[dict[str, object]] = mapped_column(JSON, nullable=False)
+    quota_bytes: Mapped[int] = mapped_column(BigInteger, nullable=False)
+    used_bytes: Mapped[int] = mapped_column(BigInteger, nullable=False, default=0)
+    starts_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
+    expires_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
+    desired_status: Mapped[str] = mapped_column(String(16), nullable=False, default="active")
+    last_usage_sync_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+    cycle_started_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+    cycle_ends_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
+
+
+class ServiceOrder(Base):
+    __tablename__ = "service_orders"
+    __table_args__ = (UniqueConstraint("user_id", "idempotency_key", name="uq_service_order_key"),)
+
+    id: Mapped[str] = mapped_column(String(32), primary_key=True)
+    user_id: Mapped[int] = mapped_column(
+        BigInteger, ForeignKey("users.user_id", ondelete="RESTRICT"), index=True
+    )
+    service_id: Mapped[str] = mapped_column(
+        String(32), ForeignKey("user_services.id", ondelete="RESTRICT"), index=True
+    )
+    actor_id: Mapped[int] = mapped_column(BigInteger, nullable=False)
+    kind: Mapped[str] = mapped_column(String(24), nullable=False)
+    idempotency_key: Mapped[str] = mapped_column(String(128), nullable=False)
+    request: Mapped[dict[str, object]] = mapped_column(JSON, nullable=False)
+    snapshot: Mapped[dict[str, object]] = mapped_column(JSON, nullable=False)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
+
+
+class ServiceConnection(Base):
+    __tablename__ = "service_connections"
+    __table_args__ = (
+        CheckConstraint(
+            "state IN ('pending', 'ready', 'error', 'revoked')",
+            name="ck_service_connection_state",
+        ),
+    )
+
+    service_id: Mapped[str] = mapped_column(
+        String(32), ForeignKey("user_services.id", ondelete="RESTRICT"), primary_key=True
+    )
+    username: Mapped[str] = mapped_column(String(64), nullable=False, unique=True)
+    panel_user_uuid: Mapped[str | None] = mapped_column(String(36), unique=True)
+    state: Mapped[str] = mapped_column(String(16), nullable=False, default="pending")
+    last_error: Mapped[str | None] = mapped_column(String(128))
+
+
+class DedicatedExit(Base):
+    __tablename__ = "dedicated_exits"
+
+    id: Mapped[str] = mapped_column(String(32), primary_key=True)
+    label: Mapped[str] = mapped_column(String(160), nullable=False)
+    ip_address: Mapped[str] = mapped_column(String(45), nullable=False, unique=True)
+    resource_pool: Mapped[str] = mapped_column(String(120), nullable=False, index=True)
+    squad_uuid: Mapped[str] = mapped_column(String(36), nullable=False, unique=True)
+    service_id: Mapped[str | None] = mapped_column(
+        String(32), ForeignKey("user_services.id", ondelete="RESTRICT"), unique=True
+    )
+    verified_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+    enabled: Mapped[bool] = mapped_column(Boolean, nullable=False, default=True)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)

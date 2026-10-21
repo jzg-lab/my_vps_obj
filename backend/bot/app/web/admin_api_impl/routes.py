@@ -1,5 +1,7 @@
 from aiohttp import web
 
+from bot.app.web.service_routes import setup_service_admin_routes
+
 from .ads import (
     admin_ad_assign_route,
     admin_ad_create_route,
@@ -193,6 +195,7 @@ from .users_merge_context import admin_user_merge_context_route
 
 
 def setup_admin_routes(app: web.Application) -> None:
+    setup_service_admin_routes(app)
     from .plugin_packages import setup_plugin_packages
     from .theme_library import setup_theme_jobs, setup_theme_library
 

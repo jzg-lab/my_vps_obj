@@ -1128,6 +1128,24 @@ export interface paths {
     patch?: never;
     trace?: never;
   };
+  "/api/admin/dedicated-exits": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** Admin Dedicated Exits */
+    get: operations["get_admin_dedicated_exits_route"];
+    put?: never;
+    /** Admin Dedicated Exit Create */
+    post: operations["post_admin_dedicated_exit_create_route"];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
   "/api/admin/documents": {
     parameters: {
       query?: never;
@@ -2223,6 +2241,76 @@ export interface paths {
     post?: never;
     /** Admin Role Revoke */
     delete: operations["delete_admin_role_revoke_route"];
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/api/admin/service-orders": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** Admin Service Orders */
+    get: operations["get_admin_service_orders_route"];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/api/admin/service-plans": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** Admin Service Plans */
+    get: operations["get_admin_service_plans_route"];
+    put?: never;
+    /** Admin Service Plan Create */
+    post: operations["post_admin_service_plan_create_route"];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/api/admin/service-plans/{plan_id}": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    /** Admin Service Plan Update */
+    put: operations["put_admin_service_plan_update_route"];
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/api/admin/services": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** Admin Services */
+    get: operations["get_admin_services_route"];
+    put?: never;
+    /** Admin Service Activate */
+    post: operations["post_admin_service_activate_route"];
+    delete?: never;
     options?: never;
     head?: never;
     patch?: never;
@@ -4243,6 +4331,40 @@ export interface paths {
     put?: never;
     /** Referral Welcome Bonus Claim */
     post: operations["post_referral_welcome_bonus_claim_route"];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/api/services": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** User Services */
+    get: operations["get_user_services_route"];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/api/services/{service_id}": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** User Service */
+    get: operations["get_user_service_route"];
+    put?: never;
+    post?: never;
     delete?: never;
     options?: never;
     head?: never;
@@ -8544,6 +8666,39 @@ export interface components {
       /** Subject */
       subject: string;
     };
+    /** DedicatedExitBody */
+    DedicatedExitBody: {
+      /** Ip Address */
+      ip_address: string;
+      /** Label */
+      label: string;
+      /** Resource Pool */
+      resource_pool: string;
+      /**
+       * Squad Uuid
+       * Format: uuid
+       */
+      squad_uuid: string;
+    };
+    /** DedicatedExitOut */
+    DedicatedExitOut: {
+      /** Enabled */
+      enabled: boolean;
+      /** Id */
+      id: string;
+      /** Ip Address */
+      ip_address: string;
+      /** Label */
+      label: string;
+      /** Resource Pool */
+      resource_pool: string;
+      /** Service Id */
+      service_id: string | null;
+      /** Squad Uuid */
+      squad_uuid: string;
+      /** Verified At */
+      verified_at: string | null;
+    };
     /** EffectsRequest */
     EffectsRequest: {
       /**
@@ -11006,6 +11161,108 @@ export interface components {
        */
       updatedAt: string | null;
     };
+    /** ServiceActivationBody */
+    ServiceActivationBody: {
+      /**
+       * Exit Id
+       * @default null
+       */
+      exit_id: string | null;
+      /** Expected Revision */
+      expected_revision: number;
+      /** Idempotency Key */
+      idempotency_key: string;
+      /** Plan Id */
+      plan_id: string;
+      /** User Id */
+      user_id: number;
+    };
+    /** ServiceOrderOut */
+    ServiceOrderOut: {
+      /** Actor Id */
+      actor_id: number;
+      /**
+       * Created At
+       * Format: date-time
+       */
+      created_at: string;
+      /** Id */
+      id: string;
+      /** Kind */
+      kind: string;
+      /** Service Id */
+      service_id: string;
+      /** Snapshot */
+      snapshot: {
+        [key: string]: unknown;
+      };
+      /** User Id */
+      user_id: number;
+    };
+    /** ServicePlanBody */
+    ServicePlanBody: {
+      /** Enabled */
+      enabled: boolean;
+      terms: components["schemas"]["ServicePlanTerms"];
+    };
+    /** ServicePlanOut */
+    ServicePlanOut: {
+      /** Enabled */
+      enabled: boolean;
+      /** Id */
+      id: string;
+      /** Revision */
+      revision: number;
+      terms: components["schemas"]["ServicePlanTerms"];
+      /**
+       * Updated At
+       * Format: date-time
+       */
+      updated_at: string;
+    };
+    /** ServicePlanTerms */
+    ServicePlanTerms: {
+      /** Currency */
+      currency: string;
+      /**
+       * Description
+       * @default
+       */
+      description: string;
+      /** Name */
+      name: string;
+      /** Price */
+      price: number | string;
+      /** Quota Bytes */
+      quota_bytes: number;
+      /**
+       * Resource Pool
+       * @default null
+       */
+      resource_pool: string | null;
+      /**
+       * Resource Type
+       * @enum {string}
+       */
+      resource_type: "shared" | "dedicated";
+      /** Squad Uuids */
+      squad_uuids?: string[];
+      /**
+       * Traffic Rule
+       * @enum {string}
+       */
+      traffic_rule: "total" | "monthly";
+      /** Validity Days */
+      validity_days: number;
+    };
+    /** ServicePlanUpdateBody */
+    ServicePlanUpdateBody: {
+      /** Enabled */
+      enabled: boolean;
+      /** Expected Revision */
+      expected_revision: number;
+      terms: components["schemas"]["ServicePlanTerms"];
+    };
     /** StatusGroup */
     StatusGroup: {
       /** Id */
@@ -12072,6 +12329,59 @@ export interface components {
       traffic_products?: {
         [key: string]: components["schemas"]["TributeProductConfig"];
       };
+    };
+    /** UserServiceOut */
+    UserServiceOut: {
+      /** Connection State */
+      connection_state: string;
+      /** Cycle Ends At */
+      cycle_ends_at: string | null;
+      /** Cycle Started At */
+      cycle_started_at: string | null;
+      /** Description */
+      description: string;
+      /** Exit Ip */
+      exit_ip: string | null;
+      /** Exit Verified */
+      exit_verified: boolean;
+      /**
+       * Expires At
+       * Format: date-time
+       */
+      expires_at: string;
+      /** Id */
+      id: string;
+      /** Last Usage Sync At */
+      last_usage_sync_at: string | null;
+      /** Name */
+      name: string;
+      /** Plan Id */
+      plan_id: string;
+      /** Plan Revision */
+      plan_revision: number;
+      /** Quota Bytes */
+      quota_bytes: number;
+      /**
+       * Resource Type
+       * @enum {string}
+       */
+      resource_type: "shared" | "dedicated";
+      /**
+       * Starts At
+       * Format: date-time
+       */
+      starts_at: string;
+      /** Status */
+      status: string;
+      /**
+       * Traffic Rule
+       * @enum {string}
+       */
+      traffic_rule: "total" | "monthly";
+      /** Used Bytes */
+      used_bytes: number;
+      /** User Id */
+      user_id: number;
     };
     /** WebAppAccountMergePayload */
     WebAppAccountMergePayload: {
@@ -14881,6 +15191,59 @@ export interface operations {
       };
     };
   };
+  get_admin_dedicated_exits_route: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description JSON response */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": {
+            exits: components["schemas"]["DedicatedExitOut"][];
+            /** @constant */
+            ok: true;
+            total: number;
+          };
+        };
+      };
+    };
+  };
+  post_admin_dedicated_exit_create_route: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["DedicatedExitBody"];
+      };
+    };
+    responses: {
+      /** @description JSON response */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": {
+            exit: components["schemas"]["DedicatedExitOut"];
+            /** @constant */
+            ok: true;
+          };
+        };
+      };
+    };
+  };
   get_admin_documents_list_route: {
     parameters: {
       query?: never;
@@ -17020,6 +17383,169 @@ export interface operations {
           "application/json": {
             /** @constant */
             ok: true;
+          };
+        };
+      };
+    };
+  };
+  get_admin_service_orders_route: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description JSON response */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": {
+            /** @constant */
+            ok: true;
+            orders: components["schemas"]["ServiceOrderOut"][];
+            total: number;
+          };
+        };
+      };
+    };
+  };
+  get_admin_service_plans_route: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description JSON response */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": {
+            /** @constant */
+            ok: true;
+            plans: components["schemas"]["ServicePlanOut"][];
+            total: number;
+          };
+        };
+      };
+    };
+  };
+  post_admin_service_plan_create_route: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["ServicePlanBody"];
+      };
+    };
+    responses: {
+      /** @description JSON response */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": {
+            /** @constant */
+            ok: true;
+            plan: components["schemas"]["ServicePlanOut"];
+          };
+        };
+      };
+    };
+  };
+  put_admin_service_plan_update_route: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        plan_id: string;
+      };
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["ServicePlanUpdateBody"];
+      };
+    };
+    responses: {
+      /** @description JSON response */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": {
+            /** @constant */
+            ok: true;
+            plan: components["schemas"]["ServicePlanOut"];
+          };
+        };
+      };
+    };
+  };
+  get_admin_services_route: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description JSON response */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": {
+            /** @constant */
+            ok: true;
+            services: components["schemas"]["UserServiceOut"][];
+            total: number;
+          };
+        };
+      };
+    };
+  };
+  post_admin_service_activate_route: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["ServiceActivationBody"];
+      };
+    };
+    responses: {
+      /** @description JSON response */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": {
+            duplicate: boolean;
+            /** @constant */
+            ok: true;
+            order: components["schemas"]["ServiceOrderOut"];
+            service: components["schemas"]["UserServiceOut"];
           };
         };
       };
@@ -21454,6 +21980,57 @@ export interface operations {
             end_date_text: string | null;
             /** @constant */
             ok: true;
+          };
+        };
+      };
+    };
+  };
+  get_user_services_route: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description JSON response */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": {
+            /** @constant */
+            ok: true;
+            services: components["schemas"]["UserServiceOut"][];
+            total: number;
+          };
+        };
+      };
+    };
+  };
+  get_user_service_route: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        service_id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description JSON response */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": {
+            /** @constant */
+            ok: true;
+            service: components["schemas"]["UserServiceOut"];
           };
         };
       };

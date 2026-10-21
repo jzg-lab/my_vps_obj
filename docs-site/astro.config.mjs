@@ -89,6 +89,7 @@ export default defineConfig({
             { label: '架构评估', slug: 'reference/architecture-assessment' },
             { label: '实施计划', slug: 'reference/implementation-plan' },
             { label: '本地开发', slug: 'development/project-local' },
+            { label: '独立服务接口', slug: 'development/independent-services' },
           ],
         },
         {

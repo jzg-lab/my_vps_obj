@@ -8679,6 +8679,112 @@
         "title": "CreateTicketPayload",
         "type": "object"
       },
+      "DedicatedExitBody": {
+        "additionalProperties": false,
+        "properties": {
+          "ip_address": {
+            "anyOf": [
+              {
+                "format": "ipv4",
+                "type": "string"
+              },
+              {
+                "format": "ipv6",
+                "type": "string"
+              }
+            ],
+            "title": "Ip Address"
+          },
+          "label": {
+            "maxLength": 160,
+            "minLength": 1,
+            "title": "Label",
+            "type": "string"
+          },
+          "resource_pool": {
+            "maxLength": 120,
+            "minLength": 1,
+            "title": "Resource Pool",
+            "type": "string"
+          },
+          "squad_uuid": {
+            "format": "uuid",
+            "title": "Squad Uuid",
+            "type": "string"
+          }
+        },
+        "required": [
+          "label",
+          "ip_address",
+          "resource_pool",
+          "squad_uuid"
+        ],
+        "title": "DedicatedExitBody",
+        "type": "object"
+      },
+      "DedicatedExitOut": {
+        "properties": {
+          "enabled": {
+            "title": "Enabled",
+            "type": "boolean"
+          },
+          "id": {
+            "title": "Id",
+            "type": "string"
+          },
+          "ip_address": {
+            "title": "Ip Address",
+            "type": "string"
+          },
+          "label": {
+            "title": "Label",
+            "type": "string"
+          },
+          "resource_pool": {
+            "title": "Resource Pool",
+            "type": "string"
+          },
+          "service_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Service Id"
+          },
+          "squad_uuid": {
+            "title": "Squad Uuid",
+            "type": "string"
+          },
+          "verified_at": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Verified At"
+          }
+        },
+        "required": [
+          "id",
+          "label",
+          "ip_address",
+          "resource_pool",
+          "squad_uuid",
+          "service_id",
+          "verified_at",
+          "enabled"
+        ],
+        "title": "DedicatedExitOut",
+        "type": "object"
+      },
       "EffectsRequest": {
         "additionalProperties": false,
         "properties": {
@@ -14414,6 +14520,271 @@
         "title": "ServerStatus",
         "type": "object"
       },
+      "ServiceActivationBody": {
+        "additionalProperties": false,
+        "properties": {
+          "exit_id": {
+            "anyOf": [
+              {
+                "pattern": "^[a-f0-9]{32}$",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Exit Id"
+          },
+          "expected_revision": {
+            "exclusiveMinimum": 0,
+            "title": "Expected Revision",
+            "type": "integer"
+          },
+          "idempotency_key": {
+            "maxLength": 128,
+            "minLength": 1,
+            "title": "Idempotency Key",
+            "type": "string"
+          },
+          "plan_id": {
+            "pattern": "^[a-f0-9]{32}$",
+            "title": "Plan Id",
+            "type": "string"
+          },
+          "user_id": {
+            "maximum": 9007199254740991,
+            "minimum": -9007199254740991,
+            "title": "User Id",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "user_id",
+          "plan_id",
+          "expected_revision",
+          "idempotency_key"
+        ],
+        "title": "ServiceActivationBody",
+        "type": "object"
+      },
+      "ServiceOrderOut": {
+        "properties": {
+          "actor_id": {
+            "title": "Actor Id",
+            "type": "integer"
+          },
+          "created_at": {
+            "format": "date-time",
+            "title": "Created At",
+            "type": "string"
+          },
+          "id": {
+            "title": "Id",
+            "type": "string"
+          },
+          "kind": {
+            "title": "Kind",
+            "type": "string"
+          },
+          "service_id": {
+            "title": "Service Id",
+            "type": "string"
+          },
+          "snapshot": {
+            "additionalProperties": true,
+            "title": "Snapshot",
+            "type": "object"
+          },
+          "user_id": {
+            "title": "User Id",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "id",
+          "user_id",
+          "service_id",
+          "actor_id",
+          "kind",
+          "snapshot",
+          "created_at"
+        ],
+        "title": "ServiceOrderOut",
+        "type": "object"
+      },
+      "ServicePlanBody": {
+        "additionalProperties": false,
+        "properties": {
+          "enabled": {
+            "title": "Enabled",
+            "type": "boolean"
+          },
+          "terms": {
+            "$ref": "#/components/schemas/ServicePlanTerms"
+          }
+        },
+        "required": [
+          "terms",
+          "enabled"
+        ],
+        "title": "ServicePlanBody",
+        "type": "object"
+      },
+      "ServicePlanOut": {
+        "properties": {
+          "enabled": {
+            "title": "Enabled",
+            "type": "boolean"
+          },
+          "id": {
+            "title": "Id",
+            "type": "string"
+          },
+          "revision": {
+            "title": "Revision",
+            "type": "integer"
+          },
+          "terms": {
+            "$ref": "#/components/schemas/ServicePlanTerms"
+          },
+          "updated_at": {
+            "format": "date-time",
+            "title": "Updated At",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "revision",
+          "terms",
+          "enabled",
+          "updated_at"
+        ],
+        "title": "ServicePlanOut",
+        "type": "object"
+      },
+      "ServicePlanTerms": {
+        "additionalProperties": false,
+        "properties": {
+          "currency": {
+            "pattern": "^[A-Z]{3}$",
+            "title": "Currency",
+            "type": "string"
+          },
+          "description": {
+            "default": "",
+            "maxLength": 2000,
+            "title": "Description",
+            "type": "string"
+          },
+          "name": {
+            "maxLength": 160,
+            "minLength": 1,
+            "title": "Name",
+            "type": "string"
+          },
+          "price": {
+            "anyOf": [
+              {
+                "minimum": 0.0,
+                "type": "number"
+              },
+              {
+                "pattern": "^(?!^[-+.]*$)[+-]?0*(?:\\d{0,12}|(?=[\\d.]{1,15}0*$)\\d{0,12}\\.\\d{0,2}0*$)",
+                "type": "string"
+              }
+            ],
+            "title": "Price"
+          },
+          "quota_bytes": {
+            "exclusiveMinimum": 0,
+            "maximum": 9007199254740991,
+            "title": "Quota Bytes",
+            "type": "integer"
+          },
+          "resource_pool": {
+            "anyOf": [
+              {
+                "maxLength": 120,
+                "minLength": 1,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Resource Pool"
+          },
+          "resource_type": {
+            "enum": [
+              "shared",
+              "dedicated"
+            ],
+            "title": "Resource Type",
+            "type": "string"
+          },
+          "squad_uuids": {
+            "items": {
+              "format": "uuid",
+              "type": "string"
+            },
+            "maxItems": 100,
+            "title": "Squad Uuids",
+            "type": "array"
+          },
+          "traffic_rule": {
+            "enum": [
+              "total",
+              "monthly"
+            ],
+            "title": "Traffic Rule",
+            "type": "string"
+          },
+          "validity_days": {
+            "exclusiveMinimum": 0,
+            "maximum": 36500,
+            "title": "Validity Days",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "name",
+          "resource_type",
+          "traffic_rule",
+          "quota_bytes",
+          "validity_days",
+          "price",
+          "currency"
+        ],
+        "title": "ServicePlanTerms",
+        "type": "object"
+      },
+      "ServicePlanUpdateBody": {
+        "additionalProperties": false,
+        "properties": {
+          "enabled": {
+            "title": "Enabled",
+            "type": "boolean"
+          },
+          "expected_revision": {
+            "exclusiveMinimum": 0,
+            "title": "Expected Revision",
+            "type": "integer"
+          },
+          "terms": {
+            "$ref": "#/components/schemas/ServicePlanTerms"
+          }
+        },
+        "required": [
+          "terms",
+          "enabled",
+          "expected_revision"
+        ],
+        "title": "ServicePlanUpdateBody",
+        "type": "object"
+      },
       "StatusGroup": {
         "properties": {
           "id": {
@@ -16805,6 +17176,150 @@
           }
         },
         "title": "TributeTariffConfig",
+        "type": "object"
+      },
+      "UserServiceOut": {
+        "properties": {
+          "connection_state": {
+            "title": "Connection State",
+            "type": "string"
+          },
+          "cycle_ends_at": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Cycle Ends At"
+          },
+          "cycle_started_at": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Cycle Started At"
+          },
+          "description": {
+            "title": "Description",
+            "type": "string"
+          },
+          "exit_ip": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Exit Ip"
+          },
+          "exit_verified": {
+            "title": "Exit Verified",
+            "type": "boolean"
+          },
+          "expires_at": {
+            "format": "date-time",
+            "title": "Expires At",
+            "type": "string"
+          },
+          "id": {
+            "title": "Id",
+            "type": "string"
+          },
+          "last_usage_sync_at": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Last Usage Sync At"
+          },
+          "name": {
+            "title": "Name",
+            "type": "string"
+          },
+          "plan_id": {
+            "title": "Plan Id",
+            "type": "string"
+          },
+          "plan_revision": {
+            "title": "Plan Revision",
+            "type": "integer"
+          },
+          "quota_bytes": {
+            "title": "Quota Bytes",
+            "type": "integer"
+          },
+          "resource_type": {
+            "enum": [
+              "shared",
+              "dedicated"
+            ],
+            "title": "Resource Type",
+            "type": "string"
+          },
+          "starts_at": {
+            "format": "date-time",
+            "title": "Starts At",
+            "type": "string"
+          },
+          "status": {
+            "title": "Status",
+            "type": "string"
+          },
+          "traffic_rule": {
+            "enum": [
+              "total",
+              "monthly"
+            ],
+            "title": "Traffic Rule",
+            "type": "string"
+          },
+          "used_bytes": {
+            "title": "Used Bytes",
+            "type": "integer"
+          },
+          "user_id": {
+            "title": "User Id",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "id",
+          "user_id",
+          "plan_id",
+          "plan_revision",
+          "name",
+          "description",
+          "resource_type",
+          "traffic_rule",
+          "quota_bytes",
+          "used_bytes",
+          "starts_at",
+          "expires_at",
+          "cycle_started_at",
+          "cycle_ends_at",
+          "last_usage_sync_at",
+          "status",
+          "connection_state",
+          "exit_ip",
+          "exit_verified"
+        ],
+        "title": "UserServiceOut",
         "type": "object"
       },
       "WebAppAccountMergePayload": {
@@ -22839,6 +23354,107 @@
         ]
       }
     },
+    "/api/admin/dedicated-exits": {
+      "get": {
+        "operationId": "get_admin_dedicated_exits_route",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "exits": {
+                      "items": {
+                        "$ref": "#/components/schemas/DedicatedExitOut"
+                      },
+                      "type": "array"
+                    },
+                    "ok": {
+                      "const": true,
+                      "type": "boolean"
+                    },
+                    "total": {
+                      "type": "integer"
+                    }
+                  },
+                  "required": [
+                    "ok",
+                    "exits",
+                    "total"
+                  ],
+                  "type": "object"
+                }
+              }
+            },
+            "description": "JSON response"
+          }
+        },
+        "security": [
+          {
+            "AdminSession": []
+          },
+          {
+            "AdminBearer": []
+          }
+        ],
+        "summary": "Admin Dedicated Exits",
+        "tags": [
+          "admin"
+        ]
+      },
+      "post": {
+        "operationId": "post_admin_dedicated_exit_create_route",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/DedicatedExitBody"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "exit": {
+                      "$ref": "#/components/schemas/DedicatedExitOut"
+                    },
+                    "ok": {
+                      "const": true,
+                      "type": "boolean"
+                    }
+                  },
+                  "required": [
+                    "ok",
+                    "exit"
+                  ],
+                  "type": "object"
+                }
+              }
+            },
+            "description": "JSON response"
+          }
+        },
+        "security": [
+          {
+            "AdminSession": []
+          },
+          {
+            "AdminBearer": []
+          }
+        ],
+        "summary": "Admin Dedicated Exit Create",
+        "tags": [
+          "admin"
+        ]
+      }
+    },
     "/api/admin/documents": {
       "get": {
         "operationId": "get_admin_documents_list_route",
@@ -27274,6 +27890,330 @@
           }
         ],
         "summary": "Admin Role Revoke",
+        "tags": [
+          "admin"
+        ]
+      }
+    },
+    "/api/admin/service-orders": {
+      "get": {
+        "operationId": "get_admin_service_orders_route",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "ok": {
+                      "const": true,
+                      "type": "boolean"
+                    },
+                    "orders": {
+                      "items": {
+                        "$ref": "#/components/schemas/ServiceOrderOut"
+                      },
+                      "type": "array"
+                    },
+                    "total": {
+                      "type": "integer"
+                    }
+                  },
+                  "required": [
+                    "ok",
+                    "orders",
+                    "total"
+                  ],
+                  "type": "object"
+                }
+              }
+            },
+            "description": "JSON response"
+          }
+        },
+        "security": [
+          {
+            "AdminSession": []
+          },
+          {
+            "AdminBearer": []
+          }
+        ],
+        "summary": "Admin Service Orders",
+        "tags": [
+          "admin"
+        ]
+      }
+    },
+    "/api/admin/service-plans": {
+      "get": {
+        "operationId": "get_admin_service_plans_route",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "ok": {
+                      "const": true,
+                      "type": "boolean"
+                    },
+                    "plans": {
+                      "items": {
+                        "$ref": "#/components/schemas/ServicePlanOut"
+                      },
+                      "type": "array"
+                    },
+                    "total": {
+                      "type": "integer"
+                    }
+                  },
+                  "required": [
+                    "ok",
+                    "plans",
+                    "total"
+                  ],
+                  "type": "object"
+                }
+              }
+            },
+            "description": "JSON response"
+          }
+        },
+        "security": [
+          {
+            "AdminSession": []
+          },
+          {
+            "AdminBearer": []
+          }
+        ],
+        "summary": "Admin Service Plans",
+        "tags": [
+          "admin"
+        ]
+      },
+      "post": {
+        "operationId": "post_admin_service_plan_create_route",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ServicePlanBody"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "ok": {
+                      "const": true,
+                      "type": "boolean"
+                    },
+                    "plan": {
+                      "$ref": "#/components/schemas/ServicePlanOut"
+                    }
+                  },
+                  "required": [
+                    "ok",
+                    "plan"
+                  ],
+                  "type": "object"
+                }
+              }
+            },
+            "description": "JSON response"
+          }
+        },
+        "security": [
+          {
+            "AdminSession": []
+          },
+          {
+            "AdminBearer": []
+          }
+        ],
+        "summary": "Admin Service Plan Create",
+        "tags": [
+          "admin"
+        ]
+      }
+    },
+    "/api/admin/service-plans/{plan_id}": {
+      "put": {
+        "operationId": "put_admin_service_plan_update_route",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "plan_id",
+            "required": true,
+            "schema": {
+              "pattern": "[^{}/]+",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ServicePlanUpdateBody"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "ok": {
+                      "const": true,
+                      "type": "boolean"
+                    },
+                    "plan": {
+                      "$ref": "#/components/schemas/ServicePlanOut"
+                    }
+                  },
+                  "required": [
+                    "ok",
+                    "plan"
+                  ],
+                  "type": "object"
+                }
+              }
+            },
+            "description": "JSON response"
+          }
+        },
+        "security": [
+          {
+            "AdminSession": []
+          },
+          {
+            "AdminBearer": []
+          }
+        ],
+        "summary": "Admin Service Plan Update",
+        "tags": [
+          "admin"
+        ]
+      }
+    },
+    "/api/admin/services": {
+      "get": {
+        "operationId": "get_admin_services_route",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "ok": {
+                      "const": true,
+                      "type": "boolean"
+                    },
+                    "services": {
+                      "items": {
+                        "$ref": "#/components/schemas/UserServiceOut"
+                      },
+                      "type": "array"
+                    },
+                    "total": {
+                      "type": "integer"
+                    }
+                  },
+                  "required": [
+                    "ok",
+                    "services",
+                    "total"
+                  ],
+                  "type": "object"
+                }
+              }
+            },
+            "description": "JSON response"
+          }
+        },
+        "security": [
+          {
+            "AdminSession": []
+          },
+          {
+            "AdminBearer": []
+          }
+        ],
+        "summary": "Admin Services",
+        "tags": [
+          "admin"
+        ]
+      },
+      "post": {
+        "operationId": "post_admin_service_activate_route",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ServiceActivationBody"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "duplicate": {
+                      "type": "boolean"
+                    },
+                    "ok": {
+                      "const": true,
+                      "type": "boolean"
+                    },
+                    "order": {
+                      "$ref": "#/components/schemas/ServiceOrderOut"
+                    },
+                    "service": {
+                      "$ref": "#/components/schemas/UserServiceOut"
+                    }
+                  },
+                  "required": [
+                    "ok",
+                    "service",
+                    "order",
+                    "duplicate"
+                  ],
+                  "type": "object"
+                }
+              }
+            },
+            "description": "JSON response"
+          }
+        },
+        "security": [
+          {
+            "AdminSession": []
+          },
+          {
+            "AdminBearer": []
+          }
+        ],
+        "summary": "Admin Service Activate",
         "tags": [
           "admin"
         ]
@@ -37902,6 +38842,110 @@
         "summary": "Referral Welcome Bonus Claim",
         "tags": [
           "referral"
+        ]
+      }
+    },
+    "/api/services": {
+      "get": {
+        "operationId": "get_user_services_route",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "ok": {
+                      "const": true,
+                      "type": "boolean"
+                    },
+                    "services": {
+                      "items": {
+                        "$ref": "#/components/schemas/UserServiceOut"
+                      },
+                      "type": "array"
+                    },
+                    "total": {
+                      "type": "integer"
+                    }
+                  },
+                  "required": [
+                    "ok",
+                    "services",
+                    "total"
+                  ],
+                  "type": "object"
+                }
+              }
+            },
+            "description": "JSON response"
+          }
+        },
+        "security": [
+          {
+            "UserSession": []
+          },
+          {
+            "UserBearer": []
+          }
+        ],
+        "summary": "User Services",
+        "tags": [
+          "services"
+        ]
+      }
+    },
+    "/api/services/{service_id}": {
+      "get": {
+        "operationId": "get_user_service_route",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "service_id",
+            "required": true,
+            "schema": {
+              "pattern": "[^{}/]+",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "ok": {
+                      "const": true,
+                      "type": "boolean"
+                    },
+                    "service": {
+                      "$ref": "#/components/schemas/UserServiceOut"
+                    }
+                  },
+                  "required": [
+                    "ok",
+                    "service"
+                  ],
+                  "type": "object"
+                }
+              }
+            },
+            "description": "JSON response"
+          }
+        },
+        "security": [
+          {
+            "UserSession": []
+          },
+          {
+            "UserBearer": []
+          }
+        ],
+        "summary": "User Service",
+        "tags": [
+          "services"
         ]
       }
     },

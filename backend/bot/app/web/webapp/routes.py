@@ -6,6 +6,7 @@ from bot.app.web.admin_api_impl.plugin_packages import _active_frontends
 from bot.app.web.admin_api_impl.routes import (
     setup_admin_routes,
 )
+from bot.app.web.service_routes import setup_service_user_routes
 from bot.plugins.packages import package_root
 
 from .account import (
@@ -214,6 +215,7 @@ async def plugin_admin_index_route(request: web.Request) -> web.Response:
 
 
 def setup_subscription_webapp_routes(app: web.Application) -> None:
+    setup_service_user_routes(app)
     app.router.add_get("/api/theme-effects", theme_effects_route)
     app.router.add_get(
         "/api/theme-effects/assets/{key}/{digest}/{path:.+}", theme_effect_asset_route
