@@ -3,13 +3,14 @@
 import asyncio
 import logging
 from datetime import UTC, datetime
-from typing import Any, Protocol
 
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import sessionmaker
 
 from bot.services.account_roles import can_ban_account
+from bot.services.service_change_sync import synchronize_service_entitlement_locked
+from bot.services.service_panel_state import ServiceEntitlementPanel
 from bot.services.user_service_access import service_status
 from db.dal import user_dal
 from db.dal.account_access_dal import enqueue_access_sync
@@ -19,16 +20,6 @@ from db.models import Subscription, User
 from db.service_models import AccountAccessSync, DedicatedExit, ServiceConnection, UserService
 
 logger = logging.getLogger(__name__)
-
-
-class AccountAccessPanel(Protocol):
-    async def update_user_status_on_panel(
-        self, user_uuid: str, enable: bool, log_response: bool = False
-    ) -> bool: ...
-
-    async def get_user_by_uuid_lookup(
-        self, user_uuid: str, log_response: bool = False
-    ) -> dict[str, Any]: ...
 
 
 async def set_account_ban(
@@ -44,7 +35,7 @@ async def set_account_ban(
     return user
 
 
-async def _apply_reference(panel: AccountAccessPanel, reference: str, enable: bool) -> bool:
+async def _apply_reference(panel: ServiceEntitlementPanel, reference: str, enable: bool) -> bool:
     try:
         await panel.update_user_status_on_panel(reference, enable, log_response=False)
     except Exception:
@@ -63,7 +54,7 @@ async def _apply_reference(panel: AccountAccessPanel, reference: str, enable: bo
 
 
 async def synchronize_account_access(
-    session: AsyncSession, user_id: int, panel: AccountAccessPanel | None
+    session: AsyncSession, user_id: int, panel: ServiceEntitlementPanel | None
 ) -> AccountAccessSync | None:
     user = await user_dal.lock_user_by_id(session, user_id)
     if user is None:
@@ -105,11 +96,22 @@ async def synchronize_account_access(
             service_status(service, connection, resource, banned=bool(user.is_banned), now=now)
             == "active"
         )
+        targets.pop(connection.panel_user_uuid, None)
         if enable and connection.sync_pending:
-            targets.pop(connection.panel_user_uuid, None)
             error = error or "service_change_pending"
-        else:
-            targets[connection.panel_user_uuid] = enable
+            continue
+        if panel is None:
+            error = error or "panel_service_unavailable"
+            continue
+        try:
+            confirmed = await synchronize_service_entitlement_locked(
+                session, user, service, connection, panel
+            )
+        except Exception:
+            logger.warning("Account service entitlement needs retry", exc_info=True)
+            confirmed = False
+        if not confirmed:
+            error = error or "panel_access_unconfirmed"
     for reference, enable in targets.items():
         if panel is None:
             error = error or "panel_service_unavailable"
@@ -124,7 +126,7 @@ async def synchronize_account_access(
 
 
 async def synchronize_access_after_commit(
-    session: AsyncSession, user_id: int, panel: AccountAccessPanel | None
+    session: AsyncSession, user_id: int, panel: ServiceEntitlementPanel | None
 ) -> bool:
     """Return whether a saved change still needs retry, without undoing its intent."""
     try:
@@ -137,7 +139,9 @@ async def synchronize_access_after_commit(
 
 
 class AccountAccessWorker:
-    def __init__(self, session_factory: sessionmaker, panel: AccountAccessPanel | None) -> None:
+    def __init__(
+        self, session_factory: sessionmaker, panel: ServiceEntitlementPanel | None
+    ) -> None:
         self.session_factory = session_factory
         self.panel = panel
 

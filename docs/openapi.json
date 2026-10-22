@@ -14683,7 +14683,8 @@
             "enum": [
               "pause",
               "resume",
-              "renew"
+              "renew",
+              "reconcile_usage"
             ],
             "title": "Action",
             "type": "string"
@@ -14715,6 +14716,34 @@
             "default": null,
             "title": "Days"
           },
+          "evidence": {
+            "anyOf": [
+              {
+                "maxLength": 1000,
+                "minLength": 1,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Evidence"
+          },
+          "expected_raw_bytes": {
+            "anyOf": [
+              {
+                "maximum": 9007199254740991,
+                "minimum": 0,
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Expected Raw Bytes"
+          },
           "price": {
             "anyOf": [
               {
@@ -14731,6 +14760,20 @@
             ],
             "default": null,
             "title": "Price"
+          },
+          "verified_total_bytes": {
+            "anyOf": [
+              {
+                "maximum": 9007199254740991,
+                "minimum": 0,
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Verified Total Bytes"
           }
         },
         "required": [
@@ -14983,6 +15026,20 @@
             "exclusiveMinimum": 0,
             "title": "Expected Revision",
             "type": "integer"
+          },
+          "quota_change_reason": {
+            "anyOf": [
+              {
+                "maxLength": 1000,
+                "minLength": 1,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Quota Change Reason"
           },
           "terms": {
             "$ref": "#/components/schemas/ServicePlanTerms"
@@ -17407,6 +17464,11 @@
             ],
             "title": "Cycle Ends At"
           },
+          "cycle_pending": {
+            "default": false,
+            "title": "Cycle Pending",
+            "type": "boolean"
+          },
           "cycle_started_at": {
             "anyOf": [
               {
@@ -17545,6 +17607,18 @@
               }
             ],
             "title": "Usage Error"
+          },
+          "usage_total_bytes": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Usage Total Bytes"
           },
           "used_bytes": {
             "title": "Used Bytes",

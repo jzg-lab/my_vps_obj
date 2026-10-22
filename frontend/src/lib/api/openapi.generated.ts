@@ -11606,7 +11606,7 @@ export interface components {
        * Action
        * @enum {string}
        */
-      action: "pause" | "resume" | "renew";
+      action: "pause" | "resume" | "renew" | "reconcile_usage";
       /**
        * Currency
        * @default null
@@ -11618,10 +11618,25 @@ export interface components {
        */
       days: number | null;
       /**
+       * Evidence
+       * @default null
+       */
+      evidence: string | null;
+      /**
+       * Expected Raw Bytes
+       * @default null
+       */
+      expected_raw_bytes: number | null;
+      /**
        * Price
        * @default null
        */
       price: number | string | null;
+      /**
+       * Verified Total Bytes
+       * @default null
+       */
+      verified_total_bytes: number | null;
     };
     /** ServiceChangeBody */
     ServiceChangeBody: {
@@ -11717,6 +11732,11 @@ export interface components {
       enabled: boolean;
       /** Expected Revision */
       expected_revision: number;
+      /**
+       * Quota Change Reason
+       * @default null
+       */
+      quota_change_reason: string | null;
       terms: components["schemas"]["ServicePlanTerms"];
     };
     /** StatusGroup */
@@ -12792,6 +12812,11 @@ export interface components {
       connection_state: string;
       /** Cycle Ends At */
       cycle_ends_at: string | null;
+      /**
+       * Cycle Pending
+       * @default false
+       */
+      cycle_pending: boolean;
       /** Cycle Started At */
       cycle_started_at: string | null;
       /** Description */
@@ -12846,6 +12871,11 @@ export interface components {
       traffic_rule: "total" | "monthly";
       /** Usage Error */
       usage_error: string | null;
+      /**
+       * Usage Total Bytes
+       * @default null
+       */
+      usage_total_bytes: number | null;
       /** Used Bytes */
       used_bytes: number;
       /** User Id */

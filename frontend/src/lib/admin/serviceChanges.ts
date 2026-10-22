@@ -35,7 +35,15 @@ export function pendingServiceChange(
   if (!("action" in change)) throw new Error("services_storage_failed");
   let terms: ServiceChangeBody["change"];
   if (change.action === "pause" || change.action === "resume") {
-    terms = { action: change.action, days: null, price: null, currency: null };
+    terms = {
+      action: change.action,
+      days: null,
+      price: null,
+      currency: null,
+      verified_total_bytes: null,
+      expected_raw_bytes: null,
+      evidence: null,
+    };
   } else if (
     change.action === "renew" &&
     "days" in change &&
@@ -50,7 +58,39 @@ export function pendingServiceChange(
     typeof change.currency === "string" &&
     /^[A-Z]{3}$/.test(change.currency)
   ) {
-    terms = { action: "renew", days: change.days, price: change.price, currency: change.currency };
+    terms = {
+      action: "renew",
+      days: change.days,
+      price: change.price,
+      currency: change.currency,
+      verified_total_bytes: null,
+      expected_raw_bytes: null,
+      evidence: null,
+    };
+  } else if (
+    change.action === "reconcile_usage" &&
+    "verified_total_bytes" in change &&
+    typeof change.verified_total_bytes === "number" &&
+    Number.isSafeInteger(change.verified_total_bytes) &&
+    change.verified_total_bytes >= 0 &&
+    "expected_raw_bytes" in change &&
+    typeof change.expected_raw_bytes === "number" &&
+    Number.isSafeInteger(change.expected_raw_bytes) &&
+    change.expected_raw_bytes >= 0 &&
+    "evidence" in change &&
+    typeof change.evidence === "string" &&
+    change.evidence.trim().length > 0 &&
+    change.evidence.length <= 1000
+  ) {
+    terms = {
+      action: "reconcile_usage",
+      days: null,
+      price: null,
+      currency: null,
+      verified_total_bytes: change.verified_total_bytes,
+      expected_raw_bytes: change.expected_raw_bytes,
+      evidence: change.evidence,
+    };
   } else throw new Error("services_storage_failed");
   return {
     user_id: userId,
@@ -94,6 +134,8 @@ export async function submitServiceChange(
       "idempotency_owner_changed",
       "invalid_payload",
       "invalid_renewal_date",
+      "usage_reconciliation_changed",
+      "usage_reconciliation_pause_required",
     ].includes(String(response.error))
   )
     storage.removeItem(key);

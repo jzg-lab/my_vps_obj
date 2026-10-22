@@ -17,6 +17,7 @@ from bot.app.web.admin_api_impl.schemas import AdminUserBanBody
 from bot.app.web.context import SESSION_FACTORY, SETTINGS
 from bot.app.web.webapp_auth import create_webapp_session_token
 from bot.services.account_access_sync import AccountAccessWorker, set_account_ban
+from config.service_periods import as_utc
 from config.settings import Settings
 from db.dal.account_access_dal import enqueue_access_sync
 from db.dal.user_merge_dal import merge_users
@@ -28,6 +29,7 @@ from tests.unit.test_user_services import ServiceDatabaseTestCase, sample_terms
 class AccessPanel:
     def __init__(self) -> None:
         self.states: dict[str, str] = {}
+        self.users: dict[str, dict[str, Any]] = {}
         self.failed: set[str] = set()
         self.updates: list[tuple[str, bool]] = []
         self.lookup_failed = False
@@ -47,7 +49,32 @@ class AccessPanel:
             return {"ok": False, "not_found": False}
         if user_uuid not in self.states:
             return {"ok": False, "not_found": True}
-        return {"ok": True, "user": {"status": self.states[user_uuid]}}
+        return {
+            "ok": True,
+            "user": {**self.users.get(user_uuid, {}), "status": self.states[user_uuid]},
+        }
+
+    def bind(self, service: UserService, reference: str) -> None:
+        self.users[reference] = {
+            "uuid": reference,
+            "username": f"svc_{service.id}",
+            "description": f"my_vps_obj:service:{service.id}",
+            "trafficLimitStrategy": "NO_RESET",
+            "trafficLimitBytes": service.quota_bytes,
+            "expireAt": as_utc(service.expires_at).isoformat(),
+            "activeInternalSquads": service.terms["squad_uuids"],
+            "userTraffic": {
+                "usedTrafficBytes": service.used_bytes,
+                "lifetimeUsedTrafficBytes": service.used_bytes,
+            },
+        }
+
+    async def update_user_details_on_panel(
+        self, user_uuid: str, update_payload: dict[str, Any], log_response: bool = False
+    ) -> dict[str, Any] | None:
+        if user_uuid not in self.failed and user_uuid in self.users:
+            self.users[user_uuid].update(update_payload)
+        return self.users.get(user_uuid)
 
 
 class AdminUserBanTests(ServiceDatabaseTestCase):
@@ -68,6 +95,7 @@ class AdminUserBanTests(ServiceDatabaseTestCase):
             connection.state = "ready"
             connection.panel_user_uuid = reference
         self.panel.states[reference] = "ACTIVE"
+        self.panel.bind(service, reference)
         return service
 
     async def ban(self, banned: bool, *, unavailable: bool = False, user_id: int = 2):
@@ -132,6 +160,10 @@ class AdminUserBanTests(ServiceDatabaseTestCase):
                     saved.expires_at = datetime.now(UTC) - timedelta(days=1)
                 elif state == "exhausted":
                     saved.used_bytes = saved.quota_bytes + 10
+                    self.panel.users[str(index)]["userTraffic"] = {
+                        "usedTrafficBytes": saved.used_bytes,
+                        "lifetimeUsedTrafficBytes": saved.used_bytes,
+                    }
                 elif state in {"revoked", "error"}:
                     connection.state = state
                 else:
@@ -162,7 +194,7 @@ class AdminUserBanTests(ServiceDatabaseTestCase):
         await self.ban(True, unavailable=True)
         await self.ban(False, unavailable=True)
         await AccountAccessWorker(self.sessions, self.panel).tick()
-        assert self.panel.updates == [("11", True)]
+        assert self.panel.states["11"] == "ACTIVE"
         async with self.sessions() as session:
             user = await session.get(User, 2)
             assert user and not user.is_banned
@@ -194,7 +226,7 @@ class AdminUserBanTests(ServiceDatabaseTestCase):
             await enqueue_access_sync(session, 2)
             await merge_users(session, source_user_id=2, target_user_id=1)
         await AccountAccessWorker(self.sessions, self.panel).tick()
-        assert self.panel.updates == [("11", True)]
+        assert self.panel.states["11"] == "ACTIVE"
         async with self.sessions() as session:
             assert await session.get(AccountAccessSync, 2) is None
             job = await session.get(AccountAccessSync, 1)

@@ -38,7 +38,7 @@ def test_change_rejects_ambiguous_terms(values: dict[str, object]) -> None:
         ServiceChange.model_validate(values)
 
 
-class ServiceChangeTests(ServiceDatabaseTestCase):
+class ServiceChangeTestCase(ServiceDatabaseTestCase):
     async def asyncSetUp(self) -> None:
         await super().asyncSetUp()
         self.panel, self.remote_users = panel_fixture()
@@ -96,6 +96,8 @@ class ServiceChangeTests(ServiceDatabaseTestCase):
             assert connection
             return connection
 
+
+class ServiceChangeTests(ServiceChangeTestCase):
     async def test_renewal_is_once_preserves_usage_anchor_and_other_service(self) -> None:
         service, _, _ = await self.activate()
         other, _, _ = await self.activate("other")
@@ -177,7 +179,11 @@ class ServiceChangeTests(ServiceDatabaseTestCase):
         assert datetime.fromisoformat(remote["expireAt"]) == as_utc(renewed.expires_at).replace(
             microsecond=(renewed.expires_at.microsecond // 1000) * 1000
         )
-        assert set(panel.update_user_details_on_panel.await_args.args[1]) == {"expireAt", "status"}
+        assert set(panel.update_user_details_on_panel.await_args.args[1]) == {
+            "expireAt",
+            "trafficLimitBytes",
+            "status",
+        }
         panel.update_user_status_on_panel.assert_not_awaited()
         panel.create_panel_user.assert_awaited_once()
 
@@ -265,6 +271,10 @@ class ServiceChangeTests(ServiceDatabaseTestCase):
                         user.is_banned = True
                     else:
                         saved.used_bytes = saved.quota_bytes
+                        remote["userTraffic"] = {
+                            "usedTrafficBytes": saved.used_bytes,
+                            "lifetimeUsedTrafficBytes": saved.used_bytes,
+                        }
                 assert not (await self.sync(service, panel)).sync_pending
                 assert remote["status"] == "DISABLED"
                 async with self.sessions.begin() as session:

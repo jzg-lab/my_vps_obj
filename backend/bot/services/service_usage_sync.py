@@ -17,7 +17,7 @@ MAX_USAGE_BYTES = 2**53 - 1
 RECONCILIATION_ERRORS = {"panel_usage_regressed", "panel_usage_reset"}
 
 
-def _usage_total(remote: dict[str, Any]) -> int:
+def usage_counters(remote: dict[str, Any]) -> tuple[int, int]:
     traffic = remote.get("userTraffic")
     if not isinstance(traffic, dict):
         raise ValueError("panel_usage_invalid")
@@ -27,11 +27,11 @@ def _usage_total(remote: dict[str, Any]) -> int:
         type(value) is not int or not 0 <= value <= MAX_USAGE_BYTES for value in (current, lifetime)
     ):
         raise ValueError("panel_usage_invalid")
-    if remote.get("trafficLimitStrategy") != "NO_RESET" or current != lifetime:
+    assert isinstance(current, int) and isinstance(lifetime, int)
+    if remote.get("trafficLimitStrategy") != "NO_RESET" or lifetime < current:
         # Our identities never reset the panel counter, including at business month boundaries.
         raise ValueError("panel_usage_reset")
-    assert isinstance(lifetime, int)
-    return lifetime
+    return current, lifetime
 
 
 async def synchronize_service_usage(
@@ -60,33 +60,43 @@ async def synchronize_service_usage(
             elif not owns_identity(remote, connection):
                 connection.usage_error = "panel_identity_conflict"
             else:
-                _record_usage(service, connection, remote)
+                record_service_usage(service, connection, remote)
         except Exception:
             logger.exception("Service usage observation needs retry for %s", service_id)
         await session.commit()
 
 
-def _record_usage(
+def record_service_usage(
     service: UserService, connection: ServiceConnection, remote: dict[str, Any]
 ) -> None:
+    if connection.usage_error in RECONCILIATION_ERRORS:
+        return
     try:
-        total = _usage_total(remote)
+        raw, lifetime = usage_counters(remote)
+        if lifetime - raw != (connection.usage_lifetime_offset or 0):
+            raise ValueError("panel_usage_reset")
     except ValueError as exc:
         connection.usage_error = str(exc)
         return
     previous = connection.usage_total_bytes
     if previous is None:
         previous = service.used_bytes
-    if total < previous:
+    previous_raw = connection.usage_raw_bytes
+    if previous_raw is None:
+        previous_raw = previous
+    if raw < previous_raw:
         connection.usage_error = "panel_usage_regressed"
         return
+    total = previous + raw - previous_raw
     used = service.used_bytes + total - previous
-    if used > MAX_USAGE_BYTES:
+    if used > MAX_USAGE_BYTES or total > MAX_USAGE_BYTES:
         connection.usage_error = "panel_usage_invalid"
         return
-    service.used_bytes = used
-    service.last_usage_sync_at = datetime.now(UTC)
+    if connection.cycle_cutover_bytes is None:
+        service.used_bytes = used
+        service.last_usage_sync_at = datetime.now(UTC)
     connection.usage_total_bytes = total
+    connection.usage_raw_bytes = raw
     connection.usage_error = None
 
 

@@ -25,6 +25,7 @@ from db.migrator.chain_0109_account_access_sync import _upgrade as upgrade_acces
 from db.migrator.chain_0110_service_provisioning import _upgrade as upgrade_provisioning
 from db.migrator.chain_0111_service_changes import _upgrade as upgrade_changes
 from db.migrator.chain_0112_service_usage import _upgrade as upgrade_usage
+from db.migrator.chain_0113_service_entitlements import _upgrade as upgrade_entitlements
 from db.models import Base, User
 from db.service_models import (
     AccountAccessSync,
@@ -59,6 +60,8 @@ def scenario(run: Callable[[async_sessionmaker[AsyncSession]], Awaitable[None]])
                     "service_connections",
                     "dedicated_exits",
                     "account_access_sync",
+                    "service_usage_periods",
+                    "service_plan_quota_changes",
                 }
                 await connection.run_sync(
                     lambda conn: Base.metadata.create_all(
@@ -82,6 +85,8 @@ def scenario(run: Callable[[async_sessionmaker[AsyncSession]], Awaitable[None]])
                 await connection.run_sync(upgrade_changes)
                 await connection.run_sync(upgrade_usage)
                 await connection.run_sync(upgrade_usage)
+                await connection.run_sync(upgrade_entitlements)
+                await connection.run_sync(upgrade_entitlements)
             factory = async_sessionmaker(engine, expire_on_commit=False, autoflush=False)
             async with factory.begin() as session:
                 session.add_all([User(user_id=1), User(user_id=2)])
@@ -432,6 +437,7 @@ def test_unban_waits_for_running_sync_then_queues_the_latest_intent() -> None:
         started, finish = asyncio.Event(), asyncio.Event()
         panel = AccessPanel()
         panel.states["11"] = "ACTIVE"
+        panel.bind(service, "11")
 
         async def update(user_uuid: str, enable: bool, log_response: bool = False) -> bool:
             started.set()
@@ -441,6 +447,7 @@ def test_unban_waits_for_running_sync_then_queues_the_latest_intent() -> None:
         blocking_panel = SimpleNamespace(
             update_user_status_on_panel=update,
             get_user_by_uuid_lookup=panel.get_user_by_uuid_lookup,
+            update_user_details_on_panel=panel.update_user_details_on_panel,
         )
 
         async def sync() -> None:
@@ -515,5 +522,143 @@ def test_concurrent_renewals_are_idempotent_and_stale_changes_conflict() -> None
             await renew("stale-renewal")
         async with factory() as session:
             assert await session.scalar(select(func.count()).select_from(ServiceOrder)) == 2
+
+    scenario(run)
+
+
+def test_quota_edit_concurrent_with_activation_converges_without_inverse_lock_order() -> None:
+    from bot.services.service_change_sync import synchronize_service_change
+    from db.service_models import ServicePlanQuotaChange
+
+    async def run(factory: async_sessionmaker[AsyncSession]) -> None:
+        async with factory.begin() as session:
+            plan = await save_plan(session, terms=sample_terms(), enabled=True, actor_id=1)
+            existing, _, _ = await activate_service(
+                session,
+                user_id=2,
+                actor_id=1,
+                plan_id=plan.id,
+                expected_revision=1,
+                idempotency_key="existing",
+            )
+
+        async def open_stale() -> None:
+            async with factory.begin() as session:
+                await activate_service(
+                    session,
+                    user_id=1,
+                    actor_id=1,
+                    plan_id=plan.id,
+                    expected_revision=1,
+                    idempotency_key="during-edit",
+                )
+
+        panel, _ = panel_fixture()
+        async with factory.begin() as session:
+            await save_plan(
+                session,
+                plan_id=plan.id,
+                expected_revision=1,
+                terms=sample_terms(quota_bytes=5000),
+                enabled=True,
+                actor_id=1,
+                quota_change_reason="Changed allowance",
+            )
+            opening = asyncio.create_task(open_stale())
+            await asyncio.sleep(0.05)
+            assert not opening.done()
+            await asyncio.wait_for(
+                synchronize_service_change(cast(sessionmaker, factory), existing.id, panel),
+                timeout=5,
+            )
+        with pytest.raises(ServiceConflict, match="plan_revision_changed"):
+            await asyncio.wait_for(opening, timeout=5)
+        await asyncio.gather(
+            *(
+                synchronize_service_change(cast(sessionmaker, factory), existing.id, panel)
+                for _ in range(8)
+            )
+        )
+        async with factory() as session:
+            saved = await session.get(UserService, existing.id)
+            assert saved and saved.quota_bytes == 5000 and saved.quota_revision == 2
+            assert saved.terms["quota_bytes"] == 10000
+            assert (
+                await session.scalar(select(func.count()).select_from(ServicePlanQuotaChange)) == 1
+            )
+            assert (
+                await session.scalar(
+                    select(func.count())
+                    .select_from(ServiceOrder)
+                    .where(ServiceOrder.kind == "quota")
+                )
+                == 1
+            )
+
+    scenario(run)
+
+
+def test_parallel_monthly_retries_keep_one_cutover_with_continuous_traffic() -> None:
+    from datetime import timedelta
+    from typing import Any
+
+    from bot.services.service_change_sync import synchronize_service_change
+    from config.service_periods import monthly_period
+    from db.service_models import ServiceUsagePeriod
+
+    async def run(factory: async_sessionmaker[AsyncSession]) -> None:
+        async with factory.begin() as session:
+            plan = await save_plan(
+                session, terms=sample_terms(traffic_rule="monthly"), enabled=True, actor_id=1
+            )
+            service, _, _ = await activate_service(
+                session,
+                user_id=2,
+                actor_id=1,
+                plan_id=plan.id,
+                expected_revision=1,
+                idempotency_key="monthly",
+            )
+            service.starts_at = datetime(2024, 1, 31, tzinfo=UTC)
+            service.expires_at = datetime.now(UTC) + timedelta(days=365)
+            service.cycle_started_at, service.cycle_ends_at = monthly_period(
+                service.starts_at, service.starts_at
+            )
+        panel, users = panel_fixture()
+        await provision_service_identity(cast(sessionmaker, factory), service.id, panel)
+        remote = users[f"svc_{service.id}"]
+        lookup = panel.get_user_by_uuid_lookup.side_effect
+        assert callable(lookup)
+
+        async def moving(reference: str) -> dict[str, Any]:
+            remote["userTraffic"]["usedTrafficBytes"] += 1
+            remote["userTraffic"]["lifetimeUsedTrafficBytes"] += 1
+            result = await lookup(reference)
+            assert isinstance(result, dict)
+            return result
+
+        async def update(_reference: str, payload: dict[str, Any]) -> dict[str, Any]:
+            remote.update(payload)
+            return remote
+
+        panel.get_user_by_uuid_lookup.side_effect = moving
+        panel.update_user_details_on_panel.side_effect = update
+        await asyncio.wait_for(
+            asyncio.gather(
+                *(
+                    synchronize_service_change(cast(sessionmaker, factory), service.id, panel)
+                    for _ in range(8)
+                )
+            ),
+            timeout=10,
+        )
+        async with factory() as session:
+            period = await session.scalar(select(ServiceUsagePeriod))
+            assert period and period.confirmed_at and period.cutover_bytes == 1
+            assert await session.scalar(select(func.count()).select_from(ServiceUsagePeriod)) == 1
+            connection = await session.get(ServiceConnection, service.id)
+            assert connection and connection.cycle_cutover_bytes is None
+        assert remote["trafficLimitBytes"] == 10001 and remote["status"] == "DISABLED"
+        panel.update_user_details_on_panel.assert_awaited_once()
 
     scenario(run)

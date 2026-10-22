@@ -1,6 +1,6 @@
 <script lang="ts">
   import { onMount } from "svelte";
-  import { Input } from "$components/ui";
+  import { Input, Textarea } from "$components/ui";
   import Dialog from "$components/ui/dialog.svelte";
   import { AdminButton, AdminField, AdminSelect } from "$components/patterns/admin";
   import type { ApiClient } from "$lib/webapp/publicApi";
@@ -34,6 +34,9 @@
   let days = $state<number | undefined>();
   let price = $state("");
   let currency = $state("CNY");
+  let verifiedTotal = $state("");
+  let expectedRaw = $state("");
+  let evidence = $state("");
   let loaded = $state(false);
   let pending = $state<ServiceChangeBody | null>(null);
   let busy = $state(false);
@@ -49,6 +52,9 @@
         days = pending.change.days ?? undefined;
         price = String(pending.change.price ?? "");
         currency = pending.change.currency ?? "CNY";
+        verifiedTotal = String(pending.change.verified_total_bytes ?? "");
+        expectedRaw = String(pending.change.expected_raw_bytes ?? "");
+        evidence = pending.change.evidence ?? "";
       }
     } catch {
       storageFailed = true;
@@ -72,14 +78,53 @@
       error = "services_invalid_terms";
       return;
     }
+    if (
+      !pending &&
+      action === "reconcile_usage" &&
+      (!/^\d+$/.test(verifiedTotal) ||
+        !Number.isSafeInteger(Number(verifiedTotal)) ||
+        Number(verifiedTotal) < (service.usage_total_bytes ?? service.used_bytes) ||
+        !/^\d+$/.test(expectedRaw) ||
+        !Number.isSafeInteger(Number(expectedRaw)) ||
+        !evidence.trim())
+    ) {
+      error = "services_invalid_terms";
+      return;
+    }
     const body: ServiceChangeBody = pending ?? {
       user_id: service.user_id,
       expected_revision: service.revision,
       idempotency_key: crypto.randomUUID(),
       change:
         action === "renew"
-          ? { action, days: days ?? null, price, currency }
-          : { action, days: null, price: null, currency: null },
+          ? {
+              action,
+              days: days ?? null,
+              price,
+              currency,
+              verified_total_bytes: null,
+              expected_raw_bytes: null,
+              evidence: null,
+            }
+          : action === "reconcile_usage"
+            ? {
+                action,
+                days: null,
+                price: null,
+                currency: null,
+                verified_total_bytes: Number(verifiedTotal),
+                expected_raw_bytes: Number(expectedRaw),
+                evidence: evidence.trim(),
+              }
+            : {
+                action,
+                days: null,
+                price: null,
+                currency: null,
+                verified_total_bytes: null,
+                expected_raw_bytes: null,
+                evidence: null,
+              },
     };
     busy = true;
     error = "";
@@ -123,16 +168,44 @@
           ariaLabel={at("services_action")}
           items={[
             { value: "renew", label: at("services_renew") },
+            ...(service.desired_status === "paused" &&
+            ["panel_usage_regressed", "panel_usage_reset"].includes(service.usage_error ?? "")
+              ? [{ value: "reconcile_usage", label: at("services_reconcile_usage") }]
+              : []),
             {
               value: service.desired_status === "paused" ? "resume" : "pause",
               label: at(service.desired_status === "paused" ? "services_resume" : "services_pause"),
             },
           ]}
           onValueChange={(value) => {
-            if (value === "renew" || value === "pause" || value === "resume") action = value;
+            if (
+              value === "renew" ||
+              value === "pause" ||
+              value === "resume" ||
+              value === "reconcile_usage"
+            )
+              action = value;
           }}
         />
       </AdminField>
+      {#if action === "reconcile_usage"}
+        <p>{at("services_reconcile_hint")}</p>
+        <p>{at("services_last_total_bytes")}: {service.usage_total_bytes ?? service.used_bytes}</p>
+        <AdminField label={at("services_verified_total_bytes")}
+          ><Input bind:value={verifiedTotal} inputmode="numeric" required /></AdminField
+        >
+        <AdminField label={at("services_expected_raw_bytes")}
+          ><Input bind:value={expectedRaw} inputmode="numeric" required /></AdminField
+        >
+        <AdminField label={at("services_reconcile_evidence")}
+          ><Textarea
+            bind:value={evidence}
+            maxlength={1000}
+            required
+            ariaLabel={at("services_reconcile_evidence")}
+          /></AdminField
+        >
+      {/if}
       {#if action === "renew"}
         <p>{at("services_renew_hint")}</p>
         <AdminField label={at("services_renew_days")}

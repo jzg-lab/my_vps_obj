@@ -13,6 +13,7 @@ from db.service_models import (
     ServiceConnection,
     ServiceOrder,
     ServicePlan,
+    ServicePlanQuotaChange,
     UserService,
 )
 
@@ -35,6 +36,7 @@ async def save_plan(
     actor_id: int,
     plan_id: str | None = None,
     expected_revision: int | None = None,
+    quota_change_reason: str | None = None,
 ) -> ServicePlan:
     now = datetime.now(UTC)
     if plan_id is None:
@@ -49,7 +51,21 @@ async def save_plan(
         plan = found
         if expected_revision != plan.revision:
             raise ServiceConflict("plan_revision_changed")
+        quota_changed = plan.terms.get("quota_bytes") != terms.quota_bytes
+        if quota_changed and (not quota_change_reason or not quota_change_reason.strip()):
+            raise ServiceConflict("quota_change_reason_required", 400)
         plan.revision += 1
+        if quota_changed:
+            session.add(
+                ServicePlanQuotaChange(
+                    plan_id=plan.id,
+                    revision=plan.revision,
+                    quota_bytes=terms.quota_bytes,
+                    reason=(quota_change_reason or "").strip(),
+                    actor_id=actor_id,
+                    created_at=now,
+                )
+            )
     plan.terms = terms.model_dump(mode="json")
     plan.enabled = enabled
     plan.updated_by = actor_id
@@ -129,6 +145,7 @@ async def activate_service(
         user_id=user_id,
         plan_id=plan.id,
         plan_revision=plan.revision,
+        quota_revision=plan.revision,
         terms=terms.model_dump(mode="json"),
         quota_bytes=terms.quota_bytes,
         used_bytes=0,

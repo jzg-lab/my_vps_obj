@@ -117,6 +117,11 @@ export function serviceErrorKey(failure: unknown): string {
     "change_conflict",
     "change_unavailable",
     "services_storage_failed",
+    "quota_change_reason_required",
+    "usage_reconciliation_changed",
+    "usage_reconciliation_pause_required",
+    "usage_reconciliation_unavailable",
+    "services_quota_change_reason_required",
   ];
   return codes.includes(normalized)
     ? normalized.startsWith("services_")

@@ -32,6 +32,7 @@
   let squadsFailed = $state(false);
   let busy = $state(false);
   let error = $state("");
+  let quotaReason = $state("");
   $effect(() => {
     if (!loaded) {
       draft = servicePlanDraft(plan);
@@ -66,12 +67,18 @@
     try {
       const body = servicePlanBody(draft);
       if (plan) {
+        if (body.terms.quota_bytes !== plan.terms.quota_bytes && !quotaReason.trim())
+          throw new Error("services_quota_change_reason_required");
         unwrap(
           await api(
             builtApiPath<"/api/admin/service-plans/{plan_id}">(`/admin/service-plans/${plan.id}`),
             {
               method: "PUT",
-              body: JSON.stringify({ ...body, expected_revision: plan.revision }),
+              body: JSON.stringify({
+                ...body,
+                expected_revision: plan.revision,
+                quota_change_reason: quotaReason.trim() || null,
+              }),
             }
           )
         );
@@ -178,6 +185,15 @@
           ariaLabel={at("description")}
         /></AdminField
       >
+      {#if plan}
+        <AdminField label={at("services_quota_reason")} hint={at("services_quota_scope_hint")}>
+          <Textarea
+            bind:value={quotaReason}
+            maxlength={1000}
+            ariaLabel={at("services_quota_reason")}
+          />
+        </AdminField>
+      {/if}
       {#if draft.trafficRule === "monthly"}<p>{at("services_monthly_hint")}</p>{/if}
       {#if draft.resourceType === "dedicated"}
         <AdminField label={at("services_pool")} hint={at("services_pool_hint")}

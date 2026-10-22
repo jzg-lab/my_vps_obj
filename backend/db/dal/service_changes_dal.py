@@ -23,6 +23,7 @@ async def change_service(
     idempotency_key: str,
     change: ServiceChange,
     now: datetime | None = None,
+    usage_observation: tuple[int, int] | None = None,
 ) -> tuple[UserService, ServiceOrder, bool]:
     now = as_utc(now or datetime.now(UTC))
     user = await lock_user_by_id(session, user_id)
@@ -31,7 +32,7 @@ async def change_service(
     command: dict[str, object] = {
         "service_id": service_id,
         "expected_revision": expected_revision,
-        "change": change.model_dump(mode="json"),
+        "change": change.request_values(),
     }
     previous = await session.scalar(
         select(ServiceOrder).where(
@@ -53,12 +54,39 @@ async def change_service(
         raise ServiceConflict("service_not_editable")
     if service.revision != expected_revision:
         raise ServiceConflict("service_revision_changed")
-    before = {
+    before: dict[str, object] = {
         "desired_status": service.desired_status,
         "expires_at": as_utc(service.expires_at).isoformat(),
         "revision": service.revision,
     }
-    if change.action == "renew":
+    if change.action == "reconcile_usage":
+        if usage_observation is None or connection.usage_error not in {
+            "panel_usage_reset",
+            "panel_usage_regressed",
+        }:
+            raise ServiceConflict("usage_reconciliation_unavailable")
+        raw, lifetime = usage_observation
+        verified = change.verified_total_bytes
+        previous = connection.usage_total_bytes
+        previous = service.used_bytes if previous is None else previous
+        if verified is None or verified < previous or raw != change.expected_raw_bytes:
+            raise ServiceConflict("usage_reconciliation_changed")
+        before.update(
+            {
+                "used_bytes": service.used_bytes,
+                "usage_total_bytes": connection.usage_total_bytes,
+                "usage_raw_bytes": connection.usage_raw_bytes,
+                "usage_error": connection.usage_error,
+            }
+        )
+        if connection.cycle_cutover_bytes is None:
+            service.used_bytes += verified - previous
+        connection.usage_total_bytes = verified
+        connection.usage_raw_bytes = raw
+        connection.usage_lifetime_offset = lifetime - raw
+        connection.usage_error = None
+        service.last_usage_sync_at = now
+    elif change.action == "renew":
         assert change.days is not None
         try:
             service.expires_at = max(as_utc(service.expires_at), now) + timedelta(days=change.days)
@@ -91,10 +119,13 @@ async def change_service(
             "expires_at": as_utc(service.expires_at).isoformat(),
             "quota_bytes": service.quota_bytes,
             "used_bytes": service.used_bytes,
+            "usage_total_bytes": connection.usage_total_bytes,
+            "usage_raw_bytes": connection.usage_raw_bytes,
+            "usage_lifetime_offset": connection.usage_lifetime_offset,
             "before": before,
             "desired_status": service.desired_status,
             "revision": service.revision,
-            "change": change.model_dump(mode="json"),
+            "change": change.request_values(),
             "fulfillment": "manual",
         },
         created_at=now,

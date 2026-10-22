@@ -73,6 +73,8 @@ const archived: UserService[] = Array.from({ length: 26 }, (_, index) => ({
   cycle_started_at: null,
   cycle_ends_at: null,
   last_usage_sync_at: stamp,
+  cycle_pending: false,
+  usage_total_bytes: null,
   usage_error: index === 0 ? "panel_usage_unavailable" : null,
   status: "cancelled",
   connection_state: "revoked",
@@ -130,6 +132,8 @@ export function seedIndependentServicesDemo(owner: number, empty = false) {
       cycle_started_at: monthly ? stamp : null,
       cycle_ends_at: monthly ? "2026-11-22T04:00:00Z" : null,
       last_usage_sync_at: index < 2 ? stamp : null,
+      cycle_pending: false,
+      usage_total_bytes: null,
       usage_error: monthly ? "panel_usage_unavailable" : null,
       status: index === 0 ? "exhausted" : "pending",
       connection_state: "pending",
@@ -179,6 +183,8 @@ export function independentServicesDemoResponse(path: string, options: RequestIn
     if (!plan) return { ok: false, error: "plan_not_found" };
     if (body.expected_revision !== plan.revision)
       return { ok: false, error: "plan_revision_changed" };
+    if (plan.terms.quota_bytes !== body.terms.quota_bytes && !body.quota_change_reason?.trim())
+      return { ok: false, error: "quota_change_reason_required" };
     plan.terms = body.terms;
     plan.enabled = body.enabled;
     plan.revision++;
@@ -241,6 +247,8 @@ export function independentServicesDemoResponse(path: string, options: RequestIn
       cycle_started_at: plan.terms.traffic_rule === "monthly" ? stamp : null,
       cycle_ends_at: plan.terms.traffic_rule === "monthly" ? "2026-11-22T04:00:00Z" : null,
       last_usage_sync_at: null,
+      cycle_pending: false,
+      usage_total_bytes: null,
       usage_error: null,
       status: "pending",
       connection_state: "pending",
@@ -253,6 +261,13 @@ export function independentServicesDemoResponse(path: string, options: RequestIn
       exit_verified: false,
     };
     if (resource) resource.service_id = service.id;
+    if (new URLSearchParams(window.location.search).get("mock") === "usage-reconciliation") {
+      service.usage_error = "panel_usage_reset";
+      service.used_bytes = 500;
+      service.usage_total_bytes = 500;
+      service.desired_status = "paused";
+      service.status = "paused";
+    }
     services.unshift(service);
     requests.set(key, service);
     const order: ServiceOrder = {
@@ -290,8 +305,20 @@ export function independentServicesDemoResponse(path: string, options: RequestIn
       desired_status: service.desired_status,
       expires_at: service.expires_at,
       revision: service.revision,
+      used_bytes: service.used_bytes,
     };
-    if (body.change.action === "renew")
+    if (body.change.action === "reconcile_usage") {
+      if (service.desired_status !== "paused")
+        return { ok: false, error: "usage_reconciliation_pause_required" };
+      if (
+        body.change.expected_raw_bytes !== 100 ||
+        (body.change.verified_total_bytes ?? 0) < service.used_bytes
+      )
+        return { ok: false, error: "usage_reconciliation_changed" };
+      service.used_bytes = body.change.verified_total_bytes!;
+      service.usage_total_bytes = service.used_bytes;
+      service.usage_error = null;
+    } else if (body.change.action === "renew")
       service.expires_at = new Date(
         Math.max(Date.now(), Date.parse(service.expires_at)) + Number(body.change.days) * 86400000
       ).toISOString();

@@ -57,7 +57,25 @@ export function serviceOrderSnapshot(order: ServiceOrder) {
       ? { ...snapshot, kind: "activate", beforeStatus: null, desiredStatus: null }
       : null;
   }
-  if (!["renew", "pause", "resume"].includes(order.kind)) return null;
+  if (order.kind === "quota") {
+    const snapshot = termsSnapshot(order);
+    const quotaBytes = order.snapshot.quota_bytes;
+    return snapshot &&
+      typeof quotaBytes === "number" &&
+      Number.isSafeInteger(quotaBytes) &&
+      quotaBytes > 0
+      ? {
+          ...snapshot,
+          kind: "quota",
+          quotaBytes,
+          price: null,
+          currency: null,
+          beforeStatus: null,
+          desiredStatus: null,
+        }
+      : null;
+  }
+  if (!["renew", "pause", "resume", "reconcile_usage"].includes(order.kind)) return null;
   const snapshot = termsSnapshot(order);
   const { change, before, quota_bytes: quotaBytes, desired_status: desiredStatus } = order.snapshot;
   if (
@@ -87,10 +105,26 @@ export function serviceOrderSnapshot(order: ServiceOrder) {
     ...snapshot,
     kind: order.kind,
     quotaBytes,
-    startsAt: before.expires_at,
+    startsAt: order.kind === "renew" ? before.expires_at : snapshot.startsAt,
     price: order.kind === "renew" ? String(change.price) : null,
     currency: order.kind === "renew" ? String(change.currency) : null,
     beforeStatus: before.desired_status,
     desiredStatus,
+  };
+}
+
+export function serviceOrderAudit(order: ServiceOrder) {
+  const { before, change, reason, used_bytes } = order.snapshot;
+  return {
+    reason:
+      typeof reason === "string"
+        ? reason
+        : record(change) && typeof change.evidence === "string"
+          ? change.evidence
+          : null,
+    beforeQuota:
+      record(before) && typeof before.quota_bytes === "number" ? before.quota_bytes : null,
+    beforeUsage: record(before) && typeof before.used_bytes === "number" ? before.used_bytes : null,
+    usedBytes: typeof used_bytes === "number" ? used_bytes : null,
   };
 }

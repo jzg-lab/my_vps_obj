@@ -11,7 +11,11 @@
   import { builtApiPath, unwrap, type ApiClient } from "$lib/webapp/publicApi";
   import { serviceDate } from "$lib/webapp/independentServices";
   import { serviceBytes, type UserService, type ServiceTranslate } from "$lib/admin/servicePlans";
-  import { serviceOrderSnapshot, type ServiceOrder } from "$lib/admin/serviceHistory";
+  import {
+    serviceOrderSnapshot,
+    serviceOrderAudit,
+    type ServiceOrder,
+  } from "$lib/admin/serviceHistory";
 
   let {
     api,
@@ -99,6 +103,7 @@
         <tbody
           >{#each orders as order (order.id)}
             {@const snapshot = serviceOrderSnapshot(order)}
+            {@const audit = serviceOrderAudit(order)}
             <tr>
               <td data-label={at("services_order_id")}>{order.id}</td>
               <td data-label={at("services_action")}
@@ -116,6 +121,12 @@
                           `services_status_${snapshot.desiredStatus}`
                         )}</small
                       >{/if}
+                    {#if audit.reason}<small>{audit.reason}</small>{/if}
+                    {#if audit.beforeUsage !== null && audit.usedBytes !== null}<small
+                        >{at("services_used")}: {serviceBytes(audit.beforeUsage)} → {serviceBytes(
+                          audit.usedBytes
+                        )}</small
+                      >{/if}
                   {:else}<span role="status">{at("services_snapshot_unavailable")}</span>{/if}
                 </div>
               </td>
@@ -126,7 +137,8 @@
               >
               <td data-label={at("services_quota")}
                 ><div>
-                  {#if snapshot}{serviceBytes(snapshot.quotaBytes)}<small
+                  {#if snapshot}{#if audit.beforeQuota !== null}{serviceBytes(audit.beforeQuota)} →
+                    {/if}{serviceBytes(snapshot.quotaBytes)}<small
                       >{at(`services_${snapshot.trafficRule}`)}</small
                     >{:else}—{/if}
                 </div></td

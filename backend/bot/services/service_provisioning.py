@@ -13,6 +13,7 @@ from bot.services.service_panel_state import (
     locked_service,
     matches_service_terms,
     owns_identity,
+    panel_traffic_limit,
     service_squads,
 )
 from config.service_periods import as_utc
@@ -100,7 +101,7 @@ async def _prepare_locked(
             await panel.create_panel_user(
                 connection.username,
                 expire_at=service.expires_at,
-                default_traffic_limit_bytes=service.quota_bytes,
+                default_traffic_limit_bytes=panel_traffic_limit(service, connection),
                 default_traffic_limit_strategy="NO_RESET",
                 specific_squad_uuids=squads,
                 hwid_device_limit=0,
@@ -128,7 +129,7 @@ async def _prepare_locked(
     if (
         squads is None
         or remote.get("status") not in {"DISABLED", "EXPIRED", "LIMITED"}
-        or not matches_service_terms(remote, service, squads)
+        or not matches_service_terms(remote, service, squads, connection=connection)
     ):
         connection.last_error = "panel_identity_terms_mismatch"
         return

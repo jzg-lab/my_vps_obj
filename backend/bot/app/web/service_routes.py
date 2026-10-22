@@ -8,7 +8,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from bot.app.web.admin_api_impl.auth import _require_admin_user_id
 from bot.app.web.admin_api_impl.common import _error, _ok
-from bot.app.web.context import get_session_factory
+from bot.app.web.context import get_panel_service, get_session_factory, get_settings
 from bot.app.web.request_parsing import parse_body_or_400
 from bot.app.web.route_contracts import (
     ADMIN_SECURITY,
@@ -33,6 +33,7 @@ from bot.app.web.service_schemas import (
     UserServiceOut,
 )
 from bot.app.web.webapp.common import _require_user_id
+from bot.services.service_reconciliation import reconcile_service_usage
 from db.dal import user_dal, user_services_dal
 from db.dal.service_changes_dal import change_service
 from db.dal.user_services_dal import ServiceConflict, activate_service, save_plan
@@ -188,6 +189,7 @@ async def admin_service_plan_update_route(request: web.Request) -> web.Response:
                 actor_id=actor,
                 plan_id=request.match_info["plan_id"],
                 expected_revision=body.expected_revision,
+                quota_change_reason=body.quota_change_reason,
             )
             result = ServicePlanOut.from_orm_plan(plan)
             await session.commit()
@@ -243,15 +245,25 @@ async def admin_service_change_route(request: web.Request) -> web.Response:
     body = await parse_body_or_400(request, ServiceChangeBody)
     try:
         async with get_session_factory(request)() as session:
-            service, order, duplicate = await change_service(
-                session,
-                service_id=request.match_info["service_id"],
-                user_id=body.user_id,
-                actor_id=actor,
-                expected_revision=body.expected_revision,
-                idempotency_key=body.idempotency_key,
-                change=body.change,
-            )
+            if body.change.action == "reconcile_usage":
+                service, order, duplicate = await reconcile_service_usage(
+                    session,
+                    service_id=request.match_info["service_id"],
+                    actor_id=actor,
+                    **body.model_dump(exclude={"change"}),
+                    change=body.change,
+                    panel=get_panel_service(request)
+                    if get_settings(request).PANEL_WRITE_MODE == "live"
+                    else None,
+                )
+            else:
+                service, order, duplicate = await change_service(
+                    session,
+                    service_id=request.match_info["service_id"],
+                    actor_id=actor,
+                    **body.model_dump(exclude={"change"}),
+                    change=body.change,
+                )
             result = await _service_out(session, service)
             order_result = ServiceOrderOut.from_orm_order(order)
             await session.commit()

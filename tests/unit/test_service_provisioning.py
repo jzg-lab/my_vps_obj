@@ -37,6 +37,7 @@ def panel_fixture() -> tuple[AsyncMock, dict[str, dict[str, Any]]]:
             "activeInternalSquads": [{"uuid": value} for value in kwargs["specific_squad_uuids"]],
             "trafficLimitBytes": kwargs["default_traffic_limit_bytes"],
             "trafficLimitStrategy": kwargs["default_traffic_limit_strategy"],
+            "userTraffic": {"usedTrafficBytes": 0, "lifetimeUsedTrafficBytes": 0},
         }
         return {"response": users[username]}
 

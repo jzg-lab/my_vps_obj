@@ -140,6 +140,7 @@ class UserServicesTests(ServiceDatabaseTestCase):
                 plan_id=self.plan.id,
                 expected_revision=1,
                 terms=sample_terms(name="Edited", quota_bytes=777, price="55"),
+                quota_change_reason="Verified quota adjustment",
                 enabled=True,
                 actor_id=1,
             )

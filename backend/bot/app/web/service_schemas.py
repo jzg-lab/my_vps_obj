@@ -1,6 +1,6 @@
 """Typed contracts for the project's unified plans and independent services."""
 
-from datetime import datetime
+from datetime import UTC, datetime
 from decimal import Decimal
 from ipaddress import IPv4Address, IPv6Address
 from typing import Literal
@@ -13,6 +13,7 @@ from bot.services.user_service_access import service_status
 from config.service_changes import ServiceChange
 from config.service_periods import as_utc
 from config.service_plans import ServicePlanTerms
+from db.dal.service_periods_dal import cycle_due
 from db.service_models import (
     AccountAccessSync,
     DedicatedExit,
@@ -45,6 +46,7 @@ class ServicePlanBody(HttpBodyModel):
 
 class ServicePlanUpdateBody(ServicePlanBody):
     expected_revision: int = Field(gt=0, strict=True)
+    quota_change_reason: str | None = Field(default=None, min_length=1, max_length=1000)
 
 
 class ServiceActivationBody(HttpBodyModel):
@@ -148,6 +150,8 @@ class UserServiceOut(HttpResponseModel):
     cycle_ends_at: datetime | None
     last_usage_sync_at: datetime | None
     usage_error: str | None
+    usage_total_bytes: int | None = None
+    cycle_pending: bool = False
     status: str
     connection_state: str
     exit_ip: str | None
@@ -194,6 +198,9 @@ class UserServiceOut(HttpResponseModel):
             ),
             status=status,
             usage_error=connection.usage_error if connection else None,
+            usage_total_bytes=connection.usage_total_bytes if connection else None,
+            cycle_pending=bool(connection and connection.cycle_cutover_bytes is not None)
+            or cycle_due(service, datetime.now(UTC)),
             connection_state=state,
             exit_ip=resource.ip_address if resource else None,
             exit_verified=resource is not None and resource.verified_at is not None,

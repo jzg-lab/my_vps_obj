@@ -63,6 +63,7 @@ class UserService(Base):
     )
     plan_revision: Mapped[int] = mapped_column(Integer, nullable=False)
     revision: Mapped[int] = mapped_column(Integer, nullable=False, default=1)
+    quota_revision: Mapped[int] = mapped_column(Integer, nullable=False, default=0)
     terms: Mapped[dict[str, object]] = mapped_column(JSON, nullable=False)
     quota_bytes: Mapped[int] = mapped_column(BigInteger, nullable=False)
     used_bytes: Mapped[int] = mapped_column(BigInteger, nullable=False, default=0)
@@ -126,6 +127,26 @@ class ServiceConnection(Base):
     usage_total_bytes: Mapped[int | None] = mapped_column(BigInteger)
     usage_attempted_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
     usage_error: Mapped[str | None] = mapped_column(String(128))
+    cycle_cutover_bytes: Mapped[int | None] = mapped_column(BigInteger)
+    usage_raw_bytes: Mapped[int | None] = mapped_column(BigInteger)
+    usage_lifetime_offset: Mapped[int | None] = mapped_column(BigInteger)
+
+
+class ServiceUsagePeriod(Base):
+    __tablename__ = "service_usage_periods"
+
+    service_id: Mapped[str] = mapped_column(
+        String(32), ForeignKey("user_services.id", ondelete="RESTRICT"), primary_key=True
+    )
+    cycle_started_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), primary_key=True)
+    cycle_ends_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
+    used_bytes: Mapped[int] = mapped_column(BigInteger, nullable=False)
+    quota_bytes: Mapped[int] = mapped_column(BigInteger, nullable=False)
+    cutover_bytes: Mapped[int] = mapped_column(BigInteger, nullable=False)
+    next_started_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
+    next_ends_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
+    confirmed_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
 
 
 class DedicatedExit(Base):
@@ -141,4 +162,17 @@ class DedicatedExit(Base):
     )
     verified_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
     enabled: Mapped[bool] = mapped_column(Boolean, nullable=False, default=True)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
+
+
+class ServicePlanQuotaChange(Base):
+    __tablename__ = "service_plan_quota_changes"
+
+    plan_id: Mapped[str] = mapped_column(
+        String(32), ForeignKey("service_plans.id", ondelete="RESTRICT"), primary_key=True
+    )
+    revision: Mapped[int] = mapped_column(Integer, primary_key=True)
+    quota_bytes: Mapped[int] = mapped_column(BigInteger, nullable=False)
+    reason: Mapped[str] = mapped_column(String(1000), nullable=False)
+    actor_id: Mapped[int] = mapped_column(BigInteger, nullable=False)
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)

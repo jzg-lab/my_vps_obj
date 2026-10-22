@@ -156,7 +156,13 @@
             >
             <td data-label={at("services_expires")}><div>{date(service.expires_at)}</div></td>
             <td data-label={at("services_next_reset")}
-              ><div>{service.cycle_ends_at ? date(service.cycle_ends_at) : "—"}</div></td
+              ><div>
+                {service.cycle_ends_at
+                  ? date(service.cycle_ends_at)
+                  : "—"}{#if service.cycle_pending}<small role="status"
+                    >{at("services_cycle_pending")}</small
+                  >{/if}
+              </div></td
             >
             <td data-label={at("services_exit_ip")}
               ><div>

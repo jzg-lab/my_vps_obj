@@ -65,7 +65,18 @@
   Independent usage sampling now saves cumulative observations per service. Repeated samples
   do not count twice; outages, missing data and counter regressions preserve confirmed usage
   and its timestamp. User and admin views show unconfirmed usage without hiding overage.
-  Sampling does not reset monthly allowances or enable connections.
+  Monthly allowances now switch from a durable cumulative checkpoint without resetting
+  panel counters or interrupting healthy connections. Traffic after that checkpoint belongs
+  to the new cycle; the page changes only after panel confirmation. Retries retain one
+  absolute cap, and closed periods retain actual usage, including overage. Periodic
+  reconciliation restricts confirmed expiry/exhaustion even without an admin action;
+  preparation, renewal, unban and delivery share the same entitlement checks.
+  Template quota edits now queue audited adjustments for existing services, preserving
+  usage, original terms and closed-period records. Lower quotas retain visible overage.
+  Administrators can reconcile reset counters from exact checked records while paused;
+  recovery preserves cumulative history, records the counter mapping and never replaces
+  the identity or automatically resumes it. Connection delivery and real-node enforcement
+  acceptance remain pending.
 
 - **Nested dialog keyboard focus.** Opening an emoji picker now transfers focus before
   the next keyboard event, so an immediate Escape closes the picker instead of its parent

@@ -41,6 +41,7 @@ from .chain_0109_account_access_sync import CHAIN_0109_ACCOUNT_ACCESS_SYNC
 from .chain_0110_service_provisioning import CHAIN_0110_SERVICE_PROVISIONING
 from .chain_0111_service_changes import CHAIN_0111_SERVICE_CHANGES
 from .chain_0112_service_usage import CHAIN_0112_SERVICE_USAGE
+from .chain_0113_service_entitlements import CHAIN_0113_SERVICE_ENTITLEMENTS
 from .engine import Migration
 
 MIGRATIONS: list[Migration] = [
@@ -83,4 +84,5 @@ MIGRATIONS: list[Migration] = [
     *CHAIN_0110_SERVICE_PROVISIONING,
     *CHAIN_0111_SERVICE_CHANGES,
     *CHAIN_0112_SERVICE_USAGE,
+    *CHAIN_0113_SERVICE_ENTITLEMENTS,
 ]

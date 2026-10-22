@@ -26,7 +26,15 @@ const body: ServiceChangeBody = {
   user_id: 17,
   expected_revision: 2,
   idempotency_key: "same-renewal",
-  change: { action: "renew", days: 31, price: "12.30", currency: "CNY" },
+  change: {
+    action: "renew",
+    days: 31,
+    price: "12.30",
+    currency: "CNY",
+    verified_total_bytes: null,
+    expected_raw_bytes: null,
+    evidence: null,
+  },
 };
 
 describe("service change retries", () => {
@@ -76,4 +84,23 @@ describe("service change retries", () => {
     );
     expect(() => pendingServiceChange(cache, 17, "one")).toThrow("services_storage_failed");
   });
+});
+
+it("retains exact reconciliation evidence across lost replies", async () => {
+  const cache = storage();
+  const recovery: ServiceChangeBody = {
+    ...body,
+    change: {
+      action: "reconcile_usage",
+      days: null,
+      price: null,
+      currency: null,
+      verified_total_bytes: 600,
+      expected_raw_bytes: 100,
+      evidence: "Verified incident ledger",
+    },
+  };
+  const api = vi.fn().mockRejectedValue(new Error("lost reply"));
+  await expect(submitServiceChange(api, cache, "one", recovery)).rejects.toThrow("lost reply");
+  expect(pendingServiceChange(cache, 17, "one")).toEqual(recovery);
 });

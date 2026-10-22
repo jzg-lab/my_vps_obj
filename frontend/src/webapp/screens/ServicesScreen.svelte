@@ -153,6 +153,9 @@
       ? serviceDate(service.last_usage_sync_at)
       : t("wa_services_not_synced")}
   </p>
+  {#if service.cycle_pending}<p class="service-sync" role="status">
+      {t("wa_services_cycle_pending")}
+    </p>{/if}
   {#if service.sync_pending}<p class="service-sync" role="status">
       {t("wa_services_change_pending")}
     </p>{/if}
