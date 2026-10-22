@@ -4762,6 +4762,23 @@ export interface paths {
     patch?: never;
     trace?: never;
   };
+  "/api/service-guides": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** User Service Guides */
+    get: operations["get_user_service_guides_route"];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
   "/api/services": {
     parameters: {
       query?: never;
@@ -23963,6 +23980,33 @@ export interface operations {
             ok: true;
             plans: components["schemas"]["ServiceCatalogPlanOut"][];
             total: number;
+          };
+        };
+      };
+    };
+  };
+  get_user_service_guides_route: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description JSON response */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": {
+            config: {
+              [key: string]: unknown;
+            };
+            enabled: boolean;
+            /** @constant */
+            ok: true;
           };
         };
       };

@@ -86,7 +86,10 @@
   for dedicated exits, recorded verification. The durable request uses the shared entitlement
   synchronizer; pauses, bans, expiry and exhaustion still prevent access, including after retries.
   Service-specific subscription reads now recheck ownership and panel terms without exposing
-  credentials in lists, browser storage or panel response logs. Terminal cancellation saves
+  credentials in lists, browser storage or panel response logs. The service detail now opens
+  localized client instructions from a bundled, validated guide config and inserts only the
+  selected service's confirmed link; the retired account-level guide endpoint stays unavailable.
+  Terminal cancellation saves
   revocation intent and retries the original identity, preserving the last accepted usage.
   Dedicated-exit verification and manual reclaim record the administrator, evidence and
   allocation version. Reclaim requires confirmed identity removal and subsequent operator

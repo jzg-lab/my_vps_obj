@@ -10,9 +10,11 @@ from bot.app.web.route_contracts import (
     ADMIN_SECURITY,
     BOOLEAN_SCHEMA,
     INTEGER_SCHEMA,
+    JSON_OBJECT_SCHEMA,
     USER_SECURITY,
     RouteContract,
     ok_envelope_for,
+    ok_envelope_with,
     register_contract,
     schema_ref,
 )
@@ -28,6 +30,11 @@ from bot.app.web.service_routes import _pagination, _service_out
 from bot.app.web.service_schemas import DedicatedExitOut, ServiceOrderOut, UserServiceOut
 from bot.app.web.webapp.common import _require_user_id
 from bot.services.service_delivery import service_subscription
+from config.subscription_guides_config import (
+    APP_ROOT,
+    SubscriptionGuidesConfigError,
+    validate_subscription_guides_config_text,
+)
 from db.dal.service_delivery_dal import (
     list_exit_audit,
     record_exit_evidence,
@@ -35,6 +42,21 @@ from db.dal.service_delivery_dal import (
     request_service_revocation,
 )
 from db.dal.user_services_dal import ServiceConflict
+
+SERVICE_GUIDES_PATH = APP_ROOT / "deploy/examples/independent-services-guides.json"
+
+
+async def user_service_guides_route(request: web.Request) -> web.Response:
+    _require_user_id(request)
+    try:
+        config = validate_subscription_guides_config_text(
+            SERVICE_GUIDES_PATH.read_text(encoding="utf-8")
+        )
+    except (OSError, UnicodeError, SubscriptionGuidesConfigError):
+        return _error(503, "service_guides_unavailable")
+    response = _ok({"enabled": True, "config": config})
+    response.headers["Cache-Control"] = "private, no-store"
+    return response
 
 
 async def user_service_subscription_route(request: web.Request) -> web.Response:
@@ -228,6 +250,15 @@ def setup_service_delivery_admin_routes(app: web.Application) -> None:
 
 def setup_service_delivery_user_routes(app: web.Application) -> None:
     register_contract(
+        "user_service_guides_route",
+        RouteContract(
+            response_schema=ok_envelope_with(
+                {"enabled": BOOLEAN_SCHEMA, "config": JSON_OBJECT_SCHEMA}
+            ),
+            security=USER_SECURITY,
+        ),
+    )
+    register_contract(
         "user_service_subscription_route",
         RouteContract(
             response_schema=ok_envelope_for(ServiceSubscriptionOut, key="subscription"),
@@ -236,3 +267,4 @@ def setup_service_delivery_user_routes(app: web.Application) -> None:
         ),
     )
     app.router.add_get("/api/services/{service_id}/subscription", user_service_subscription_route)
+    app.router.add_get("/api/service-guides", user_service_guides_route)

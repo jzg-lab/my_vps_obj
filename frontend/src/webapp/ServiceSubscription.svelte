@@ -12,7 +12,32 @@
   let failed = $state(false);
   let copied = $state(false);
   let controller: AbortController | undefined;
+  let guideController: AbortController | undefined;
+  let guideConfig = $state<Record<string, unknown> | null>(null);
+  let guideLoading = $state(false);
+  let guideFailed = $state(false);
   const guideScreen = lazyScreen(() => import("./screens/InstallGuideScreen.svelte"));
+  async function loadGuide() {
+    guideScreen.load();
+    if (guideConfig || guideLoading) return;
+    guideController?.abort();
+    const current = new AbortController();
+    guideController = current;
+    guideLoading = true;
+    guideFailed = false;
+    try {
+      const result = unwrap(
+        await api(builtApiPath<"/api/service-guides">("/service-guides"), {
+          signal: current.signal,
+        })
+      );
+      if (!current.signal.aborted) guideConfig = result.config;
+    } catch {
+      if (!current.signal.aborted) guideFailed = true;
+    } finally {
+      if (!current.signal.aborted) guideLoading = false;
+    }
+  }
   async function load() {
     controller?.abort();
     const current = new AbortController();
@@ -46,7 +71,10 @@
       copied = false;
     }
   }
-  onDestroy(() => controller?.abort());
+  onDestroy(() => {
+    controller?.abort();
+    guideController?.abort();
+  });
 </script>
 
 <section class="service-subscription" aria-label={t("wa_services_subscription")}>
@@ -68,21 +96,23 @@
     <p>{t("wa_services_subscription_update")}</p>
     <details
       class="service-guide"
-      ontoggle={(event) => event.currentTarget.open && guideScreen.load()}
+      ontoggle={(event) => event.currentTarget.open && void loadGuide()}
     >
       <summary>{t("wa_install_title")}</summary>
-      {#if guideScreen.component}
+      {#if guideScreen.component && guideConfig}
         {@const Guide = guideScreen.component}
         <Guide
           serviceMode
+          serviceConfig={guideConfig}
           currentLang={typeof document === "undefined" ? "ru" : document.documentElement.lang}
           subscription={{ config_link: url }}
           {t}
           copyText={async (value) => copy(value)}
           openExternalLink={(value) => window.open(value, "_blank", "noopener,noreferrer")}
         />
-      {:else if guideScreen.failed}
+      {:else if guideFailed || guideScreen.failed}
         <p role="alert">{t("wa_install_unavailable")}</p>
+        <Button onclick={loadGuide}>{t("wa_install_retry")}</Button>
       {:else}
         <p role="status">{t("wa_install_loading")}</p>
       {/if}

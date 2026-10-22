@@ -272,6 +272,11 @@ export function webappFallbackResponse(
     };
   }
   if (path === "/subscription-guides") return clone(DEV_MOCK.data.subscription_guides);
+  if (cleanPath === "/service-guides") {
+    if (new URLSearchParams(window.location.search).has("guide_fail"))
+      return { ok: false, error: "service_guides_unavailable" };
+    return { ok: true, enabled: true, config: clone(DEV_MOCK.data.subscription_guides.config) };
+  }
   if (cleanPath.startsWith("/subscription-guides/public/")) {
     const shareToken = decodeURIComponent(cleanPath.split("/").pop() || "");
     const subscription = clone(DEV_MOCK.data.subscription);

@@ -125,6 +125,7 @@ FROM python-dependencies AS python-base
 COPY locales ./locales
 COPY data ./data
 COPY backend ./backend
+COPY deploy/examples/independent-services-guides.json ./deploy/examples/independent-services-guides.json
 RUN mkdir -p /app/logs /app/data \
     && if [ ! -f /app/data/locales-overrides.json ]; then printf '{}\n' > /app/data/locales-overrides.json; fi \
     && chown -R appuser:appuser /app/logs /app/data

@@ -41992,6 +41992,54 @@
         ]
       }
     },
+    "/api/service-guides": {
+      "get": {
+        "operationId": "get_user_service_guides_route",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "config": {
+                      "additionalProperties": true,
+                      "type": "object"
+                    },
+                    "enabled": {
+                      "type": "boolean"
+                    },
+                    "ok": {
+                      "const": true,
+                      "type": "boolean"
+                    }
+                  },
+                  "required": [
+                    "ok",
+                    "enabled",
+                    "config"
+                  ],
+                  "type": "object"
+                }
+              }
+            },
+            "description": "JSON response"
+          }
+        },
+        "security": [
+          {
+            "UserSession": []
+          },
+          {
+            "UserBearer": []
+          }
+        ],
+        "summary": "User Service Guides",
+        "tags": [
+          "service-guides"
+        ]
+      }
+    },
     "/api/services": {
       "get": {
         "operationId": "get_user_services_route",

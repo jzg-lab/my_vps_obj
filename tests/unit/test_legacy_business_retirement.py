@@ -1,6 +1,7 @@
 """The deployed website cannot issue old account-level subscription entitlements."""
 
 import asyncio
+from pathlib import Path
 from typing import cast
 from unittest.mock import AsyncMock, patch
 
@@ -39,6 +40,30 @@ class LegacyBusinessRetirementTests(ServiceDatabaseTestCase):
         assert app[SINGLE_SUBSCRIPTION_RETIRED]
         assert legacy_business_middleware in app.middlewares
         return app, settings
+
+    @pytest.mark.filterwarnings(
+        "ignore:It is recommended to use web.RequestKey: aiohttp.web_exceptions.NotAppKeyWarning"
+    )
+    @pytest.mark.filterwarnings("ignore:returning HTTPException object is deprecated")
+    async def test_independent_service_guides_do_not_revive_account_guides(self) -> None:
+        app, settings = self.application()
+        user = {"Authorization": "Bearer " + create_webapp_session_token(settings, 2)}
+        async with TestClient(TestServer(app)) as client:
+            response = await client.get("/api/service-guides", headers=user)
+            assert response.status == 200
+            payload = await response.json()
+            assert payload["ok"] is True
+            assert payload["config"]["locales"] == ["zh", "en", "ru"]
+            assert "subscription" not in payload
+            assert (await client.get("/api/service-guides")).status == 401
+            assert (await client.get("/api/subscription-guides", headers=user)).status == 410
+            with patch(
+                "bot.app.web.service_delivery_routes.SERVICE_GUIDES_PATH",
+                Path("/missing-independent-service-guides.json"),
+            ):
+                unavailable = await client.get("/api/service-guides", headers=user)
+            assert unavailable.status == 503
+            assert (await unavailable.json())["error"] == "service_guides_unavailable"
 
     @pytest.mark.filterwarnings(
         "ignore:It is recommended to use web.RequestKey: aiohttp.web_exceptions.NotAppKeyWarning"

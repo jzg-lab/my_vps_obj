@@ -66,6 +66,7 @@
     telegramPlatform = "",
     user = {},
     subscription = {},
+    serviceConfig = null,
     goHome = () => {},
     openConnectLink = () => {},
     openExternalLink = () => {},
@@ -79,6 +80,7 @@
     telegramPlatform?: string;
     user?: UserProfile;
     subscription?: SubscriptionView;
+    serviceConfig?: Record<string, unknown> | null;
     goHome?: VoidAction;
     openConnectLink?: (url?: string) => void;
     openExternalLink?: OpenLinkAction;
@@ -111,12 +113,14 @@
   });
 
   onMount(() => {
-    if (!publicMode) installGuidesStore?.load();
+    if (!publicMode && !serviceMode) installGuidesStore?.load();
   });
 
   onDestroy(() => installStageAnimator.destroy());
 
-  const config = $derived(asInstallGuidesConfig(installGuidesStore?.config));
+  const config = $derived(
+    asInstallGuidesConfig(serviceMode ? serviceConfig : installGuidesStore?.config)
+  );
   const platforms = $derived(installPlatformsFromConfig(config));
   const platformOptions = $derived(
     platforms.map((platform) => ({
@@ -306,7 +310,7 @@
       </h1>
       <p>{t("wa_install_subtitle", {}, "Choose your platform and app.")}</p>
     </div>
-    {#if installGuidesStore?.enabled && config && platforms.length}
+    {#if (serviceMode || installGuidesStore?.enabled) && config && platforms.length}
       <div class="install-platform-topbar">
         <Select.Root
           type="single"
@@ -368,7 +372,7 @@
     {/if}
   </div>
 
-  {#if installGuidesStore?.loading && !installGuidesStore?.loaded}
+  {#if !serviceMode && installGuidesStore?.loading && !installGuidesStore?.loaded}
     <div
       class="install-loading motion-fade-up"
       role="status"
@@ -377,10 +381,10 @@
       <Spinner size="lg" />
       <span>{t("wa_install_loading", {}, "Loading instructions...")}</span>
     </div>
-  {:else if !installGuidesStore?.enabled || !config || !platforms.length}
+  {:else if (!serviceMode && !installGuidesStore?.enabled) || !config || !platforms.length}
     <Card class="install-empty">
       <p>{t("wa_install_unavailable", {}, "Instructions are unavailable.")}</p>
-      {#if installGuidesStore?.error}
+      {#if !serviceMode && installGuidesStore?.error}
         <Button class="wide" onclick={() => installGuidesStore.retry()}>
           <RefreshCw size={18} />
           {t("wa_install_retry", {}, "Try again")}
