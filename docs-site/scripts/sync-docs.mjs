@@ -8,52 +8,52 @@ const sourceDir = path.join(repoRoot, 'docs');
 const outputDir = path.join(siteRoot, 'src', 'content', 'docs');
 
 const descriptions = {
-  '../CHANGELOG.md': 'История выпусков Remnawave Minishop: версии, даты релизов и изменения, уже доступные в ветке dev.',
-  'api/index.md': 'HTTP API, OpenAPI-спецификация, доменные события и точки расширения Remnawave Minishop.',
-  'index.md': 'Документация по запуску, настройке и сопровождению Telegram Mini App для Remnawave.',
-  'getting-started/overview.md': 'Компоненты и основные пользовательские и административные сценарии Remnawave Minishop.',
-  'getting-started/system-requirements.md': 'Требования к VPS, Docker, сети и внешним зависимостям Remnawave Minishop.',
-  'getting-started/setup.md': 'Быстрый запуск Remnawave Minishop через install wizard и Docker Compose.',
-  'getting-started/configuration.md': 'Первичная настройка .env, bootstrap-секретов и Web App админки.',
-  'getting-started/deployment.md': 'Production-развертывание: Docker Compose, reverse proxy, TLS, образы, обновления и резервные копии.',
-  'configuration/security.md': 'Секреты, публичные URL, доступ администраторов и базовые меры защиты Minishop.',
-  'configuration/env-vars.md': 'Полный справочник переменных окружения Remnawave Minishop.',
-  'features/minishop-pro.md': 'Бизнес-аналитика, клиентские сегменты и автоматизация продаж в minishop PRO.',
-  'features/payments.md': 'Общая настройка способов оплаты, кнопок, валют, чеков и webhook-обработки.',
-  'features/gifts.md': 'Покупка, передача и активация подарочных подписок, сохранение условий, доставка и администрирование.',
-  'features/promocodes.md': 'Промокоды: бонусные дни, скидки, множители, checkout-активация и история применений.',
-  'features/partner-program.md': 'Партнёрские заявки, атрибуция, комиссии, ручные выплаты, оплата балансом и эксплуатация.',
-  'features/subscriptions.md': 'Обзор моделей тарифов, лимитов и жизненного цикла подписок Remnawave Minishop.',
-  'features/notifications.md': 'Каналы Telegram и email для пользовательских, админских и сервисных уведомлений Remnawave Minishop.',
-  'features/tariffs.md': 'Настройка каталога тарифов, периодов, цен, premium-сквадов, трафика и HWID-устройств.',
-  'features/web-app.md': 'Telegram Mini App, публичные инструкции, проксирование и реферальные ссылки.',
-  'features/server-status.md': 'Статус серверов в Mini App через внешнюю страницу, Uptime Kuma или xray-checker.',
-  'features/login-methods.md': 'Email-код, email/пароль, Telegram, Google, Яндекс и passkey: настройка, связывание аккаунтов и безопасность.',
-  'features/telegram-optional.md': 'Автономный браузерный режим с email, ролями администратора и отдельной идентичностью аккаунта.',
-  'features/webapp-themes.md': 'Кастомные темы, CSS-токены, ассеты и пайплайн создания темы.',
-  'features/advertising/index.md': 'Обзор рекламы и быстрый старт в dev.',
-  'features/advertising/glossary.md': 'Определения событий, пользователей и денежных показателей.',
-  'features/advertising/campaigns-links.md': 'Кампании, архив, ссылки Web, Bot и Mini App, UTM.',
-  'features/advertising/attribution-auth.md': 'Анонимные визиты, авторизация, первое привлечение и источник заказа.',
-  'features/advertising/promocodes.md': 'Версии предложений, ручной ввод и статистика кодов активации.',
-  'features/advertising/telegram-ads-import.md': 'CSV с явным сопоставлением полей, ревизии и ограничения matching.',
-  'features/advertising/reporting.md': 'Валюты, расходы, покупки, возвраты и зрелость когорт.',
-  'features/advertising/troubleshooting-limitations.md': 'Диагностика рекламных ссылок и ограничения исторических данных.',
-  'features/advertising/api-examples.md': 'Контракты API рекламы и синтетические примеры CSV.',
-  'features/admin-panel.md': 'Возможности админ-панели, управление пользователями, настройками, тарифами и поддержкой.',
-  'features/backups.md': 'Автоматические бэкапы, отправка архивов в Telegram, локальное хранение и восстановление БД/compose-папки из админки.',
-  'features/support.md': 'Пользовательские тикеты, список обращений в админке, уведомления и лимиты поддержки.',
-  'migrations/index.md': 'Готовые сценарии миграции в Remnawave Minishop с других ботов.',
-  'migrations/remnawave-tg-shop.md': 'Перенос данных со старого remnawave-tg-shop на split-архитектуру Minishop.',
-  'migrations/remnashop.md': 'Импорт данных из Remnashop через install wizard или скрипт import_legacy.py.',
-  'migrations/bedolaga.md': 'Идемпотентный импорт данных из Bedolaga с dry-run и финансовой сверкой.',
-  'troubleshooting/issues.md': 'Короткие чеклисты для частых проблем запуска, вебхуков, Mini App и платежей.',
-  'troubleshooting/logs.md': 'Какие логи смотреть при диагностике backend, worker, frontend, миграций и вебхуков.',
-  'troubleshooting/maintenance.md': 'Обновления, миграции, резервные копии и проверки продакшен-стека.',
-  'architecture.md': 'Краткая архитектура backend, frontend, worker и инфраструктурных сервисов.',
-  'architecture/http-api.md': 'Контракты HTTP API, envelope ответов, security-схемы, OpenAPI-артефакт и правила typed-маршрутов.',
-  'architecture/events.md': 'Каталог доменных событий, payload-моделей, emitters и core-реакций.',
-  'development/graphify.md': 'Как пользоваться сгенерированной Graphify-картой кодовой базы и когда обновлять graphify-out.',
+  '../CHANGELOG.md': 'Remnawave Minishop 的发布历史、版本日期及开发分支变更。',
+  'api/index.md': '网站和后台 HTTP API、OpenAPI 规范、域事件与扩展入口。',
+  'index.md': '本项目中文文档入口：一期范围、进度、使用流程和验收边界。',
+  'getting-started/overview.md': '项目组件及用户和管理员的一期流程。',
+  'getting-started/system-requirements.md': 'VPS、Docker、网络和外部依赖的系统要求。',
+  'getting-started/setup.md': '通过安装向导和 Docker Compose 启动 Minishop。',
+  'getting-started/configuration.md': '初次配置 .env、登录密钥和网页管理后台。',
+  'getting-started/deployment.md': 'Docker Compose、反向代理、TLS、镜像、更新和备份。',
+  'configuration/security.md': '密钥、公开地址、管理员权限及 Minishop 安全基础。',
+  'configuration/env-vars.md': 'Remnawave Minishop 环境变量完整参考。',
+  'features/minishop-pro.md': 'minishop PRO 的公开业务分析、客户分群和销售自动化能力。',
+  'features/payments.md': '支付方式、按钮、币种、收据及回调的上游配置说明。',
+  'features/gifts.md': '上游赠送订阅的购买、转赠、激活和管理。',
+  'features/promocodes.md': '激活码的奖励、折扣、购买应用和使用历史。',
+  'features/partner-program.md': '合作伙伴申请、归因、佣金、余额和人工结算。',
+  'features/subscriptions.md': 'Minishop 上游套餐、限额和订阅生命周期概览。',
+  'features/notifications.md': 'Telegram 与邮件的用户、管理员和服务通知。',
+  'features/tariffs.md': '上游套餐目录、周期、价格、流量和设备限额。',
+  'features/web-app.md': 'Mini App、公开教程、代理和推荐链接。',
+  'features/server-status.md': 'Mini App 中外部或内嵌的服务器状态。',
+  'features/login-methods.md': '邮箱、Telegram、Google、Yandex 和通行密钥的配置与账号关联。',
+  'features/telegram-optional.md': '使用邮箱登录和管理员角色的独立网页模式。',
+  'features/webapp-themes.md': '自定义主题、CSS 变量、素材和主题制作。',
+  'features/advertising/index.md': '广告功能概览及开发环境入门。',
+  'features/advertising/glossary.md': '广告事件、用户和财务指标术语。',
+  'features/advertising/campaigns-links.md': '活动、归档、Web／Bot／Mini App 链接和 UTM。',
+  'features/advertising/attribution-auth.md': '匿名访问、登录、首次接触和订单来源。',
+  'features/advertising/promocodes.md': '优惠版本、手动输入与激活码统计。',
+  'features/advertising/telegram-ads-import.md': 'Telegram 广告 CSV 字段映射、修订与匹配限制。',
+  'features/advertising/reporting.md': '币种、支出、购买、退款和用户群组成熟度。',
+  'features/advertising/troubleshooting-limitations.md': '广告链接排障与历史数据限制。',
+  'features/advertising/api-examples.md': '广告 API 契约及合成 CSV 示例。',
+  'features/admin-panel.md': '管理后台中的用户、设置、套餐和客服管理。',
+  'features/backups.md': '自动备份、Telegram 发送、本地留存及后台恢复。',
+  'features/support.md': '客服工单、后台处理、通知和限制。',
+  'migrations/index.md': '从其他机器人迁移至 Remnawave Minishop 的方案。',
+  'migrations/remnawave-tg-shop.md': '将 remnawave-tg-shop 数据迁移到 Minishop。',
+  'migrations/remnashop.md': '通过安装向导或脚本导入 Remnashop 数据。',
+  'migrations/bedolaga.md': '以可复核的试运行和财务对账导入 Bedolaga 数据。',
+  'troubleshooting/issues.md': '启动、回调、Mini App 和支付的常见问题。',
+  'troubleshooting/logs.md': '排查后端、worker、前端、迁移和回调日志。',
+  'troubleshooting/maintenance.md': '生产环境的更新、迁移、备份与检查。',
+  'architecture.md': '后端、前端、worker 和基础设施架构概览。',
+  'architecture/http-api.md': 'HTTP 响应封装、鉴权、OpenAPI 和类型化路由规则。',
+  'architecture/events.md': '域事件、载荷、触发者和 Core 反应目录。',
+  'development/graphify.md': 'Graphify 代码图的使用和更新时机。',
 };
 
 const imageExtensions = new Set(['.avif', '.gif', '.jpeg', '.jpg', '.png', '.svg', '.webp']);
@@ -127,7 +127,7 @@ function plainHeading(heading) {
 }
 
 function addInlineContents(markdown) {
-  if (/^##\s+(?:Навигация по справочнику|На этой странице|Содержание|Оглавление)\s*$/imu.test(markdown)) {
+  if (/^##\s+(?:导航|本页目录|目录|Навигация по справочнику|На этой странице|Содержание|Оглавление)\s*$/imu.test(markdown)) {
     return markdown;
   }
 
@@ -141,7 +141,7 @@ function addInlineContents(markdown) {
   const items = headings.map((match) => {
     const label = plainHeading(match[1]);
     const baseSlug = label
-      .toLocaleLowerCase('ru')
+      .toLocaleLowerCase('zh-CN')
       .replace(/[^\p{L}\p{M}\p{N}_\-\s]/gu, '')
       .replace(/\s/gu, '-');
     const occurrence = slugOccurrences.get(baseSlug) ?? 0;
@@ -153,108 +153,108 @@ function addInlineContents(markdown) {
   const firstHeadingIndex = headings[0].index;
   const before = markdown.slice(0, firstHeadingIndex).trimEnd();
   const after = markdown.slice(firstHeadingIndex).trimStart();
-  return `${before}\n\n## На этой странице\n\n${items.join('\n')}\n\n${after}`;
+  return `${before}\n\n## 本页目录\n\n${items.join('\n')}\n\n${after}`;
 }
 
 function relatedLinksFor(sourceRelativePath) {
   const relatedByOverview = {
     'index.md': [
-      ['Список изменений', '/changelog/'],
-      ['Обзор', '/getting-started/overview/'],
-      ['Быстрый запуск', '/getting-started/setup/'],
-      ['Демо-режим', '/getting-started/overview/#демо-режим'],
+      ['更新日志', '/changelog/'],
+      ['概览', '/getting-started/overview/'],
+      ['快速开始', '/getting-started/setup/'],
+      ['演示模式', '/getting-started/overview/#演示与验收边界'],
     ],
     'getting-started/overview.md': [
-      ['Быстрый запуск', '/getting-started/setup/'],
-      ['Production-развертывание', '/getting-started/deployment/'],
-      ['Первичная настройка', '/getting-started/configuration/'],
-      ['Миграции из других ботов', '/migrations/'],
+      ['快速开始', '/getting-started/setup/'],
+      ['生产部署', '/getting-started/deployment/'],
+      ['初始配置', '/getting-started/configuration/'],
+      ['从其他机器人迁移', '/migrations/'],
     ],
     'getting-started/configuration.md': [
-      ['Справочник переменных .env', '/configuration/env-vars/'],
-      ['Безопасность', '/configuration/security/'],
-      ['Веб админ-панель', '/features/admin-panel/'],
+      ['.env 变量参考', '/configuration/env-vars/'],
+      ['安全', '/configuration/security/'],
+      ['网页管理后台', '/features/admin-panel/'],
     ],
     'configuration/security.md': [
-      ['Способы входа', '/features/login-methods/'],
-      ['Production-развертывание', '/getting-started/deployment/'],
-      ['Справочник переменных .env', '/configuration/env-vars/'],
+      ['登录方式', '/features/login-methods/'],
+      ['生产部署', '/getting-started/deployment/'],
+      ['.env 变量参考', '/configuration/env-vars/'],
     ],
     'configuration/telemetry.md': [
-      ['Логи', '/troubleshooting/logs/'],
-      ['Обслуживание', '/troubleshooting/maintenance/'],
-      ['Веб админ-панель', '/features/admin-panel/'],
+      ['日志', '/troubleshooting/logs/'],
+      ['维护', '/troubleshooting/maintenance/'],
+      ['网页管理后台', '/features/admin-panel/'],
     ],
     'migrations/index.md': [
-      ['Миграция с remnawave-tg-shop', '/migrations/remnawave-tg-shop/'],
-      ['Миграция с Remnashop', '/migrations/remnashop/'],
-      ['Миграция с Bedolaga', '/migrations/bedolaga/'],
-      ['Быстрый запуск', '/getting-started/setup/'],
+      ['从 remnawave-tg-shop 迁移', '/migrations/remnawave-tg-shop/'],
+      ['从 Remnashop 迁移', '/migrations/remnashop/'],
+      ['从 Bedolaga 迁移', '/migrations/bedolaga/'],
+      ['快速开始', '/getting-started/setup/'],
     ],
     'features/payments.md': [
-      ['Переменные платежей', '/configuration/env-vars/#платежи'],
-      ['Тарифы и подписки', '/features/subscriptions/'],
-      ['Диагностика по логам', '/troubleshooting/logs/'],
+      ['支付变量', '/configuration/env-vars/#платежи'],
+      ['套餐与订阅', '/features/subscriptions/'],
+      ['查看日志排障', '/troubleshooting/logs/'],
     ],
     'features/subscriptions.md': [
-      ['Настройка тарифов', '/features/tariffs/'],
-      ['Платежи', '/features/payments/'],
-      ['Веб-приложение', '/features/web-app/'],
+      ['配置套餐', '/features/tariffs/'],
+      ['支付', '/features/payments/'],
+      ['网页应用', '/features/web-app/'],
     ],
     'features/login-methods.md': [
-      ['Безопасность', '/configuration/security/'],
-      ['Справочник переменных .env', '/configuration/env-vars/#smtp-и-вход-по-email'],
-      ['Веб-приложение', '/features/web-app/'],
+      ['安全', '/configuration/security/'],
+      ['.env 变量参考', '/configuration/env-vars/#smtp-и-вход-по-email'],
+      ['网页应用', '/features/web-app/'],
     ],
     'features/admin-panel.md': [
-      ['Бэкапы', '/features/backups/'],
-      ['Телеметрия', '/configuration/telemetry/'],
-      ['Справочник переменных .env', '/configuration/env-vars/'],
+      ['备份', '/features/backups/'],
+      ['遥测', '/configuration/telemetry/'],
+      ['.env 变量参考', '/configuration/env-vars/'],
     ],
     'troubleshooting/logs.md': [
-      ['Проблемы', '/troubleshooting/issues/'],
-      ['Обслуживание', '/troubleshooting/maintenance/'],
-      ['Телеметрия', '/configuration/telemetry/'],
+      ['常见问题', '/troubleshooting/issues/'],
+      ['维护', '/troubleshooting/maintenance/'],
+      ['遥测', '/configuration/telemetry/'],
     ],
     'troubleshooting/maintenance.md': [
-      ['Бэкапы', '/features/backups/'],
-      ['Production-развертывание', '/getting-started/deployment/'],
-      ['Логи', '/troubleshooting/logs/'],
+      ['备份', '/features/backups/'],
+      ['生产部署', '/getting-started/deployment/'],
+      ['日志', '/troubleshooting/logs/'],
     ],
     'architecture.md': [
-      ['Обзор API', '/api/'],
-      ['Доменные события', '/architecture/events/'],
-      ['Рецепты изменений', '/development/how-to/'],
+      ['API 概览', '/api/'],
+      ['域事件', '/architecture/events/'],
+      ['改动指南', '/development/how-to/'],
     ],
     'architecture/http-api.md': [
-      ['Обзор API', '/api/'],
-      ['Доменные события', '/architecture/events/'],
-      ['API плагинов', '/development/plugins/'],
+      ['API 概览', '/api/'],
+      ['域事件', '/architecture/events/'],
+      ['插件 API', '/development/plugins/'],
     ],
     'development/dev-stand.md': [
-      ['Рецепты изменений', '/development/how-to/'],
-      ['Карта Graphify', '/development/graphify/'],
+      ['改动指南', '/development/how-to/'],
+      ['Graphify 代码图', '/development/graphify/'],
       ['Runes QA', '/development/runes-migration-qa/'],
     ],
     'development/how-to.md': [
-      ['Архитектура', '/reference/architecture/'],
-      ['Единый dev stand', '/development/dev-stand/'],
-      ['Карта Graphify', '/development/graphify/'],
+      ['架构', '/reference/architecture/'],
+      ['统一开发环境', '/development/dev-stand/'],
+      ['Graphify 代码图', '/development/graphify/'],
     ],
     'development/graphify.md': [
-      ['Рецепты изменений', '/development/how-to/'],
-      ['Архитектура', '/reference/architecture/'],
-      ['Единый dev stand', '/development/dev-stand/'],
+      ['改动指南', '/development/how-to/'],
+      ['架构', '/reference/architecture/'],
+      ['统一开发环境', '/development/dev-stand/'],
     ],
     'development/runes-migration-qa.md': [
-      ['Единый dev stand', '/development/dev-stand/'],
-      ['Рецепты изменений', '/development/how-to/'],
-      ['Карта Graphify', '/development/graphify/'],
+      ['统一开发环境', '/development/dev-stand/'],
+      ['改动指南', '/development/how-to/'],
+      ['Graphify 代码图', '/development/graphify/'],
     ],
     'api/index.md': [
-      ['Интерактивная спецификация', '/api/reference/'],
-      ['HTTP-контракты', '/architecture/http-api/'],
-      ['API плагинов', '/development/plugins/'],
+      ['交互式接口规范', '/api/reference/'],
+      ['HTTP 契约', '/architecture/http-api/'],
+      ['插件 API', '/development/plugins/'],
     ],
   };
 
@@ -262,7 +262,7 @@ function relatedLinksFor(sourceRelativePath) {
 }
 
 function appendRelatedLinks(markdown, sourceRelativePath) {
-  if (/^##\s+Связанные разделы\s*$/mu.test(markdown)) {
+  if (/^##\s+相关页面\s*$/mu.test(markdown)) {
     return markdown;
   }
 
@@ -273,7 +273,7 @@ function appendRelatedLinks(markdown, sourceRelativePath) {
   }
 
   const items = links.map(([label, route]) => `- [${label}](${route})`).join('\n');
-  return `${markdown.trimEnd()}\n\n## Связанные разделы\n\n${items}\n`;
+  return `${markdown.trimEnd()}\n\n## 相关页面\n\n${items}\n`;
 }
 
 function extraFrontmatter(sourceRelativePath) {
@@ -287,17 +287,17 @@ function extraFrontmatter(sourceRelativePath) {
   return [
     'template: splash',
     'hero:',
-    '  tagline: "Telegram-бот и Mini App для продажи подписок Remnawave: платежи, тарифы, админка, поддержка и инструкции подключения."',
+    '  tagline: "一个账号管理多份独立服务：套餐、服务状态、人工开通与客户端教程。"',
     '  image:',
-    '    html: \'<img class="minishop-hero-screenshot" src="/remnawave-minishop.webp" alt="Интерфейс Remnawave Minishop" width="1920" height="1080" loading="eager" decoding="async" />\'',
+    '    html: \'<img class="minishop-hero-screenshot" src="/remnawave-minishop.webp" alt="Remnawave Minishop 界面" width="1920" height="1080" loading="eager" decoding="async" />\'',
     '  actions:',
-    '    - text: "Смотреть демо"',
+    '    - text: "查看演示"',
     '      link: /demo/home',
     '      icon: right-arrow',
-    '    - text: "Купить PRO"',
+    '    - text: "了解 PRO"',
     '      link: https://cloud.minidoc.cc',
     '      variant: secondary',
-    '    - text: "Гайд по установке"',
+    '    - text: "安装说明"',
     '      link: /getting-started/setup/',
     '      icon: setting',
     '      variant: minimal',

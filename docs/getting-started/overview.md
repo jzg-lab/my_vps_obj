@@ -1,67 +1,40 @@
-# Обзор
+# 项目概览
 
-Remnawave Minishop закрывает весь путь от регистрации пользователя до оплаты, продления,
-поддержки и сопровождения подписки. Продукт состоит из Telegram-бота, backend API,
-worker-процессов, frontend/Mini App и инфраструктурных сервисов PostgreSQL и Redis. В
-production эти части запускаются через Docker Compose и общаются с Remnawave Panel по API и
-вебхукам.
+本项目基于 Remnawave Minishop 改造，目标是一个账号管理多份独立服务。网站和运营后台共用同一套业务记录；一期由管理员人工开通，不启用在线支付。客户端使用通用订阅应用，自有 App 后续开发。完整规则见[需求基线](../requirements.md)与[产品设计](../product-design.md)。
 
-## Основные компоненты
+## 主要组件
 
-- **Backend** — вебхук Telegram, платёжные вебхуки, вебхуки панели, API для Mini App и админки.
-- **Worker** — фоновые задачи, синхронизация подписок, обработка очереди вебхуков и тарифных
-  событий.
-- **Frontend** — отдельный nginx-образ с Mini App и админкой.
-- **PostgreSQL** — пользователи, платежи, настройки, поддержка, промокоды и служебные данные.
-- **Redis** — FSM, кеши, rate limits, очередь вебхуков и distributed locks.
+- **Backend**：网站和后台 API、账号与服务规则、Remnawave 面板对接。
+- **Worker**：后台同步、用量采集、重试和周期处理。
+- **Frontend**：用户网站、运营后台和演示页面。
+- **PostgreSQL**：账号、套餐、服务、资源、订单历史及其他业务记录。
+- **Redis**：缓存、队列、状态和账号锁。
+- **Remnawave Panel**：连接身份、订阅与节点侧权限。真实节点尚待隔离验收。
 
-## Для пользователей
+生产部署使用 Docker Compose。开发和测试请使用[项目隔离环境](../development/project-local.md)，不要把现用节点当作可销毁的测试资源。
 
-- Регистрация и вход через [email-код, email/пароль, Telegram, Google, Яндекс или
-  passkey](../features/login-methods.md).
-- Просмотр подписки, срока действия, трафика и ссылки подключения.
-- Покупка подписки, пакетов трафика и дополнительных устройств.
-- Пробный период, [промокоды](../features/promocodes.md) и реферальные сценарии.
-- Тикеты поддержки внутри Mini App.
-- Встроенные инструкции установки и публичные ссылки `/s/<token>`.
+## 用户流程
 
-## Для администраторов
+用户登录后可查看自己的多份服务，选择其中一份核对资源、流量、到期时间和连接状态。每份服务的订阅与计量独立；一份服务耗尽不会自动使用另一份的额度。等待配置或核验时，页面应明确显示当前状态。[客户端中文教程](../user-guide/clients-zh.md)说明如何选择服务、安装客户端、导入和更新；导入及连接实测仍待完成。
 
-- Поиск и управление пользователями.
-- Настройка платежей, тарифов, внешнего вида и поддержки.
-- Рассылки, [промокоды](../features/promocodes.md) и логи действий.
-- Ручная синхронизация с Remnawave Panel.
-- Редактор JSON-каталога тарифов.
+上游 Minishop 还包含邮箱验证码、邮箱密码、Telegram、Google、Yandex 和通行密钥等[登录方式](../features/login-methods.md)，以及购买订阅、流量包、设备扩容、试用、[激活码](../features/promocodes.md)、推荐和站内客服工单。这些能力有对应代码或文档，但不表示本项目一期启用支付、营销和推荐流程。上游还提供内嵌安装说明及公开 `/s/<token>` 链接；独立服务必须使用当前服务已交付的订阅入口。
 
-Подробности собраны в разделах [Веб админ-панель](../features/admin-panel.md),
-[Веб-приложение](../features/web-app.md) и
-[Поддержка / тикеты](../features/support.md).
+## 管理员流程
 
-## Демо-режим
+管理员配置套餐，人工开通服务，登记专用出口，处理暂停、续期、用量核对和账号生命周期。模板额度修改影响同模板已开通服务的当前及未来额度；已用流量、价格、到期时间与资源快照保留。详细接口和状态见[独立服务说明](../development/independent-services.md)。
 
-Демо-режим показывает статическую сборку Remnawave Minishop с моковыми данными. Mini App,
-пользовательские сценарии и веб админ-панель открываются в браузере без backend, базы данных и
-внешних API.
+上游后台还包含支付配置、外观、客服、群发、激活码和日志等页面，也可与 Remnawave Panel 手动同步，并维护 JSON 套餐目录。相关功能分别见[网页管理后台](../features/admin-panel.md)、[网页应用](../features/web-app.md)和[客服与工单](../features/support.md)。
 
-[Открыть демо](/demo/home)
+## 演示与验收边界
 
-Быстрые ссылки:
+[打开演示](/demo/home)可以在浏览器中查看模拟用户和后台流程，不需要真实数据库、面板或节点。演示成功只证明界面行为，不代表订阅、计量、限额、停用或专用 IP 在真实连接中通过验收。
 
-- [Главный экран](/demo/home)
-- [Инструкции подключения](/demo/install?mock=guides)
-- [Пользователи в админ-панели](/demo/admin/users)
-- [Бэкапы в админ-панели](/demo/admin/backups)
-- [Вход и регистрация](/demo/login?mock=auth)
+常用演示入口：[用户首页](/demo/home)、[连接教程](/demo/install?mock=guides)、[后台用户](/demo/admin/users)、[后台备份](/demo/admin/backups)、[登录与注册](/demo/login?mock=auth)。演示由 `docs-site/scripts/build-demo-runtime.mjs` 随文档站一起构建：`docs-demo` 模式接入模拟数据和 API，构建后将主要 `/demo/*` 路由生成静态页面。演示运行时不进入正式网站构建。
 
-Демо собирается вместе с сайтом документации через
-`docs-site/scripts/build-demo-runtime.mjs`. Отдельный Vite-режим `docs-demo` подключает моковые
-данные и API, а после Astro build основные маршруты `/demo/*` материализуются как статические
-страницы. Этот runtime не входит в production-сборку Mini App.
+## 继续阅读
 
-## Куда идти дальше
-
-- [Быстрый запуск](setup.md) — минимальный маршрут запуска через Docker Compose.
-- [Production-развертывание](deployment.md) — Docker Compose, Caddy, Angie, Nginx,
-  Pangolin/Newt и запуск без обратного прокси.
-- [Первичная настройка](configuration.md) — подключение Remnawave и настройка продукта.
-- [Способы входа](../features/login-methods.md) — email, Telegram, OAuth и passkey.
+- [快速开始](setup.md)：使用 Docker Compose 启动的最短路径。
+- [生产部署](deployment.md)：Docker Compose、Caddy、Angie、Nginx、Pangolin/Newt 等部署方式。
+- [初始配置](configuration.md)：连接 Remnawave，配置网站与后台。
+- [登录方式](../features/login-methods.md)：邮箱、Telegram、OAuth 与通行密钥。
+- [实施计划](../implementation-plan.md)、[本地开发](../development/project-local.md)、[简体中文覆盖说明](../development/chinese-localization.md)：本项目的进度、隔离测试和翻译边界。

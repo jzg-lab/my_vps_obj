@@ -1,104 +1,29 @@
-# Remnawave Minishop
+# 我的 VPN · 中文文档
 
-<section class="minishop-home" aria-labelledby="minishop-features-title">
-  <header class="minishop-home-header">
-    <span class="minishop-eyebrow">Возможности платформы</span>
-    <h2 id="minishop-features-title">Всё необходимое для продажи подписок Remnawave</h2>
-    <p>Minishop связывает Telegram, платежи и Remnawave Panel в одном готовом продукте — от первой покупки до продления и поддержки пользователя.</p>
-  </header>
-  <div class="minishop-feature-grid">
-    <a class="minishop-feature-card minishop-feature-card--spotlight" href="/features/subscriptions/">
-      <span class="minishop-feature-index">01 · Главное</span>
-      <h3>Продажи и полный жизненный цикл подписки</h3>
-      <p>Тарифы на срок и по трафику, гибкие лимиты при оформлении, отдельные несгораемые докупки, продление, premium-сквады и синхронизация с Remnawave Panel.</p>
-      <span class="minishop-card-link">Управление подписками <span aria-hidden="true">→</span></span>
-    </a>
-    <a class="minishop-feature-card" href="/features/web-app/">
-      <span class="minishop-feature-index">02</span>
-      <h3>Mini App и способы входа</h3>
-      <p>Личный кабинет с подпиской, трафиком, подключением, покупками и поддержкой. Вход через email, Telegram, Google, Яндекс или passkey.</p>
-      <span class="minishop-card-link">Возможности Mini App <span aria-hidden="true">→</span></span>
-    </a>
-    <a class="minishop-feature-card" href="/features/admin-panel/">
-      <span class="minishop-feature-index">03</span>
-      <h3>Операционная админ-панель</h3>
-      <p>Пользователи, тарифы, платежи, рассылки, настройки, логи и обращения поддержки — без ручной правки конфигурации.</p>
-      <span class="minishop-card-link">Обзор админ-панели <span aria-hidden="true">→</span></span>
-    </a>
-    <a class="minishop-feature-card" href="/features/promocodes/">
-      <span class="minishop-feature-index">04</span>
-      <h3>Промокоды, рефералы и уведомления</h3>
-      <p>Скидки, бонусные дни и постоянные обычные/premium GB, приглашения пользователей, оповещения об окончании подписки и достижении лимита трафика.</p>
-      <span class="minishop-card-link">Настройка промокодов <span aria-hidden="true">→</span></span>
-    </a>
-    <a class="minishop-feature-card" href="/features/partner-program/">
-      <span class="minishop-feature-index">05</span>
-      <h3>Партнёрская программа</h3>
-      <p>Заявки и отдельные ссылки, закрепление клиентов, комиссии, раздельные балансы, ручные выплаты и полная или частичная оплата покупок из баланса.</p>
-      <span class="minishop-card-link">Настроить партнёрскую программу <span aria-hidden="true">→</span></span>
-    </a>
-    <a class="minishop-feature-card" href="/features/user-balance/">
-      <span class="minishop-feature-index">06</span>
-      <h3>Баланс пользователя</h3>
-      <p>Пополнение через платёжных провайдеров, полная и частичная оплата покупок, админские корректировки и безопасная конвертация с партнёрским балансом.</p>
-      <span class="minishop-card-link">Настроить пользовательский баланс <span aria-hidden="true">→</span></span>
-    </a>
-    <a class="minishop-feature-card" href="/features/support/">
-      <span class="minishop-feature-index">07</span>
-      <h3>Поддержка внутри продукта</h3>
-      <p>Тикеты из Mini App, ответы администраторов, уведомления и история обращений в одном рабочем процессе.</p>
-      <span class="minishop-card-link">Поддержка/тикеты <span aria-hidden="true">→</span></span>
-    </a>
-    <a class="minishop-feature-card" href="/features/backups/">
-      <span class="minishop-feature-index">08</span>
-      <h3>Развертывание и надежность</h3>
-      <p>Docker Compose, управляемые обновления, автоматические бэкапы, восстановление и готовые сценарии миграции.</p>
-      <span class="minishop-card-link">Бэкапы <span aria-hidden="true">→</span></span>
-    </a>
-    <a class="minishop-feature-card" href="/features/server-status/">
-      <span class="minishop-feature-index">09</span>
-      <h3>Статус серверов для пользователей</h3>
-      <p>Внешняя страница статуса или встроенные данные Uptime Kuma и xray-checker с кэшированием и показом последних доступных данных при сбое.</p>
-      <span class="minishop-card-link">Настроить статус серверов <span aria-hidden="true">→</span></span>
-    </a>
-  </div>
-  <a class="minishop-provider-panel" href="/features/payments/">
-    <span class="minishop-provider-copy">
-      <span class="minishop-eyebrow">16 платежных интеграций</span>
-      <strong>Принимайте оплату удобным для аудитории способом</strong>
-      <span>Провайдеры подключаются независимо и отображаются в Mini App и Telegram-сценариях.</span>
-    </span>
-    <span class="minishop-provider-list" aria-label="Поддерживаемые платежные провайдеры">
-      <span>YooKassa</span><span>Telegram Stars</span><span>Stripe</span><span>Tribute</span><span>CloudPayments</span><span>Platega</span><span>FreeKassa</span><span>Wata</span><span>CryptoPay</span><span>Heleket</span><span>OxaPay</span><span>PayKilla</span><span>LAVA</span><span>Pally</span><span>Overpay</span><span>SeverPay</span>
-    </span>
-    <span class="minishop-provider-link">Все платежные сценарии <span aria-hidden="true">→</span></span>
-  </a>
-</section>
+本项目基于 Remnawave Minishop 开发，目标是让一个账号持有多份相互独立的服务。每份服务有自己的连接身份、流量额度、到期时间和资源分配。一期采用管理员人工开通，通过网站、运营后台和通用客户端交付；不接入在线支付，自有客户端 App 留待后续开发。
 
-<section class="minishop-start" aria-labelledby="minishop-start-title">
-  <header class="minishop-home-header">
-    <span class="minishop-eyebrow">Быстрый старт</span>
-    <h2 id="minishop-start-title">От знакомства до работающего магазина</h2>
-    <p>Посмотрите готовый интерфейс, разверните стек и переходите к настройке продаж.</p>
-  </header>
-  <ol class="minishop-start-grid">
-    <li>
-      <span>01</span>
-      <strong>Откройте демо</strong>
-      <p>Изучите Mini App и админ-панель без установки.</p>
-      <a href="/demo/home">Перейти в демо <span aria-hidden="true">→</span></a>
-    </li>
-    <li>
-      <span>02</span>
-      <strong>Разверните Minishop</strong>
-      <p>Запустите готовый Docker Compose стек по пошаговой инструкции.</p>
-      <a href="/getting-started/setup/">Открыть установку <span aria-hidden="true">→</span></a>
-    </li>
-    <li>
-      <span>03</span>
-      <strong>Настройте продажи</strong>
-      <p>Подключите Remnawave Panel, тарифы, платежи и внешний вид.</p>
-      <a href="/getting-started/configuration/">Перейти к настройке <span aria-hidden="true">→</span></a>
-    </li>
-  </ol>
-</section>
+当前状态：独立服务的模型、管理页面、用户页面、计量和连接交付已有本地实现，正在集成验收。演示数据、页面可见状态和单元测试不能证明真实节点已经通过连接、限额或停用验收。现用生产节点不作为测试环境。
+
+## 从这里开始
+
+- [需求基线](/reference/requirements/)：已确定的业务规则和一期边界。
+- [产品设计](/reference/product-design/)：用户、管理员及服务生命周期。
+- [实施计划](/reference/implementation-plan/)：分阶段进度、验收条件和未完成事项。
+- [本地开发](/development/project-local/)：使用隔离开发环境启动和测试。
+- [独立服务接口](/development/independent-services/)：当前数据模型、接口与交付边界。
+- [简体中文与体验](/development/chinese-localization/)：语言接入、覆盖范围和验证证据。
+- [客户端中文教程](/user-guide/clients-zh/)：选择服务、官方安装、导入和更新。真实客户端兼容性仍待实测。
+
+## 一期使用流程
+
+1. 管理员建立共享节点或固定独享 IP 套餐，设置额度、有效期和价格。
+2. 管理员为账号人工开通一份或多份服务；每份服务单独保存条款、身份和资源。
+3. 用户在“我的服务”选择具体服务，查看用量、状态和到期时间。连接交付完成后，才使用该服务自己的订阅入口。
+4. 后台核对上传与下载的业务流量。月度额度按北京时间周期和已保存的累计检查点计算；统计异常只通过准确记录核对恢复。
+5. 暂停、到期、耗尽和账号封禁由服务端限制连接。专用 IP 到期后保留绑定，确认停用后由管理员回收。
+
+上线前仍需在隔离真实节点上验证多服务隔离、订阅导入与更新、长连接停用、计量及专用出口。具体完成状态以[实施计划](/reference/implementation-plan/)和验收记录为准。
+
+## 上游功能说明
+
+导航中保留 Minishop 上游的支付、礼品、营销、插件和其他功能文档，供维护现有代码和未来规划时参考。这些页面描述的上游能力不代表本项目一期已启用。中文翻译正在逐页完成；遇到仍为俄文的页面时，请以本项目的中文需求和实施计划判断一期范围。
