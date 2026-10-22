@@ -8782,6 +8782,10 @@
             "title": "Resource Pool",
             "type": "string"
           },
+          "revision": {
+            "title": "Revision",
+            "type": "integer"
+          },
           "service_id": {
             "anyOf": [
               {
@@ -8812,6 +8816,7 @@
         },
         "required": [
           "id",
+          "revision",
           "label",
           "ip_address",
           "resource_pool",
@@ -9162,6 +9167,185 @@
         "additionalProperties": false,
         "properties": {},
         "title": "EmptyObjectOut",
+        "type": "object"
+      },
+      "ExitAuditOut": {
+        "properties": {
+          "action": {
+            "title": "Action",
+            "type": "string"
+          },
+          "actor_id": {
+            "title": "Actor Id",
+            "type": "integer"
+          },
+          "created_at": {
+            "format": "date-time",
+            "title": "Created At",
+            "type": "string"
+          },
+          "evidence": {
+            "additionalProperties": true,
+            "title": "Evidence",
+            "type": "object"
+          },
+          "exit_id": {
+            "title": "Exit Id",
+            "type": "string"
+          },
+          "id": {
+            "title": "Id",
+            "type": "string"
+          },
+          "service_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Service Id"
+          }
+        },
+        "required": [
+          "id",
+          "exit_id",
+          "service_id",
+          "actor_id",
+          "action",
+          "evidence",
+          "created_at"
+        ],
+        "title": "ExitAuditOut",
+        "type": "object"
+      },
+      "ExitReclaimBody": {
+        "additionalProperties": false,
+        "properties": {
+          "checked_at": {
+            "format": "date-time",
+            "title": "Checked At",
+            "type": "string"
+          },
+          "connections_stopped": {
+            "const": true,
+            "title": "Connections Stopped",
+            "type": "boolean"
+          },
+          "evidence": {
+            "maxLength": 2000,
+            "minLength": 10,
+            "title": "Evidence",
+            "type": "string"
+          },
+          "expected_revision": {
+            "exclusiveMinimum": 0,
+            "title": "Expected Revision",
+            "type": "integer"
+          },
+          "idempotency_key": {
+            "maxLength": 128,
+            "minLength": 1,
+            "title": "Idempotency Key",
+            "type": "string"
+          },
+          "old_config_rejected": {
+            "const": true,
+            "title": "Old Config Rejected",
+            "type": "boolean"
+          },
+          "service_id": {
+            "pattern": "^[a-f0-9]{32}$",
+            "title": "Service Id",
+            "type": "string"
+          }
+        },
+        "required": [
+          "expected_revision",
+          "service_id",
+          "idempotency_key",
+          "checked_at",
+          "evidence",
+          "connections_stopped",
+          "old_config_rejected"
+        ],
+        "title": "ExitReclaimBody",
+        "type": "object"
+      },
+      "ExitVerifyBody": {
+        "additionalProperties": false,
+        "properties": {
+          "checked_at": {
+            "format": "date-time",
+            "title": "Checked At",
+            "type": "string"
+          },
+          "evidence": {
+            "maxLength": 2000,
+            "minLength": 10,
+            "title": "Evidence",
+            "type": "string"
+          },
+          "exclusive": {
+            "const": true,
+            "title": "Exclusive",
+            "type": "boolean"
+          },
+          "expected_revision": {
+            "exclusiveMinimum": 0,
+            "title": "Expected Revision",
+            "type": "integer"
+          },
+          "fixed": {
+            "const": true,
+            "title": "Fixed",
+            "type": "boolean"
+          },
+          "idempotency_key": {
+            "maxLength": 128,
+            "minLength": 1,
+            "title": "Idempotency Key",
+            "type": "string"
+          },
+          "observed_ip": {
+            "anyOf": [
+              {
+                "format": "ipv4",
+                "type": "string"
+              },
+              {
+                "format": "ipv6",
+                "type": "string"
+              }
+            ],
+            "title": "Observed Ip"
+          },
+          "service_id": {
+            "anyOf": [
+              {
+                "pattern": "^[a-f0-9]{32}$",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Service Id"
+          }
+        },
+        "required": [
+          "expected_revision",
+          "service_id",
+          "idempotency_key",
+          "checked_at",
+          "evidence",
+          "observed_ip",
+          "fixed",
+          "exclusive"
+        ],
+        "title": "ExitVerifyBody",
         "type": "object"
       },
       "ExportRequest": {
@@ -14815,6 +14999,35 @@
         "title": "ServiceChangeBody",
         "type": "object"
       },
+      "ServiceDeliverBody": {
+        "additionalProperties": false,
+        "properties": {
+          "expected_revision": {
+            "exclusiveMinimum": 0,
+            "title": "Expected Revision",
+            "type": "integer"
+          },
+          "idempotency_key": {
+            "maxLength": 128,
+            "minLength": 1,
+            "title": "Idempotency Key",
+            "type": "string"
+          },
+          "user_id": {
+            "maximum": 9007199254740991,
+            "minimum": -9007199254740991,
+            "title": "User Id",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "user_id",
+          "expected_revision",
+          "idempotency_key"
+        ],
+        "title": "ServiceDeliverBody",
+        "type": "object"
+      },
       "ServiceOrderOut": {
         "properties": {
           "actor_id": {
@@ -15051,6 +15264,60 @@
           "expected_revision"
         ],
         "title": "ServicePlanUpdateBody",
+        "type": "object"
+      },
+      "ServiceRevokeBody": {
+        "additionalProperties": false,
+        "properties": {
+          "expected_revision": {
+            "exclusiveMinimum": 0,
+            "title": "Expected Revision",
+            "type": "integer"
+          },
+          "idempotency_key": {
+            "maxLength": 128,
+            "minLength": 1,
+            "title": "Idempotency Key",
+            "type": "string"
+          },
+          "reason": {
+            "maxLength": 1000,
+            "minLength": 3,
+            "title": "Reason",
+            "type": "string"
+          },
+          "user_id": {
+            "maximum": 9007199254740991,
+            "minimum": -9007199254740991,
+            "title": "User Id",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "user_id",
+          "expected_revision",
+          "idempotency_key",
+          "reason"
+        ],
+        "title": "ServiceRevokeBody",
+        "type": "object"
+      },
+      "ServiceSubscriptionOut": {
+        "properties": {
+          "service_id": {
+            "title": "Service Id",
+            "type": "string"
+          },
+          "subscription_url": {
+            "title": "Subscription Url",
+            "type": "string"
+          }
+        },
+        "required": [
+          "service_id",
+          "subscription_url"
+        ],
+        "title": "ServiceSubscriptionOut",
         "type": "object"
       },
       "StatusGroup": {
@@ -23812,6 +24079,211 @@
         ]
       }
     },
+    "/api/admin/dedicated-exits/{exit_id}/audit": {
+      "get": {
+        "operationId": "get_admin_exit_audit_route",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "exit_id",
+            "required": true,
+            "schema": {
+              "pattern": "[^{}/]+",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "audit": {
+                      "items": {
+                        "$ref": "#/components/schemas/ExitAuditOut"
+                      },
+                      "type": "array"
+                    },
+                    "ok": {
+                      "const": true,
+                      "type": "boolean"
+                    },
+                    "total": {
+                      "type": "integer"
+                    }
+                  },
+                  "required": [
+                    "ok",
+                    "audit",
+                    "total"
+                  ],
+                  "type": "object"
+                }
+              }
+            },
+            "description": "JSON response"
+          }
+        },
+        "security": [
+          {
+            "AdminSession": []
+          },
+          {
+            "AdminBearer": []
+          }
+        ],
+        "summary": "Admin Exit Audit",
+        "tags": [
+          "admin"
+        ]
+      }
+    },
+    "/api/admin/dedicated-exits/{exit_id}/reclaim": {
+      "post": {
+        "operationId": "post_admin_exit_reclaim_route",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "exit_id",
+            "required": true,
+            "schema": {
+              "pattern": "[^{}/]+",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ExitReclaimBody"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "audit": {
+                      "$ref": "#/components/schemas/ExitAuditOut"
+                    },
+                    "duplicate": {
+                      "type": "boolean"
+                    },
+                    "exit": {
+                      "$ref": "#/components/schemas/DedicatedExitOut"
+                    },
+                    "ok": {
+                      "const": true,
+                      "type": "boolean"
+                    }
+                  },
+                  "required": [
+                    "ok",
+                    "exit",
+                    "audit",
+                    "duplicate"
+                  ],
+                  "type": "object"
+                }
+              }
+            },
+            "description": "JSON response"
+          }
+        },
+        "security": [
+          {
+            "AdminSession": []
+          },
+          {
+            "AdminBearer": []
+          }
+        ],
+        "summary": "Admin Exit Reclaim",
+        "tags": [
+          "admin"
+        ]
+      }
+    },
+    "/api/admin/dedicated-exits/{exit_id}/verify": {
+      "post": {
+        "operationId": "post_admin_exit_verify_route",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "exit_id",
+            "required": true,
+            "schema": {
+              "pattern": "[^{}/]+",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ExitVerifyBody"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "audit": {
+                      "$ref": "#/components/schemas/ExitAuditOut"
+                    },
+                    "duplicate": {
+                      "type": "boolean"
+                    },
+                    "exit": {
+                      "$ref": "#/components/schemas/DedicatedExitOut"
+                    },
+                    "ok": {
+                      "const": true,
+                      "type": "boolean"
+                    }
+                  },
+                  "required": [
+                    "ok",
+                    "exit",
+                    "audit",
+                    "duplicate"
+                  ],
+                  "type": "object"
+                }
+              }
+            },
+            "description": "JSON response"
+          }
+        },
+        "security": [
+          {
+            "AdminSession": []
+          },
+          {
+            "AdminBearer": []
+          }
+        ],
+        "summary": "Admin Exit Verify",
+        "tags": [
+          "admin"
+        ]
+      }
+    },
     "/api/admin/documents": {
       "get": {
         "operationId": "get_admin_documents_list_route",
@@ -29291,6 +29763,150 @@
           }
         ],
         "summary": "Admin Service Change",
+        "tags": [
+          "admin"
+        ]
+      }
+    },
+    "/api/admin/services/{service_id}/deliver": {
+      "post": {
+        "operationId": "post_admin_service_deliver_route",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "service_id",
+            "required": true,
+            "schema": {
+              "pattern": "[^{}/]+",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ServiceDeliverBody"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "duplicate": {
+                      "type": "boolean"
+                    },
+                    "ok": {
+                      "const": true,
+                      "type": "boolean"
+                    },
+                    "order": {
+                      "$ref": "#/components/schemas/ServiceOrderOut"
+                    },
+                    "service": {
+                      "$ref": "#/components/schemas/UserServiceOut"
+                    }
+                  },
+                  "required": [
+                    "ok",
+                    "service",
+                    "order",
+                    "duplicate"
+                  ],
+                  "type": "object"
+                }
+              }
+            },
+            "description": "JSON response"
+          }
+        },
+        "security": [
+          {
+            "AdminSession": []
+          },
+          {
+            "AdminBearer": []
+          }
+        ],
+        "summary": "Admin Service Deliver",
+        "tags": [
+          "admin"
+        ]
+      }
+    },
+    "/api/admin/services/{service_id}/revoke": {
+      "post": {
+        "operationId": "post_admin_service_revoke_route",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "service_id",
+            "required": true,
+            "schema": {
+              "pattern": "[^{}/]+",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ServiceRevokeBody"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "duplicate": {
+                      "type": "boolean"
+                    },
+                    "ok": {
+                      "const": true,
+                      "type": "boolean"
+                    },
+                    "order": {
+                      "$ref": "#/components/schemas/ServiceOrderOut"
+                    },
+                    "service": {
+                      "$ref": "#/components/schemas/UserServiceOut"
+                    }
+                  },
+                  "required": [
+                    "ok",
+                    "service",
+                    "order",
+                    "duplicate"
+                  ],
+                  "type": "object"
+                }
+              }
+            },
+            "description": "JSON response"
+          }
+        },
+        "security": [
+          {
+            "AdminSession": []
+          },
+          {
+            "AdminBearer": []
+          }
+        ],
+        "summary": "Admin Service Revoke",
         "tags": [
           "admin"
         ]
@@ -41475,6 +42091,60 @@
           }
         ],
         "summary": "User Service",
+        "tags": [
+          "services"
+        ]
+      }
+    },
+    "/api/services/{service_id}/subscription": {
+      "get": {
+        "operationId": "get_user_service_subscription_route",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "service_id",
+            "required": true,
+            "schema": {
+              "pattern": "[^{}/]+",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "ok": {
+                      "const": true,
+                      "type": "boolean"
+                    },
+                    "subscription": {
+                      "$ref": "#/components/schemas/ServiceSubscriptionOut"
+                    }
+                  },
+                  "required": [
+                    "ok",
+                    "subscription"
+                  ],
+                  "type": "object"
+                }
+              }
+            },
+            "description": "JSON response"
+          }
+        },
+        "security": [
+          {
+            "UserSession": []
+          },
+          {
+            "UserBearer": []
+          }
+        ],
+        "summary": "User Service Subscription",
         "tags": [
           "services"
         ]

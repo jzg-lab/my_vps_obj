@@ -1,6 +1,8 @@
 <script lang="ts">
   import { onDestroy } from "svelte";
   import { serviceDate as date } from "$lib/webapp/independentServices";
+  import ServiceDeliverDialog from "./ServiceDeliverDialog.svelte";
+  import ServiceRevokeDialog from "./ServiceRevokeDialog.svelte";
   import ServiceOrdersDialog from "./ServiceOrdersDialog.svelte";
   import { getAdminApi } from "$lib/admin/context.js";
   import {
@@ -32,6 +34,8 @@
   let failed = $state(false);
   let activationOpen = $state(false);
   let selected = $state<UserService | null>(null);
+  let delivering = $state<UserService | null>(null);
+  let revoking = $state<UserService | null>(null);
   let editing = $state<UserService | null>(null);
   let controller: AbortController | null = null;
   let request = 0;
@@ -66,6 +70,8 @@
     total = undefined;
     selected = null;
     editing = null;
+    revoking = null;
+    delivering = null;
     activationOpen = false;
   });
   $effect(() => {
@@ -175,6 +181,11 @@
             >
             <td data-label={at("services_order_history")}
               ><div class="service-actions">
+                {#if userId !== null && service.status === "pending" && service.connection_state === "pending" && service.last_usage_sync_at && !service.usage_error && !service.sync_pending && (service.resource_type === "shared" || service.exit_verified)}<AdminButton
+                    size="sm"
+                    variant="primary"
+                    onclick={() => (delivering = service)}>{at("services_deliver")}</AdminButton
+                  >{/if}
                 <AdminButton
                   size="sm"
                   onclick={() => {
@@ -185,6 +196,12 @@
                     onclick={() => {
                       editing = service;
                     }}>{at("services_manage")}</AdminButton
+                  ><AdminButton
+                    size="sm"
+                    variant="danger"
+                    onclick={() => {
+                      revoking = service;
+                    }}>{at("services_revoke")}</AdminButton
                   >{/if}
               </div></td
             >
@@ -243,6 +260,34 @@
       }}
       onsaved={() => {
         editing = null;
+        void load(page, userId);
+      }}
+    />{/key}{/if}
+
+{#if revoking}{#key revoking.id}<ServiceRevokeDialog
+      {api}
+      {at}
+      service={revoking}
+      onclose={() => {
+        revoking = null;
+        void load(page, userId);
+      }}
+      onsaved={() => {
+        revoking = null;
+        void load(page, userId);
+      }}
+    />{/key}{/if}
+
+{#if delivering}{#key delivering.id}<ServiceDeliverDialog
+      {api}
+      {at}
+      service={delivering}
+      onclose={() => {
+        delivering = null;
+        void load(page, userId);
+      }}
+      onsaved={() => {
+        delivering = null;
         void load(page, userId);
       }}
     />{/key}{/if}

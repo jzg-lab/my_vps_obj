@@ -130,6 +130,7 @@ EXPECTED_CORE_MIGRATION_IDS = [
     "0111_service_changes",
     "0112_service_usage",
     "0113_service_entitlements",
+    "0114_service_delivery",
 ]
 
 

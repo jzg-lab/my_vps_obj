@@ -160,6 +160,7 @@ async def activate_service(
     await session.flush()
     if resource is not None:
         resource.service_id = service.id
+        resource.revision += 1
     session.add(
         ServiceConnection(service_id=service.id, username=f"svc_{service.id}", state="pending")
     )

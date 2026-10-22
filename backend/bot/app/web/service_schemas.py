@@ -231,6 +231,7 @@ class ServiceOrderOut(HttpResponseModel):
 
 class DedicatedExitOut(HttpResponseModel):
     id: str
+    revision: int
     label: str
     ip_address: str
     resource_pool: str
@@ -243,6 +244,7 @@ class DedicatedExitOut(HttpResponseModel):
     def from_orm_exit(cls, resource: DedicatedExit) -> "DedicatedExitOut":
         return cls(
             id=resource.id,
+            revision=resource.revision,
             label=resource.label,
             ip_address=resource.ip_address,
             resource_pool=resource.resource_pool,

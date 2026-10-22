@@ -18,7 +18,8 @@ from bot.app.web.admin_api_impl import users_actions
 from bot.services.account_access_sync import set_account_ban, synchronize_account_access
 from bot.services.service_provisioning import provision_service_identity
 from bot.services.service_usage_sync import synchronize_service_usage
-from db.dal.user_services_dal import ServiceConflict, activate_service, save_plan
+from db.dal.service_delivery_dal import record_exit_evidence, request_service_delivery
+from db.dal.user_services_dal import ServiceConflict, activate_service, create_exit, save_plan
 from db.migrator.chain_0107_user_services import _upgrade
 from db.migrator.chain_0108_service_account_history import _upgrade as upgrade_history
 from db.migrator.chain_0109_account_access_sync import _upgrade as upgrade_access
@@ -26,10 +27,12 @@ from db.migrator.chain_0110_service_provisioning import _upgrade as upgrade_prov
 from db.migrator.chain_0111_service_changes import _upgrade as upgrade_changes
 from db.migrator.chain_0112_service_usage import _upgrade as upgrade_usage
 from db.migrator.chain_0113_service_entitlements import _upgrade as upgrade_entitlements
+from db.migrator.chain_0114_service_delivery import _upgrade as upgrade_delivery
 from db.models import Base, User
 from db.service_models import (
     AccountAccessSync,
     DedicatedExit,
+    DedicatedExitAudit,
     ServiceConnection,
     ServiceOrder,
     UserService,
@@ -59,6 +62,7 @@ def scenario(run: Callable[[async_sessionmaker[AsyncSession]], Awaitable[None]])
                     "user_services",
                     "service_connections",
                     "dedicated_exits",
+                    "dedicated_exit_audit",
                     "account_access_sync",
                     "service_usage_periods",
                     "service_plan_quota_changes",
@@ -87,6 +91,8 @@ def scenario(run: Callable[[async_sessionmaker[AsyncSession]], Awaitable[None]])
                 await connection.run_sync(upgrade_usage)
                 await connection.run_sync(upgrade_entitlements)
                 await connection.run_sync(upgrade_entitlements)
+                await connection.run_sync(upgrade_delivery)
+                await connection.run_sync(upgrade_delivery)
             factory = async_sessionmaker(engine, expire_on_commit=False, autoflush=False)
             async with factory.begin() as session:
                 session.add_all([User(user_id=1), User(user_id=2)])
@@ -122,6 +128,120 @@ def test_concurrent_retries_create_exactly_one_service_and_order() -> None:
         assert sum(not duplicate for _, duplicate in results) == 1
         async with factory() as session:
             assert await session.scalar(select(func.count()).select_from(ServiceOrder)) == 1
+
+    scenario(run)
+
+
+def test_concurrent_delivery_requests_commit_one_intent_without_changing_usage() -> None:
+    async def run(factory: async_sessionmaker[AsyncSession]) -> None:
+        async with factory.begin() as session:
+            plan = await save_plan(session, terms=sample_terms(), enabled=True, actor_id=1)
+            service, _, _ = await activate_service(
+                session,
+                user_id=1,
+                actor_id=1,
+                plan_id=plan.id,
+                expected_revision=1,
+                idempotency_key="prepare-delivery",
+            )
+            connection = await session.get(ServiceConnection, service.id)
+            assert connection
+            connection.panel_user_uuid = str(UUID(int=70))
+            connection.usage_total_bytes = 123
+            connection.usage_raw_bytes = 123
+            service.used_bytes = 123
+            service.last_usage_sync_at = datetime.now(UTC)
+
+        async def deliver() -> tuple[str, bool]:
+            async with factory.begin() as session:
+                _, order, duplicate = await request_service_delivery(
+                    session,
+                    service_id=service.id,
+                    user_id=1,
+                    actor_id=1,
+                    expected_revision=1,
+                    idempotency_key="same-delivery",
+                )
+                return order.id, duplicate
+
+        results = await asyncio.gather(*(deliver() for _ in range(8)))
+        assert len({order_id for order_id, _ in results}) == 1
+        assert sum(not duplicate for _, duplicate in results) == 1
+        async with factory() as session:
+            connection = await session.get(ServiceConnection, service.id)
+            saved = await session.get(UserService, service.id)
+            assert connection and connection.state == "pending" and connection.sync_pending
+            assert connection.usage_total_bytes == 123
+            assert saved and saved.used_bytes == 123 and saved.revision == 2
+
+    scenario(run)
+
+
+def test_concurrent_exit_evidence_and_old_reclaim_retry_preserve_new_allocation() -> None:
+    async def run(factory: async_sessionmaker[AsyncSession]) -> None:
+        async with factory.begin() as session:
+            plan = await save_plan(
+                session,
+                terms=sample_terms(resource_type="dedicated", squad_uuids=[], resource_pool="pool"),
+                enabled=True,
+                actor_id=1,
+            )
+            resource = await create_exit(
+                session,
+                label="Isolated test",
+                ip_address="192.0.2.9",
+                resource_pool="pool",
+                squad_uuid=str(UUID(int=99)),
+            )
+            service, _, _ = await activate_service(
+                session,
+                user_id=1,
+                actor_id=1,
+                plan_id=plan.id,
+                expected_revision=1,
+                idempotency_key="original",
+                exit_id=resource.id,
+            )
+            connection = await session.get(ServiceConnection, service.id)
+            assert connection
+            connection.state = "revoked"
+            connection.revoked_at = datetime.now(UTC)
+            service.desired_status = "cancelled"
+        command: dict[str, object] = {
+            "expected_revision": resource.revision,
+            "service_id": service.id,
+            "idempotency_key": "reclaim",
+            "checked_at": datetime.now(UTC).isoformat(),
+            "evidence": "Disposable PostgreSQL fixture only, not actual Node evidence",
+            "connections_stopped": True,
+            "old_config_rejected": True,
+        }
+
+        async def reclaim() -> bool:
+            async with factory.begin() as session:
+                _, _, duplicate = await record_exit_evidence(
+                    session, exit_id=resource.id, actor_id=1, action="reclaim", command=command
+                )
+                assert isinstance(duplicate, bool)
+                return duplicate
+
+        results = await asyncio.gather(*(reclaim() for _ in range(8)))
+        assert results.count(False) == 1
+        async with factory.begin() as session:
+            second, _, _ = await activate_service(
+                session,
+                user_id=2,
+                actor_id=1,
+                plan_id=plan.id,
+                expected_revision=1,
+                idempotency_key="next",
+                exit_id=resource.id,
+            )
+        assert await reclaim()
+        async with factory() as session:
+            current = await session.get(DedicatedExit, resource.id)
+            assert current and current.service_id == second.id and current.verified_at is None
+            assert await session.scalar(select(func.count()).select_from(DedicatedExitAudit)) == 1
 
     scenario(run)
 

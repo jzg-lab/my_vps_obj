@@ -9,6 +9,7 @@
   } from "$components/patterns/admin/index.js";
   import { builtApiPath, unwrap, type ApiClient } from "$lib/webapp/publicApi.js";
   import type { DedicatedExit, ServiceTranslate } from "$lib/admin/servicePlans.js";
+  import ExitEvidenceDialog from "./services/ExitEvidenceDialog.svelte";
   import DedicatedExitEditor from "./services/DedicatedExitEditor.svelte";
   let { api, at }: { api: ApiClient["api"]; at: ServiceTranslate } = $props();
   let exits = $state<DedicatedExit[]>([]);
@@ -16,6 +17,7 @@
   let page = $state(0);
   let loading = $state(false);
   let failed = $state(false);
+  let selected = $state<DedicatedExit | null>(null);
   let editorOpen = $state(false);
   let request = 0;
   async function load(currentPage: number) {
@@ -65,7 +67,7 @@
     <AdminTable
       ><thead
         ><tr
-          >{#each ["services_exit_label", "services_exit_ip", "services_pool", "services_allocation", "services_verification", "services_service_id"] as key}<th
+          >{#each ["services_exit_label", "services_exit_ip", "services_pool", "services_allocation", "services_verification", "services_service_id", "services_exit_evidence"] as key}<th
               >{at(key)}</th
             >{/each}</tr
         ></thead
@@ -90,6 +92,11 @@
               >{at(resource.verified_at ? "services_verified" : "services_unverified")}</td
             >
             <td data-label={at("services_service_id")}>{resource.service_id || "—"}</td>
+            <td data-label={at("services_exit_evidence")}
+              ><AdminButton size="sm" onclick={() => (selected = resource)}
+                >{at("services_exit_evidence")}</AdminButton
+              ></td
+            >
           </tr>{/each}
       </tbody></AdminTable
     >
@@ -123,6 +130,20 @@
       void load(page);
     }}
   />{/if}
+
+{#if selected}{#key selected.id}<ExitEvidenceDialog
+      {api}
+      {at}
+      resource={selected}
+      onclose={() => {
+        selected = null;
+        void load(page);
+      }}
+      onsaved={() => {
+        selected = null;
+        void load(page);
+      }}
+    />{/key}{/if}
 
 <style>
   .exits {

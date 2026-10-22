@@ -48,6 +48,13 @@ describe("activationSnapshot", () => {
 import { serviceOrderSnapshot } from "./serviceHistory";
 
 describe("operation history", () => {
+  it.each(["deliver", "revoke"])("does not label %s as a purchase", (kind) => {
+    expect(serviceOrderSnapshot({ ...order, kind })).toMatchObject({
+      kind,
+      price: null,
+      currency: null,
+    });
+  });
   const snapshot = {
     ...order.snapshot,
     quota_bytes: 100,

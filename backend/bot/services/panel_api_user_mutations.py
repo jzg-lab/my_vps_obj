@@ -64,9 +64,7 @@ class PanelApiUserMutationMixin:
                 await self._invalidate_devices_cache(user_uuid)
                 await self._invalidate_all_users_cache()
                 return True
-            logger.error(
-                "Failed to delete user %s on panel. Response: %s", user_uuid, response_data
-            )
+            logger.error("Failed to delete user %s on panel (response redacted).", user_uuid)
             return False
 
         logger.info("Panel user %s deleted successfully.", user_uuid)

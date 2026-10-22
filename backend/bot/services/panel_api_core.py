@@ -465,7 +465,8 @@ class PanelApiCoreMixin:
         # usernames, emails, user ids, or UUIDs. The operation registry label is
         # deliberately identifier-free.
         log_prefix = f"Panel API Req: {method.upper()} {endpoint_label}"
-        if json_payload_for_log:
+        sensitive_user_request = endpoint.split("?", 1)[0].startswith("/users")
+        if json_payload_for_log and not sensitive_user_request:
             try:
                 payload_str = json.dumps(json_payload_for_log)
                 log_prefix += (
@@ -494,7 +495,9 @@ class PanelApiCoreMixin:
 
                 log_suffix = f"| Status: {response_status}"
 
-                if log_full_response or not (200 <= response_status < 300):
+                if sensitive_user_request:
+                    logger.debug("%s %s | User response redacted", log_prefix, log_suffix)
+                elif log_full_response or not (200 <= response_status < 300):
                     try:
                         parsed_json_for_log = json.loads(response_text)
                         pretty_response_text = json.dumps(

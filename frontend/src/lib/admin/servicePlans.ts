@@ -117,6 +117,12 @@ export function serviceErrorKey(failure: unknown): string {
     "change_conflict",
     "change_unavailable",
     "services_storage_failed",
+    "service_not_deliverable",
+    "exit_revision_changed",
+    "exit_stop_unconfirmed",
+    "exit_evidence_invalid",
+    "exit_evidence_mismatch",
+
     "quota_change_reason_required",
     "usage_reconciliation_changed",
     "usage_reconciliation_pause_required",

@@ -1146,6 +1146,57 @@ export interface paths {
     patch?: never;
     trace?: never;
   };
+  "/api/admin/dedicated-exits/{exit_id}/audit": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** Admin Exit Audit */
+    get: operations["get_admin_exit_audit_route"];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/api/admin/dedicated-exits/{exit_id}/reclaim": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /** Admin Exit Reclaim */
+    post: operations["post_admin_exit_reclaim_route"];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/api/admin/dedicated-exits/{exit_id}/verify": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /** Admin Exit Verify */
+    post: operations["post_admin_exit_verify_route"];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
   "/api/admin/documents": {
     parameters: {
       query?: never;
@@ -2423,6 +2474,40 @@ export interface paths {
     put?: never;
     /** Admin Service Change */
     post: operations["post_admin_service_change_route"];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/api/admin/services/{service_id}/deliver": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /** Admin Service Deliver */
+    post: operations["post_admin_service_deliver_route"];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/api/admin/services/{service_id}/revoke": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /** Admin Service Revoke */
+    post: operations["post_admin_service_revoke_route"];
     delete?: never;
     options?: never;
     head?: never;
@@ -4703,6 +4788,23 @@ export interface paths {
     };
     /** User Service */
     get: operations["get_user_service_route"];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/api/services/{service_id}/subscription": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** User Service Subscription */
+    get: operations["get_user_service_subscription_route"];
     put?: never;
     post?: never;
     delete?: never;
@@ -9085,6 +9187,8 @@ export interface components {
       label: string;
       /** Resource Pool */
       resource_pool: string;
+      /** Revision */
+      revision: number;
       /** Service Id */
       service_id: string | null;
       /** Squad Uuid */
@@ -9237,6 +9341,82 @@ export interface components {
     };
     /** EmptyObjectOut */
     EmptyObjectOut: Record<string, never>;
+    /** ExitAuditOut */
+    ExitAuditOut: {
+      /** Action */
+      action: string;
+      /** Actor Id */
+      actor_id: number;
+      /**
+       * Created At
+       * Format: date-time
+       */
+      created_at: string;
+      /** Evidence */
+      evidence: {
+        [key: string]: unknown;
+      };
+      /** Exit Id */
+      exit_id: string;
+      /** Id */
+      id: string;
+      /** Service Id */
+      service_id: string | null;
+    };
+    /** ExitReclaimBody */
+    ExitReclaimBody: {
+      /**
+       * Checked At
+       * Format: date-time
+       */
+      checked_at: string;
+      /**
+       * Connections Stopped
+       * @constant
+       */
+      connections_stopped: true;
+      /** Evidence */
+      evidence: string;
+      /** Expected Revision */
+      expected_revision: number;
+      /** Idempotency Key */
+      idempotency_key: string;
+      /**
+       * Old Config Rejected
+       * @constant
+       */
+      old_config_rejected: true;
+      /** Service Id */
+      service_id: string;
+    };
+    /** ExitVerifyBody */
+    ExitVerifyBody: {
+      /**
+       * Checked At
+       * Format: date-time
+       */
+      checked_at: string;
+      /** Evidence */
+      evidence: string;
+      /**
+       * Exclusive
+       * @constant
+       */
+      exclusive: true;
+      /** Expected Revision */
+      expected_revision: number;
+      /**
+       * Fixed
+       * @constant
+       */
+      fixed: true;
+      /** Idempotency Key */
+      idempotency_key: string;
+      /** Observed Ip */
+      observed_ip: string;
+      /** Service Id */
+      service_id: string | null;
+    };
     /** ExportRequest */
     ExportRequest: {
       /**
@@ -11648,6 +11828,15 @@ export interface components {
       /** User Id */
       user_id: number;
     };
+    /** ServiceDeliverBody */
+    ServiceDeliverBody: {
+      /** Expected Revision */
+      expected_revision: number;
+      /** Idempotency Key */
+      idempotency_key: string;
+      /** User Id */
+      user_id: number;
+    };
     /** ServiceOrderOut */
     ServiceOrderOut: {
       /** Actor Id */
@@ -11738,6 +11927,24 @@ export interface components {
        */
       quota_change_reason: string | null;
       terms: components["schemas"]["ServicePlanTerms"];
+    };
+    /** ServiceRevokeBody */
+    ServiceRevokeBody: {
+      /** Expected Revision */
+      expected_revision: number;
+      /** Idempotency Key */
+      idempotency_key: string;
+      /** Reason */
+      reason: string;
+      /** User Id */
+      user_id: number;
+    };
+    /** ServiceSubscriptionOut */
+    ServiceSubscriptionOut: {
+      /** Service Id */
+      service_id: string;
+      /** Subscription Url */
+      subscription_url: string;
     };
     /** StatusGroup */
     StatusGroup: {
@@ -15747,6 +15954,97 @@ export interface operations {
       };
     };
   };
+  get_admin_exit_audit_route: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        exit_id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description JSON response */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": {
+            audit: components["schemas"]["ExitAuditOut"][];
+            /** @constant */
+            ok: true;
+            total: number;
+          };
+        };
+      };
+    };
+  };
+  post_admin_exit_reclaim_route: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        exit_id: string;
+      };
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["ExitReclaimBody"];
+      };
+    };
+    responses: {
+      /** @description JSON response */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": {
+            audit: components["schemas"]["ExitAuditOut"];
+            duplicate: boolean;
+            exit: components["schemas"]["DedicatedExitOut"];
+            /** @constant */
+            ok: true;
+          };
+        };
+      };
+    };
+  };
+  post_admin_exit_verify_route: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        exit_id: string;
+      };
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["ExitVerifyBody"];
+      };
+    };
+    responses: {
+      /** @description JSON response */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": {
+            audit: components["schemas"]["ExitAuditOut"];
+            duplicate: boolean;
+            exit: components["schemas"]["DedicatedExitOut"];
+            /** @constant */
+            ok: true;
+          };
+        };
+      };
+    };
+  };
   get_admin_documents_list_route: {
     parameters: {
       query?: never;
@@ -18402,6 +18700,70 @@ export interface operations {
     requestBody: {
       content: {
         "application/json": components["schemas"]["ServiceChangeBody"];
+      };
+    };
+    responses: {
+      /** @description JSON response */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": {
+            duplicate: boolean;
+            /** @constant */
+            ok: true;
+            order: components["schemas"]["ServiceOrderOut"];
+            service: components["schemas"]["UserServiceOut"];
+          };
+        };
+      };
+    };
+  };
+  post_admin_service_deliver_route: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        service_id: string;
+      };
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["ServiceDeliverBody"];
+      };
+    };
+    responses: {
+      /** @description JSON response */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": {
+            duplicate: boolean;
+            /** @constant */
+            ok: true;
+            order: components["schemas"]["ServiceOrderOut"];
+            service: components["schemas"]["UserServiceOut"];
+          };
+        };
+      };
+    };
+  };
+  post_admin_service_revoke_route: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        service_id: string;
+      };
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["ServiceRevokeBody"];
       };
     };
     responses: {
@@ -23652,6 +24014,32 @@ export interface operations {
             /** @constant */
             ok: true;
             service: components["schemas"]["UserServiceOut"];
+          };
+        };
+      };
+    };
+  };
+  get_user_service_subscription_route: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        service_id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description JSON response */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": {
+            /** @constant */
+            ok: true;
+            subscription: components["schemas"]["ServiceSubscriptionOut"];
           };
         };
       };

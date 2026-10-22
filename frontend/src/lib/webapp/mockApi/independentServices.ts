@@ -47,6 +47,7 @@ const exits: DedicatedExit[] = [
   {
     id: "3".repeat(32),
     label: "Demo exit",
+    revision: 1,
     ip_address: "192.0.2.10",
     resource_pool: "demo",
     squad_uuid: uuid,
@@ -57,6 +58,8 @@ const exits: DedicatedExit[] = [
 ];
 const services: UserService[] = [];
 const orders: ServiceOrder[] = [];
+const exitAudit: components["schemas"]["ExitAuditOut"][] = [];
+const exitRequests = new Map<string, string>();
 const archived: UserService[] = Array.from({ length: 26 }, (_, index) => ({
   id: (200 + index).toString(16).padStart(32, "0"),
   user_id: null,
@@ -116,6 +119,9 @@ export function seedIndependentServicesDemo(owner: number, empty = false) {
   if (empty) return;
   for (let index = 0; index < 12; index++) {
     const monthly = index === 1;
+    const delivered =
+      Boolean(new URLSearchParams(window.location.search).get("delivery")) &&
+      (index === 2 || index === 3);
     services.push({
       id: String(index + 10).padStart(32, "0"),
       user_id: owner,
@@ -131,12 +137,12 @@ export function seedIndependentServicesDemo(owner: number, empty = false) {
       expires_at: "2027-01-20T04:00:00Z",
       cycle_started_at: monthly ? stamp : null,
       cycle_ends_at: monthly ? "2026-11-22T04:00:00Z" : null,
-      last_usage_sync_at: index < 2 ? stamp : null,
+      last_usage_sync_at: index < 2 || delivered ? stamp : null,
       cycle_pending: monthly && new URLSearchParams(window.location.search).has("cycle_pending"),
-      usage_total_bytes: null,
+      usage_total_bytes: delivered ? 0 : null,
       usage_error: monthly ? "panel_usage_unavailable" : null,
-      status: index === 0 ? "exhausted" : "pending",
-      connection_state: "pending",
+      status: delivered ? "active" : index === 0 ? "exhausted" : "pending",
+      connection_state: delivered ? "ready" : "pending",
       revision: 1,
       desired_status: "active",
       sync_pending: false,
@@ -162,6 +168,20 @@ export function independentServicesDemoResponse(path: string, options: RequestIn
         return { id: plan.id, ...terms };
       });
     return { ok: true, plans: rows.slice(offset, offset + limit), total: rows.length };
+  }
+  if (/^\/services\/[^/]+\/subscription$/.test(route) && method === "GET") {
+    const service = services.find(
+      (item) => item.id === route.split("/")[2] && item.user_id === demoOwner
+    );
+    if (!service || service.status !== "active")
+      return { ok: false, error: "service_not_deliverable" };
+    return {
+      ok: true,
+      subscription: {
+        service_id: service.id,
+        subscription_url: `https://subscription.example.test/demo-only/${service.id}`,
+      },
+    };
   }
   if (route.startsWith("/services/") && method === "GET") {
     const service = services.find(
@@ -202,6 +222,7 @@ export function independentServicesDemoResponse(path: string, options: RequestIn
       return { ok: false, error: "exit_already_exists" };
     const resource: DedicatedExit = {
       ...body,
+      revision: 1,
       id: id(),
       enabled: true,
       service_id: null,
@@ -209,6 +230,41 @@ export function independentServicesDemoResponse(path: string, options: RequestIn
     };
     exits.unshift(resource);
     return { ok: true, exit: resource };
+  }
+  if (/^\/admin\/dedicated-exits\/[^/]+\/audit$/.test(route) && method === "GET") {
+    const rows = exitAudit.filter((item) => item.exit_id === route.split("/")[3]);
+    return { ok: true, audit: rows.slice(offset, offset + limit), total: rows.length };
+  }
+  if (/^\/admin\/dedicated-exits\/[^/]+\/(verify|reclaim)$/.test(route) && method === "POST") {
+    const resource = exits.find((item) => item.id === route.split("/")[3]);
+    const body = jsonBody(options) as
+      components["schemas"]["ExitVerifyBody"] | components["schemas"]["ExitReclaimBody"];
+    if (!resource) return { ok: false, error: "exit_not_found" };
+    const key = `${resource.id}:${body.idempotency_key}`;
+    const old = exitRequests.get(key);
+    if (old)
+      return old === JSON.stringify(body)
+        ? { ok: true, exit: resource, duplicate: true }
+        : { ok: false, error: "idempotency_conflict" };
+    if (resource.revision !== body.expected_revision || resource.service_id !== body.service_id)
+      return { ok: false, error: "exit_revision_changed" };
+    if (route.endsWith("/reclaim")) return { ok: false, error: "exit_stop_unconfirmed" };
+    if (!("observed_ip" in body) || body.observed_ip !== resource.ip_address)
+      return { ok: false, error: "exit_evidence_mismatch" };
+    resource.verified_at = body.checked_at;
+    resource.revision++;
+    exitRequests.set(key, JSON.stringify(body));
+    const audit = {
+      id: id(),
+      exit_id: resource.id,
+      service_id: resource.service_id,
+      actor_id: 42,
+      action: "verify",
+      evidence: body,
+      created_at: new Date().toISOString(),
+    };
+    exitAudit.unshift(audit);
+    return { ok: true, exit: resource, audit, duplicate: false };
   }
   if (route === "/admin/services" && method === "POST") {
     const body = jsonBody(options) as components["schemas"]["ServiceActivationBody"];
@@ -260,7 +316,15 @@ export function independentServicesDemoResponse(path: string, options: RequestIn
       exit_ip: resource?.ip_address || null,
       exit_verified: false,
     };
-    if (resource) resource.service_id = service.id;
+    if (resource) {
+      resource.service_id = service.id;
+      resource.revision++;
+    }
+    // Explicit UI fixture: metering readiness is never inferred in the live API.
+    if (new URLSearchParams(window.location.search).get("delivery")) {
+      service.last_usage_sync_at = stamp;
+      service.usage_total_bytes = 0;
+    }
     if (new URLSearchParams(window.location.search).get("mock") === "usage-reconciliation") {
       service.usage_error = "panel_usage_reset";
       service.used_bytes = 500;
@@ -353,6 +417,83 @@ export function independentServicesDemoResponse(path: string, options: RequestIn
     };
     orders.unshift(order);
     requests.set(key, service);
+    return { ok: true, service, order, duplicate: false };
+  }
+  if (/^\/admin\/services\/[^/]+\/deliver$/.test(route) && method === "POST") {
+    const body = jsonBody(options) as components["schemas"]["ServiceDeliverBody"];
+    const service = services.find(
+      (item) => item.id === route.split("/")[3] && item.user_id === body.user_id
+    );
+    if (!service) return { ok: false, error: "service_not_found" };
+    const key = `${body.user_id}:${body.idempotency_key}`;
+    if (requests.has(key)) return { ok: true, service, duplicate: true };
+    if (service.revision !== body.expected_revision)
+      return { ok: false, error: "service_revision_changed" };
+    if (
+      service.connection_state !== "pending" ||
+      !service.last_usage_sync_at ||
+      service.usage_error ||
+      service.sync_pending ||
+      (service.resource_type === "dedicated" && !service.exit_verified)
+    )
+      return { ok: false, error: "service_not_deliverable" };
+    service.connection_state = "ready";
+    service.status = "active";
+    service.sync_confirmed_at = new Date().toISOString();
+    service.revision++;
+    requests.set(key, service);
+    const plan = plans.find((item) => item.id === service.plan_id)!;
+    const order: ServiceOrder = {
+      id: id(),
+      user_id: service.user_id,
+      service_id: service.id,
+      actor_id: 42,
+      kind: "deliver",
+      created_at: service.sync_confirmed_at,
+      snapshot: {
+        terms: structuredClone(plan.terms),
+        plan_revision: service.plan_revision,
+        starts_at: service.starts_at,
+        expires_at: service.expires_at,
+        quota_bytes: service.quota_bytes,
+      },
+    };
+    orders.unshift(order);
+    return { ok: true, service, order, duplicate: false };
+  }
+  if (/^\/admin\/services\/[^/]+\/revoke$/.test(route) && method === "POST") {
+    const body = jsonBody(options) as components["schemas"]["ServiceRevokeBody"];
+    const service = services.find(
+      (item) => item.id === route.split("/")[3] && item.user_id === body.user_id
+    );
+    if (!service) return { ok: false, error: "service_not_found" };
+    const key = `${body.user_id}:${body.idempotency_key}`;
+    if (requests.has(key)) return { ok: true, service, duplicate: true };
+    if (service.revision !== body.expected_revision)
+      return { ok: false, error: "service_revision_changed" };
+    service.desired_status = "cancelled";
+    service.status = "cancelled";
+    service.sync_pending = true;
+    service.sync_error = "service_revoke_pending";
+    service.revision++;
+    requests.set(key, service);
+    const plan = plans.find((item) => item.id === service.plan_id)!;
+    const order = {
+      id: id(),
+      user_id: service.user_id,
+      service_id: service.id,
+      actor_id: 42,
+      kind: "revoke",
+      created_at: new Date().toISOString(),
+      snapshot: {
+        terms: plan.terms,
+        plan_revision: service.plan_revision,
+        starts_at: service.starts_at,
+        expires_at: service.expires_at,
+        reason: body.reason,
+      },
+    };
+    orders.unshift(order);
     return { ok: true, service, order, duplicate: false };
   }
   if (route === "/admin/service-orders") {

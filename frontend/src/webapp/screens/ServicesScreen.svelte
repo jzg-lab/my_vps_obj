@@ -1,5 +1,6 @@
 <script lang="ts">
   import { onDestroy } from "svelte";
+  import ServiceSubscription from "../ServiceSubscription.svelte";
   import BrandMark from "$lib/webapp/BrandMark.svelte";
   import { RefreshCw, ArrowRight } from "$components/ui/icons.js";
   import Button from "$components/ui/button.svelte";
@@ -306,13 +307,16 @@
             </dd>
           </div>{/if}
       </dl>
-      <p>
-        {t(
-          detail.status === "pending"
-            ? "wa_services_connection_pending"
-            : "wa_services_connection_unavailable"
-        )}
-      </p>
+      {#if detail.status === "active" && !detail.sync_pending}
+        {#key detail.id}<ServiceSubscription {api} {t} serviceId={detail.id} />{/key}
+      {:else}<p>
+          {t(
+            detail.status === "pending"
+              ? "wa_services_connection_pending"
+              : "wa_services_connection_unavailable"
+          )}
+        </p>
+      {/if}
       {#if detail.traffic_rule === "monthly"}<p class="service-sync">
           {t("wa_services_monthly_hint")}
         </p>{/if}

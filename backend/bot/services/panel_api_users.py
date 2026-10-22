@@ -689,7 +689,7 @@ class PanelApiUsersMixin(PanelApiUserMutationMixin, PanelApiResponseMixin):
             "Failed to create panel user '%s'. Payload: %s, Response: %s",
             username_on_panel,
             payload,
-            response if not log_response else "(full response logged above)",
+            "(redacted)",
         )
         return response
 
@@ -751,7 +751,7 @@ class PanelApiUsersMixin(PanelApiUserMutationMixin, PanelApiResponseMixin):
             "Failed to update user %s details on panel. Payload: %s, Response: %s",
             user_uuid,
             payload,
-            full_response if not log_response else "(logged above)",
+            "(redacted)",
         )
         return None
 
@@ -813,6 +813,6 @@ class PanelApiUsersMixin(PanelApiUserMutationMixin, PanelApiResponseMixin):
             "Failed to %s user %s on panel. Response: %s",
             action,
             user_uuid,
-            response_data if not log_response else "(logged above)",
+            "(redacted)",
         )
         return False

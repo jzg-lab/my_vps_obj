@@ -90,6 +90,8 @@ export default defineConfig({
             { label: '实施计划', slug: 'reference/implementation-plan' },
             { label: '本地开发', slug: 'development/project-local' },
             { label: '独立服务接口', slug: 'development/independent-services' },
+            { label: '连接与资源交付', slug: 'development/service-delivery' },
+
             { label: '权益与计量契约', slug: 'development/entitlement-metering-contract' },
             { label: '简体中文与体验', slug: 'development/chinese-localization' },
             { label: '客户端中文教程', slug: 'user-guide/clients-zh' },

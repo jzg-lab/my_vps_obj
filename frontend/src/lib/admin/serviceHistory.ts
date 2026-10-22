@@ -57,6 +57,19 @@ export function serviceOrderSnapshot(order: ServiceOrder) {
       ? { ...snapshot, kind: "activate", beforeStatus: null, desiredStatus: null }
       : null;
   }
+  if (["revoke", "deliver"].includes(order.kind)) {
+    const snapshot = termsSnapshot(order);
+    return snapshot
+      ? {
+          ...snapshot,
+          kind: order.kind,
+          price: null,
+          currency: null,
+          beforeStatus: null,
+          desiredStatus: null,
+        }
+      : null;
+  }
   if (order.kind === "quota") {
     const snapshot = termsSnapshot(order);
     const quotaBytes = order.snapshot.quota_bytes;

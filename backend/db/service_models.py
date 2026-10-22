@@ -131,6 +131,9 @@ class ServiceConnection(Base):
     usage_raw_bytes: Mapped[int | None] = mapped_column(BigInteger)
     usage_lifetime_offset: Mapped[int | None] = mapped_column(BigInteger)
 
+    revoke_requested_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+    revoked_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+
 
 class ServiceUsagePeriod(Base):
     __tablename__ = "service_usage_periods"
@@ -153,6 +156,7 @@ class DedicatedExit(Base):
     __tablename__ = "dedicated_exits"
 
     id: Mapped[str] = mapped_column(String(32), primary_key=True)
+    revision: Mapped[int] = mapped_column(Integer, nullable=False, default=1)
     label: Mapped[str] = mapped_column(String(160), nullable=False)
     ip_address: Mapped[str] = mapped_column(String(45), nullable=False, unique=True)
     resource_pool: Mapped[str] = mapped_column(String(120), nullable=False, index=True)
@@ -162,6 +166,24 @@ class DedicatedExit(Base):
     )
     verified_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
     enabled: Mapped[bool] = mapped_column(Boolean, nullable=False, default=True)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
+
+
+class DedicatedExitAudit(Base):
+    __tablename__ = "dedicated_exit_audit"
+    __table_args__ = (UniqueConstraint("exit_id", "idempotency_key", name="uq_exit_audit_request"),)
+
+    id: Mapped[str] = mapped_column(String(32), primary_key=True)
+    exit_id: Mapped[str] = mapped_column(
+        String(32), ForeignKey("dedicated_exits.id", ondelete="RESTRICT"), index=True
+    )
+    service_id: Mapped[str | None] = mapped_column(
+        String(32), ForeignKey("user_services.id", ondelete="RESTRICT")
+    )
+    actor_id: Mapped[int] = mapped_column(BigInteger, nullable=False)
+    action: Mapped[str] = mapped_column(String(24), nullable=False)
+    idempotency_key: Mapped[str] = mapped_column(String(128), nullable=False)
+    evidence: Mapped[dict[str, object]] = mapped_column(JSON, nullable=False)
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
 
 

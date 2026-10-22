@@ -9,6 +9,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import sessionmaker
 
 from bot.services.panel_api_service import PanelApiService
+from bot.services.service_delivery import deliver_service_identity
 from bot.services.service_panel_state import (
     locked_service,
     matches_service_terms,
@@ -16,9 +17,10 @@ from bot.services.service_panel_state import (
     panel_traffic_limit,
     service_squads,
 )
+from bot.services.service_revocation import revoke_service_identity
 from config.service_periods import as_utc
 from db.models import User
-from db.service_models import ServiceConnection, UserService
+from db.service_models import ServiceConnection, ServiceOrder, UserService
 
 logger = logging.getLogger(__name__)
 
@@ -39,6 +41,8 @@ async def provision_service_identity(
         if locked is None:
             return
         user, service, connection = locked
+        if connection.revoke_requested_at is not None:
+            return
         if connection.state == "ready" or (
             connection.panel_user_uuid is not None and connection.state == "pending"
         ):
@@ -60,7 +64,7 @@ async def provision_service_identity(
         if locked is None:
             return
         user, service, connection = locked
-        if connection.state != "error":
+        if connection.state != "error" or connection.revoke_requested_at is not None:
             return
         try:
             await _prepare_locked(session, user, service, connection, panel)
@@ -151,6 +155,15 @@ class ServiceProvisioningWorker:
                     .where(
                         UserService.user_id.is_not(None),
                         or_(
+                            (ServiceConnection.revoke_requested_at.is_not(None))
+                            & (ServiceConnection.state != "revoked"),
+                            (ServiceConnection.state == "pending")
+                            & select(ServiceOrder.id)
+                            .where(
+                                ServiceOrder.service_id == ServiceConnection.service_id,
+                                ServiceOrder.kind == "deliver",
+                            )
+                            .exists(),
                             ServiceConnection.state == "error",
                             (ServiceConnection.state == "pending")
                             & ServiceConnection.panel_user_uuid.is_(None),
@@ -165,7 +178,9 @@ class ServiceProvisioningWorker:
             )
         for service_id in service_ids:
             try:
+                await revoke_service_identity(self.session_factory, service_id, self.panel)
                 await provision_service_identity(self.session_factory, service_id, self.panel)
+                await deliver_service_identity(self.session_factory, service_id, self.panel)
             except Exception:
                 logger.exception("Service identity worker will retry %s", service_id)
 

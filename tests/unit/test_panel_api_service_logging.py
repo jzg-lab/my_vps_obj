@@ -32,6 +32,39 @@ class PanelApiServiceLoggingTests(unittest.IsolatedAsyncioTestCase):
             service._panel_api_compatibility_detected_at = time.monotonic()
         return service
 
+    async def test_user_response_credentials_never_reach_logs(self) -> None:
+        for status in (200, 500):
+            for full in (False, True):
+                with self.subTest(status=status, full=full):
+                    service = self._make_service()
+
+                    class Response:
+                        status: int
+                        headers: ClassVar[dict[str, str]] = {"Content-Type": "application/json"}
+
+                        async def __aenter__(self):
+                            return self
+
+                        async def __aexit__(self, *_args):
+                            return None
+
+                        async def text(self):
+                            return '{"response":{"subscriptionUrl":"https://secret.example/token"}}'
+
+                    response = Response()
+                    response.status = status
+                    transport = SimpleNamespace(request=unittest.mock.Mock(return_value=response))
+                    service._get_session = AsyncMock(return_value=transport)
+                    with self.assertLogs("bot.services.panel_api_core", level="DEBUG") as logs:
+                        await service._request_once(
+                            "GET",
+                            "/users/42",
+                            log_full_response=full,
+                            operation=PanelApiOperation.USER_GET,
+                        )
+                    self.assertNotIn("secret.example", "\n".join(logs.output))
+                    self.assertNotIn("subscriptionUrl", "\n".join(logs.output))
+
     async def test_client_timeout_uses_panel_settings(self):
         service = PanelApiService(
             settings_stub(

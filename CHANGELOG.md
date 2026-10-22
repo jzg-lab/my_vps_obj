@@ -26,7 +26,7 @@
   exits have an inventory page, and user details show separate service records. Each opening
   retains its commercial terms and price; retries return the original service. Dedicated-exit
   reservations are exclusive, and user reads are scoped to the authenticated account. New
-  services remain pending until metering and connection delivery are implemented. The admin activation form retains
+  services remain pending until metering and delivery are confirmed. The admin activation form retains
   uncertain requests across reloads for idempotent retry. The user home now lists independent
   services with separate usage, expiry and details, including visible overage and sync status.
   A sanitized catalog explains manual activation. This deployment hides the old customer
@@ -56,8 +56,8 @@
   states and built-in payment handlers are retired after normal authorization. Registration,
   language and account lifecycle actions remain available without implicit subscription grants.
   Pre-checkout is rejected; received historical payment receipts enter the existing queue for
-  dead-letter reconciliation without granting entitlements. Traffic enforcement, connection
-  delivery and real-node acceptance remain in progress. A dedicated worker now prepares
+  dead-letter reconciliation without granting entitlements. Real-node acceptance remains
+  in progress. A dedicated worker now prepares
   disabled service identities with exact groups, quota and expiry, without account-level
   identity fields. Durable uncertainty markers protect account deletion after interrupted
   requests; retries reconcile the same identity, reject ownership conflicts, and never
@@ -75,8 +75,18 @@
   usage, original terms and closed-period records. Lower quotas retain visible overage.
   Administrators can reconcile reset counters from exact checked records while paused;
   recovery preserves cumulative history, records the counter mapping and never replaces
-  the identity or automatically resumes it. Connection delivery and real-node enforcement
-  acceptance remain pending.
+  the identity or automatically resumes it.
+  Administrators can request delivery of a prepared service after confirmed metering and,
+  for dedicated exits, recorded verification. The durable request uses the shared entitlement
+  synchronizer; pauses, bans, expiry and exhaustion still prevent access, including after retries.
+  Service-specific subscription reads now recheck ownership and panel terms without exposing
+  credentials in lists, browser storage or panel response logs. Terminal cancellation saves
+  revocation intent and retries the original identity, preserving the last accepted usage.
+  Dedicated-exit verification and manual reclaim record the administrator, evidence and
+  allocation version. Reclaim requires confirmed identity removal and subsequent operator
+  evidence that existing connections stopped and old configurations cannot reconnect; a
+  panel response alone cannot release the resource. Actual Node enforcement, fixed exits,
+  exclusivity and old-configuration rejection remain unverified.
 
 - **Simplified Chinese for independent services.** The website and operations UI can load
   `zh-hans` through the existing language preference and scoped locale mechanism, including
