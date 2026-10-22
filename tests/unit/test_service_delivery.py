@@ -26,6 +26,72 @@ from tests.unit.test_user_services import ServiceDatabaseTestCase, sample_terms
 
 
 class ServiceDeliveryTests(ServiceDatabaseTestCase):
+    async def test_uncertain_creation_survives_restricted_retry_until_late_identity_is_revoked(
+        self,
+    ) -> None:
+        from db.models import User
+
+        for restriction in ("paused", "banned", "expired"):
+            with self.subTest(restriction=restriction):
+                service, _, _ = await self.activate(restriction)
+                panel, users = panel_fixture()
+                create = panel.create_panel_user.side_effect
+                assert callable(create)
+                panel.create_panel_user.side_effect = TimeoutError(
+                    "reply missing before creation becomes visible"
+                )
+                await provision_service_identity(
+                    cast(sessionmaker, self.sessions), service.id, panel
+                )
+                submitted = panel.create_panel_user.await_args
+                assert submitted
+                async with self.sessions.begin() as session:
+                    row = await session.get(UserService, service.id)
+                    user = await session.get(User, 1)
+                    assert row and user
+                    if restriction == "paused":
+                        row.desired_status = "paused"
+                    elif restriction == "banned":
+                        user.is_banned = True
+                    else:
+                        row.starts_at = datetime.now(UTC) - timedelta(days=2)
+                        row.expires_at = datetime.now(UTC) - timedelta(days=1)
+                await provision_service_identity(
+                    cast(sessionmaker, self.sessions), service.id, panel
+                )
+                async with self.sessions.begin() as session:
+                    connection = await session.get(ServiceConnection, service.id)
+                    assert connection and connection.state == "error" and connection.last_error
+                    await request_service_revocation(
+                        session,
+                        service_id=service.id,
+                        user_id=1,
+                        actor_id=1,
+                        expected_revision=1,
+                        idempotency_key=f"cancel:{restriction}",
+                        reason="Cancel an uncertain creation",
+                    )
+                await revoke_service_identity(cast(sessionmaker, self.sessions), service.id, panel)
+                async with self.sessions() as session:
+                    connection = await session.get(ServiceConnection, service.id)
+                    assert connection and connection.revoked_at is None and connection.sync_pending
+                panel.delete_user_from_panel.assert_not_awaited()
+                panel.create_panel_user.assert_awaited_once()
+                await create(*submitted.args, **submitted.kwargs)
+                users[f"svc_{service.id}"]["uuid"] = service.id
+                panel.delete_user_from_panel.side_effect = (
+                    lambda _reference, current_users=users: current_users.clear() or True
+                )
+                await revoke_service_identity(cast(sessionmaker, self.sessions), service.id, panel)
+                async with self.sessions.begin() as session:
+                    connection = await session.get(ServiceConnection, service.id)
+                    user = await session.get(User, 1)
+                    assert connection and connection.state == "revoked" and connection.revoked_at
+                    assert user
+                    user.is_banned = False
+                panel.delete_user_from_panel.assert_awaited_once()
+                panel.create_panel_user.assert_awaited_once()
+
     async def test_uncertain_creation_cannot_be_reclaimed_as_never_submitted(self) -> None:
         service, _, _ = await self.activate()
         async with self.sessions.begin() as session:

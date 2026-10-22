@@ -99,8 +99,8 @@ async def _prepare_locked(
             return
         if not users:
             if not _can_prepare(user, service) or squads is None:
-                connection.state = "pending"
-                connection.last_error = None
+                # A prior create may still arrive; a temporary empty lookup while
+                # restricted cannot turn its durable uncertainty into "never sent".
                 return
             await panel.create_panel_user(
                 connection.username,
