@@ -267,12 +267,12 @@ class RemnashopMigrationDocumentationFactsTests(unittest.TestCase):
     def test_deployment_doc_mentions_installer_dns_tls_and_proxy_refresh(self):
         for phrase in (
             "/opt/remnawave-minishop",
-            "проверить A-записи",
+            "检查 `WEBHOOK_HOST` 和 `MINIAPP_HOST` 的 A 记录",
             "Certbot Cloudflare DNS-01",
             "10001:10001",
-            "backend`, `worker` и `frontend`",
+            "`backend`、`worker` 和 `frontend`",
             "nginx -t",
-            "reload/restart eGames Nginx",
+            "重新加载或重启 eGames Nginx",
         ):
             with self.subTest(phrase=phrase):
                 self.assertIn(phrase, self.deployment_doc)

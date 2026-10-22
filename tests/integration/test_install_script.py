@@ -614,12 +614,12 @@ def test_shell_installer_prints_migrate_logs_after_compose_failure():
 def test_deployment_docs_explain_install_wizard_prompts():
     docs = (REPO_ROOT / "docs" / "getting-started" / "deployment.md").read_text(encoding="utf-8")
 
-    assert "### Что спрашивает install wizard" in docs
+    assert "### 安装向导会询问什么" in docs
     assert "`HTTP_BIND` / `HTTPS_BIND`" in docs
     assert "`FRONTEND_BACKEND_MODE`" in docs
     assert "split-protected-upstream" in docs
     assert "Rathole" in docs
-    assert "с одним IP без порта некорректно" in docs
+    assert "只填 IP 而不填端口是错误格式" in docs
     assert "Docker Engine `25.0.0`" in docs
     assert "Docker Compose `2.20.2`" in docs
     assert "docker compose config --quiet" in docs
