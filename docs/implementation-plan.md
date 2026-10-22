@@ -229,7 +229,7 @@ Telegram 入口检查点：核心旧购买、赠送、试用、推荐奖励、�
 
 | 窗口 | 任务 ID | 当前状态 |
 | --- | --- | --- |
-| A｜权益与计量 | `01a16557-549b-7743-b776-07b456b23016` | 功能及迟到计数补测已集成至 `81487309`；合并后端回归通过，等待最终页面验收；第一批三份中文文档已集成为 `629c70e0`，继续第二批九份开发/架构文档 |
+| A｜权益与计量 | `01a16557-549b-7743-b776-07b456b23016` | 功能及迟到计数补测已集成至 `81487309`；第一批三份中文文档已集成为 `629c70e0`；当前补充只读计量/撤销审阅，后续文档转主窗口与 B |
 | B｜连接与资源交付 | `01a16557-7653-76b1-9e9e-92035e00c927` | 最终撤销接线已集成为 `ce955f62`，合并后端/PG/面板通过，新增 UI 待验；五份安装配置文档已集成为 `7d58b7d7`，继续第二批运营与排障文档 |
 | C｜简体中文与使用体验 | `01a16557-9e62-7221-8b5d-bdaefc90b6cf` | 中文检查点集成至 `671ddfb6`；教程 `d671730d` 暂缓合入，需修复仍调用已退役配置接口的实际运行路径；持有浏览器/构建时段，继续页面和其余全文中文文档 |
 | 主窗口｜统筹与验收 | `01a163d0-f307-7543-adcc-f0e01acf126c` | 跟踪契约、共享测试资源和业务疑问，审查提交，集成后独立复验 |
@@ -277,3 +277,7 @@ B 第二批排他文件追加为 `docs/features/admin-panel.md`、`docs/features
 A 第二批排他文件为 `docs/development/dev-stand.md`、`docs/development/how-to.md`、`docs/development/plugins.md`、`docs/development/plugin-contract.md`、`docs/development/plugin-extensions.md`、`docs/development/plugin-ui-composition.md`、`docs/development/graphify.md`、`docs/development/runes-migration-qa.md`、`docs/architecture/subscription-gateway.md`。C 已收到避让清单，仍负责其余正文、站点与教程；生成的事件/Remnawave 兼容目录不由 A 手改。浏览器/构建时段继续由 C 持有，数据库/面板写入时段无人占用。
 
 教程修复进度：C 报告独立 `/api/service-guides` 配置路由、旧路由 410 保留、配置失败重试测试已通过，正在跑门禁；尚未交付修复提交，主窗口仍未合入或验收，不能把该进度当作教程运行问题已关闭。
+
+2026-10-23 文档协作调整：A 当前执行只读计量/撤销复审，尚未修改第二批文档，已明确解除其九份文档的排他归属。主窗口完成 `graphify.md`、`runes-migration-qa.md`、`how-to.md` 三份全文中文，并补当前 MVP 与上游参考的边界；**19 个旧锚点保留、7 个代码块逐字不变、11 处本地链接可解析**。同时修正操作指南原有的 OpenAPI 测试路径为实际存在的 `tests/contracts/test_openapi_artifact.py`。文档同步、70 页导航、20 项演示路由和差异检查通过；纯文档改动没有重跑产品测试，本轮不占用 C 的构建/浏览器时段，构建与视觉验收仍待统一运行。
+
+B 当前七份运营/排障文档提交后接续剩余六份：`docs/development/dev-stand.md`、`docs/development/plugins.md`、`docs/development/plugin-contract.md`、`docs/development/plugin-extensions.md`、`docs/development/plugin-ui-composition.md`、`docs/architecture/subscription-gateway.md`。A/C 均已收到归属更新；C 继续其余正文、教程和站点，数据库/面板写入时段仍无人占用。
