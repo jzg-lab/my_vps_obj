@@ -1,8 +1,14 @@
-# Логи
+# 日志
 
-Логи - главный источник диагностики при проблемах запуска, платежей, вебхуков и синхронизации с Remnawave Panel.
+<a id="логи"></a>
 
-## Основные команды
+日志是排查启动、支付、webhook 及 Remnawave Panel 同步问题的主要依据。
+
+> 本页保留上游功能的日志说明。当前 MVP 使用管理员手动激活、无支付；Telegram 和支付相关检查仅适用于已配置相应上游能力的环境。本项目开发与验收使用[隔离开发环境](../development/project-local.md)。
+
+## 常用命令
+
+<a id="основные-команды"></a>
 
 ```bash
 docker compose logs -f backend
@@ -11,31 +17,35 @@ docker compose logs -f frontend
 docker compose logs migrate
 ```
 
-## Что искать
+## 重点查找的内容
 
-- ошибки миграций в `migrate`;
-- ошибки вебхука Telegram и платежных вебхуков в `backend`;
-- проблемы очереди вебхуков и фоновых задач в `worker`;
-- ошибки проксирования `/api`, `/auth` и ассетов тем во `frontend`;
-- ошибки авторизации Mini App и Telegram OAuth.
+<a id="что-искать"></a>
 
-## Проксирование frontend, `/api`, `/auth` и ассеты тем
+- `migrate` 中的迁移错误。
+- `backend` 中的 Telegram webhook 和支付 webhook 错误。
+- `worker` 中的 webhook 队列及后台任务问题。
+- `frontend` 中 `/api`、`/auth` 及主题资源的代理错误。
+- Mini App 和 Telegram OAuth 的认证错误。
 
-`frontend` - это nginx-контейнер Mini App. Он отдает статику и проксирует маршруты Web App во внутренний WebApp-сервер backend на `backend:8081`.
+## frontend 代理、`/api`、`/auth` 与主题资源
 
-Сначала смотрите nginx-логи:
+<a id="проксирование-frontend-api-auth-и-ассеты-тем"></a>
+
+`frontend` 是 Mini App 的 nginx 容器，提供静态资源，并将 Web App 路由转发到 backend 的内部 WebApp 服务 `backend:8081`。
+
+先查看 nginx 日志：
 
 ```bash
 docker compose logs -f frontend
 ```
 
-Если видите `404`, `502`, `upstream` или `connect() failed`, проверьте маршруты:
+出现 `404`、`502`、`upstream` 或 `connect() failed` 时，检查路由：
 
-- `/api/*` и `/auth/*` должны попадать в `frontend:80`, а уже frontend проксирует их в `backend:8081`;
-- `/webapp-logo`, `/webapp-uploaded-logo/*`, `/webapp-favicon/*`, `/webapp-theme-css/*` и `/webapp-theme-assets/*` тоже проксируются через frontend;
-- внешний обратный прокси не должен отдельно уводить `/api` или `/auth` на webhook-сервер `backend:8080`.
+- `/api/*` 和 `/auth/*` 应进入 `frontend:80`，再由 frontend 转发至 `backend:8081`。
+- `/webapp-logo`、`/webapp-uploaded-logo/*`、`/webapp-favicon/*`、`/webapp-theme-css/*` 和 `/webapp-theme-assets/*` 同样经过 frontend 代理。
+- 外部反向代理不得将 `/api` 或 `/auth` 单独转发到 webhook 服务 `backend:8080`。
 
-Быстрые проверки снаружи:
+从外部快速检查：
 
 ```bash
 curl -i https://app.domain.com/health
@@ -44,68 +54,72 @@ curl -i https://app.domain.com/auth/telegram/start
 curl -i https://app.domain.com/webapp-theme-css/dark/style.css
 ```
 
-Если `/health` отвечает, а `/api/bootstrap` или ассеты тем падают, смотрите одновременно frontend и backend:
+如果 `/health` 正常，而 `/api/bootstrap` 或主题资源失败，同时查看 frontend 和 backend：
 
 ```bash
 docker compose logs -f frontend backend
 ```
 
-Где проверять конфигурацию:
+配置检查位置：
 
-- frontend nginx: `deploy/docker/frontend/nginx.conf`;
-- внешний Caddy/Angie/Nginx: `deploy/examples/caddy/Caddyfile`, `deploy/examples/angie/angie.conf.template` или `deploy/examples/nginx/nginx.conf.template`;
-- домен Web App: `SUBSCRIPTION_MINI_APP_URL`, он должен быть публичным HTTPS URL frontend, без `/api`, `/auth` или webhook-пути;
-- WebApp-сервер backend: `WEBAPP_ENABLED=True`, `WEBAPP_SERVER_HOST=0.0.0.0`, `WEBAPP_SERVER_PORT=8081`.
+- 前端 nginx：`deploy/docker/frontend/nginx.conf`。
+- 外部 Caddy/Angie/Nginx：`deploy/examples/caddy/Caddyfile`、`deploy/examples/angie/angie.conf.template` 或 `deploy/examples/nginx/nginx.conf.template`。
+- Web App 域名：`SUBSCRIPTION_MINI_APP_URL`，必须是 frontend 的公开 HTTPS URL，不含 `/api`、`/auth` 或 webhook 路径。
+- backend 的 WebApp 服务：`WEBAPP_ENABLED=True`、`WEBAPP_SERVER_HOST=0.0.0.0`、`WEBAPP_SERVER_PORT=8081`。
 
-Для split frontend/backend дополнительно проверьте:
+前后端分离部署时，额外检查：
 
-- startup banner `frontend` показывает `api base :: /api` и ожидаемый `upstream :: ...`;
-- `WEBAPP_BACKEND_UPSTREAM` доступен с frontend-сервера;
-- при protected upstream frontend nginx добавляет `X-Minishop-Edge-Token`, но прямой запрос к backend `/api/bootstrap` без token возвращает `401/403`;
-- webhook routes на backend-домене продолжают идти в `backend:8080`, а не в `frontend` и не в `backend:8081`.
+- `frontend` 启动信息显示 `api base :: /api` 和预期的 `upstream :: ...`。
+- 前端服务器可以访问 `WEBAPP_BACKEND_UPSTREAM`。
+- 使用受保护上游时，前端 nginx 添加 `X-Minishop-Edge-Token`；不带令牌直接请求后端 `/api/bootstrap` 应返回 `401/403`。
+- 后端域名的 webhook 路由仍进入 `backend:8080`，而非 `frontend` 或 `backend:8081`。
 
-## Авторизация Mini App и Telegram OAuth
+## Mini App 与 Telegram OAuth 认证
 
-Ошибки авторизации почти всегда видны в `backend`, потому что проверка Telegram Mini Apps `initData`, Telegram OAuth `id_token`, nonce/state и сессий выполняется на WebApp-сервере backend.
+<a id="авторизация-mini-app-и-telegram-oauth"></a>
+
+认证错误通常出现在 `backend` 中，因为 Telegram Mini Apps `initData`、Telegram OAuth `id_token`、nonce/state 及会话验证都在 backend 的 WebApp 服务中进行。
 
 ```bash
 docker compose logs -f backend
 ```
 
-Ищите сообщения:
+查找以下消息：
 
-- `Telegram WebApp initData hash mismatch`;
-- `Telegram WebApp initData auth_date is stale`;
-- `Failed to validate Telegram WebApp initData`;
-- `Telegram OAuth nonce mismatch`;
-- `Telegram OAuth ID token is stale`;
-- `Failed to validate Telegram OAuth ID token`;
-- `Telegram OAuth token exchange failed`;
-- `Telegram OAuth callback failed`;
-- `WebApp auth failed`.
+- `Telegram WebApp initData hash mismatch`。
+- `Telegram WebApp initData auth_date is stale`。
+- `Failed to validate Telegram WebApp initData`。
+- `Telegram OAuth nonce mismatch`。
+- `Telegram OAuth ID token is stale`。
+- `Failed to validate Telegram OAuth ID token`。
+- `Telegram OAuth token exchange failed`。
+- `Telegram OAuth callback failed`。
+- `WebApp auth failed`。
 
-Для Mini App внутри Telegram проверьте:
+对于 Telegram 内的 Mini App，检查：
 
-- `SUBSCRIPTION_MINI_APP_URL` совпадает с доменом, указанным в BotFather Mini Apps;
-- открывается именно HTTPS frontend-домен, а не backend webhook-домен;
-- время на сервере синхронизировано, иначе `auth_date is stale`;
-- `WEBAPP_AUTH_MAX_AGE_SECONDS` не слишком маленький;
-- `WEBAPP_SESSION_SECRET` постоянный между рестартами.
+- `SUBSCRIPTION_MINI_APP_URL` 与 BotFather Mini Apps 中设置的域名一致。
+- 打开的是 HTTPS frontend 域名，而非 backend webhook 域名。
+- 服务器时间已同步，否则会出现 `auth_date is stale`。
+- `WEBAPP_AUTH_MAX_AGE_SECONDS` 没有设得过小。
+- `WEBAPP_SESSION_SECRET` 在重启之间保持不变。
 
-Для Telegram OAuth вне Mini App проверьте:
+对于 Mini App 外的 Telegram OAuth，检查：
 
-- `TELEGRAM_OAUTH_CLIENT_ID` и `TELEGRAM_OAUTH_CLIENT_SECRET`;
-- callback в Telegram OAuth/BotFather: `https://app.domain.com/auth/telegram/callback`;
-- `/auth/telegram/start` и `/auth/telegram/callback` проходят через frontend nginx в `backend:8081`;
-- в браузере после callback нет статуса `telegram_auth=invalid_state`, `invalid_token`, `not_configured`, `unauthorized` или `failed`.
+- `TELEGRAM_OAUTH_CLIENT_ID` 和 `TELEGRAM_OAUTH_CLIENT_SECRET`。
+- Telegram OAuth/BotFather 中的回调地址：`https://app.domain.com/auth/telegram/callback`。
+- `/auth/telegram/start` 和 `/auth/telegram/callback` 经前端 nginx 转发到 `backend:8081`。
+- 回调后浏览器没有出现 `telegram_auth=invalid_state`、`invalid_token`、`not_configured`、`unauthorized` 或 `failed` 状态。
 
-Подробности по маршрутам и настройке OAuth: [Telegram](../features/login-methods.md#telegram).
+路由和 OAuth 配置详情参见 [Telegram](../features/login-methods.md#telegram)。
 
-## После изменения конфигурации
+## 修改配置后
+
+<a id="после-изменения-конфигурации"></a>
 
 ```bash
 docker compose up -d
 docker compose logs -f backend worker frontend
 ```
 
-См. также [проблемы](issues.md) и [развертывание](../getting-started/deployment.md).
+另见[常见问题](issues.md)和[部署](../getting-started/deployment.md)。
