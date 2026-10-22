@@ -127,3 +127,68 @@ A's changes in `service_provisioning.py` are limited to importing/calling
 `panel_traffic_limit` and passing `connection=connection` to `matches_service_terms`.
 Preparation/delivery behavior remains B-owned. Migration 0113 also includes A3's
 quota-change journal and raw-counter recovery fields; B retains 0114.
+
+## Local validation and remaining acceptance (2026-10-23)
+
+Implementation checkpoint: `1476ddb1`. Validation used the isolated A worktree,
+local SQLite/unit fixtures and the docs-demo browser runtime; no production node,
+shared PostgreSQL database or real panel was mutated.
+
+- Backend full suite: **5,587 passed, 45 skipped, 631 subtests passed**. Full mypy
+  passed for 1,340 files; Ruff lint/format and architecture gates passed.
+- Two subsequent entitlement regression cases cover pause/ban/expiry at rollover
+  and exhaustion observed during enabling. The final entitlement module run is
+  **9 passed, 3 subtests passed**, with scoped Ruff and mypy passing.
+- Frontend static checks, production build and unit suite passed: **1,492 tests
+  in 203 files**. The final mock fixture also passed TypeScript, ESLint and Prettier.
+- Complete browser regression: **253 passed** at desktop/mobile sizes. The six
+  metering scenarios cover quota edit validation, exact-reconciliation history
+  and pending-cycle display; screenshots include dialogs and open action menus.
+- Docs sidebar/API-sync checks, documentation build, lockfile and development
+  seed checks passed. Commands are recorded in [CONTRIBUTING](../../CONTRIBUTING.md#1-гейты-качества--выбирай-по-зоне-изменений-перед-пушем).
+
+Reproduce the focused regressions from the repository root:
+
+```sh
+python -m pytest -q tests/unit/test_service_entitlements.py tests/unit/test_service_adjustments.py
+npm --prefix frontend run test:e2e -- e2e/service-metering.spec.ts
+```
+
+On macOS, use Homebrew OpenSSL before system LibreSSL in `PATH` for the full
+backend suite's installer certificate tests. The browser suite normally rebuilds
+the demo; `PLAYWRIGHT_SKIP_DEMO_BUILD=1` is only valid after a current-source build.
+
+The new PostgreSQL tests in `tests/integration/test_user_services_postgres.py`
+were **not run**: a scheduled disposable database is still required. They cover
+idempotent migration 0113, template quota editing concurrent with activation,
+and eight concurrent monthly retries with growing counters. They use
+`CORE_PERFORMANCE_TEST_DATABASE_URL` and isolated disposable schemas; do not
+point them at production or run against a shared stand without coordination.
+Real Node enforcement, counter latency, long-lived connections and subscription
+revocation still require B/D acceptance. Crash/failed-commit retry tests do not
+prove safety after restoring an older whole-database backup; that belongs to E's
+recovery procedure and requires independent usage evidence.
+
+### Localization handoff to C
+
+English and Russian base entries are present. Chinese localization must include
+these 16 new or changed keys:
+
+```text
+admin_services_snapshot_hint
+admin_services_usage_reconcile
+admin_services_quota_reason
+admin_services_quota_scope_hint
+admin_services_quota_change_reason_required
+admin_services_reconcile_usage
+admin_services_reconcile_hint
+admin_services_last_total_bytes
+admin_services_verified_total_bytes
+admin_services_expected_raw_bytes
+admin_services_reconcile_evidence
+admin_services_usage_reconciliation_changed
+admin_services_usage_reconciliation_pause_required
+admin_services_usage_reconciliation_unavailable
+admin_services_cycle_pending
+wa_services_cycle_pending
+```

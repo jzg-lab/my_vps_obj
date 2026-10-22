@@ -132,7 +132,7 @@ export function seedIndependentServicesDemo(owner: number, empty = false) {
       cycle_started_at: monthly ? stamp : null,
       cycle_ends_at: monthly ? "2026-11-22T04:00:00Z" : null,
       last_usage_sync_at: index < 2 ? stamp : null,
-      cycle_pending: false,
+      cycle_pending: monthly && new URLSearchParams(window.location.search).has("cycle_pending"),
       usage_total_bytes: null,
       usage_error: monthly ? "panel_usage_unavailable" : null,
       status: index === 0 ? "exhausted" : "pending",

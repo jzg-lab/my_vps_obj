@@ -220,3 +220,55 @@ class ServiceEntitlementTests(ServiceChangeTestCase):
             [str(value) for value in saved.terms["squad_uuids"]],
             connection=connection,
         )
+
+    async def test_period_switch_respects_pause_ban_and_expiry(self) -> None:
+        from db.models import User
+
+        for restriction in ("paused", "banned", "expired"):
+            with self.subTest(restriction=restriction):
+                service, remote = await self.monthly(restriction)
+                async with self.sessions.begin() as session:
+                    saved = await session.get(UserService, service.id)
+                    user = await session.get(User, 1)
+                    assert saved and user
+                    if restriction == "paused":
+                        saved.desired_status = "paused"
+                    elif restriction == "banned":
+                        user.is_banned = True
+                    else:
+                        saved.expires_at = datetime.now(UTC) - timedelta(seconds=1)
+                await synchronize_service_change(
+                    cast(sessionmaker, self.sessions), service.id, self.panel
+                )
+                saved, connection = await self.saved(service)
+                assert remote["status"] == "DISABLED"
+                assert saved.used_bytes == (900 if restriction == "expired" else 0)
+                assert saved.desired_status == ("paused" if restriction == "paused" else "active")
+                assert connection.state == "ready"
+                async with self.sessions.begin() as session:
+                    user = await session.get(User, 1)
+                    assert user
+                    user.is_banned = False
+
+    async def test_exhaustion_observed_while_enabling_is_immediately_restricted(self) -> None:
+        service, _, _ = await self.activate()
+        _, remote = await self.prepare(service, ready=True)
+        remote["status"] = "DISABLED"
+
+        async def status(_reference: str, enabled: bool, **_kwargs: object) -> bool:
+            remote["status"] = "ACTIVE" if enabled else "DISABLED"
+            if enabled:
+                remote["userTraffic"] = {
+                    "usedTrafficBytes": 11000,
+                    "lifetimeUsedTrafficBytes": 11000,
+                }
+            return True
+
+        self.panel.update_user_status_on_panel.side_effect = status
+        await synchronize_service_change(cast(sessionmaker, self.sessions), service.id, self.panel)
+        saved, connection = await self.saved(service)
+        assert saved.used_bytes == 11000 and not connection.sync_pending
+        assert remote["status"] == "DISABLED"
+        assert [
+            call.args[1] for call in self.panel.update_user_status_on_panel.await_args_list
+        ] == [True, False]

@@ -18,7 +18,10 @@ for (const width of [1440, 390]) {
     await dialog
       .getByLabel("Причина изменения квоты", { exact: true })
       .fill("Verified allowance change");
-    await dialog.screenshot({ path: testInfo.outputPath(`quota-${width}.png`) });
+    await dialog.screenshot({
+      path: testInfo.outputPath(`quota-${width}.png`),
+      animations: "disabled",
+    });
     expect(
       await dialog.evaluate((node) => node.scrollWidth - node.clientWidth)
     ).toBeLessThanOrEqual(2);
@@ -50,15 +53,22 @@ for (const width of [1440, 390]) {
     await region.getByRole("button", { name: "Управление", exact: true }).click();
     await page.getByRole("button", { name: "Операция", exact: true }).click();
     await expect(page.getByRole("option", { name: "Сверить трафик", exact: true })).toBeVisible();
-    await page.screenshot({ path: testInfo.outputPath(`metering-menu-${width}.png`) });
+    await page.screenshot({
+      path: testInfo.outputPath(`metering-menu-${width}.png`),
+      animations: "disabled",
+    });
     await page.getByRole("option", { name: "Сверить трафик", exact: true }).click();
+    await expect(page.getByRole("option", { name: "Сверить трафик", exact: true })).toBeHidden();
     const dialog = page.getByRole("dialog");
     await dialog.getByLabel("Проверенный общий расход (байты)", { exact: true }).fill("600");
     await dialog.getByLabel("Проверенный счётчик панели (байты)", { exact: true }).fill("100");
     await dialog
       .getByLabel("Точные записи и обоснование сверки", { exact: true })
       .fill("Exact per-identity ledger, incident 42");
-    await dialog.screenshot({ path: testInfo.outputPath(`reconciliation-${width}.png`) });
+    await dialog.screenshot({
+      path: testInfo.outputPath(`reconciliation-${width}.png`),
+      animations: "disabled",
+    });
     expect(
       await dialog.evaluate((node) => node.scrollWidth - node.clientWidth)
     ).toBeLessThanOrEqual(2);
@@ -69,9 +79,37 @@ for (const width of [1440, 390]) {
     await region.getByRole("button", { name: "История", exact: true }).click();
     await expect(dialog).toContainText("Exact per-identity ledger, incident 42");
     await expect(dialog).toContainText("500 B → 600 B");
-    await dialog.screenshot({ path: testInfo.outputPath(`metering-history-${width}.png`) });
+    await dialog.screenshot({
+      path: testInfo.outputPath(`metering-history-${width}.png`),
+      animations: "disabled",
+    });
     await page.keyboard.press("Escape");
     await expect(dialog).toHaveCount(0);
     expect(errors).toEqual([]);
+  });
+}
+
+for (const width of [1440, 390]) {
+  test(`monthly confirmation notice retains confirmed usage at ${width}px`, async ({
+    page,
+  }, testInfo) => {
+    await page.setViewportSize({ width, height: 1000 });
+    await page.goto("/demo/runtime/app/?mock=services&cycle_pending=1&theme_preview=dark");
+    const card = page.locator("[data-service-id]").nth(1);
+    await expect(card).toContainText("23 GiB / 100 GiB");
+    await expect(card).toContainText("Ожидается подтверждение месячной квоты");
+    await card.getByRole("button", { name: "Подробнее об услуге" }).click();
+    const dialog = page.getByRole("dialog");
+    await expect(dialog).toContainText("23 GiB / 100 GiB");
+    await expect(dialog).toContainText("сохранённой отметки переключения");
+    await dialog.screenshot({
+      path: testInfo.outputPath(`cycle-pending-${width}.png`),
+      animations: "disabled",
+    });
+    expect(
+      await dialog.evaluate((node) => node.scrollWidth - node.clientWidth)
+    ).toBeLessThanOrEqual(2);
+    await page.keyboard.press("Escape");
+    await expect(dialog).toHaveCount(0);
   });
 }
