@@ -73,6 +73,7 @@
     copyText = async () => {},
     t = (key, _params = {}, fallback = "") => fallback || key,
     publicMode = false,
+    serviceMode = false,
   }: {
     currentLang?: string;
     telegramPlatform?: string;
@@ -85,6 +86,7 @@
     copyText?: CopyTextAction;
     t?: Translate;
     publicMode?: boolean;
+    serviceMode?: boolean;
   } = $props();
 
   const installGuidesStore = getInstallGuidesStore();
@@ -156,7 +158,7 @@
     `${stageHeightStyle} --motion-stage-duration:${STAGE_HEIGHT_ANIMATION_MS}ms;`
   );
   const guideSubscription = $derived(
-    asWebappRecord(installGuidesStore?.subscription || subscription)
+    asWebappRecord(serviceMode ? subscription : installGuidesStore?.subscription || subscription)
   );
   const buttonActions = $derived(
     selectedBlocks.map((block) =>
@@ -167,7 +169,9 @@
   );
   const selectedConnectionLink = $derived(resolveInstallQrLink(guideSubscription));
   const shareUrl = $derived(
-    asString(guideSubscription.share_url) || asString(subscription?.install_share_url)
+    serviceMode
+      ? ""
+      : asString(guideSubscription.share_url) || asString(subscription?.install_share_url)
   );
   $effect(() => {
     if (selectedConnectionLink === lastQrValue) return;
@@ -220,7 +224,7 @@
 
   function openResolvedLink(url: string) {
     if (isUnsafeInstallUrl(url)) {
-      openConnectLink();
+      if (!serviceMode) openConnectLink();
       return;
     }
     (openAppLink || openExternalLink)(url);
@@ -280,9 +284,9 @@
   }
 </script>
 
-<main class="install-layout">
-  <div class="install-topbar" class:public={publicMode}>
-    {#if !publicMode}
+<main class="install-layout" class:service={serviceMode}>
+  <div class="install-topbar" class:public={publicMode || serviceMode}>
+    {#if !publicMode && !serviceMode}
       <Button
         class="install-back-btn"
         variant="secondary"
@@ -382,10 +386,12 @@
           {t("wa_install_retry", {}, "Try again")}
         </Button>
       {/if}
-      <Button class="wide" onclick={openConnectLink}>
-        <ExternalLink size={18} />
-        {t("wa_install_and_configure")}
-      </Button>
+      {#if !serviceMode}
+        <Button class="wide" onclick={openConnectLink}>
+          <ExternalLink size={18} />
+          {t("wa_install_and_configure")}
+        </Button>
+      {/if}
     </Card>
   {:else}
     <div
@@ -466,17 +472,19 @@
                     {#if block.buttons?.length}
                       <div class="install-actions">
                         {#each block.buttons as button, buttonIndex}
-                          <Button
-                            variant={button.type === "copyButton" ? "secondary" : "default"}
-                            onclick={() => handleButton(buttonActions[blockIndex]?.[buttonIndex])}
-                          >
-                            {#if button.type === "copyButton"}
-                              <Copy size={16} />
-                            {:else}
-                              <ExternalLink size={16} />
-                            {/if}
-                            {localized(button.text)}
-                          </Button>
+                          {#if !serviceMode || buttonActions[blockIndex]?.[buttonIndex]?.value}
+                            <Button
+                              variant={button.type === "copyButton" ? "secondary" : "default"}
+                              onclick={() => handleButton(buttonActions[blockIndex]?.[buttonIndex])}
+                            >
+                              {#if button.type === "copyButton"}
+                                <Copy size={16} />
+                              {:else}
+                                <ExternalLink size={16} />
+                              {/if}
+                              {localized(button.text)}
+                            </Button>
+                          {/if}
                         {/each}
                       </div>
                     {/if}
@@ -545,10 +553,12 @@
                     <Copy size={16} />
                     {t("wa_install_copy_subscription_link", {}, "Copy link")}
                   </Button>
-                  <Button onclick={shareInstallGuide}>
-                    <Share2 size={16} />
-                    {t("wa_install_share", {}, "Share")}
-                  </Button>
+                  {#if !serviceMode}
+                    <Button onclick={shareInstallGuide}>
+                      <Share2 size={16} />
+                      {t("wa_install_share", {}, "Share")}
+                    </Button>
+                  {/if}
                 </div>
               </div>
             </Card>

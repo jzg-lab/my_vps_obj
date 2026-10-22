@@ -303,6 +303,10 @@ const [, , , , bundleChunkNames] = await Promise.all([
       "utf8",
     ),
   ),
+  copyFile(
+    path.join(repoRoot, "deploy", "examples", "independent-services-guides.json"),
+    path.join(runtimeDir, "independent-services-guides-config.json"),
+  ),
 ]);
 
 await assertModuleGraphIsComplete([

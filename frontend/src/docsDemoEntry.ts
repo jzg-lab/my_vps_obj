@@ -64,8 +64,12 @@ function applyDemoThemeTokens(catalog: DemoThemesCatalog): void {
   }
 }
 
-async function loadInstallGuidesConfig(): Promise<void> {
-  const response = await fetch(runtimePath("subscription-guides-config.json"), {
+async function loadInstallGuidesConfig(mockMode: string): Promise<void> {
+  const filename =
+    mockMode === "services"
+      ? "independent-services-guides-config.json"
+      : "subscription-guides-config.json";
+  const response = await fetch(runtimePath(filename), {
     cache: "no-store",
   });
   if (!response.ok) {
@@ -124,7 +128,7 @@ async function bootstrap(): Promise<void> {
   applyPreviewMock(mockMode);
   prepareMockConfig(mockMode);
   try {
-    await loadInstallGuidesConfig();
+    await loadInstallGuidesConfig(mockMode);
   } catch (error) {
     console.warn(error);
   }

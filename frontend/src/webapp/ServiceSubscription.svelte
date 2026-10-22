@@ -2,6 +2,7 @@
   import { onDestroy } from "svelte";
   import Button from "$components/ui/button.svelte";
   import CopyLinkField from "$components/patterns/CopyLinkField.svelte";
+  import { lazyScreen } from "$lib/webapp/lazyScreen.svelte.js";
   import { builtApiPath, unwrap, type ApiClient } from "$lib/webapp/publicApi.js";
   import type { Translate } from "$lib/webapp/types.js";
 
@@ -11,6 +12,7 @@
   let failed = $state(false);
   let copied = $state(false);
   let controller: AbortController | undefined;
+  const guideScreen = lazyScreen(() => import("./screens/InstallGuideScreen.svelte"));
   async function load() {
     controller?.abort();
     const current = new AbortController();
@@ -64,6 +66,27 @@
     <p>{t("wa_services_subscription_private")}</p>
     <p>{t("wa_services_subscription_import")}</p>
     <p>{t("wa_services_subscription_update")}</p>
+    <details
+      class="service-guide"
+      ontoggle={(event) => event.currentTarget.open && guideScreen.load()}
+    >
+      <summary>{t("wa_install_title")}</summary>
+      {#if guideScreen.component}
+        {@const Guide = guideScreen.component}
+        <Guide
+          serviceMode
+          currentLang={typeof document === "undefined" ? "ru" : document.documentElement.lang}
+          subscription={{ config_link: url }}
+          {t}
+          copyText={async (value) => copy(value)}
+          openExternalLink={(value) => window.open(value, "_blank", "noopener,noreferrer")}
+        />
+      {:else if guideScreen.failed}
+        <p role="alert">{t("wa_install_unavailable")}</p>
+      {:else}
+        <p role="status">{t("wa_install_loading")}</p>
+      {/if}
+    </details>
   {/if}
 </section>
 
@@ -78,5 +101,12 @@
     color: var(--muted);
     line-height: 1.6;
     overflow-wrap: anywhere;
+  }
+  .service-guide {
+    min-width: 0;
+  }
+  .service-guide summary {
+    cursor: pointer;
+    font-weight: 600;
   }
 </style>

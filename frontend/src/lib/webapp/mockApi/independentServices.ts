@@ -170,6 +170,8 @@ export function independentServicesDemoResponse(path: string, options: RequestIn
     return { ok: true, plans: rows.slice(offset, offset + limit), total: rows.length };
   }
   if (/^\/services\/[^/]+\/subscription$/.test(route) && method === "GET") {
+    if (new URLSearchParams(window.location.search).has("delivery_fail"))
+      return { ok: false, error: "service_not_deliverable" };
     const service = services.find(
       (item) => item.id === route.split("/")[2] && item.user_id === demoOwner
     );
