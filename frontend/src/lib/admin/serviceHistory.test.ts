@@ -84,4 +84,63 @@ describe("operation history", () => {
       serviceOrderSnapshot({ ...order, kind: "renew", snapshot: { ...snapshot, change: {} } })
     ).toBeNull();
   });
+  it("retains cancelled reconciliation history without implying restored access", () => {
+    const cancelled = {
+      ...snapshot,
+      before: { ...snapshot.before, desired_status: "cancelled" },
+      desired_status: "cancelled",
+      change: { action: "reconcile_usage" },
+    };
+    expect(
+      serviceOrderSnapshot({ ...order, kind: "reconcile_usage", snapshot: cancelled })
+    ).toMatchObject({ beforeStatus: "cancelled", desiredStatus: "cancelled", price: null });
+    expect(
+      serviceOrderSnapshot({
+        ...order,
+        kind: "reconcile_usage",
+        snapshot: { ...cancelled, desired_status: "paused" },
+      })
+    ).toBeNull();
+    expect(
+      serviceOrderSnapshot({
+        ...order,
+        kind: "renew",
+        snapshot: { ...cancelled, change: snapshot.change },
+      })
+    ).toBeNull();
+  });
+  it("shows terminal usage as settlement and rejects fabricated quota confirmation", () => {
+    const settled = {
+      ...snapshot,
+      before: { ...snapshot.before, desired_status: "cancelled", used_bytes: 900 },
+      desired_status: "cancelled",
+      change: { action: "settle_usage" },
+      cutover_bytes: 900,
+      usage_total_bytes: 1200,
+      used_bytes: 300,
+      allowance_confirmed: false,
+    };
+    expect(
+      serviceOrderSnapshot({ ...order, kind: "settle_usage", snapshot: settled })
+    ).toMatchObject({
+      kind: "settle_usage",
+      beforeStatus: "cancelled",
+      desiredStatus: "cancelled",
+      price: null,
+    });
+    expect(
+      serviceOrderSnapshot({
+        ...order,
+        kind: "settle_usage",
+        snapshot: { ...settled, allowance_confirmed: true },
+      })
+    ).toBeNull();
+    expect(
+      serviceOrderSnapshot({
+        ...order,
+        kind: "settle_usage",
+        snapshot: { ...settled, used_bytes: 0 },
+      })
+    ).toBeNull();
+  });
 });

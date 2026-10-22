@@ -782,3 +782,79 @@ def test_parallel_monthly_retries_keep_one_cutover_with_continuous_traffic() -> 
         panel.update_user_details_on_panel.assert_awaited_once()
 
     scenario(run)
+
+
+def test_parallel_terminal_settlement_writes_one_audit_without_confirming_allowance() -> None:
+    from datetime import timedelta
+
+    from bot.services.service_panel_state import locked_service
+    from bot.services.service_period_sync import (
+        prepare_service_cycle,
+        settle_cancelled_service_period,
+    )
+    from config.service_periods import monthly_period
+    from db.service_models import ServiceUsagePeriod
+
+    async def run(factory: async_sessionmaker[AsyncSession]) -> None:
+        async with factory.begin() as session:
+            plan = await save_plan(
+                session, terms=sample_terms(traffic_rule="monthly"), enabled=True, actor_id=1
+            )
+            service, _, _ = await activate_service(
+                session,
+                user_id=2,
+                actor_id=1,
+                plan_id=plan.id,
+                expected_revision=1,
+                idempotency_key="terminal",
+            )
+            service.starts_at = datetime(2024, 1, 31, tzinfo=UTC)
+            service.expires_at = datetime.now(UTC) + timedelta(days=365)
+            service.cycle_started_at, service.cycle_ends_at = monthly_period(
+                service.starts_at, service.starts_at
+            )
+        panel, users = panel_fixture()
+        await provision_service_identity(cast(sessionmaker, factory), service.id, panel)
+        remote = users[f"svc_{service.id}"]
+        remote["userTraffic"] = {"usedTrafficBytes": 900, "lifetimeUsedTrafficBytes": 900}
+        await prepare_service_cycle(cast(sessionmaker, factory), service.id, panel)
+        async with factory.begin() as session:
+            saved = await session.get(UserService, service.id)
+            assert saved
+            saved.desired_status = "cancelled"
+        remote["status"] = "DISABLED"
+        remote["userTraffic"] = {"usedTrafficBytes": 1200, "lifetimeUsedTrafficBytes": 1200}
+        panel.reset_mock()
+
+        async def settle() -> None:
+            async with factory.begin() as session:
+                locked = await locked_service(session, service.id)
+                assert locked
+                _, saved, connection = locked
+                assert await settle_cancelled_service_period(
+                    session, saved, connection, remote, actor_id=1
+                )
+
+        await asyncio.wait_for(asyncio.gather(*(settle() for _ in range(8))), timeout=10)
+        async with factory() as session:
+            saved = await session.get(UserService, service.id)
+            connection = await session.get(ServiceConnection, service.id)
+            period = await session.scalar(select(ServiceUsagePeriod))
+            orders = list(
+                await session.scalars(
+                    select(ServiceOrder).where(ServiceOrder.kind == "settle_usage")
+                )
+            )
+            assert saved and connection and period
+            assert saved.desired_status == "cancelled" and saved.used_bytes == 300
+            assert connection.cycle_cutover_bytes is None and connection.usage_total_bytes == 1200
+            assert (
+                period.cutover_bytes == 900
+                and period.used_bytes == 900
+                and period.confirmed_at is None
+            )
+            assert len(orders) == 1 and orders[0].snapshot["allowance_confirmed"] is False
+        panel.update_user_status_on_panel.assert_not_awaited()
+        panel.update_user_details_on_panel.assert_not_awaited()
+
+    scenario(run)

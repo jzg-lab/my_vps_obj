@@ -122,7 +122,14 @@
                         )}</small
                       >{/if}
                     {#if audit.reason}<small>{audit.reason}</small>{/if}
-                    {#if audit.beforeUsage !== null && audit.usedBytes !== null}<small
+                    {#if snapshot.kind === "settle_usage" && audit.usedBytes !== null && audit.totalBytes !== null && audit.cutoverBytes !== null}<small
+                        >{at("services_terminal_usage_hint", {
+                          used: serviceBytes(audit.usedBytes),
+                          total: serviceBytes(audit.totalBytes),
+                          cutover: serviceBytes(audit.cutoverBytes),
+                        })}</small
+                      >
+                    {:else if audit.beforeUsage !== null && audit.usedBytes !== null}<small
                         >{at("services_used")}: {serviceBytes(audit.beforeUsage)} → {serviceBytes(
                           audit.usedBytes
                         )}</small
@@ -137,7 +144,9 @@
               >
               <td data-label={at("services_quota")}
                 ><div>
-                  {#if snapshot}{#if audit.beforeQuota !== null}{serviceBytes(audit.beforeQuota)} →
+                  {#if snapshot && snapshot.kind !== "settle_usage"}{#if audit.beforeQuota !== null}{serviceBytes(
+                        audit.beforeQuota
+                      )} →
                     {/if}{serviceBytes(snapshot.quotaBytes)}<small
                       >{at(`services_${snapshot.trafficRule}`)}</small
                     >{:else}—{/if}

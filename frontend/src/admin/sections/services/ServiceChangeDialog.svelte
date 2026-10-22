@@ -12,6 +12,7 @@
   } from "$lib/admin/servicePlans";
   import {
     pendingServiceChange,
+    serviceChangeActions,
     submitServiceChange,
     type ServiceChangeBody,
     type ServiceAction,
@@ -55,6 +56,8 @@
         verifiedTotal = String(pending.change.verified_total_bytes ?? "");
         expectedRaw = String(pending.change.expected_raw_bytes ?? "");
         evidence = pending.change.evidence ?? "";
+      } else if (service.desired_status === "cancelled") {
+        action = "reconcile_usage";
       }
     } catch {
       storageFailed = true;
@@ -166,17 +169,10 @@
         <AdminSelect
           value={action}
           ariaLabel={at("services_action")}
-          items={[
-            { value: "renew", label: at("services_renew") },
-            ...(service.desired_status === "paused" &&
-            ["panel_usage_regressed", "panel_usage_reset"].includes(service.usage_error ?? "")
-              ? [{ value: "reconcile_usage", label: at("services_reconcile_usage") }]
-              : []),
-            {
-              value: service.desired_status === "paused" ? "resume" : "pause",
-              label: at(service.desired_status === "paused" ? "services_resume" : "services_pause"),
-            },
-          ]}
+          items={serviceChangeActions(service).map((value) => ({
+            value,
+            label: at(`services_${value}`),
+          }))}
           onValueChange={(value) => {
             if (
               value === "renew" ||

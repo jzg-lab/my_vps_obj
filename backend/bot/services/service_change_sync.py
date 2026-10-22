@@ -137,6 +137,9 @@ async def synchronize_service_entitlement_locked(
         remote = await read_back()
         if remote is None or remote.get("status") not in DISABLED_STATES:
             return False
+    if service.desired_status == "cancelled":
+        # Cancellation only restricts access; revocation owns final accounting and deletion.
+        return True
     squads = await service_squads(session, service)
     if connection.cycle_cutover_bytes is not None and (
         as_utc(service.expires_at) <= datetime.now(UTC) or service.desired_status == "cancelled"

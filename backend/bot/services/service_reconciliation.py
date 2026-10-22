@@ -1,4 +1,4 @@
-"""Read authoritative paused-identity counters before an audited manual recovery."""
+"""Read authoritative stopped-identity counters before an audited manual recovery."""
 
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -45,7 +45,7 @@ async def reconcile_service_usage(
         remote = result.get("user") if result.get("ok") is True else None
         if not isinstance(remote, dict) or not owns_identity(remote, connection):
             raise ServiceConflict("usage_reconciliation_unavailable")
-        if service.desired_status != "paused" or remote.get("status") not in {
+        if service.desired_status not in {"paused", "cancelled"} or remote.get("status") not in {
             "DISABLED",
             "LIMITED",
             "EXPIRED",

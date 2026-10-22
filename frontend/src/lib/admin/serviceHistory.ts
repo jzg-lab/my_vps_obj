@@ -88,9 +88,16 @@ export function serviceOrderSnapshot(order: ServiceOrder) {
         }
       : null;
   }
-  if (!["renew", "pause", "resume", "reconcile_usage"].includes(order.kind)) return null;
+  if (!["renew", "pause", "resume", "reconcile_usage", "settle_usage"].includes(order.kind))
+    return null;
   const snapshot = termsSnapshot(order);
   const { change, before, quota_bytes: quotaBytes, desired_status: desiredStatus } = order.snapshot;
+  const statuses =
+    order.kind === "settle_usage"
+      ? ["cancelled"]
+      : order.kind === "reconcile_usage"
+        ? ["paused", "cancelled"]
+        : ["active", "paused"];
   if (
     !snapshot ||
     !record(change) ||
@@ -98,14 +105,31 @@ export function serviceOrderSnapshot(order: ServiceOrder) {
     !record(before) ||
     !date(before.expires_at) ||
     typeof before.desired_status !== "string" ||
-    !["active", "paused"].includes(before.desired_status) ||
+    !statuses.includes(before.desired_status) ||
     typeof desiredStatus !== "string" ||
-    !["active", "paused"].includes(desiredStatus) ||
+    !statuses.includes(desiredStatus) ||
     typeof quotaBytes !== "number" ||
     !Number.isSafeInteger(quotaBytes) ||
     quotaBytes <= 0
   )
     return null;
+  if (
+    ["reconcile_usage", "settle_usage"].includes(order.kind) &&
+    before.desired_status !== desiredStatus
+  )
+    return null;
+  if (order.kind === "settle_usage") {
+    const { cutover_bytes: cutover, usage_total_bytes: total, used_bytes: used } = order.snapshot;
+    if (
+      order.snapshot.allowance_confirmed !== false ||
+      typeof cutover !== "number" ||
+      typeof total !== "number" ||
+      typeof used !== "number" ||
+      ![cutover, total, used].every((value) => Number.isSafeInteger(value) && value >= 0) ||
+      total - cutover !== used
+    )
+      return null;
+  }
   if (
     order.kind === "renew" &&
     (typeof change.price !== "string" ||
@@ -139,5 +163,11 @@ export function serviceOrderAudit(order: ServiceOrder) {
       record(before) && typeof before.quota_bytes === "number" ? before.quota_bytes : null,
     beforeUsage: record(before) && typeof before.used_bytes === "number" ? before.used_bytes : null,
     usedBytes: typeof used_bytes === "number" ? used_bytes : null,
+    cutoverBytes:
+      typeof order.snapshot.cutover_bytes === "number" ? order.snapshot.cutover_bytes : null,
+    totalBytes:
+      typeof order.snapshot.usage_total_bytes === "number"
+        ? order.snapshot.usage_total_bytes
+        : null,
   };
 }

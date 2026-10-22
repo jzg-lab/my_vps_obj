@@ -1,6 +1,7 @@
 import { describe, expect, it, vi } from "vitest";
 import {
   pendingServiceChange,
+  serviceChangeActions,
   submitServiceChange,
   type ServiceChangeBody,
 } from "./serviceChanges";
@@ -36,6 +37,56 @@ const body: ServiceChangeBody = {
     evidence: null,
   },
 };
+
+describe("available service changes", () => {
+  it.each(["panel_usage_reset", "panel_usage_regressed"])(
+    "allows only exact reconciliation after cancellation with %s",
+    (usage_error) => {
+      expect(
+        serviceChangeActions({
+          desired_status: "cancelled",
+          connection_state: "ready",
+          usage_error,
+        })
+      ).toEqual(["reconcile_usage"]);
+    }
+  );
+  it.each([null, "panel_usage_unavailable"])(
+    "keeps other cancelled services closed: %s",
+    (usage_error) => {
+      expect(
+        serviceChangeActions({
+          desired_status: "cancelled",
+          connection_state: "ready",
+          usage_error,
+        })
+      ).toEqual([]);
+    }
+  );
+  it("does not expose reconciliation for a revoked identity or active service", () => {
+    expect(
+      serviceChangeActions({
+        desired_status: "cancelled",
+        connection_state: "revoked",
+        usage_error: "panel_usage_reset",
+      })
+    ).toEqual([]);
+    expect(
+      serviceChangeActions({
+        desired_status: "active",
+        connection_state: "ready",
+        usage_error: "panel_usage_reset",
+      })
+    ).toEqual(["renew", "pause"]);
+    expect(
+      serviceChangeActions({
+        desired_status: "paused",
+        connection_state: "ready",
+        usage_error: "panel_usage_reset",
+      })
+    ).toEqual(["renew", "reconcile_usage", "resume"]);
+  });
+});
 
 describe("service change retries", () => {
   it("replays the same renewal after a lost response and dialog reopen", async () => {

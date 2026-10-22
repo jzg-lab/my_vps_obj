@@ -50,7 +50,11 @@ async def change_service(
     if service is None or service.user_id != user_id:
         raise ServiceConflict("service_not_found", 404)
     connection = await session.get(ServiceConnection, service_id, populate_existing=True)
-    if connection is None or connection.state == "revoked" or service.desired_status == "cancelled":
+    if (
+        connection is None
+        or connection.state == "revoked"
+        or (service.desired_status == "cancelled" and change.action != "reconcile_usage")
+    ):
         raise ServiceConflict("service_not_editable")
     if service.revision != expected_revision:
         raise ServiceConflict("service_revision_changed")
@@ -60,6 +64,8 @@ async def change_service(
         "revision": service.revision,
     }
     if change.action == "reconcile_usage":
+        if service.desired_status not in {"paused", "cancelled"}:
+            raise ServiceConflict("usage_reconciliation_pause_required")
         if usage_observation is None or connection.usage_error not in {
             "panel_usage_reset",
             "panel_usage_regressed",

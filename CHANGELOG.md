@@ -73,9 +73,13 @@
   preparation, renewal, unban and delivery share the same entitlement checks.
   Template quota edits now queue audited adjustments for existing services, preserving
   usage, original terms and closed-period records. Lower quotas retain visible overage.
-  Administrators can reconcile reset counters from exact checked records while paused;
+  Administrators can reconcile reset counters from exact checked records while paused or cancelled,
+  after panel disablement is confirmed;
   recovery preserves cumulative history, records the counter mapping and never replaces
-  the identity or automatically resumes it.
+  the identity or automatically resumes it. Cancelled services reject renewal and resume;
+  terminal settlement retains the old period and fixed checkpoint, records exact subsequent
+  usage, and clears the pending switch without claiming that a new allowance was confirmed.
+  Evidence must commit before identity deletion.
   Administrators can request delivery of a prepared service after confirmed metering and,
   for dedicated exits, recorded verification. The durable request uses the shared entitlement
   synchronizer; pauses, bans, expiry and exhaustion still prevent access, including after retries.

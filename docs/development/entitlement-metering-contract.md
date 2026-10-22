@@ -128,6 +128,96 @@ A's changes in `service_provisioning.py` are limited to importing/calling
 Preparation/delivery behavior remains B-owned. Migration 0113 also includes A3's
 quota-change journal and raw-counter recovery fields; B retains 0114.
 
+### Cancelled-service reconciliation and terminal settlement
+
+Cancelled services with a retained identity may reconcile exact usage after the
+same ownership, stopped-panel-state and exact-counter checks as paused services.
+Reconciliation preserves `cancelled`, the identity and all previous usage; pause,
+resume and renewal remain rejected. Revoked identities are not editable. The
+shared entitlement synchronizer only confirms restriction for cancelled services:
+it never patches their allowance/expiry or confirms their pending monthly switch.
+
+B can replace its pending-cycle revocation blocker with this shared entry:
+
+```python
+async def settle_cancelled_service_period(
+    session: AsyncSession,
+    service: UserService,
+    connection: ServiceConnection,
+    remote: dict[str, Any],
+    *,
+    actor_id: int,
+    now: datetime | None = None,
+) -> bool:
+    ...
+```
+
+The function lives in `bot.services.service_period_sync`. The caller holds the
+account row lock and supplies a fresh read-back of the bound identity, confirmed
+`DISABLED`, `LIMITED` or `EXPIRED`. Pass the initiating revocation administrator as
+`actor_id` from B's persisted revoke order. It rejects unresolved usage errors,
+ownership mismatches and invalid/reset/regressing counters. Accurate anomaly
+reconciliation must finish first; no estimates or missing-history forgiveness are
+introduced. The helper performs no panel calls.
+
+For a pending cutover, the same transaction:
+
+- Retains the old `ServiceUsagePeriod` unchanged, including original usage/quota,
+  fixed cutover and **null `confirmed_at`**.
+- Sets displayed final usage to accepted cumulative total minus that cutover,
+  using the original pending period's next calendar bounds. Desired status,
+  quota, expiry, original terms and identity remain unchanged.
+- Adds one immutable `ServiceOrder(kind="settle_usage")`: the snapshot stores
+  old period dates/usage, next dates, `cutover_bytes`, `usage_total_bytes`,
+  `usage_raw_bytes`, `usage_lifetime_offset`, resulting `used_bytes`, bound panel
+  UUID/status, observation time and `allowance_confirmed=false`. The request key
+  is `settle:<service_id>:<old_cycle_started_at ISO timestamp>`.
+- Clears `connection.cycle_cutover_bytes`, so existing API `cycle_pending` becomes
+  false for the cancelled service. It does not clear B's revocation retry intent,
+  mark the identity revoked or release an exit resource.
+
+True means terminal accounting is ready **in the current transaction**, not that
+revocation or Node enforcement is complete. The helper flushes but does not commit.
+B must commit before deleting the remote identity, then reacquire its lock and
+retain its existing ownership/cancellation checks. Any later accepted observation
+before deletion must also be persisted. With no remaining cutover the helper only
+accepts the fresh usage observation; it creates no second settlement order.
+Rollback leaves the original pending checkpoint and usage intact. Repeated calls
+under the account lock cannot grant another allowance or duplicate the audit.
+
+No schema/API fields or migration 0115 are needed. Do not edit 0113 or 0114.
+
+UI handoff to B: `serviceChangeActions(service)` in `lib/admin/serviceChanges.ts`
+returns only `reconcile_usage` for cancelled, non-revoked services with
+`panel_usage_reset`/`panel_usage_regressed`; otherwise cancelled services return
+no actions. Use its nonempty result to expose **Manage** independently of the
+existing **Revoke** condition. The dialog defaults cancelled services to exact
+reconciliation. The shared history parser accepts cancelled reconciliation and
+`settle_usage`; the history dialog explains post-checkpoint/cumulative usage and
+explicitly says no allowance was confirmed, rather than presenting a quota grant.
+Final revoked records must use the persisted cleared checkpoint, not a fabricated
+cycle confirmation. B/C own merged desktop/mobile verification.
+
+C locale handoff (English/Russian provided): changed
+`admin_services_usage_reconcile`, `admin_services_reconcile_hint`,
+`admin_services_usage_reconciliation_pause_required`; new
+`admin_services_settle_usage`, `admin_services_terminal_usage_hint`.
+
+Follow-up regressions cover cancellation before reset/regression, stopped-state
+verification, exact correction without re-enabling, blocked pause/resume/renew,
+terminal rollback/retry, unchanged old-period evidence, final UI `cycle_pending`
+and invalid ownership/counter/period guards. The authored PostgreSQL test
+`test_parallel_terminal_settlement_writes_one_audit_without_confirming_allowance`
+checks eight serialized retries and one immutable terminal order; execution is
+reserved for the main window's isolated integrated environment. Browser and build
+time remains allocated to B; this patch does not claim merged UI verification.
+The follow-up full backend run passed **5,593 tests and 636 subtests**, with
+**48 skipped**. Frontend unit tests passed **1,499 tests in 203 files**; full mypy,
+Ruff lint/format, frontend static checks, architecture and docs consistency checks
+passed. Frontend/docs builds, browser checks and the new PostgreSQL concurrency
+test were not run for this follow-up because the integrated browser/build and
+database slots belong to B/the main window.
+
 ## Local validation and remaining acceptance (2026-10-23)
 
 Implementation checkpoint: `1476ddb1`. Validation used the isolated A worktree,

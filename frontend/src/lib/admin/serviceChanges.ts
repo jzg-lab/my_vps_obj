@@ -1,8 +1,24 @@
 import type { components } from "$lib/api/openapi.generated";
 import { builtApiPath, type ApiClient } from "$lib/webapp/publicApi";
+import type { UserService } from "./servicePlans";
 
 export type ServiceChangeBody = components["schemas"]["ServiceChangeBody"];
 export type ServiceAction = ServiceChangeBody["change"]["action"];
+
+export function serviceChangeActions(
+  service: Pick<UserService, "desired_status" | "connection_state" | "usage_error">
+): ServiceAction[] {
+  if (service.connection_state === "revoked") return [];
+  const reconciliation: ServiceAction[] =
+    ["paused", "cancelled"].includes(service.desired_status) &&
+    ["panel_usage_reset", "panel_usage_regressed"].includes(service.usage_error ?? "")
+      ? ["reconcile_usage"]
+      : [];
+  return service.desired_status === "cancelled"
+    ? reconciliation
+    : ["renew", ...reconciliation, service.desired_status === "paused" ? "resume" : "pause"];
+}
+
 const storageKey = (userId: number, serviceId: string) =>
   `my-vps-service-change:${userId}:${serviceId}`;
 

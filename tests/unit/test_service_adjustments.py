@@ -16,6 +16,107 @@ from tests.unit.test_user_services import sample_terms
 
 
 class ServiceAdjustmentTests(ServiceChangeTestCase):
+    async def test_cancelled_service_can_reconcile_without_restoring_or_replacing_identity(
+        self,
+    ) -> None:
+        for anomaly, lifetime in [("panel_usage_reset", 300), ("panel_usage_regressed", 100)]:
+            with self.subTest(anomaly=anomaly):
+                service, _, _ = await self.activate(anomaly)
+                _, remote = await self.prepare(service, ready=True)
+                remote["userTraffic"] = {"usedTrafficBytes": 500, "lifetimeUsedTrafficBytes": 500}
+                await synchronize_service_usage(
+                    cast(sessionmaker, self.sessions), service.id, self.panel
+                )
+                async with self.sessions.begin() as session:
+                    saved = await session.get(UserService, service.id)
+                    assert saved
+                    # B persists this cancellation before trying to revoke the identity.
+                    saved.desired_status = "cancelled"
+                    saved.revision += 1
+                remote["userTraffic"] = {
+                    "usedTrafficBytes": 100,
+                    "lifetimeUsedTrafficBytes": lifetime,
+                }
+                await synchronize_service_change(
+                    cast(sessionmaker, self.sessions), service.id, self.panel
+                )
+                async with self.sessions() as session:
+                    connection = await session.get(ServiceConnection, service.id)
+                    assert connection and connection.usage_error == anomaly
+                    identity = (connection.panel_user_uuid, connection.username, connection.state)
+                change = ServiceChange(
+                    action="reconcile_usage",
+                    verified_total_bytes=600,
+                    expected_raw_bytes=100,
+                    evidence="Exact cancellation incident ledger",
+                )
+                remote["status"] = "ACTIVE"
+                async with self.sessions() as session:
+                    with self.assertRaisesRegex(
+                        ServiceConflict, "usage_reconciliation_pause_required"
+                    ):
+                        await reconcile_service_usage(
+                            session,
+                            service_id=service.id,
+                            user_id=1,
+                            actor_id=1,
+                            expected_revision=2,
+                            idempotency_key=f"recover:{anomaly}",
+                            change=change,
+                            panel=self.panel,
+                        )
+                remote["status"] = "DISABLED"
+                self.panel.reset_mock()
+                async with self.sessions.begin() as session:
+                    fixed, order, duplicate = await reconcile_service_usage(
+                        session,
+                        service_id=service.id,
+                        user_id=1,
+                        actor_id=1,
+                        expected_revision=2,
+                        idempotency_key=f"recover:{anomaly}",
+                        change=change,
+                        panel=self.panel,
+                    )
+                    assert not duplicate and fixed.used_bytes == 600
+                    assert fixed.desired_status == "cancelled"
+                    assert order.snapshot["before"]["desired_status"] == "cancelled"
+                    assert order.snapshot["desired_status"] == "cancelled"
+                async with self.sessions.begin() as session:
+                    _, replay, duplicate = await reconcile_service_usage(
+                        session,
+                        service_id=service.id,
+                        user_id=1,
+                        actor_id=1,
+                        expected_revision=2,
+                        idempotency_key=f"recover:{anomaly}",
+                        change=change,
+                        panel=None,
+                    )
+                    assert duplicate and replay.id == order.id
+                for action in ("resume", "renew", "pause"):
+                    with self.assertRaisesRegex(ServiceConflict, "service_not_editable"):
+                        await self.change(fixed, action, key=f"blocked:{anomaly}:{action}")
+                await synchronize_service_change(
+                    cast(sessionmaker, self.sessions), service.id, self.panel
+                )
+                async with self.sessions() as session:
+                    saved = await session.get(UserService, service.id)
+                    connection = await session.get(ServiceConnection, service.id)
+                    assert saved and connection
+                    assert saved.desired_status == "cancelled" and saved.used_bytes == 600
+                    assert saved.quota_bytes == service.quota_bytes
+                    assert connection.usage_error is None and connection.usage_total_bytes == 600
+                    assert (
+                        connection.panel_user_uuid,
+                        connection.username,
+                        connection.state,
+                    ) == identity
+                self.panel.create_panel_user.assert_not_awaited()
+                self.panel.update_user_details_on_panel.assert_not_awaited()
+                self.panel.update_user_status_on_panel.assert_not_awaited()
+                assert remote["status"] == "DISABLED"
+
     async def test_template_quota_applies_to_existing_services_once_without_rewriting_snapshot(
         self,
     ) -> None:

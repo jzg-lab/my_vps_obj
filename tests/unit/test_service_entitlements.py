@@ -10,13 +10,188 @@ from sqlalchemy.orm import sessionmaker
 
 from bot.services.service_change_sync import ServiceChangeWorker, synchronize_service_change
 from bot.services.service_panel_state import matches_service_terms, panel_traffic_limit
+from bot.services.service_period_sync import prepare_service_cycle, settle_cancelled_service_period
+from bot.services.service_reconciliation import reconcile_service_usage
 from bot.services.service_usage_sync import synchronize_service_usage
+from config.service_changes import ServiceChange
 from config.service_periods import as_utc, monthly_period
-from db.service_models import ServiceConnection, ServiceUsagePeriod, UserService
+from db.service_models import ServiceConnection, ServiceOrder, ServiceUsagePeriod, UserService
 from tests.unit.test_service_changes import ServiceChangeTestCase
 
 
 class ServiceEntitlementTests(ServiceChangeTestCase):
+    async def cancelled_cutover(self) -> tuple[UserService, dict[str, Any]]:
+        service, remote = await self.monthly()
+        await prepare_service_cycle(cast(sessionmaker, self.sessions), service.id, self.panel)
+        async with self.sessions.begin() as session:
+            saved = await session.get(UserService, service.id)
+            assert saved
+            saved.desired_status = "cancelled"
+            saved.revision += 1
+        remote["status"] = "DISABLED"
+        remote["userTraffic"] = {"usedTrafficBytes": 1200, "lifetimeUsedTrafficBytes": 1200}
+        self.panel.reset_mock()
+        return service, remote
+
+    async def test_terminal_settlement_survives_rollback_without_confirming_or_granting_quota(
+        self,
+    ) -> None:
+        from bot.app.web.service_schemas import UserServiceOut
+        from bot.services.service_panel_state import locked_service
+
+        service, remote = await self.cancelled_cutover()
+        for commit in (False, True, True):
+            async with self.sessions() as session:
+                locked = await locked_service(session, service.id)
+                assert locked
+                _, saved, connection = locked
+                assert await settle_cancelled_service_period(
+                    session, saved, connection, remote, actor_id=1
+                )
+                if commit:
+                    await session.commit()
+                else:
+                    await session.rollback()
+            async with self.sessions() as session:
+                saved = await session.get(UserService, service.id)
+                connection = await session.get(ServiceConnection, service.id)
+                period = await session.scalar(select(ServiceUsagePeriod))
+                orders = list(
+                    await session.scalars(
+                        select(ServiceOrder).where(ServiceOrder.kind == "settle_usage")
+                    )
+                )
+                assert saved and connection and period
+                assert saved.desired_status == "cancelled" and connection.state == "ready"
+                assert period.confirmed_at is None and period.cutover_bytes == 900
+                assert period.used_bytes == 900 and period.quota_bytes == 10000
+                if not commit:
+                    assert not orders and saved.used_bytes == 900
+                    assert connection.cycle_cutover_bytes == 900
+                    continue
+                assert saved.used_bytes == 300 and connection.usage_total_bytes == 1200
+                assert connection.cycle_cutover_bytes is None and connection.sync_pending
+                assert as_utc(saved.cycle_started_at) == as_utc(period.next_started_at)
+                assert as_utc(saved.cycle_ends_at) == as_utc(period.next_ends_at)
+                assert connection.panel_user_uuid == remote["uuid"]
+                assert not UserServiceOut.from_orm_service(saved, connection, None).cycle_pending
+                assert len(orders) == 1
+                snapshot = orders[0].snapshot
+                assert orders[0].actor_id == 1
+                assert snapshot["before"]["used_bytes"] == 900
+                assert (
+                    snapshot["before"]["desired_status"]
+                    == snapshot["desired_status"]
+                    == "cancelled"
+                )
+                assert snapshot["cutover_bytes"] == 900 and snapshot["used_bytes"] == 300
+                assert snapshot["usage_total_bytes"] == snapshot["usage_raw_bytes"] == 1200
+                assert snapshot["allowance_confirmed"] is False
+                assert snapshot["panel_user_uuid"] == remote["uuid"]
+        await synchronize_service_change(cast(sessionmaker, self.sessions), service.id, self.panel)
+        assert remote["trafficLimitBytes"] == 10000 and remote["status"] == "DISABLED"
+        self.panel.create_panel_user.assert_not_awaited()
+        self.panel.update_user_details_on_panel.assert_not_awaited()
+        self.panel.update_user_status_on_panel.assert_not_awaited()
+
+    async def test_terminal_settlement_requires_cancelled_stopped_owned_and_verified_identity(
+        self,
+    ) -> None:
+        from bot.services.service_panel_state import locked_service
+
+        service, remote = await self.cancelled_cutover()
+        for invalid in (
+            "active",
+            "paused",
+            "remote_active",
+            "foreign",
+            "unbound",
+            "anomaly",
+            "stale",
+            "reset",
+            "missing_period",
+            "confirmed_period",
+            "wrong_cutover",
+        ):
+            async with self.sessions() as session:
+                locked = await locked_service(session, service.id)
+                assert locked
+                _, saved, connection = locked
+                observed = dict(remote)
+                if invalid in {"active", "paused"}:
+                    saved.desired_status = invalid
+                elif invalid == "remote_active":
+                    observed["status"] = "ACTIVE"
+                elif invalid == "foreign":
+                    observed["uuid"] = "another-identity"
+                elif invalid == "unbound":
+                    connection.panel_user_uuid = None
+                elif invalid == "anomaly":
+                    connection.usage_error = "panel_usage_regressed"
+                elif invalid == "stale":
+                    observed["userTraffic"] = {
+                        "usedTrafficBytes": 850,
+                        "lifetimeUsedTrafficBytes": 850,
+                    }
+                elif invalid == "reset":
+                    observed["trafficLimitStrategy"] = "MONTH"
+                else:
+                    period = await session.scalar(select(ServiceUsagePeriod))
+                    assert period
+                    if invalid == "missing_period":
+                        await session.delete(period)
+                        await session.flush()
+                    elif invalid == "confirmed_period":
+                        period.confirmed_at = datetime.now(UTC)
+                    else:
+                        period.cutover_bytes = 899
+                assert not await settle_cancelled_service_period(
+                    session, saved, connection, observed, actor_id=1
+                )
+                assert saved.used_bytes == 900 and connection.cycle_cutover_bytes == 900
+                assert not await session.scalar(
+                    select(ServiceOrder).where(ServiceOrder.kind == "settle_usage")
+                )
+                await session.rollback()
+
+    async def test_cancelled_pending_period_settles_only_after_exact_anomaly_reconciliation(
+        self,
+    ) -> None:
+        from bot.services.service_panel_state import locked_service
+
+        service, remote = await self.cancelled_cutover()
+        remote["userTraffic"] = {"usedTrafficBytes": 100, "lifetimeUsedTrafficBytes": 100}
+        await synchronize_service_usage(cast(sessionmaker, self.sessions), service.id, self.panel)
+        async with self.sessions.begin() as session:
+            fixed, _, _ = await reconcile_service_usage(
+                session,
+                service_id=service.id,
+                user_id=1,
+                actor_id=1,
+                expected_revision=2,
+                idempotency_key="cancelled-recovery",
+                change=ServiceChange(
+                    action="reconcile_usage",
+                    verified_total_bytes=1200,
+                    expected_raw_bytes=100,
+                    evidence="Exact final incident ledger",
+                ),
+                panel=self.panel,
+            )
+            assert fixed.used_bytes == 900 and fixed.desired_status == "cancelled"
+        async with self.sessions.begin() as session:
+            locked = await locked_service(session, service.id)
+            assert locked
+            _, saved, connection = locked
+            assert await settle_cancelled_service_period(
+                session, saved, connection, remote, actor_id=1
+            )
+            assert saved.used_bytes == 300 and saved.desired_status == "cancelled"
+            assert connection.usage_total_bytes == 1200 and connection.usage_raw_bytes == 100
+            assert connection.cycle_cutover_bytes is None
+            period = await session.scalar(select(ServiceUsagePeriod))
+            assert period and period.used_bytes == 900 and period.confirmed_at is None
+
     async def monthly(self, key: str = "monthly") -> tuple[UserService, dict[str, Any]]:
         service, _, _ = await self.activate(key)
         _, remote = await self.prepare(service, ready=True)
