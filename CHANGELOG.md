@@ -79,7 +79,9 @@
   the identity or automatically resumes it. Cancelled services reject renewal and resume;
   terminal settlement retains the old period and fixed checkpoint, records exact subsequent
   usage, and clears the pending switch without claiming that a new allowance was confirmed.
-  Evidence must commit before identity deletion.
+  Evidence must commit before identity deletion. A committed reconciliation remains safely
+  retryable after revocation finishes, without contacting the removed panel identity or
+  applying the correction twice.
   Administrators can request delivery of a prepared service after confirmed metering and,
   for dedicated exits, recorded verification. The durable request uses the shared entitlement
   synchronizer; pauses, bans, expiry and exhaustion still prevent access, including after retries.

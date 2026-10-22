@@ -3,12 +3,13 @@
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from bot.services.service_panel_state import ServiceEntitlementPanel, locked_service, owns_identity
+from bot.services.service_panel_state import ServiceEntitlementPanel, owns_identity
 from bot.services.service_usage_sync import usage_counters
 from config.service_changes import ServiceChange
 from db.dal.service_changes_dal import change_service
+from db.dal.user_dal import lock_user_by_id
 from db.dal.user_services_dal import ServiceConflict
-from db.service_models import ServiceOrder, UserService
+from db.service_models import ServiceConnection, ServiceOrder, UserService
 
 
 async def reconcile_service_usage(
@@ -22,8 +23,9 @@ async def reconcile_service_usage(
     change: ServiceChange,
     panel: ServiceEntitlementPanel | None,
 ) -> tuple[UserService, ServiceOrder, bool]:
-    locked = await locked_service(session, service_id)
-    if locked is None or locked[1].user_id != user_id:
+    user = await lock_user_by_id(session, user_id)
+    service = await session.get(UserService, service_id, populate_existing=True)
+    if user is None or service is None or service.user_id != user_id:
         raise ServiceConflict("service_not_found", 404)
     previous = await session.scalar(
         select(ServiceOrder).where(
@@ -33,7 +35,10 @@ async def reconcile_service_usage(
     )
     observation = None
     if previous is None:
-        _user, service, connection = locked
+        # Completed operations remain replayable after the worker revokes the identity.
+        connection = await session.get(ServiceConnection, service_id, populate_existing=True)
+        if connection is None or connection.state == "revoked":
+            raise ServiceConflict("service_not_found", 404)
         if service.revision != expected_revision:
             raise ServiceConflict("service_revision_changed")
         if panel is None or connection.panel_user_uuid is None:

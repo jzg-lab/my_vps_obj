@@ -281,3 +281,7 @@ A 第二批排他文件为 `docs/development/dev-stand.md`、`docs/development/h
 2026-10-23 文档协作调整：A 当前执行只读计量/撤销复审，尚未修改第二批文档，已明确解除其九份文档的排他归属。主窗口完成 `graphify.md`、`runes-migration-qa.md`、`how-to.md` 三份全文中文，并补当前 MVP 与上游参考的边界；**19 个旧锚点保留、7 个代码块逐字不变、11 处本地链接可解析**。同时修正操作指南原有的 OpenAPI 测试路径为实际存在的 `tests/contracts/test_openapi_artifact.py`。文档同步、70 页导航、20 项演示路由和差异检查通过；纯文档改动没有重跑产品测试，本轮不占用 C 的构建/浏览器时段，构建与视觉验收仍待统一运行。
 
 B 当前七份运营/排障文档提交后接续剩余六份：`docs/development/dev-stand.md`、`docs/development/plugins.md`、`docs/development/plugin-contract.md`、`docs/development/plugin-extensions.md`、`docs/development/plugin-ui-composition.md`、`docs/architecture/subscription-gateway.md`。A/C 均已收到归属更新；C 继续其余正文、教程和站点，数据库/面板写入时段仍无人占用。
+
+2026-10-23 撤销边界复审：A 提出两项问题，主窗口沿调用链确认。其一，已绑定的面板身份在首次撤销读取前消失时，原代码可能直接标记已撤销而跳过未知用量收尾；已交 B 优先区分有持久化证据的删除重试与原因不明的消失，必要迁移 **0115 由 B 独占**，六份文档暂后置。其二，准确核对提交成功但 HTTP 响应丢失后，worker 先完成撤销，会导致原请求重试错误返回 404。主窗口已复现原实现的两个失败子场景，修复为先在账号锁和归属验证下处理已保存的幂等请求，再检查新操作的连接状态；重试不重新读取面板或重复调整用量，新的请求、冲突载荷和越权请求仍拒绝。
+
+第二项定向回归 **22 passed、11 subtests passed**，相关 Ruff/格式和两文件 mypy 通过。完整产品门禁将在 B 的撤销修复及 C 的教程接口集成后重跑；当前不是最终验收完成。第一项仍待 B 提交，未知身份消失不能按已关闭处理。真实 Node 的迟到流量和长连接停用仍待隔离资源。

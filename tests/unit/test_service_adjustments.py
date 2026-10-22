@@ -116,6 +116,44 @@ class ServiceAdjustmentTests(ServiceChangeTestCase):
                 self.panel.update_user_details_on_panel.assert_not_awaited()
                 self.panel.update_user_status_on_panel.assert_not_awaited()
                 assert remote["status"] == "DISABLED"
+                # The successful recovery response can be lost before revocation completes.
+                async with self.sessions.begin() as session:
+                    connection = await session.get(ServiceConnection, service.id)
+                    assert connection
+                    connection.state = "revoked"
+                self.panel.reset_mock()
+                async with self.sessions.begin() as session:
+                    replayed, replay, duplicate = await reconcile_service_usage(
+                        session,
+                        service_id=service.id,
+                        user_id=1,
+                        actor_id=1,
+                        expected_revision=2,
+                        idempotency_key=f"recover:{anomaly}",
+                        change=change,
+                        panel=None,
+                    )
+                    assert duplicate and replay.id == order.id and replayed.used_bytes == 600
+                    assert replayed.desired_status == "cancelled" and replayed.revision == 3
+                for owner, key, revision, error in [
+                    (1, f"new:{anomaly}", 3, "service_not_found"),
+                    (1, f"recover:{anomaly}", 3, "idempotency_conflict"),
+                    (2, f"recover:{anomaly}", 2, "service_not_found"),
+                ]:
+                    with self.subTest(owner=owner, key=key):
+                        async with self.sessions() as session:
+                            with self.assertRaisesRegex(ServiceConflict, error):
+                                await reconcile_service_usage(
+                                    session,
+                                    service_id=service.id,
+                                    user_id=owner,
+                                    actor_id=1,
+                                    expected_revision=revision,
+                                    idempotency_key=key,
+                                    change=change,
+                                    panel=self.panel,
+                                )
+                self.panel.get_user_by_uuid_lookup.assert_not_awaited()
 
     async def test_template_quota_applies_to_existing_services_once_without_rewriting_snapshot(
         self,
