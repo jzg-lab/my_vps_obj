@@ -52,8 +52,8 @@ export default defineConfig({
       lastUpdated: false,
       locales: {
         root: {
-          label: 'Русский',
-          lang: 'ru',
+          label: '简体中文',
+          lang: 'zh-CN',
         },
       },
       head: [

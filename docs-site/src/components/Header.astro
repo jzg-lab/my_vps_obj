@@ -121,7 +121,7 @@ function isDocsVersionLink(href: string) {
   {
     !hasSidebar && nav.length > 0 && (
       <details class="minishop-mobile-nav md:hidden print:hidden">
-        <summary aria-label="Menu">
+        <summary aria-label={Astro.locals.t('menuButton.accessibleLabel')}>
           <span aria-hidden="true" />
         </summary>
         <div class="minishop-mobile-nav-panel">

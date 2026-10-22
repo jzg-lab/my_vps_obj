@@ -1,8 +1,12 @@
 # 系统要求
 
+<a id="системные-требования"></a>
+
 Remnawave Minishop 使用 Docker Compose 运行 PostgreSQL、Redis、backend、worker 和 frontend。本项目一期还需要独立的 Remnawave Panel 与测试节点来验收连接交付。小规模部署可以使用基础 VPS；额外内存有助于更新、备份和排障。
 
 ## VPS 资源
+
+<a id="конфигурация-vps"></a>
 
 | 场景 | CPU | 内存 | SSD 可用空间 |
 | --- | ---: | ---: | ---: |
@@ -20,6 +24,8 @@ Remnawave Minishop 使用 Docker Compose 运行 PostgreSQL、Redis、backend、w
 
 ## 操作系统与工具
 
+<a id="операционная-система-и-программы"></a>
+
 - `amd64`（x86_64）架构的 64 位 Linux。建议使用仍受维护的 Ubuntu Server 或 Debian，无需图形桌面。
 - 安装 Docker 和配置网络所需的 `root` 或 `sudo` 权限。
 - Docker Engine **25.0+**、Docker Compose plugin **2.20.2+**。使用 `docker compose` 命令，不使用旧版独立 `docker-compose`。
@@ -29,6 +35,8 @@ Remnawave Minishop 使用 Docker Compose 运行 PostgreSQL、Redis、backend、w
 标准 VPS 部署不需要单独安装 Python、Node.js、PostgreSQL 或 Redis；它们随容器运行。只有手动克隆仓库或从源码构建时才需要 Git。
 
 ## 网络与外部依赖
+
+<a id="сеть-и-внешние-зависимости"></a>
 
 - **高于 2.7.0** 的 Remnawave Panel、面板 API 密钥和 webhook 密钥。具体接口兼容性仍须按[面板 API 说明](../architecture/remnawave-api-compatibility.md)核对，不能只根据版本号推断。
 - 使用邮箱登录时需配置 SMTP、公开的网站地址和持久化的邮箱登录密钥。只有启用 Telegram 时才需要机器人令牌；管理员权限通过账号角色授予。
