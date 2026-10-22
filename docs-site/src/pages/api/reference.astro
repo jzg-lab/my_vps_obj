@@ -1,4 +1,5 @@
 ---
+import copy from "../../../../locales/zh-hans.json";
 import StarlightPage from '@astrojs/starlight/components/StarlightPage.astro';
 
 import swaggerUiBundleUrl from 'swagger-ui-dist/swagger-ui-bundle.js?url';
@@ -12,25 +13,22 @@ const editUrl =
 
 <StarlightPage
   frontmatter={{
-    title: 'Интерактивная спецификация API',
+    title: copy.docs_api_title,
     description:
-      'Swagger UI для OpenAPI-контракта Remnawave Minishop HTTP API.',
+      copy.docs_api_description,
     editUrl,
   }}
 >
   <link rel="stylesheet" href={swaggerUiStylesUrl} />
 
   <p>
-    Эта страница показывает тот же OpenAPI-контракт, который публикуется как
-    <a href="/openapi.json"><code>/openapi.json</code></a>. Спецификация
-    генерируется из живого <code>aiohttp</code>-роутера и используется для
-    frontend-типов.
+    {copy.docs_api_intro} <a href="/openapi.json"><code>/openapi.json</code></a>。{copy.docs_api_generation}
   </p>
 
   <div class="api-reference-actions">
-    <a class="api-reference-button" href="/openapi.json">Открыть OpenAPI JSON</a>
+    <a class="api-reference-button" href="/openapi.json">{copy.docs_api_open}</a>
     <a class="api-reference-button" href="/architecture/http-api/">
-      Правила HTTP-контрактов
+      {copy.docs_api_contracts}
     </a>
   </div>
 

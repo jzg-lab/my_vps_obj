@@ -1,4 +1,5 @@
 ---
+import copy from "../../../locales/zh-hans.json";
 import { Icon } from '@astrojs/starlight/components';
 import { repositoryStars, starsVerifiedAt, type CommunityProject } from '../data/awesomeMinishop';
 
@@ -24,7 +25,7 @@ const forgeIcon = project.forge === 'GitHub' ? 'github' : 'gitlab';
     href={project.preview}
     target="_blank"
     rel="noopener noreferrer"
-    aria-label={`Открыть превью ${project.name} в новой вкладке`}
+    aria-label={copy.docs_community_preview.replace("{name}", project.name)}
   >
     <img
       src={project.preview}
@@ -43,12 +44,13 @@ const forgeIcon = project.forge === 'GitHub' ? 'github' : 'gitlab';
         href={repositoryRoot}
         target="_blank"
         rel="noopener noreferrer"
-        aria-label={`Звёзды на ${project.forge}: ${stars ?? 'количество неизвестно'}`}
-        title={`Звёзды на ${project.forge}; данные на ${starsVerifiedAt}`}
+        aria-label={copy.docs_community_stars.replace("{forge}", project.forge).replace("{count}", String(stars ?? copy.docs_community_stars_unknown))}
+        title={copy.docs_community_stars_snapshot.replace("{forge}", project.forge).replace("{date}", starsVerifiedAt)}
         data-stars-api={starsApi}
         data-stars-field={project.forge === 'GitHub' ? 'stargazers_count' : 'star_count'}
         data-stars-status="snapshot"
         data-forge={project.forge}
+        data-stars-label={copy.docs_community_stars.replace("{forge}", project.forge)}
       >
         <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="m12 3 2.8 5.7 6.3.9-4.6 4.4 1.1 6.3-5.6-3-5.6 3 1.1-6.3L2.9 9.6l6.3-.9L12 3Z" /></svg>
         <span data-star-count>{stars ?? '—'}</span>
@@ -56,12 +58,12 @@ const forgeIcon = project.forge === 'GitHub' ? 'github' : 'gitlab';
     </div>
     <a class="community-author" href={project.authorUrl} target="_blank" rel="noopener noreferrer">@{project.author}</a>
     <p class="community-description">{project.description}</p>
-    <ul class="community-tags" aria-label={`Особенности ${project.name}`}>
+    <ul class="community-tags" aria-label={copy.docs_community_features.replace("{name}", project.name)}>
       {project.tags.map((tag) => <li>{tag}</li>)}
     </ul>
     <div class="community-actions">
       <button class="community-details-button" type="button" data-project-dialog={`${project.id}-dialog`} aria-haspopup="dialog" aria-controls={`${project.id}-dialog`}>
-        Подробнее{project.install ? ' и установка' : ''} <span aria-hidden="true">+</span>
+        {project.install ? copy.docs_community_details_install : copy.docs_community_details} <span aria-hidden="true">+</span>
       </button>
       <a class="community-repository" href={project.repository} target="_blank" rel="noopener noreferrer">
         <Icon name={forgeIcon} size="1rem" /><span>{project.forge}</span>
@@ -72,20 +74,20 @@ const forgeIcon = project.forge === 'GitHub' ? 'github' : 'gitlab';
     <div class="community-dialog-body">
       <div class="community-dialog-heading">
         <h2 id={`${project.id}-dialog-title`}>{project.name}</h2>
-        <button type="button" class="community-dialog-close" data-close-project aria-label={`Закрыть сведения о ${project.name}`} autofocus>×</button>
+        <button type="button" class="community-dialog-close" data-close-project aria-label={copy.docs_community_close.replace("{name}", project.name)} autofocus>×</button>
       </div>
-      <p class="community-dialog-author">Автор: <a href={project.authorUrl} target="_blank" rel="noopener noreferrer">@{project.author}</a></p>
+      <p class="community-dialog-author">{copy.docs_community_author} <a href={project.authorUrl} target="_blank" rel="noopener noreferrer">@{project.author}</a></p>
       <p id={`${project.id}-dialog-description`} class="community-description">{project.description}</p>
       <ul class="community-features">{project.details.map((detail) => <li>{detail}</li>)}</ul>
       {project.install && (
         <div class="community-install">
-          <p>В админке откройте <strong>Внешний вид → Добавить темы</strong> и укажите Git-репозиторий:</p>
+          <p>{copy.docs_community_install}</p>
           <a href={project.install.repository} target="_blank" rel="noopener noreferrer">{project.install.repository}</a>
           <dl>
-            <div><dt>Ветка</dt><dd><code>{project.install.branch}</code></dd></div>
-            {project.install.directory && <div><dt>Подпапка</dt><dd><code>{project.install.directory}</code></dd></div>}
+            <div><dt>{copy.docs_community_branch}</dt><dd><code>{project.install.branch}</code></dd></div>
+            {project.install.directory && <div><dt>{copy.docs_community_directory}</dt><dd><code>{project.install.directory}</code></dd></div>}
           </dl>
-          <a href="/features/theme-packages/">Инструкция по установке тем →</a>
+          <a href="/features/theme-packages/">{copy.docs_community_theme_guide}</a>
         </div>
       )}
       <a class="community-repository community-dialog-repository" href={project.repository} target="_blank" rel="noopener noreferrer">

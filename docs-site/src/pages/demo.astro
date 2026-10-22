@@ -1,4 +1,5 @@
 ---
+import copy from "../../../locales/zh-hans.json";
 import { emailPreviews } from '../lib/emailPreviews.mjs';
 
 const defaultDemoSrc = '/demo/runtime/app/index.html?path=/home&mock=tariffs';
@@ -6,7 +7,7 @@ const docsHref = '/getting-started/demo/';
 ---
 
 <!doctype html>
-<html lang="ru">
+<html lang="zh-CN">
   <head>
     <meta charset="utf-8" />
     <meta
@@ -17,7 +18,7 @@ const docsHref = '/getting-started/demo/';
     <meta name="theme-color" content="#05080f" />
     <link rel="icon" href="/favicon.png" sizes="any" />
     <link rel="icon" href="/favicon.webp" type="image/webp" />
-    <title>remnawave-minishop demo</title>
+    <title>remnawave-minishop — {copy.docs_demo}</title>
     <style>
       :root {
         color-scheme: dark;
@@ -454,34 +455,34 @@ const docsHref = '/getting-started/demo/';
         aria-controls="demo-topbar-panel"
         aria-expanded="false"
       >
-        Демо
+        {copy.docs_demo}
       </button>
       <div class="demo-topbar__panel" id="demo-topbar-panel">
         <div class="demo-topbar__title">
-          <strong>remnawave-minishop demo</strong>
+          <strong>remnawave-minishop — {copy.docs_demo}</strong>
         </div>
         <label class="demo-topbar__state">
-          <span class="demo-topbar__state-label">Состояние</span>
-          <select class="demo-topbar__state-select" aria-label="Состояние личного кабинета">
-            <option value="tariffs">По умолчанию</option>
-            <option value="depleted">Трафик закончился</option>
-            <option value="no-subscription">Нет подписки</option>
-            <option value="trial">Доступна пробная подписка</option>
-            <option value="trial-telegram">Email-only: Telegram для триала</option>
-            <option value="referral-telegram">Email-only: Telegram для рефбонуса</option>
-            <option value="devices">Лимит и докупка устройств</option>
-            <option value="auto-renew">Подписка с автопродлением</option>
-            <option value="notifications">Telegram-уведомления</option>
-            <option value="user-balance">Баланс пользователя</option>
-            <option value="compact">Компактный режим</option>
-            <option value="server-status">Статус серверов на главной</option>
-            <option value="auth">Вход и регистрация</option>
-            <option value="emails">Email-письма</option>
+          <span class="demo-topbar__state-label">{copy.docs_demo_state}</span>
+          <select class="demo-topbar__state-select" aria-label={copy.docs_demo_state_label}>
+            <option value="tariffs">{copy.docs_demo_default}</option>
+            <option value="depleted">{copy.docs_demo_depleted}</option>
+            <option value="no-subscription">{copy.docs_demo_no_subscription}</option>
+            <option value="trial">{copy.docs_demo_trial}</option>
+            <option value="trial-telegram">{copy.docs_demo_trial_telegram}</option>
+            <option value="referral-telegram">{copy.docs_demo_referral_telegram}</option>
+            <option value="devices">{copy.docs_demo_devices}</option>
+            <option value="auto-renew">{copy.docs_demo_auto_renew}</option>
+            <option value="notifications">{copy.docs_demo_notifications}</option>
+            <option value="user-balance">{copy.docs_demo_balance}</option>
+            <option value="compact">{copy.docs_demo_compact}</option>
+            <option value="server-status">{copy.docs_demo_server_status}</option>
+            <option value="auth">{copy.docs_demo_auth}</option>
+            <option value="emails">{copy.docs_demo_emails}</option>
           </select>
         </label>
         <div class="demo-topbar__actions">
-          <a class="demo-topbar__back" href={docsHref}>К документации</a>
-          <button class="demo-topbar__hide" type="button" aria-label="Скрыть панель">
+          <a class="demo-topbar__back" href={docsHref}>{copy.docs_demo_back}</a>
+          <button class="demo-topbar__hide" type="button" aria-label={copy.docs_demo_hide}>
             ×
           </button>
         </div>
@@ -502,15 +503,13 @@ const docsHref = '/getting-started/demo/';
     >
       <div class="email-previews__inner">
         <header class="email-previews__header">
-          <div class="email-previews__eyebrow">Email preview</div>
-          <h1 id="email-previews-title">Превью email-писем</h1>
+          <div class="email-previews__eyebrow">{copy.docs_demo_email_eyebrow}</div>
+          <h1 id="email-previews-title">{copy.docs_demo_email_title}</h1>
           <p>
-            Все транзакционные письма собраны на одной странице и подписаны по
-            сценарию отправки. HTML-превью генерируются теми же шаблонами,
-            которые отправляются пользователям.
+            {copy.docs_demo_email_description}
           </p>
         </header>
-        <nav class="email-previews__index" aria-label="Навигация по email-письмам">
+        <nav class="email-previews__index" aria-label={copy.docs_demo_email_nav}>
           {
             emailPreviews.map((preview) => (
               <a href={`#${preview.id}`}>{preview.title}</a>
@@ -532,7 +531,7 @@ const docsHref = '/getting-started/demo/';
                   <div class="email-preview__frame-wrap">
                     <iframe
                       class="email-preview__frame"
-                      title={`Email preview: ${preview.title}`}
+                      title={`${copy.docs_demo_email_eyebrow}: ${preview.title}`}
                       srcdoc={preview.html}
                       loading="lazy"
                       sandbox="allow-scripts"

@@ -35,11 +35,14 @@ for (const badge of document.querySelectorAll<HTMLAnchorElement>('[data-stars-ap
 
 function updateBadges(badges: HTMLAnchorElement[], count: number, status: 'live' | 'cached') {
   for (const badge of badges) {
-    const label = `Звёзды на ${badge.dataset.forge}: ${count}`;
+    const formattedCount = new Intl.NumberFormat(document.documentElement.lang).format(count);
+    const label = badge.dataset.starsLabel?.replace("{count}", formattedCount);
     const countElement = badge.querySelector<HTMLElement>('[data-star-count]');
-    if (countElement) countElement.textContent = new Intl.NumberFormat('ru').format(count);
-    badge.setAttribute('aria-label', label);
-    badge.title = label;
+    if (countElement) countElement.textContent = formattedCount;
+    if (label) {
+      badge.setAttribute('aria-label', label);
+      badge.title = label;
+    }
     badge.dataset.starsStatus = status;
   }
 }

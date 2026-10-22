@@ -110,6 +110,8 @@
   operations screens, shared editors and account/support emails also gain Chinese copy.
   A Chinese client guide and a three-language installation example cover desktop, mobile
   and supported TV platforms, with official sources and unverified import paths identified.
+  Documentation navigation, demo controls, API reference introductions and community
+  project details use Chinese copy; community star labels retain it after live refreshes.
 
 - **Nested dialog keyboard focus.** Opening an emoji picker now transfers focus before
   the next keyboard event, so an immediate Escape closes the picker instead of its parent

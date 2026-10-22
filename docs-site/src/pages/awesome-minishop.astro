@@ -1,4 +1,5 @@
 ---
+import copy from "../../../locales/zh-hans.json";
 import StarlightPage from '@astrojs/starlight/components/StarlightPage.astro';
 import CommunityProjectCard from '../components/CommunityProjectCard.astro';
 import { communityCategories } from '../data/awesomeMinishop';
@@ -9,27 +10,27 @@ const projectCount = communityCategories.reduce((count, category) => count + cat
 <StarlightPage
   frontmatter={{
     title: 'Awesome Minishop',
-    description: 'Темы, плагины и инструменты от сообщества Remnawave Minishop. Превью, авторы, установка и ссылки на проекты.',
+    description: copy.docs_community_description,
     tableOfContents: false,
     editUrl: 'https://gitlab.com/3252a8/remnawave-minishop/-/edit/dev/docs-site/src/data/awesomeMinishop.ts',
   }}
 >
   <div class="awesome-catalog not-content">
     <div class="awesome-intro">
-      <div class="awesome-eyebrow"><span aria-hidden="true">✦</span> Создано сообществом</div>
-      <p class="awesome-lead">Сделайте Minishop <span>своим.</span></p>
-      <p class="awesome-subtitle">Темы с характером, новые возможности и полезные инструменты от людей, которые развивают Minishop вместе с нами.</p>
-      <div class="awesome-meta"><span class="awesome-dot" aria-hidden="true"></span> {projectCount} проектов <span aria-hidden="true">·</span> 3 категории <span aria-hidden="true">·</span> Сделано для Minishop</div>
+      <div class="awesome-eyebrow"><span aria-hidden="true">✦</span> {copy.docs_community_eyebrow}</div>
+      <p class="awesome-lead"><span>{copy.docs_community_lead}</span></p>
+      <p class="awesome-subtitle">{copy.docs_community_subtitle}</p>
+      <div class="awesome-meta"><span class="awesome-dot" aria-hidden="true"></span> {projectCount} {copy.docs_community_projects} <span aria-hidden="true">·</span> {communityCategories.length} {copy.docs_community_categories} <span aria-hidden="true">·</span> {copy.docs_community_for_minishop}</div>
     </div>
 
-    <nav class="awesome-categories" aria-label="Категории Awesome Minishop">
+    <nav class="awesome-categories" aria-label={copy.docs_community_categories_label}>
       {communityCategories.map((category) => (
         <a href={`#${category.id}`}>
           <picture class="category-symbol" aria-hidden="true">
             <source media="(prefers-reduced-motion: reduce)" srcset={`/awesome/category-${category.icon}-static.webp`} />
             <img src={`/awesome/category-${category.icon}.webp`} alt="" width="64" height="64" decoding="async" />
           </picture>
-          <span class="category-name">{category.title}<small>{category.projects.length} {category.id === 'themes' ? 'тем' : 'проект'}</small></span>
+          <span class="category-name">{category.title}<small>{category.projects.length} {copy.docs_community_projects}</small></span>
           <span class="category-arrow" aria-hidden="true">↓</span>
         </a>
       ))}
@@ -59,15 +60,15 @@ const projectCount = communityCategories.reduce((count, category) => count + cat
     <aside class="awesome-contribute" aria-labelledby="add-project">
       <div class="contribute-symbol" aria-hidden="true">✳</div>
       <div>
-        <h2 id="add-project">Ваш проект тоже может быть здесь</h2>
-        <p>Создали тему, плагин или инструмент для Minishop? Предложите его через issue или PR в ветку <code>dev</code>: добавьте ссылку, краткое описание и превью.</p>
+        <h2 id="add-project">{copy.docs_community_contribute_title}</h2>
+        <p>{copy.docs_community_contribute}</p>
         <div class="contribute-links">
-          <a href="https://github.com/3252a8/remnawave-minishop/issues/new" target="_blank" rel="noopener noreferrer">Предложить проект ↗︎</a>
-          <a href="https://gitlab.com/3252a8/remnawave-minishop/-/tree/dev" target="_blank" rel="noopener noreferrer">Репозиторий Minishop ↗︎</a>
+          <a href="https://github.com/3252a8/remnawave-minishop/issues/new" target="_blank" rel="noopener noreferrer">{copy.docs_community_submit}</a>
+          <a href="https://gitlab.com/3252a8/remnawave-minishop/-/tree/dev" target="_blank" rel="noopener noreferrer">{copy.docs_community_repository}</a>
         </div>
       </div>
     </aside>
-    <p class="awesome-note">Спасибо авторам за вклад в сообщество. Проекты поддерживают их разработчики; актуальные инструкции и совместимость указаны в репозиториях.</p>
+    <p class="awesome-note">{copy.docs_community_note}</p>
   </div>
 </StarlightPage>
 
