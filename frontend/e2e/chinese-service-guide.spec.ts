@@ -36,8 +36,14 @@ for (const width of [1440, 390]) {
       expect(
         await dialog.evaluate((node) => node.scrollWidth - node.clientWidth)
       ).toBeLessThanOrEqual(2);
-      await guide.screenshot({
-        path: info.outputPath(`guide-${width}-${index}.png`),
+      await guide.locator("summary").scrollIntoViewIfNeeded();
+      await dialog.screenshot({
+        path: info.outputPath(`guide-${width}-${index}-top.png`),
+        animations: "disabled",
+      });
+      await guide.getByRole("button", { name: "复制本服务订阅链接" }).scrollIntoViewIfNeeded();
+      await dialog.screenshot({
+        path: info.outputPath(`guide-${width}-${index}-import.png`),
         animations: "disabled",
       });
       await page.keyboard.press("Escape");
