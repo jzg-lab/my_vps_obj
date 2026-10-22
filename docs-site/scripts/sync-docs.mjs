@@ -127,7 +127,7 @@ function plainHeading(heading) {
 }
 
 function addInlineContents(markdown) {
-  if (/^##\s+(?:导航|本页目录|目录|Навигация по справочнику|На этой странице|Содержание|Оглавление)\s*$/imu.test(markdown)) {
+  if (/^##\s+(?:导航|本页目录|参考目录|目录|Навигация по справочнику|На этой странице|Содержание|Оглавление)\s*$/imu.test(markdown)) {
     return markdown;
   }
 
