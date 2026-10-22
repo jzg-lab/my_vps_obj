@@ -123,6 +123,10 @@ class ServiceConnection(Base):
     sync_attempted_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
     sync_confirmed_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
 
+    usage_total_bytes: Mapped[int | None] = mapped_column(BigInteger)
+    usage_attempted_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+    usage_error: Mapped[str | None] = mapped_column(String(128))
+
 
 class DedicatedExit(Base):
     __tablename__ = "dedicated_exits"

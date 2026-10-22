@@ -13,6 +13,15 @@ for (const width of [1440, 390]) {
     await page.goto(url());
     const history = page.getByRole("region", { name: "История услуг", exact: true });
     await expect(history.locator("tbody tr")).toHaveCount(25);
+    await expect(history.locator("tbody tr").first()).toContainText(
+      "Расход не удалось проверить. Показано последнее подтверждённое значение."
+    );
+    await history
+      .locator("tbody tr")
+      .first()
+      .screenshot({
+        path: testInfo.outputPath(`usage-unconfirmed-${width}.png`),
+      });
     await expect(
       history.getByRole("button", { name: "Подключить услугу", exact: true })
     ).toHaveCount(0);

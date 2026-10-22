@@ -147,6 +147,7 @@ class UserServiceOut(HttpResponseModel):
     cycle_started_at: datetime | None
     cycle_ends_at: datetime | None
     last_usage_sync_at: datetime | None
+    usage_error: str | None
     status: str
     connection_state: str
     exit_ip: str | None
@@ -192,6 +193,7 @@ class UserServiceOut(HttpResponseModel):
                 as_utc(service.last_usage_sync_at) if service.last_usage_sync_at else None
             ),
             status=status,
+            usage_error=connection.usage_error if connection else None,
             connection_state=state,
             exit_ip=resource.ip_address if resource else None,
             exit_verified=resource is not None and resource.verified_at is not None,

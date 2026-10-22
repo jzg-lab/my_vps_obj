@@ -17,12 +17,14 @@ from sqlalchemy.orm import sessionmaker
 from bot.app.web.admin_api_impl import users_actions
 from bot.services.account_access_sync import set_account_ban, synchronize_account_access
 from bot.services.service_provisioning import provision_service_identity
+from bot.services.service_usage_sync import synchronize_service_usage
 from db.dal.user_services_dal import ServiceConflict, activate_service, save_plan
 from db.migrator.chain_0107_user_services import _upgrade
 from db.migrator.chain_0108_service_account_history import _upgrade as upgrade_history
 from db.migrator.chain_0109_account_access_sync import _upgrade as upgrade_access
 from db.migrator.chain_0110_service_provisioning import _upgrade as upgrade_provisioning
 from db.migrator.chain_0111_service_changes import _upgrade as upgrade_changes
+from db.migrator.chain_0112_service_usage import _upgrade as upgrade_usage
 from db.models import Base, User
 from db.service_models import (
     AccountAccessSync,
@@ -78,6 +80,8 @@ def scenario(run: Callable[[async_sessionmaker[AsyncSession]], Awaitable[None]])
                 await connection.run_sync(upgrade_provisioning)
                 await connection.run_sync(upgrade_changes)
                 await connection.run_sync(upgrade_changes)
+                await connection.run_sync(upgrade_usage)
+                await connection.run_sync(upgrade_usage)
             factory = async_sessionmaker(engine, expire_on_commit=False, autoflush=False)
             async with factory.begin() as session:
                 session.add_all([User(user_id=1), User(user_id=2)])
@@ -143,6 +147,51 @@ def test_parallel_provisioning_prepares_one_disabled_identity() -> None:
             connection = await session.get(ServiceConnection, service.id)
             assert connection is not None and connection.panel_user_uuid == "1"
             assert connection.state == "pending" and connection.last_error is None
+
+    scenario(run)
+
+
+def test_concurrent_usage_observations_count_each_byte_once() -> None:
+    async def run(factory: async_sessionmaker[AsyncSession]) -> None:
+        async with factory.begin() as session:
+            plan = await save_plan(session, terms=sample_terms(), enabled=True, actor_id=1)
+            service, _, _ = await activate_service(
+                session,
+                user_id=1,
+                actor_id=1,
+                plan_id=plan.id,
+                expected_revision=1,
+                idempotency_key="usage",
+            )
+        panel, users = panel_fixture()
+        await provision_service_identity(cast(sessionmaker, factory), service.id, panel)
+        remote = users[f"svc_{service.id}"]
+        for total in (1234, 2345):
+            remote["userTraffic"] = {"usedTrafficBytes": total, "lifetimeUsedTrafficBytes": total}
+            await asyncio.gather(
+                *(
+                    synchronize_service_usage(cast(sessionmaker, factory), service.id, panel)
+                    for _ in range(8)
+                )
+            )
+            async with factory() as session:
+                saved = await session.get(UserService, service.id)
+                connection = await session.get(ServiceConnection, service.id)
+                assert saved and connection
+                assert saved.used_bytes == connection.usage_total_bytes == total
+                assert saved.revision == 1 and connection.usage_error is None
+        async with factory.begin() as session:
+            connection = await session.get(ServiceConnection, service.id)
+            assert connection
+            connection.usage_error = "panel_usage_unavailable"
+        async with factory() as session:
+            db_connection = await session.connection()
+            await db_connection.run_sync(upgrade_usage)
+            await session.commit()
+        async with factory() as session:
+            connection = await session.get(ServiceConnection, service.id)
+            assert connection and connection.usage_total_bytes == 2345
+            assert connection.usage_error == "panel_usage_unavailable"
 
     scenario(run)
 

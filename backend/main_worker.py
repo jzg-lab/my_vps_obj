@@ -64,6 +64,7 @@ from bot.services.referral_accrual_worker import ReferralAccrualWorker
 from bot.services.rollypay_reconciliation_worker import RollyPayReconciliationWorker
 from bot.services.service_change_sync import ServiceChangeWorker
 from bot.services.service_provisioning import ServiceProvisioningWorker
+from bot.services.service_usage_sync import ServiceUsageWorker
 from bot.services.settings_override_service import (
     outbound_runtime_setting_keys,
     refresh_overrides_from_db,
@@ -557,6 +558,10 @@ async def _service_changes_task(ctx: PluginContext) -> None:
     await ServiceChangeWorker(ctx.require_session_factory(), ctx.require_panel_service()).run()
 
 
+async def _service_usage_task(ctx: PluginContext) -> None:
+    await ServiceUsageWorker(ctx.require_session_factory(), ctx.require_panel_service()).run()
+
+
 def _core_worker_tasks() -> list[WorkerTaskSpec]:
     return [
         WorkerTaskSpec(name="AccountAccessSync", factory=_account_access_sync_task),
@@ -568,6 +573,11 @@ def _core_worker_tasks() -> list[WorkerTaskSpec]:
         WorkerTaskSpec(
             name="ServiceChanges",
             factory=_service_changes_task,
+            enabled=lambda settings: not settings.panel_dry_run_enabled,
+        ),
+        WorkerTaskSpec(
+            name="ServiceUsage",
+            factory=_service_usage_task,
             enabled=lambda settings: not settings.panel_dry_run_enabled,
         ),
         WorkerTaskSpec(name="OutboundSettingsRefresh", factory=_outbound_settings_refresh_task),

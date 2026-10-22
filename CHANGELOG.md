@@ -62,6 +62,10 @@
   identity fields. Durable uncertainty markers protect account deletion after interrupted
   requests; retries reconcile the same identity, reject ownership conflicts, and never
   recreate a missing bound identity. Preparation remains pending and does not enable access.
+  Independent usage sampling now saves cumulative observations per service. Repeated samples
+  do not count twice; outages, missing data and counter regressions preserve confirmed usage
+  and its timestamp. User and admin views show unconfirmed usage without hiding overage.
+  Sampling does not reset monthly allowances or enable connections.
 
 - **Nested dialog keyboard focus.** Opening an emoji picker now transfers focus before
   the next keyboard event, so an immediate Escape closes the picker instead of its parent

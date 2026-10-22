@@ -19,6 +19,8 @@ for (const width of [1440, 390]) {
     await expect(cards.first()).toContainText("17 GiB");
     await expect(cards.first()).toContainText("Лимит исчерпан");
     await expect(cards.nth(1)).toContainText("77 GiB");
+    await expect(cards.nth(1)).toContainText("Расход временно не подтверждён.");
+    await expect(cards.nth(1)).toContainText("23 GiB / 100 GiB");
     await expect(cards.nth(1)).toContainText("2026-11-22 12:00");
     await cards.nth(1).getByRole("button", { name: "Подробнее об услуге" }).click();
     const dialog = page.getByRole("dialog");

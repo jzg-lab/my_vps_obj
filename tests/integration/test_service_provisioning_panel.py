@@ -10,11 +10,12 @@ from sqlalchemy.orm import sessionmaker
 
 from bot.services.service_change_sync import synchronize_service_change
 from bot.services.service_provisioning import provision_service_identity
+from bot.services.service_usage_sync import synchronize_service_usage
 from config.service_changes import ServiceChange
 from config.service_periods import as_utc
 from db.dal.service_changes_dal import change_service
 from db.dal.user_services_dal import activate_service, save_plan
-from db.service_models import ServiceConnection
+from db.service_models import ServiceConnection, UserService
 from tests.integration.test_user_services_postgres import DATABASE_URL, scenario
 from tests.qa.test_remnawave_panel_contract import _panel_service
 from tests.unit.test_user_services import sample_terms
@@ -64,6 +65,16 @@ def test_real_panel_keeps_two_services_disabled_separate_and_idempotent() -> Non
                     lookup = await panel.get_user_by_uuid_lookup(connection.panel_user_uuid)
                     assert lookup["ok"] and lookup["user"]["status"] == "DISABLED"
                     assert lookup["user"]["trafficLimitBytes"] == 10_000
+                await synchronize_service_usage(cast(sessionmaker, factory), service.id, panel)
+                await synchronize_service_usage(cast(sessionmaker, factory), service.id, panel)
+                async with factory() as session:
+                    connection = await session.get(ServiceConnection, service.id)
+                    saved = await session.get(UserService, service.id)
+                    assert connection and saved
+                    assert connection.usage_error is None, connection.usage_error
+                    assert connection.usage_total_bytes == saved.used_bytes == 0
+                    assert saved.last_usage_sync_at is not None
+                    assert connection.state == "pending"
             assert len(set(references)) == 2
             first = services[0]
             for revision, action in enumerate(("pause", "renew", "resume"), start=1):

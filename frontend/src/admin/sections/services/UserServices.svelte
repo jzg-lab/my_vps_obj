@@ -142,6 +142,13 @@
                     ? date(service.last_usage_sync_at)
                     : at("services_never_synced")}</small
                 >
+                {#if service.usage_error}<small role="status"
+                    >{at(
+                      ["panel_usage_regressed", "panel_usage_reset"].includes(service.usage_error)
+                        ? "services_usage_reconcile"
+                        : "services_usage_unconfirmed"
+                    )}</small
+                  >{/if}
               </div></td
             >
             <td data-label={at("services_remaining")}

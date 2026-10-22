@@ -156,6 +156,9 @@
   {#if service.sync_pending}<p class="service-sync" role="status">
       {t("wa_services_change_pending")}
     </p>{/if}
+  {#if service.usage_error}<p class="service-sync" role="status">
+      {t("wa_services_usage_unconfirmed")}
+    </p>{/if}
 {/snippet}
 
 <main class="content with-nav services-screen">

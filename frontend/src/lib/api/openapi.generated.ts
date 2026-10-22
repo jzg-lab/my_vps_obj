@@ -12844,6 +12844,8 @@ export interface components {
        * @enum {string}
        */
       traffic_rule: "total" | "monthly";
+      /** Usage Error */
+      usage_error: string | null;
       /** Used Bytes */
       used_bytes: number;
       /** User Id */

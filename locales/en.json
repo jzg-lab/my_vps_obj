@@ -6378,5 +6378,8 @@
   "admin_services_sync_pending": "Change saved; waiting for panel confirmation.",
   "admin_services_sync_retrying": "Panel confirmation failed; automatic retry is pending.",
   "admin_services_sync_confirmed": "Last panel confirmation",
-  "wa_services_change_pending": "A service change is being applied. Connection status may take a moment to update."
+  "wa_services_change_pending": "A service change is being applied. Connection status may take a moment to update.",
+  "admin_services_usage_unconfirmed": "Usage could not be verified. Showing the last confirmed total.",
+  "wa_services_usage_unconfirmed": "Usage is unconfirmed. Your last confirmed usage is shown until the issue is resolved.",
+  "admin_services_usage_reconcile": "The panel counter changed unexpectedly. Usage reconciliation is required; the confirmed total is preserved."
 }

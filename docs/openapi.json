@@ -17535,6 +17535,17 @@
             "title": "Traffic Rule",
             "type": "string"
           },
+          "usage_error": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Usage Error"
+          },
           "used_bytes": {
             "title": "Used Bytes",
             "type": "integer"
@@ -17572,6 +17583,7 @@
           "cycle_started_at",
           "cycle_ends_at",
           "last_usage_sync_at",
+          "usage_error",
           "status",
           "connection_state",
           "exit_ip",

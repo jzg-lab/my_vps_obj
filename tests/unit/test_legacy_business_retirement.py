@@ -176,6 +176,7 @@ def test_runtime_keeps_only_account_and_operational_workers() -> None:
         "AccountAccessSync",
         "ServiceProvisioning",
         "ServiceChanges",
+        "ServiceUsage",
         "OutboundSettingsRefresh",
         "AdminBroadcastWorker",
         "BackupWorker",
