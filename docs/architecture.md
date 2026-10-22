@@ -4,6 +4,10 @@
 <a id="архитектура-проекта"></a>
 
 本文说明**系统如何组织**（“软件架构”一节），以及**仓库与部署如何安排**（后续章节）。
+本文保留 Minishop 上游通用架构说明；本项目已采用一个账号下多份独立服务的派生实现，
+支付和旧单订阅入口的保留代码不代表当前 MVP 已启用。
+当前业务模型见[独立服务说明](development/independent-services.md)，运行与验收使用
+[项目隔离开发环境](development/project-local.md)，完成情况见[实施计划](implementation-plan.md)。
 贡献规范与可自动检查的质量门禁见[贡献规范](https://gitlab.com/3252a8/remnawave-minishop/-/blob/main/CONTRIBUTING.md)。
 <!-- GitHub 源链接（未启用）：[贡献规范](https://github.com/3252a8/remnawave-minishop/blob/main/CONTRIBUTING.md) -->
 

@@ -229,7 +229,7 @@ Telegram 入口检查点：核心旧购买、赠送、试用、推荐奖励、�
 
 | 窗口 | 任务 ID | 当前状态 |
 | --- | --- | --- |
-| A｜权益与计量 | `01a16557-549b-7743-b776-07b456b23016` | 功能及迟到计数补测已集成至 `81487309`；合并后端回归通过，等待最终页面验收；现分担计量契约与架构文档中文 |
+| A｜权益与计量 | `01a16557-549b-7743-b776-07b456b23016` | 功能及迟到计数补测已集成至 `81487309`；合并后端回归通过，等待最终页面验收；第一批三份中文文档已集成为 `629c70e0`，继续第二批九份开发/架构文档 |
 | B｜连接与资源交付 | `01a16557-7653-76b1-9e9e-92035e00c927` | 最终撤销接线已集成为 `ce955f62`，合并后端/PG/面板通过，新增 UI 待验；五份安装配置文档已集成为 `7d58b7d7`，继续第二批运营与排障文档 |
 | C｜简体中文与使用体验 | `01a16557-9e62-7221-8b5d-bdaefc90b6cf` | 中文检查点集成至 `671ddfb6`；教程 `d671730d` 暂缓合入，需修复仍调用已退役配置接口的实际运行路径；持有浏览器/构建时段，继续页面和其余全文中文文档 |
 | 主窗口｜统筹与验收 | `01a163d0-f307-7543-adcc-f0e01acf126c` | 跟踪契约、共享测试资源和业务疑问，审查提交，集成后独立复验 |
@@ -271,3 +271,9 @@ A 已明确释放浏览器/构建时段，当前交 B 使用，之后交 C。A �
 2026-10-23 B 中文文档第一批：`55e54aaf` 已集成为 `7d58b7d7`，覆盖前述五份安装、部署、配置、安全与变量参考全文。主窗口复核全部 **60 个代码块逐字不变**、变量标识无遗漏、**84 个原章节锚点均可兼容定位**，可见正文无俄文残留；文档同步、70 页导航、20 项演示路由及差异检查通过。此批严格 docs-only，没有重跑产品测试；页面构建和视觉检查仍等 C 释放时段后统一进行。
 
 B 第二批排他文件追加为 `docs/features/admin-panel.md`、`docs/features/backups.md`、`docs/features/subscriptions.md`、`docs/features/tariffs.md`、`docs/troubleshooting/issues.md`、`docs/troubleshooting/logs.md`、`docs/troubleshooting/maintenance.md`。C 已收到避让清单，继续其余正文及教程实际接口修复；第一批通过不代表全文中文或最终页面验收完成。
+
+2026-10-23 A 中文文档第一批：`b7864b0` 已集成为 `629c70e0`，覆盖计量契约、项目架构与 HTTP API 三份全文。主窗口复核 **29 个原章节锚点均兼容**、可执行代码块和数值保留，计量固定切点、迟到用量及提交后删除的语义不变；另补上游说明与当前 MVP 的边界，明确旧教程接口仍返回 410。文档同步/导航及差异检查通过；这是 docs-only 检查，完整文档构建和视觉验证留待 C 释放时段后统一运行，没有重复运行产品测试。
+
+A 第二批排他文件为 `docs/development/dev-stand.md`、`docs/development/how-to.md`、`docs/development/plugins.md`、`docs/development/plugin-contract.md`、`docs/development/plugin-extensions.md`、`docs/development/plugin-ui-composition.md`、`docs/development/graphify.md`、`docs/development/runes-migration-qa.md`、`docs/architecture/subscription-gateway.md`。C 已收到避让清单，仍负责其余正文、站点与教程；生成的事件/Remnawave 兼容目录不由 A 手改。浏览器/构建时段继续由 C 持有，数据库/面板写入时段无人占用。
+
+教程修复进度：C 报告独立 `/api/service-guides` 配置路由、旧路由 410 保留、配置失败重试测试已通过，正在跑门禁；尚未交付修复提交，主窗口仍未合入或验收，不能把该进度当作教程运行问题已关闭。

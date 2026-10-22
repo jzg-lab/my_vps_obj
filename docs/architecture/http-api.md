@@ -12,6 +12,12 @@ HTTP API 的机器可读事实来源是 `docs/openapi.json`。
 
 本页说明契约的通用规则。详细模型、路径参数、内容类型及认证方案请查阅 `openapi.json`。
 
+本页同时保留上游路由分类和示例，不表示所有旧业务接口在当前项目中可用。
+独立服务模式已通过 `legacy_business_middleware` 退役单订阅、支付、试用等旧业务入口；
+其中 `/api/subscription-guides` 及其公开分享路径仍返回 `410 legacy_business_retired`，
+不能用作独立服务教程的配置来源。当前业务接口与边界见[独立服务说明](../development/independent-services.md)。
+接口已注册或出现在 OpenAPI 中，不等于通过了实际运行的中间件和业务权限检查。
+
 ## API 范围
 
 <a id="области-api"></a>
