@@ -1,128 +1,150 @@
-# Архитектура проекта
+# 项目架构
 
-Документ описывает, **как устроена система** (раздел «Архитектура ПО»), и **как разложен
-репозиторий и деплой** (последующие разделы). Соглашения для контрибьюторов и проверяемые
-гейты — в [CONTRIBUTING.md](https://gitlab.com/3252a8/remnawave-minishop/-/blob/main/CONTRIBUTING.md).
-<!-- GitHub source link (disabled): [CONTRIBUTING.md](https://github.com/3252a8/remnawave-minishop/blob/main/CONTRIBUTING.md) -->
+<!-- 保留翻译前的章节锚点，以兼容既有链接。 -->
+<a id="архитектура-проекта"></a>
 
-## Архитектура ПО
+本文说明**系统如何组织**（“软件架构”一节），以及**仓库与部署如何安排**（后续章节）。
+贡献规范与可自动检查的质量门禁见[贡献规范](https://gitlab.com/3252a8/remnawave-minishop/-/blob/main/CONTRIBUTING.md)。
+<!-- GitHub 源链接（未启用）：[贡献规范](https://github.com/3252a8/remnawave-minishop/blob/main/CONTRIBUTING.md) -->
 
-### Рантайм-процессы
+## 软件架构
 
-Приложение запускается двумя процессами, разделяющими одну проводку:
+<a id="архитектура-по"></a>
 
-- **backend** (`main_backend.py`) — aiohttp: HTTP API Mini App и админки, Telegram-вебхук,
-  вебхуки платёжных провайдеров и панели. Поднимает два aiohttp-приложения на разных портах:
-  вебхуки и Subscription WebApp (Mini App + `/api/*`).
-- **worker** (`main_worker.py`) — фоновые задачи: тарифный воркер, синхронизация с панелью,
-  обработчики очереди вебхуков.
+### 运行进程
 
-Оба процесса вызывают `run_setup(ctx)` и `register_core_reactions(ctx)` — то есть **оба
-слушают шину доменных событий** и активируют плагины. Любое изменение событийного слоя должно
-одинаково работать в обоих.
+<a id="рантайм-процессы"></a>
 
-### Слои и поток запроса
+应用通过两个进程运行，共用同一套初始化与依赖装配：
+
+- **backend**（`main_backend.py`）：基于 aiohttp，提供 Mini App 与管理后台的 HTTP API、
+  Telegram Webhook，以及支付服务商和面板的 Webhook。它在不同端口启动两个 aiohttp 应用：
+  一个处理 Webhook，另一个提供 Subscription WebApp（Mini App 与 `/api/*`）。
+- **worker**（`main_worker.py`）：执行套餐后台任务、面板同步和 Webhook 队列处理等后台工作。
+
+两个进程都会调用 `run_setup(ctx)` 和 `register_core_reactions(ctx)`，
+因此**两者都会监听领域事件总线**并激活插件。事件层的任何改动都必须在两个进程中一致生效。
+
+### 分层与请求流程
+
+<a id="слои-и-поток-запроса"></a>
 
 ```text
-HTTP-роут → parse_body / контракт запроса → сервис (бизнес-логика) → DAL → конверт _ok/_error
-                                              │
-                                              └─ emit_model(...)  → шина событий → реакции/плагины
+HTTP 路由 → parse_body / 请求契约 → 服务层（业务逻辑）→ DAL → _ok/_error 响应封装
+                                         │
+                                         └─ emit_model(...) → 事件总线 → 事件响应逻辑/插件
 ```
 
-- **Роуты** регистрируются явно (`setup_subscription_webapp_routes`, `setup_admin_routes`) и
-  плагинами в рантайме (`Plugin.setup_web`).
-- **DAL** (`db/dal`) — единственная точка доступа к БД; сервисы не пишут SQL мимо него.
-- **Сервисы** (`bot/services`) держат бизнес-логику и публикуют события в ключевых точках.
+- **路由**由 `setup_subscription_webapp_routes`、`setup_admin_routes` 显式注册，
+  也可由插件通过 `Plugin.setup_web` 在运行时注册。
+- **DAL**（`db/dal`）是数据库访问的唯一入口；服务层不绕过它直接执行 SQL。
+- **服务层**（`bot/services`）承载业务逻辑，并在关键节点发布事件。
 
-### Четыре типизированных контракта
+### 四类类型化契约
 
-Архитектура держится на четырёх явных, машинопроверяемых контрактах — это единый источник правды:
+<a id="четыре-типизированных-контракта"></a>
 
-1. **HTTP API** — pydantic request/response-модели + реестр `route_contracts`, из которого
-   генерируется `openapi.json`. Подробно: [architecture/http-api.md](architecture/http-api.md).
-2. **Шина доменных событий** — одна pydantic-модель на событие (`bot/infra/event_payloads.py`),
-   публикация через `emit_model`; payload — flat-dict из примитивов. Каталог:
-   [architecture/events.md](architecture/events.md).
-3. **Плагины** — ABC `Plugin` + `PluginContext`, обнаружение через entry-point группу
-   `minishop.plugins`. Контракт: [development/plugin-contract.md](development/plugin-contract.md).
-4. **Remnawave API** — типизированный реестр outbound-операций, webhook-контрактов,
-   поколений API и точных сертифицированных версий. Каталог:
-   [architecture/remnawave-api-compatibility.md](architecture/remnawave-api-compatibility.md).
+架构以四类显式、可自动验证的契约为依据，作为统一的事实来源：
 
-### Расширяемость
+1. **HTTP API**：Pydantic 请求与响应模型，以及用于生成 `openapi.json` 的
+   `route_contracts` 注册表。详见 [HTTP API 契约](architecture/http-api.md)。
+2. **领域事件总线**：每个事件对应一个 Pydantic 模型（`bot/infra/event_payloads.py`），
+   通过 `emit_model` 发布；载荷是由基本类型组成的扁平字典。
+   详见[事件目录](architecture/events.md)。
+3. **插件**：抽象基类 `Plugin` 与 `PluginContext`，通过入口点组
+   `minishop.plugins` 发现插件。详见[插件契约](development/plugin-contract.md)。
+4. **Remnawave API**：记录对外调用操作、Webhook 契约、API 代际及已认证的精确版本的
+   类型化注册表。详见 [Remnawave API 兼容性目录](architecture/remnawave-api-compatibility.md)。
 
-Внешний код расширяет приложение через плагины (отдельные пакеты, entry points), не форкая ядро:
-HTTP-роуты (`setup_web`), aiogram-роутеры (`setup_bot`), фоновые задачи, обработчики очереди,
-миграции (неймспейснутые цепочки), локали, провайдер entitlements. Встроенные плагины активны
-всегда; внешние гейтятся `PLUGINS_ENABLED`.
+### 扩展机制
 
-### Контракт фронт↔бэк
+<a id="расширяемость"></a>
 
-OpenAPI-спек (`docs/openapi.json`) генерируется из живого роутера, из него генерируются
-TypeScript-типы фронта (`frontend/src/lib/api/openapi.generated.ts`), а типизированный клиент
-`publicApi.ts` выводит формы запроса/ответа по пути вызова. Оба артефакта защищены drift-guard
-в CI — изменение контракта на бэке, не отражённое во фронте, валит сборку.
+外部代码通过独立软件包与入口点形式的插件扩展应用，无需派生核心代码。
+可扩展的部分包括 HTTP 路由（`setup_web`）、aiogram 路由器（`setup_bot`）、
+后台任务、队列处理器、带命名空间的迁移链、本地化资源和权益提供器。
+内置插件始终启用；外部插件由 `PLUGINS_ENABLED` 控制。
 
-## Раскладка репозитория
+### 前后端契约
 
-Репозиторий разделён по зонам ответственности рантайма:
+<a id="контракт-фронтбэк"></a>
+
+OpenAPI 规范（`docs/openapi.json`）从实际路由器生成，再据此生成前端 TypeScript 类型
+（`frontend/src/lib/api/openapi.generated.ts`）。类型化客户端 `publicApi.ts`
+根据调用路径推导请求与响应结构。CI 对这两份生成物执行一致性检查；
+后端契约发生变化而前端未同步时，构建会失败。
+
+## 仓库布局
+
+<a id="раскладка-репозитория"></a>
+
+仓库按运行职责划分：
 
 ```text
-backend/              Python-код приложения
+backend/              应用的 Python 代码
   bot/
-    app/web/          aiohttp API: webapp + admin, контракты роутов (route_contracts),
-                      парсинг запросов, генератор OpenAPI
-    infra/            шина доменных событий (events, event_payloads), redis, очередь вебхуков
-    plugins/          точки расширения (entry points minishop.plugins)
-    payment_providers/ платёжные провайдеры (пакет на провайдера)
-    handlers/         aiogram-хендлеры (user/admin)
-    services/         бизнес-логика, реакции на события
-    middlewares/, keyboards/, utils/   инфраструктура бота
-  config/             Pydantic-настройки и загрузчики тарифов/тем
-  db/                 SQLAlchemy-модели, DAL, идемпотентный мигратор
-  main_backend.py     точка входа aiohttp backend
-  main_worker.py      точка входа фонового worker
-  main_migrate.py     одноразовый запуск миграций
-  requirements.txt    Python-зависимости рантайма
+    app/web/          aiohttp API：Web App 与管理后台、路由契约（route_contracts）、
+                      请求解析、OpenAPI 生成器
+    infra/            领域事件总线（events、event_payloads）、Redis、Webhook 队列
+    plugins/          扩展入口（minishop.plugins 入口点）
+    payment_providers/ 支付服务商（每个服务商一个软件包）
+    handlers/         aiogram 处理器（用户端/管理端）
+    services/         业务逻辑与事件响应逻辑
+    middlewares/, keyboards/, utils/   机器人基础设施
+  config/             Pydantic 设置及套餐/主题加载器
+  db/                 SQLAlchemy 模型、DAL、幂等迁移器
+  main_backend.py     aiohttp 后端入口
+  main_worker.py      后台 worker 入口
+  main_migrate.py     一次性迁移入口
+  requirements.txt    Python 运行依赖
 
-frontend/             Svelte/Vite Mini App и админка
-  src/                исходный код Svelte (типизированный API-клиент в lib/webapp/publicApi.ts)
-  src/                Svelte 5 runes-only; Vite/Vitest compile src in runes mode, check:runes forbids legacy syntax
-  src/lib/api/        сгенерированные из OpenAPI TypeScript-типы
-  scripts/            вспомогательные скрипты сборки frontend
-  package.json        Node-скрипты и зависимости
+frontend/             基于 Svelte/Vite 的 Mini App 与管理后台
+  src/                Svelte 源码（类型化 API 客户端位于 lib/webapp/publicApi.ts）
+  src/                仅使用 Svelte 5 runes；Vite/Vitest 以 runes 模式编译 src，
+                      check:runes 禁止旧语法
+  src/lib/api/        从 OpenAPI 生成的 TypeScript 类型
+  scripts/            前端构建辅助脚本
+  package.json        Node.js 脚本与依赖
 
 deploy/
-  docker/             Dockerfile, nginx- и caddy-конфиги рантайма
-  examples/           готовые Docker Compose примеры запуска
+  docker/             Dockerfile，以及运行时 nginx 和 Caddy 配置
+  examples/           可直接使用的 Docker Compose 启动示例
 
-data/                 данные рантайма, монтируемые в контейнеры
-locales/              переводы бота и Web App
-docs/                 документация (в т.ч. сгенерированные openapi.json и каталог событий)
-tests/                Python-тесты
+data/                 挂载到容器中的运行数据
+locales/              机器人与 Web App 的翻译
+docs/                 文档，包括生成的 openapi.json 与事件目录
+tests/                Python 测试
 ```
 
-## Деплой
+## 部署
 
-Основной `docker-compose.yml` находится в корне репозитория, чтобы `docker compose up` оставался простым продакшен-путем. Он собирает три прикладных образа из `deploy/docker/Dockerfile`:
+<a id="деплой"></a>
 
-- `backend`: aiohttp API и вебхуки.
-- `worker`: worker тарифов, синхронизация с панелью, обработчики очередей вебхуков.
-- `frontend`: статические Svelte-ассеты, которые отдает nginx.
+主 `docker-compose.yml` 位于仓库根目录，使 `docker compose up` 保持为简单的生产启动方式。
+它通过 `deploy/docker/Dockerfile` 构建三个应用镜像：
 
-Mini App и админка собираются как ES-модули с code splitting: страница подключает
-точку входа через `<script type="module">`, а остальные куски (`subscription_webapp.<name>.<hash>.js`)
-подгружаются по мере надобности. Экраны, кроме главного и настроек, импортируются динамически
-(`lib/webapp/lazyScreen.svelte.ts`), поэтому редактор сообщений с раздела поддержки не попадает
-в первую загрузку. Имена кусков content-hashed и раздаются с `immutable`: и aiohttp-роут, и
-nginx-конфиг, и подготовка ассетов совпадают по шаблону имени - расхождение означает 404 на
-куске и экран, который не открывается.
+- `backend`：aiohttp API 与 Webhook。
+- `worker`：套餐后台任务、面板同步与 Webhook 队列处理器。
+- `frontend`：由 nginx 提供的 Svelte 静态资源。
 
-Сервис `migrate` - одноразовый контейнер на базе backend-образа. Он входит в стандартный Compose-граф: Postgres и Redis переходят в healthy-состояние, `migrate` применяет `Base.metadata.create_all` и ожидающие `schema_migrations`, а затем `backend` и `worker` стартуют только после успешного завершения `migrate`. Так миграции остаются автоматическими для `docker compose up`, но не запускаются внутри каждой backend-реплики.
+Mini App 与管理后台以 ES 模块构建，并拆分代码包：页面通过
+`<script type="module">` 引入入口，其他代码块
+（`subscription_webapp.<name>.<hash>.js`）按需加载。
+除首页与设置页之外的页面均通过 `lib/webapp/lazyScreen.svelte.ts` 动态导入，
+因此支持页面中的消息编辑器不会进入首屏加载内容。
+代码块文件名包含内容哈希，并以 `immutable` 缓存策略提供。
+aiohttp 路由、nginx 配置和资源准备逻辑必须采用相同的文件命名规则；
+不一致会导致代码块返回 404，进而使页面无法打开。
 
-Python-импорты намеренно остаются в пространствах `bot.*`, `config.*` и `db.*`. Контейнеры рантайма выставляют `PYTHONPATH=/app/backend`; локальные тесты используют такую же раскладку через `pytest.ini`.
+`migrate` 是基于 backend 镜像的一次性容器，属于标准 Compose 依赖图。
+Postgres 与 Redis 进入健康状态后，`migrate` 执行 `Base.metadata.create_all`
+和待应用的 `schema_migrations`；只有迁移成功结束，`backend` 与 `worker` 才会启动。
+这样，`docker compose up` 仍会自动执行迁移，但不会在每个后端副本内部重复启动迁移。
 
-Основные команды:
+Python 导入有意保留在 `bot.*`、`config.*` 和 `db.*` 命名空间中。
+运行容器设置 `PYTHONPATH=/app/backend`；本地测试通过 `pytest.ini` 使用相同布局。
+
+主要命令：
 
 ```bash
 docker compose up -d --build
