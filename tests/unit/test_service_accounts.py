@@ -50,7 +50,8 @@ class ServiceAccountTests(ServiceDatabaseTestCase):
             connection = await session.get(ServiceConnection, service.id)
             assert saved and connection
             saved.used_bytes = 456
-            connection.state = "ready"
+            saved.desired_status = "cancelled"
+            connection.state = "revoked"
             connection.panel_user_uuid = str(UUID(int=12))
         panel = SimpleNamespace(
             delete_user_from_panel=AsyncMock(return_value=True),
@@ -58,7 +59,8 @@ class ServiceAccountTests(ServiceDatabaseTestCase):
         )
         response = await self.delete_account(panel)
         assert response.status == 200
-        panel.delete_user_from_panel.assert_awaited_once_with(str(UUID(int=12)), log_response=False)
+        panel.delete_user_from_panel.assert_not_awaited()
+        panel.get_user_by_uuid_lookup.assert_not_awaited()
         async with self.sessions() as session:
             assert await session.get(User, 2) is None
             saved = await session.get(UserService, service.id)
@@ -89,9 +91,11 @@ class ServiceAccountTests(ServiceDatabaseTestCase):
         service, _, _ = await self.activate(user_id=2)
         async with self.sessions.begin() as session:
             connection = await session.get(ServiceConnection, service.id)
-            assert connection
-            connection.state = "ready"
+            user = await session.get(User, 2)
+            assert connection and user
+            connection.state = "revoked"
             connection.panel_user_uuid = str(UUID(int=12))
+            user.panel_user_uuid = str(UUID(int=13))
         panel = SimpleNamespace(
             delete_user_from_panel=AsyncMock(return_value=False),
             get_user_by_uuid_lookup=AsyncMock(return_value={"not_found": False}),
@@ -100,12 +104,23 @@ class ServiceAccountTests(ServiceDatabaseTestCase):
         async with self.sessions() as session:
             assert await session.get(User, 2) is not None
             connection = await session.get(ServiceConnection, service.id)
-            assert connection and connection.state == "ready"
-        # Acknowledgement alone (including dry-run writes) is not proof of revocation.
-        panel.delete_user_from_panel.return_value = True
-        assert (await self.delete_account(panel)).status == 502
+            assert connection and connection.state == "revoked"
+        # A failed legacy deletion can still finish when absence is confirmed.
         panel.get_user_by_uuid_lookup.return_value = {"not_found": True}
         assert (await self.delete_account(panel)).status == 200
+        assert all(
+            call.args[0] == str(UUID(int=13))
+            for call in panel.delete_user_from_panel.await_args_list
+        )
+
+    async def test_completed_service_revocation_allows_account_deletion_without_panel(self) -> None:
+        service, _, _ = await self.activate(user_id=2)
+        async with self.sessions.begin() as session:
+            connection = await session.get(ServiceConnection, service.id)
+            assert connection
+            connection.state = "revoked"
+            connection.panel_user_uuid = str(UUID(int=12))
+        assert (await self.delete_account()).status == 200
 
     async def test_bound_exit_blocks_deletion_before_remote_calls(self) -> None:
         service, _, _ = await self.activate(user_id=2)

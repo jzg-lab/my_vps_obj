@@ -449,7 +449,7 @@ def test_history_upgrade_backfills_existing_orders_and_is_repeatable() -> None:
     scenario(run)
 
 
-def test_delete_holds_owner_lock_until_remote_revocation_and_detachment() -> None:
+def test_delete_holds_owner_lock_until_legacy_cleanup_and_service_detachment() -> None:
     async def run(factory: async_sessionmaker[AsyncSession]) -> None:
         async with factory.begin() as session:
             plan = await save_plan(session, terms=sample_terms(), enabled=True, actor_id=1)
@@ -462,9 +462,11 @@ def test_delete_holds_owner_lock_until_remote_revocation_and_detachment() -> Non
                 idempotency_key="before-delete",
             )
             connection = await session.get(ServiceConnection, service.id)
-            assert connection
+            user = await session.get(User, 2)
+            assert connection and user
             connection.panel_user_uuid = str(UUID(int=50))
-            connection.state = "ready"
+            connection.state = "revoked"
+            user.panel_user_uuid = str(UUID(int=51))
         started, finish = asyncio.Event(), asyncio.Event()
 
         async def delete_remote(*_args: object, **_kwargs: object) -> bool:

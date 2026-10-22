@@ -444,17 +444,10 @@ async def process_delete_user_confirmation_handler(
             user=user_model,
         )
         service_references = {c.panel_user_uuid for c in connections if c.panel_user_uuid}
-        panel_user_uuids = list(
-            dict.fromkeys(
-                [
-                    *panel_user_uuids,
-                    *(c.panel_user_uuid for c in connections if c.panel_user_uuid),
-                ]
-            )
-        )
+        panel_user_uuids = [ref for ref in panel_user_uuids if ref not in service_references]
         for panel_uuid in panel_user_uuids:
             panel_deleted = await panel_service.delete_user_from_panel(panel_uuid)
-            if not panel_deleted or panel_uuid in service_references:
+            if not panel_deleted:
                 panel_deleted = await is_panel_user_confirmed_absent(panel_service, panel_uuid)
             if not panel_deleted:
                 await message.answer(
@@ -467,8 +460,9 @@ async def process_delete_user_confirmation_handler(
                 return
 
         for connection in connections:
-            connection.state = "revoked"
-            connection.last_error = None
+            if connection.state != "revoked":
+                connection.state = "revoked"
+                connection.last_error = None
         await session.flush()
         deleted = await user_dal.delete_user_and_relations(session, target_user_id)
         if not deleted:

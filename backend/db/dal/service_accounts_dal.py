@@ -31,6 +31,9 @@ async def deletion_connections(session: AsyncSession, user_id: int) -> list[Serv
         c.state not in {"pending", "revoked"} and c.panel_user_uuid is None for c in connections
     ):
         raise ServiceConflict("service_connection_unconfirmed")
+    # Account deletion must not bypass the service's metering and revocation workflow.
+    if any(c.state != "revoked" and c.panel_user_uuid is not None for c in connections):
+        raise ServiceConflict("service_connection_revoke_required")
     return connections
 
 

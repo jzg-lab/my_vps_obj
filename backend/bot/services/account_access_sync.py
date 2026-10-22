@@ -97,6 +97,8 @@ async def synchronize_account_access(
             == "active"
         )
         targets.pop(connection.panel_user_uuid, None)
+        if connection.state == "revoked":
+            continue
         if enable and connection.sync_pending:
             error = error or "service_change_pending"
             continue

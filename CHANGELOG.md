@@ -45,7 +45,10 @@
   persist synchronization jobs before contacting the panel and retry after outages or worker restarts. Every known identity
   is checked; unbanning preserves expired, exhausted and paused service restrictions. The admin
   user page distinguishes pending changes from confirmed panel state and offers retry. The
-  deployed website now rejects old subscription/checkout mutations and subscription delivery
+  account synchronizer skips already revoked service identities without changing their history.
+  Account deletion requires bound services to finish their metered revocation first, in both
+  the website and Telegram; it cannot bypass counter reconciliation or terminal settlement.
+  The deployed website now rejects old subscription/checkout mutations and subscription delivery
   with HTTP 410, including implicit login bonuses. Payment and account-level panel webhooks
   are retired; old entitlement workers no longer start, and queued core events move to the
   dead-letter queue without applying entitlements or discarding their payloads. The independent
@@ -96,6 +99,8 @@
   Confirmed deletion retries survive transient panel failures without discarding usage evidence.
   If the identity remains readable after DELETE, new counters or anomalies are saved and
   the earlier deletion evidence is invalidated; another service's counters are never adopted.
+  Counter regressions or resets observed before disablement also remain latched, even when
+  later reads return larger values; stopping access does not forgive missing usage.
   Dedicated-exit verification and manual reclaim record the administrator, evidence and
   allocation version. Reclaim requires confirmed identity removal and subsequent operator
   evidence that existing connections stopped and old configurations cannot reconnect; a

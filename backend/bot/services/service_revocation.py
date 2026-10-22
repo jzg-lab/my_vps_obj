@@ -86,9 +86,14 @@ async def revoke_service_identity(
                     if not isinstance(remote, dict) or not owns_identity(remote, connection):
                         await session.commit()
                         return
+                    # Even a not-yet-stopped identity can expose a counter reset.
+                    connection.usage_attempted_at = datetime.now(UTC)
+                    record_service_usage(service, connection, remote)
                     await panel.update_user_status_on_panel(reference, False)
                     result = await panel.get_user_by_uuid_lookup(reference)
                     remote = result.get("user") if result.get("ok") is True else None
+                    if isinstance(remote, dict) and owns_identity(remote, connection):
+                        record_service_usage(service, connection, remote)
                     if (
                         not isinstance(remote, dict)
                         or not owns_identity(remote, connection)
@@ -114,6 +119,8 @@ async def revoke_service_identity(
                         return
                     result = await panel.get_user_by_uuid_lookup(reference)
                     remote = result.get("user") if result.get("ok") is True else None
+                    if isinstance(remote, dict) and owns_identity(remote, connection):
+                        record_service_usage(service, connection, remote)
                     if result.get("not_found") is not True and (
                         not isinstance(remote, dict)
                         or not owns_identity(remote, connection)
