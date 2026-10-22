@@ -230,7 +230,7 @@ Telegram 入口检查点：核心旧购买、赠送、试用、推荐奖励、�
 | 窗口 | 任务 ID | 当前状态 |
 | --- | --- | --- |
 | A｜权益与计量 | `01a16557-549b-7743-b776-07b456b23016` | 功能及迟到计数补测已集成至 `81487309`；合并后端回归通过，等待最终页面验收；现分担计量契约与架构文档中文 |
-| B｜连接与资源交付 | `01a16557-7653-76b1-9e9e-92035e00c927` | 最终撤销接线已集成为 `ce955f62`，合并定向/全后端及 17 项 PG/本地面板复验通过；新增取消核对 UI 待 C/主窗口验证；现分担安装配置文档中文 |
+| B｜连接与资源交付 | `01a16557-7653-76b1-9e9e-92035e00c927` | 最终撤销接线已集成为 `ce955f62`，合并后端/PG/面板通过，新增 UI 待验；五份安装配置文档已集成为 `7d58b7d7`，继续第二批运营与排障文档 |
 | C｜简体中文与使用体验 | `01a16557-9e62-7221-8b5d-bdaefc90b6cf` | 中文检查点集成至 `671ddfb6`；教程 `d671730d` 暂缓合入，需修复仍调用已退役配置接口的实际运行路径；持有浏览器/构建时段，继续页面和其余全文中文文档 |
 | 主窗口｜统筹与验收 | `01a163d0-f307-7543-adcc-f0e01acf126c` | 跟踪契约、共享测试资源和业务疑问，审查提交，集成后独立复验 |
 
@@ -267,3 +267,7 @@ A 已明确释放浏览器/构建时段，当前交 B 使用，之后交 C。A �
 为并行完成用户已确认的全文中文范围，复用现有 A/B 窗口分担文档，不新建任务：A 只负责 `docs/development/entitlement-metering-contract.md`、`docs/architecture.md`、`docs/architecture/http-api.md`；B 只负责 `docs/getting-started/setup.md`、`docs/getting-started/configuration.md`、`docs/getting-started/deployment.md`、`docs/configuration/security.md`、`docs/configuration/env-vars.md`。C 负责其余文档、文档站、教程和中文页面统筹。翻译保留代码/协议/命令及现有验收边界，兼容旧锚点，不手改生成物。A/B 不占用 C 的浏览器/构建时段；最终由主窗口合并并验证全文与链接。DB/面板写入时段已释放。
 
 2026-10-23 教程主审：C 的 `d671730d` 已完成服务级凭据接线和演示测试，但暂缓集成。主窗口沿实际调用链确认 `serviceMode` 挂载仍调用 `installGuidesStore.load()`，请求 `/api/subscription-guides`；现有 `legacy_business_middleware` 会将该旧接口返回 410。演示环境预灌配置掩盖了此问题，演示通过不能代表实际网站教程可用。已回交 C 修复独立教程配置加载/失败重试通路，保留旧接口退役和当前服务凭据隔离，并补真实中间件路由测试、实际项目配置说明与生成契约检查。此发现不影响已通过的 A/B 计量及撤销回归；最终教程和页面验收仍未完成。
+
+2026-10-23 B 中文文档第一批：`55e54aaf` 已集成为 `7d58b7d7`，覆盖前述五份安装、部署、配置、安全与变量参考全文。主窗口复核全部 **60 个代码块逐字不变**、变量标识无遗漏、**84 个原章节锚点均可兼容定位**，可见正文无俄文残留；文档同步、70 页导航、20 项演示路由及差异检查通过。此批严格 docs-only，没有重跑产品测试；页面构建和视觉检查仍等 C 释放时段后统一进行。
+
+B 第二批排他文件追加为 `docs/features/admin-panel.md`、`docs/features/backups.md`、`docs/features/subscriptions.md`、`docs/features/tariffs.md`、`docs/troubleshooting/issues.md`、`docs/troubleshooting/logs.md`、`docs/troubleshooting/maintenance.md`。C 已收到避让清单，继续其余正文及教程实际接口修复；第一批通过不代表全文中文或最终页面验收完成。
