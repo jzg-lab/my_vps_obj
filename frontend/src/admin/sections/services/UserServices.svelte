@@ -1,6 +1,7 @@
 <script lang="ts">
   import { onDestroy } from "svelte";
   import { serviceDate as date } from "$lib/webapp/independentServices";
+  import { serviceChangeActions } from "$lib/admin/serviceChanges";
   import ServiceDeliverDialog from "./ServiceDeliverDialog.svelte";
   import ServiceRevokeDialog from "./ServiceRevokeDialog.svelte";
   import ServiceOrdersDialog from "./ServiceOrdersDialog.svelte";
@@ -191,12 +192,12 @@
                   onclick={() => {
                     selected = service;
                   }}>{at("services_view_history")}</AdminButton
-                >{#if userId !== null && service.desired_status !== "cancelled" && service.connection_state !== "revoked"}<AdminButton
+                >{#if userId !== null && serviceChangeActions(service).length}<AdminButton
                     size="sm"
                     onclick={() => {
                       editing = service;
                     }}>{at("services_manage")}</AdminButton
-                  ><AdminButton
+                  >{/if}{#if userId !== null && service.desired_status !== "cancelled" && service.connection_state !== "revoked"}<AdminButton
                     size="sm"
                     variant="danger"
                     onclick={() => {

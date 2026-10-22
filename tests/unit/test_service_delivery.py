@@ -79,8 +79,8 @@ class ServiceDeliveryTests(ServiceDatabaseTestCase):
                 panel.create_panel_user.assert_awaited_once()
                 await create(*submitted.args, **submitted.kwargs)
                 users[f"svc_{service.id}"]["uuid"] = service.id
-                panel.delete_user_from_panel.side_effect = (
-                    lambda _reference, current_users=users: current_users.clear() or True
+                panel.delete_user_from_panel.side_effect = lambda _reference, current_users=users: (
+                    current_users.clear() or True
                 )
                 await revoke_service_identity(cast(sessionmaker, self.sessions), service.id, panel)
                 async with self.sessions.begin() as session:

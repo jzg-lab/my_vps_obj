@@ -372,7 +372,7 @@ export function independentServicesDemoResponse(path: string, options: RequestIn
       used_bytes: service.used_bytes,
     };
     if (body.change.action === "reconcile_usage") {
-      if (service.desired_status !== "paused")
+      if (!["paused", "cancelled"].includes(service.desired_status))
         return { ok: false, error: "usage_reconciliation_pause_required" };
       if (
         body.change.expected_raw_bytes !== 100 ||
@@ -475,6 +475,11 @@ export function independentServicesDemoResponse(path: string, options: RequestIn
     service.status = "cancelled";
     service.sync_pending = true;
     service.sync_error = "service_revoke_pending";
+    if (scenario === "cancelled-reconciliation") {
+      service.used_bytes = 500;
+      service.usage_total_bytes = 500;
+      service.usage_error = "panel_usage_regressed";
+    }
     service.revision++;
     requests.set(key, service);
     const plan = plans.find((item) => item.id === service.plan_id)!;

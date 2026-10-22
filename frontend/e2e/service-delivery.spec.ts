@@ -80,7 +80,9 @@ for (const width of [1440, 390]) {
     page,
   }, testInfo) => {
     await page.setViewportSize({ width: 1440, height: 1000 });
-    await page.goto("/demo/runtime/admin/users?delivery=1&theme_preview=dark");
+    await page.goto(
+      "/demo/runtime/admin/users?delivery=1&theme_preview=dark&mock=cancelled-reconciliation"
+    );
     await page.locator("tr[data-user-id]").first().click();
     await page.setViewportSize({ width, height: 1000 });
     const region = page.getByRole("region", { name: "Независимые услуги" });
@@ -120,8 +122,34 @@ for (const width of [1440, 390]) {
     await expect(dialog).toHaveCount(0);
     await expect(first).toContainText("Отменена");
     expect(await other.innerText()).toBe(previous);
+    await first.getByRole("button", { name: "Управление", exact: true }).click();
+    await dialog.getByRole("button", { name: "Операция", exact: true }).click();
+    await expect(page.getByRole("option")).toHaveCount(1);
+    await expect(page.getByRole("option", { name: "Сверить трафик", exact: true })).toBeVisible();
+    await page.screenshot({
+      path: testInfo.outputPath(`cancelled-actions-${width}.png`),
+      animations: "disabled",
+    });
+    await page.keyboard.press("Escape");
+    await expect(dialog).toBeVisible();
+    await dialog.getByLabel("Проверенный общий расход (байты)", { exact: true }).fill("600");
+    await dialog.getByLabel("Проверенный счётчик панели (байты)", { exact: true }).fill("100");
+    await dialog
+      .getByLabel("Точные записи и обоснование сверки", { exact: true })
+      .fill("Exact cancelled-service ledger");
+    await dialog.screenshot({
+      path: testInfo.outputPath(`cancelled-reconciliation-${width}.png`),
+      animations: "disabled",
+    });
+    await dialog.getByRole("button", { name: "Сохранить", exact: true }).click();
+    await expect(dialog).toHaveCount(0);
+    await expect(first).toContainText("Отменена");
+    await expect(first).toContainText("600 B");
+    await expect(first.getByRole("button", { name: "Управление", exact: true })).toHaveCount(0);
+    expect(await other.innerText()).toBe(previous);
     await first.getByRole("button", { name: "История", exact: true }).click();
     await expect(dialog).toContainText("UI cancellation fixture");
+    await expect(dialog).toContainText("Exact cancelled-service ledger");
     await page.keyboard.press("Escape");
   });
 }

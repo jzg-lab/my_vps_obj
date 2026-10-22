@@ -148,8 +148,7 @@ async def settle_cancelled_service_period(
     *,
     actor_id: int,
     now: datetime | None = None,
-) -> bool:
-    ...
+) -> bool: ...
 ```
 
 The function lives in `bot.services.service_period_sync`. The caller holds the
