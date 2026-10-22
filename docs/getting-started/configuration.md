@@ -38,9 +38,11 @@ nano .env
 | `PUBLIC_APP_URL` | 浏览器用户中心的公开 HTTPS URL，用于邮件和付款后返回。 |
 | `WEBHOOK_SECRET_TOKEN` | Telegram webhook 的固定密钥令牌。 |
 | `SUBSCRIPTION_MINI_APP_URL` | Mini App/frontend 的公开 HTTPS URL，例如 `https://app.domain.com/`。Telegram 按钮打开该地址，BotFather 也填写该地址；不要追加 `/api` 或 webhook 路径。 |
-| `SUBSCRIPTION_GUIDES_ENABLED`, `SUBSCRIPTION_GUIDES_BOT_MENU_ENABLED` | Web App 和机器人按钮中的内置安装指南。默认开启，通常在管理后台修改即可。 |
-| `SUBSCRIPTION_GATEWAY_ENABLED` | 通过公开链接 `/s/<token>` 向客户端应用提供订阅。默认开启，开关位于管理后台的“连接指南”中。 |
+| `SUBSCRIPTION_GUIDES_ENABLED`, `SUBSCRIPTION_GUIDES_BOT_MENU_ENABLED` | 上游 Web App 和机器人按钮中的内置安装指南，默认开启。本项目的独立服务教程使用下述专用入口。 |
+| `SUBSCRIPTION_GATEWAY_ENABLED` | 上游 `/s/<token>` 公开订阅网关开关，默认开启；本项目已退役该入口，开启此项不能恢复访问。 |
 | `PANEL_API_URL`, `PANEL_PUBLIC_URL`, `PANEL_API_KEY`, `PANEL_WEBHOOK_SECRET` | Remnawave 基础集成。`PANEL_API_URL` 用于 backend 和 worker 的请求；`PANEL_PUBLIC_URL` 用于管理员在浏览器中访问面板。如果 API 使用内部地址，请单独设置浏览器可访问的公开地址；留空则继续用 `PANEL_API_URL` 生成链接。在 Remnawave Panel 中设置 webhook 密钥，再将同一值填入机器人设置。这些值建议保存在 `.env` 中，也可按需通过管理后台覆盖。 |
+
+本项目从“我的服务”中的具体服务获取独立订阅链接。教程由登录后的 `/api/service-guides` 读取随程序提供的 `deploy/examples/independent-services-guides.json`，不使用旧网关、面板教程配置或后台 JSON 覆盖值。交付条件与操作见[独立服务交付](../development/service-delivery.md)。
 
 可用以下命令生成 `WEBAPP_SESSION_SECRET` 和 `WEBHOOK_SECRET_TOKEN`：
 

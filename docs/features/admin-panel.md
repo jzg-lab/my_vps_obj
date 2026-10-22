@@ -60,7 +60,7 @@
 管理员可修改任意开关；详情页发送的私信、安全消息及支持消息不受这些偏好影响。
 私信编辑器可添加**Web App 页面 → 通知设置**按钮，直接打开用户中心对应设置页。
 
-用户详情的**链接**区域（Web App 和 Telegram 管理后台均有）显示面板订阅链接、公开安装指南链接 `/s/<token>`（要求内置指南开启且用户有有效订阅）及邀请链接，便于复制并协助用户连接。
+上游用户详情的**链接**区域（Web App 和 Telegram 管理后台均有）显示面板订阅链接、公开安装指南链接 `/s/<token>`（要求内置指南开启且用户有有效订阅）及邀请链接。本项目已退役账号级订阅及 `/s/` 入口；应从具体服务获取经过核验的独立订阅链接，见[独立服务交付](../development/service-delivery.md)。
 
 ### 消息按钮中的表情
 
@@ -245,7 +245,9 @@ Telegram 管理后台的批量创建仍保留为快速发放奖励天数的旧�
 
 <a id="инструкции-подключения"></a>
 
-**系统 → 设置 → 连接指南**控制内置安装页面。`SUBSCRIPTION_GUIDES_ENABLED` 启用用户中心的 `/install`；`SUBSCRIPTION_GUIDES_BOT_MENU_ENABLED` 让 Telegram 机器人的连接按钮打开 Mini App，而非最终 Remnawave Subscription Page。两者默认开启。
+本项目独立服务教程通过登录后的 `/api/service-guides` 读取随程序提供的 `deploy/examples/independent-services-guides.json`，不读取面板配置或后台 JSON 覆盖值。用户从“我的服务”选择具体服务后获取订阅凭据；教程配置本身不包含账号或服务凭据。旧 `/s/`、`/api/subscription-guides` 及其公开教程入口已退役（`410 legacy_business_retired`），下述开关不能恢复这些入口。
+
+以下为上游保留配置说明：**系统 → 设置 → 连接指南**控制内置安装页面。`SUBSCRIPTION_GUIDES_ENABLED` 启用用户中心的 `/install`；`SUBSCRIPTION_GUIDES_BOT_MENU_ENABLED` 让 Telegram 机器人的连接按钮打开 Mini App，而非最终 Remnawave Subscription Page。两者默认开启。
 
 `SUBSCRIPTION_GATEWAY_ENABLED` 允许客户端通过公开链接 `/s/<token>` 导入和更新订阅，默认开启。关闭后指南页面仍可访问，但客户端无法取得配置。新订阅使用哪种链接由 `SUBSCRIPTION_LINK_MODE` 独立决定，默认仍为 `panel`。
 

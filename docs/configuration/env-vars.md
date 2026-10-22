@@ -410,6 +410,8 @@ Xray-Core 26.3.27+、`NET_ADMIN`、nftables、正确的流量嗅探，以及已�
 
 Mini App 的实际配置见 [Web App](../features/web-app.md)，所有认证方式见[登录方式](../features/login-methods.md)。
 
+> 本项目独立服务教程使用登录后的 `/api/service-guides`，读取随程序提供的 `deploy/examples/independent-services-guides.json`；不读取面板教程配置或后台 JSON 覆盖值。下表的 `SUBSCRIPTION_GUIDES_*`、`SUBSCRIPTION_GATEWAY_*`、`SUBSCRIPTION_LINK_MODE` 和 `SUBSCRIPTION_PAGE_CONFIG_*` 描述上游兼容行为，不能恢复已退役的 `/s/`、`/api/subscription-guides` 及旧公开教程入口（`410 legacy_business_retired`）。当前用户须从具体服务获取独立订阅链接，见[独立服务交付](../development/service-delivery.md)。
+
 | 变量 | 修改位置 | 用途 |
 | --- | --- | --- |
 | `WEBAPP_ENABLED` | `.env` / 管理后台 | 启用 Web App。设为 `False` 时，用户 Web App 和管理后台都不可用，需通过 `.env` 重新开启并重启。 |
