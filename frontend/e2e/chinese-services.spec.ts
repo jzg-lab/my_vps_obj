@@ -63,7 +63,8 @@ for (const width of [1440, 390]) {
     await page.goto(url("admin/service-plans"));
     await page.getByRole("button", { name: "新建套餐", exact: true }).click();
     let dialog = page.getByRole("dialog");
-    await expect(dialog).toContainText("已开通服务保留原始条款");
+    await expect(dialog).toContainText("额度修改也会应用于已开通服务");
+    await expect(dialog).toContainText("其他修改仅影响后续开通");
     await dialog.getByRole("button", { name: "资源类型", exact: true }).click();
     await page.getByRole("option", { name: "专用 IP", exact: true }).click();
     await dialog.getByRole("button", { name: "流量规则", exact: true }).click();
