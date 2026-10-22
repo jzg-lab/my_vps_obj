@@ -14,9 +14,11 @@ from bot.app.web.context import PANEL_SERVICE, SESSION_FACTORY, SETTINGS
 from bot.app.web.service_delivery_schemas import ExitReclaimBody, ExitVerifyBody
 from bot.app.web.service_routes import setup_service_admin_routes, setup_service_user_routes
 from bot.app.web.webapp_auth import create_webapp_session_token
+from bot.services.service_change_sync import synchronize_service_change
 from bot.services.service_delivery import service_subscription
 from bot.services.service_provisioning import provision_service_identity
 from bot.services.service_revocation import revoke_service_identity
+from bot.services.service_usage_sync import synchronize_service_usage
 from config.settings import Settings
 from db.dal.service_delivery_dal import record_exit_evidence, request_service_revocation
 from db.dal.user_services_dal import ServiceConflict, activate_service, create_exit, save_plan
@@ -26,6 +28,147 @@ from tests.unit.test_user_services import ServiceDatabaseTestCase, sample_terms
 
 
 class ServiceDeliveryTests(ServiceDatabaseTestCase):
+    async def test_other_workers_invalidate_stale_deletion_evidence(self) -> None:
+        for worker in (synchronize_service_usage, synchronize_service_change):
+            with self.subTest(worker=worker.__name__):
+                service, _, _ = await self.activate(worker.__name__)
+                panel, remote = await self.ready(service.id)
+                async with self.sessions.begin() as session:
+                    await request_service_revocation(
+                        session,
+                        service_id=service.id,
+                        user_id=1,
+                        actor_id=1,
+                        expected_revision=1,
+                        idempotency_key=f"stale:{worker.__name__}",
+                        reason="A previous deletion did not finish",
+                    )
+                    saved = await session.get(UserService, service.id)
+                    connection = await session.get(ServiceConnection, service.id)
+                    assert saved and connection
+                    saved.used_bytes = 500
+                    connection.usage_total_bytes = connection.usage_raw_bytes = 500
+                    connection.revoke_delete_requested_at = datetime.now(UTC)
+                remote["status"] = "DISABLED"
+                remote["userTraffic"] = {}
+                await worker(cast(sessionmaker, self.sessions), service.id, panel)
+                panel.get_user_by_uuid_lookup.side_effect = None
+                panel.get_user_by_uuid_lookup.return_value = {"ok": False, "not_found": True}
+                # A later failed sample must not turn the stale marker into deletion proof.
+                await synchronize_service_usage(
+                    cast(sessionmaker, self.sessions), service.id, panel
+                )
+                await revoke_service_identity(cast(sessionmaker, self.sessions), service.id, panel)
+                async with self.sessions() as session:
+                    connection = await session.get(ServiceConnection, service.id)
+                    saved = await session.get(UserService, service.id)
+                    assert saved and saved.used_bytes == 500
+                    assert connection and connection.state != "revoked"
+                    assert connection.revoke_delete_requested_at is None
+                    assert connection.sync_error == "service_revoke_usage_unconfirmed"
+                panel.delete_user_from_panel.assert_not_awaited()
+
+    async def test_unknown_identity_disappearance_preserves_unsettled_usage(self) -> None:
+        for error in (
+            None,
+            "panel_identity_missing",
+            "panel_usage_invalid",
+            "panel_usage_unavailable",
+        ):
+            with self.subTest(error=error):
+                service, _, _ = await self.activate(str(error))
+                panel, _ = await self.ready(service.id)
+                async with self.sessions.begin() as session:
+                    saved = await session.get(UserService, service.id)
+                    connection = await session.get(ServiceConnection, service.id)
+                    assert saved and connection
+                    saved.used_bytes = 500
+                    connection.usage_total_bytes = 500
+                    connection.usage_raw_bytes = 500
+                    connection.usage_error = error
+                    await session.flush()
+                    await request_service_revocation(
+                        session,
+                        service_id=service.id,
+                        user_id=1,
+                        actor_id=1,
+                        expected_revision=1,
+                        idempotency_key=f"missing:{error}",
+                        reason="Cancel without hiding the missing identity incident",
+                    )
+                panel.get_user_by_uuid_lookup.side_effect = None
+                panel.get_user_by_uuid_lookup.return_value = {"ok": False, "not_found": True}
+                for _ in range(2):
+                    await revoke_service_identity(
+                        cast(sessionmaker, self.sessions), service.id, panel
+                    )
+                async with self.sessions() as session:
+                    saved = await session.get(UserService, service.id)
+                    connection = await session.get(ServiceConnection, service.id)
+                    assert saved and saved.used_bytes == 500
+                    assert connection and connection.state != "revoked"
+                    assert connection.sync_pending and connection.revoked_at is None
+                    assert connection.sync_error == "service_revoke_usage_unconfirmed"
+                    assert connection.usage_total_bytes == connection.usage_raw_bytes == 500
+                    assert connection.usage_error == error
+                panel.delete_user_from_panel.assert_not_awaited()
+
+    async def test_never_created_identity_can_be_cancelled(self) -> None:
+        service, _, _ = await self.activate()
+        panel, _ = panel_fixture()
+        async with self.sessions.begin() as session:
+            await request_service_revocation(
+                session,
+                service_id=service.id,
+                user_id=1,
+                actor_id=1,
+                expected_revision=1,
+                idempotency_key="cancel-unsubmitted",
+                reason="No remote identity has been submitted",
+            )
+        await revoke_service_identity(cast(sessionmaker, self.sessions), service.id, panel)
+        async with self.sessions() as session:
+            connection = await session.get(ServiceConnection, service.id)
+            assert connection and connection.state == "revoked"
+            assert connection.panel_user_uuid is None and not connection.sync_pending
+        panel.create_panel_user.assert_not_awaited()
+        panel.delete_user_from_panel.assert_not_awaited()
+
+    async def test_readable_identity_invalidates_old_deletion_evidence(self) -> None:
+        service, _, _ = await self.activate()
+        panel, remote = await self.ready(service.id)
+        async with self.sessions.begin() as session:
+            await request_service_revocation(
+                session,
+                service_id=service.id,
+                user_id=1,
+                actor_id=1,
+                expected_revision=1,
+                idempotency_key="cancel-reappeared",
+                reason="Retry an unconfirmed delete",
+            )
+            saved = await session.get(UserService, service.id)
+            connection = await session.get(ServiceConnection, service.id)
+            assert saved and connection
+            saved.used_bytes = 500
+            connection.usage_total_bytes = connection.usage_raw_bytes = 500
+            connection.revoke_delete_requested_at = datetime.now(UTC)
+        remote["status"] = "DISABLED"
+        remote["userTraffic"] = {}
+        await revoke_service_identity(cast(sessionmaker, self.sessions), service.id, panel)
+        panel.get_user_by_uuid_lookup.side_effect = None
+        panel.get_user_by_uuid_lookup.return_value = {"ok": False, "not_found": True}
+        await revoke_service_identity(cast(sessionmaker, self.sessions), service.id, panel)
+        async with self.sessions() as session:
+            connection = await session.get(ServiceConnection, service.id)
+            saved = await session.get(UserService, service.id)
+            assert saved and saved.used_bytes == 500
+            assert connection and connection.state != "revoked" and connection.sync_pending
+            assert connection.revoke_delete_requested_at is None
+            assert connection.usage_error == "panel_usage_invalid"
+            assert connection.sync_error == "service_revoke_usage_unconfirmed"
+        panel.delete_user_from_panel.assert_not_awaited()
+
     async def test_uncertain_creation_survives_restricted_retry_until_late_identity_is_revoked(
         self,
     ) -> None:
@@ -307,7 +450,15 @@ class ServiceDeliveryTests(ServiceDatabaseTestCase):
             return True
 
         panel.update_user_status_on_panel.side_effect = disable
-        panel.delete_user_from_panel.side_effect = TimeoutError("lost response")
+
+        async def lose_delete_response(_reference: str) -> None:
+            async with self.sessions() as session:
+                connection = await session.get(ServiceConnection, first.id)
+                assert connection and connection.revoke_delete_requested_at is not None
+                assert connection.usage_total_bytes == 7
+            raise TimeoutError("lost response")
+
+        panel.delete_user_from_panel.side_effect = lose_delete_response
         await revoke_service_identity(cast(sessionmaker, self.sessions), first.id, panel)
         async with self.sessions() as session:
             connection = await session.get(ServiceConnection, first.id)
@@ -318,8 +469,17 @@ class ServiceDeliveryTests(ServiceDatabaseTestCase):
             assert other is not None and other.desired_status == "active"
             cancelled = await session.get(UserService, first.id)
             assert cancelled and cancelled.used_bytes == 7 and connection.usage_total_bytes == 7
+            assert connection.revoke_delete_requested_at is not None
             with pytest.raises(ServiceConflict, match="service_not_deliverable"):
                 await service_subscription(session, user_id=1, service_id=first.id, panel=panel)
+        # A transient failed lookup must not discard the committed deletion evidence.
+        panel.get_user_by_uuid_lookup.side_effect = TimeoutError("lookup unavailable")
+        await revoke_service_identity(cast(sessionmaker, self.sessions), first.id, panel)
+        async with self.sessions.begin() as session:
+            connection = await session.get(ServiceConnection, first.id)
+            assert connection and connection.revoke_delete_requested_at is not None
+            # The usage worker can observe absence before the revocation worker retries.
+            connection.usage_error = "panel_identity_missing"
         panel.get_user_by_uuid_lookup.side_effect = None
         panel.get_user_by_uuid_lookup.return_value = {"ok": False, "not_found": True}
         await revoke_service_identity(cast(sessionmaker, self.sessions), first.id, panel)
@@ -334,6 +494,7 @@ class ServiceDeliveryTests(ServiceDatabaseTestCase):
                 connection is not None and connection.state == "revoked" and connection.revoked_at
             )
             assert connection.revoked_at == revoked_at
+            assert connection.usage_error is None
         assert remote["username"] == f"svc_{first.id}"
         panel.delete_user_from_panel.assert_awaited_once()
 

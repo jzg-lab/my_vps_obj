@@ -28,6 +28,9 @@ from db.migrator.chain_0111_service_changes import _upgrade as upgrade_changes
 from db.migrator.chain_0112_service_usage import _upgrade as upgrade_usage
 from db.migrator.chain_0113_service_entitlements import _upgrade as upgrade_entitlements
 from db.migrator.chain_0114_service_delivery import _upgrade as upgrade_delivery
+from db.migrator.chain_0115_service_revocation_evidence import (
+    _upgrade as upgrade_revocation_evidence,
+)
 from db.models import Base, User
 from db.service_models import (
     AccountAccessSync,
@@ -93,6 +96,8 @@ def scenario(run: Callable[[async_sessionmaker[AsyncSession]], Awaitable[None]])
                 await connection.run_sync(upgrade_entitlements)
                 await connection.run_sync(upgrade_delivery)
                 await connection.run_sync(upgrade_delivery)
+                await connection.run_sync(upgrade_revocation_evidence)
+                await connection.run_sync(upgrade_revocation_evidence)
             factory = async_sessionmaker(engine, expire_on_commit=False, autoflush=False)
             async with factory.begin() as session:
                 session.add_all([User(user_id=1), User(user_id=2)])

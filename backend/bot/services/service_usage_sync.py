@@ -57,10 +57,12 @@ async def synchronize_service_usage(
             if not isinstance(remote, dict):
                 if lookup.get("not_found"):
                     connection.usage_error = "panel_identity_missing"
-            elif not owns_identity(remote, connection):
-                connection.usage_error = "panel_identity_conflict"
             else:
-                record_service_usage(service, connection, remote)
+                connection.revoke_delete_requested_at = None
+                if not owns_identity(remote, connection):
+                    connection.usage_error = "panel_identity_conflict"
+                else:
+                    record_service_usage(service, connection, remote)
         except Exception:
             logger.exception("Service usage observation needs retry for %s", service_id)
         await session.commit()
@@ -69,6 +71,8 @@ async def synchronize_service_usage(
 def record_service_usage(
     service: UserService, connection: ServiceConnection, remote: dict[str, Any]
 ) -> None:
+    # A fresh readable identity invalidates evidence from an earlier deletion attempt.
+    connection.revoke_delete_requested_at = None
     if connection.usage_error in RECONCILIATION_ERRORS:
         return
     try:

@@ -132,6 +132,7 @@ class ServiceConnection(Base):
     usage_lifetime_offset: Mapped[int | None] = mapped_column(BigInteger)
 
     revoke_requested_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+    revoke_delete_requested_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
     revoked_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
 
 

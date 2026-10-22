@@ -91,6 +91,9 @@
   selected service's confirmed link; the retired account-level guide endpoint stays unavailable.
   Terminal cancellation saves
   revocation intent and retries the original identity, preserving the last accepted usage.
+  Final metering and the deletion request are committed together before removing the identity;
+  an unexplained missing identity stays pending instead of falsely completing revocation.
+  Confirmed deletion retries survive transient panel failures without discarding usage evidence.
   Dedicated-exit verification and manual reclaim record the administrator, evidence and
   allocation version. Reclaim requires confirmed identity removal and subsequent operator
   evidence that existing connections stopped and old configurations cannot reconnect; a

@@ -109,6 +109,7 @@ async def synchronize_service_entitlement_locked(
         if lookup.get("not_found"):
             connection.sync_error = "panel_identity_missing"
         return False
+    connection.revoke_delete_requested_at = None
     if not owns_identity(remote, connection):
         connection.sync_error = "panel_identity_conflict"
         return False

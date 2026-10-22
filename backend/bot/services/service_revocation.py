@@ -80,6 +80,9 @@ async def revoke_service_identity(
                 absent = result.get("not_found") is True
                 if not absent:
                     remote = result.get("user") if result.get("ok") is True else None
+                    if isinstance(remote, dict):
+                        # A readable identity needs fresh stopped-state and usage evidence.
+                        connection.revoke_delete_requested_at = None
                     if not isinstance(remote, dict) or not owns_identity(remote, connection):
                         await session.commit()
                         return
@@ -123,6 +126,8 @@ async def revoke_service_identity(
                             await session.commit()
                             return
                         # The final read may contain late bytes after the first settlement.
+                        # Commit the deletion intent together with its accepted counters.
+                        connection.revoke_delete_requested_at = datetime.now(UTC)
                         await session.commit()
                         locked = await locked_service(session, service_id)
                         if locked is None:
@@ -133,7 +138,10 @@ async def revoke_service_identity(
                             or connection.panel_user_uuid != reference
                             or connection.usage_error is not None
                             or connection.cycle_cutover_bytes is not None
+                            or connection.revoke_delete_requested_at is None
                         ):
+                            connection.revoke_delete_requested_at = None
+                            await session.commit()
                             return
                     absent = result.get("not_found") is True
                     if not absent:
@@ -143,7 +151,9 @@ async def revoke_service_identity(
             if absent:
                 if (
                     connection.cycle_cutover_bytes is not None
-                    or connection.usage_error in RECONCILIATION_ERRORS
+                    or connection.usage_error
+                    not in {None, "panel_identity_missing", "panel_usage_unavailable"}
+                    or (reference is not None and connection.revoke_delete_requested_at is None)
                 ):
                     connection.sync_error = "service_revoke_usage_unconfirmed"
                     await session.commit()
@@ -153,6 +163,7 @@ async def revoke_service_identity(
                 connection.sync_pending = False
                 connection.sync_error = None
                 connection.last_error = None
+                connection.usage_error = None
                 connection.sync_confirmed_at = connection.revoked_at
         except Exception:
             # Persist intent; don't log exception text or remote credentials.

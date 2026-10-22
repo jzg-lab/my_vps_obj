@@ -43,6 +43,7 @@ from .chain_0111_service_changes import CHAIN_0111_SERVICE_CHANGES
 from .chain_0112_service_usage import CHAIN_0112_SERVICE_USAGE
 from .chain_0113_service_entitlements import CHAIN_0113_SERVICE_ENTITLEMENTS
 from .chain_0114_service_delivery import CHAIN_0114_SERVICE_DELIVERY
+from .chain_0115_service_revocation_evidence import CHAIN_0115_SERVICE_REVOCATION_EVIDENCE
 from .engine import Migration
 
 MIGRATIONS: list[Migration] = [
@@ -87,4 +88,5 @@ MIGRATIONS: list[Migration] = [
     *CHAIN_0112_SERVICE_USAGE,
     *CHAIN_0113_SERVICE_ENTITLEMENTS,
     *CHAIN_0114_SERVICE_DELIVERY,
+    *CHAIN_0115_SERVICE_REVOCATION_EVIDENCE,
 ]
