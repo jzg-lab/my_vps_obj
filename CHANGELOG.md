@@ -78,6 +78,13 @@
   the identity or automatically resumes it. Connection delivery and real-node enforcement
   acceptance remain pending.
 
+- **Simplified Chinese for independent services.** The website and operations UI can load
+  `zh-hans` through the existing language preference and scoped locale mechanism, including
+  common Simplified Chinese browser tags. Core account, service, resource and history flows
+  gain Chinese copy, while service dates remain in Beijing time. Language changes update
+  the document language for assistive technology. English and Russian remain available,
+  and locale guards catch missing new service strings and changed placeholders.
+
 - **Nested dialog keyboard focus.** Opening an emoji picker now transfers focus before
   the next keyboard event, so an immediate Escape closes the picker instead of its parent
   editor. Existing focus-restoration assertions remain in place.

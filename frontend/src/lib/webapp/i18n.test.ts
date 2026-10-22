@@ -17,3 +17,20 @@ describe("i18n language loading", () => {
     expect(i18n.t("wa_title")).toBe("Titolo");
   });
 });
+
+describe("Simplified Chinese", () => {
+  it("loads the same catalog for Simplified Chinese browser and account tags", () => {
+    const i18n = createI18n({
+      messages: { "zh-hans": { wa_services_title: "我的服务" } },
+      defaultLang: "en",
+      getLang: () => "zh-CN",
+    });
+    for (const language of ["zh", "zh-CN", "zh_SG", "zh-Hans", "zh-Hans-CN"]) {
+      expect(i18n.normalizeLangCode(language)).toBe("zh-hans");
+    }
+    expect(i18n.t("wa_services_title")).toBe("我的服务");
+    expect(i18n.languageName("zh-CN")).toBe("简体中文");
+    expect(i18n.normalizeLangCode("zh-TW")).toBe("en");
+    expect(i18n.normalizeLangCode("zh-Hant")).toBe("en");
+  });
+});

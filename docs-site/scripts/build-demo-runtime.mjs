@@ -202,11 +202,16 @@ function jsonScriptPayload(value) {
 }
 
 async function demoI18nPayload() {
-  const [ru, en] = await Promise.all([
+  const [ru, en, zhHans] = await Promise.all([
     readFile(path.join(localesDir, "ru.json"), "utf8"),
     readFile(path.join(localesDir, "en.json"), "utf8"),
+    readFile(path.join(localesDir, "zh-hans.json"), "utf8"),
   ]);
-  return jsonScriptPayload({ ru: JSON.parse(ru), en: JSON.parse(en) });
+  return jsonScriptPayload({
+    ru: JSON.parse(ru),
+    en: JSON.parse(en),
+    "zh-hans": JSON.parse(zhHans),
+  });
 }
 
 async function installGuidesConfigPayload() {

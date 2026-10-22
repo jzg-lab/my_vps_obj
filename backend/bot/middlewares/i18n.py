@@ -28,6 +28,7 @@ LANGUAGE_LABELS: dict[str, str] = {
     "pt-br": "Português (BR)",
     "tr": "Türkçe",
     "uk": "Ukrainian",
+    "zh-hans": "简体中文",
 }
 LANGUAGE_FLAGS: dict[str, str] = {
     "ru": "🇷🇺",
@@ -38,6 +39,7 @@ LANGUAGE_FLAGS: dict[str, str] = {
     "pt-br": "🇧🇷",
     "tr": "🇹🇷",
     "uk": "🇺🇦",
+    "zh-hans": "🇨🇳",
 }
 DEFAULT_LANGUAGE_ORDER = ("ru", "en")
 LOCALE_KEY_ALIASES: dict[str, str] = {
@@ -138,6 +140,8 @@ def normalize_locale_language_code(
     prefer_known_base: bool = True,
 ) -> str:
     value = str(raw or "").strip().lower().replace("_", "-")
+    if value in {"zh", "zh-cn", "zh-sg"} or value.startswith("zh-hans-"):
+        value = "zh-hans"
     if not value:
         return ""
     if prefer_known_base and valid_languages and value not in valid_languages:

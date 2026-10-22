@@ -432,6 +432,9 @@
   const tariffCatalog = $derived(shellView.billingView.tariffCatalog);
   const tariffMode = $derived(shellView.billingView.tariffMode);
   const currentLang = $derived(shellView.currentLang);
+  $effect(() => {
+    document.documentElement.lang = currentLang;
+  });
   const telegramOAuthClientId = $derived(shellView.telegramOAuthClientId);
   const effectiveThemeEntry = $derived(shellView.themeView.effectiveThemeEntry);
   const resolvedThemeKey = $derived(shellView.themeView.resolvedThemeKey);

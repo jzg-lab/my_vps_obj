@@ -20,6 +20,7 @@ describe("install guide runtime helpers", () => {
     );
     expect(localizedInstallValue({ ru: "Install ru" }, "de", "fallback")).toBe("Install ru");
     expect(localizedInstallValue(null, "en", "fallback")).toBe("fallback");
+    expect(localizedInstallValue({ zh: "安装", en: "Install" }, "zh-hans")).toBe("安装");
   });
 
   it("detects platform from telegram and browser hints", () => {

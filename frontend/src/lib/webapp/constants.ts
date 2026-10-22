@@ -8,6 +8,7 @@ export const LANGUAGE_LABELS = {
   ru: "Russian",
   tr: "Türkçe",
   uk: "Ukrainian",
+  "zh-hans": "简体中文",
 };
 export const LANGUAGE_FLAGS = {
   en: "🇬🇧",
@@ -18,6 +19,7 @@ export const LANGUAGE_FLAGS = {
   ru: "🇷🇺",
   tr: "🇹🇷",
   uk: "🇺🇦",
+  "zh-hans": "🇨🇳",
 };
 export const WEBAPP_LANGUAGE_ORDER = ["ru", "en"];
 export const LOCALE_KEY_ALIASES = {
@@ -116,10 +118,11 @@ export function resolveLocaleKey(key: unknown): string {
 }
 
 export function normalizeLanguageCode(value: unknown): string {
-  return String(value || "")
+  const code = String(value || "")
     .trim()
     .toLowerCase()
     .replace(/_/g, "-");
+  return ["zh", "zh-cn", "zh-sg"].includes(code) || code.startsWith("zh-hans-") ? "zh-hans" : code;
 }
 
 export function uniqueLanguageCodes(...sources: Array<unknown[] | null | undefined>): string[] {
