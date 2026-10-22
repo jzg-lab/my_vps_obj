@@ -3,37 +3,23 @@
 import asyncio
 import logging
 from datetime import UTC, datetime
-from typing import Any
 
 from sqlalchemy import or_, select
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import sessionmaker
 
 from bot.services.panel_api_service import PanelApiService
+from bot.services.service_panel_state import (
+    locked_service,
+    matches_service_terms,
+    owns_identity,
+    service_squads,
+)
 from config.service_periods import as_utc
-from config.service_plans import ServicePlanTerms
-from db.dal.user_dal import lock_user_by_id
 from db.models import User
-from db.service_models import DedicatedExit, ServiceConnection, UserService
+from db.service_models import ServiceConnection, UserService
 
 logger = logging.getLogger(__name__)
-
-
-async def _locked_service(
-    session: AsyncSession, service_id: str
-) -> tuple[User, UserService, ServiceConnection] | None:
-    owner_id = await session.scalar(select(UserService.user_id).where(UserService.id == service_id))
-    if owner_id is None:
-        return None
-    user = await lock_user_by_id(session, owner_id)
-    service = await session.get(UserService, service_id, populate_existing=True)
-    connection = await session.get(ServiceConnection, service_id, populate_existing=True)
-    # A merge may have moved ownership while we waited for the original account lock.
-    if user is None or service is None or service.user_id != owner_id or connection is None:
-        return None
-    if connection.state == "revoked":
-        return None
-    return user, service, connection
 
 
 def _can_prepare(user: User, service: UserService) -> bool:
@@ -44,63 +30,11 @@ def _can_prepare(user: User, service: UserService) -> bool:
     )
 
 
-async def _squads(session: AsyncSession, service: UserService) -> list[str] | None:
-    terms = ServicePlanTerms.model_validate(service.terms)
-    if terms.resource_type == "shared":
-        return [str(value) for value in terms.squad_uuids]
-    resource = await session.scalar(
-        select(DedicatedExit).where(DedicatedExit.service_id == service.id)
-    )
-    if (
-        resource is None
-        or not resource.enabled
-        or resource.verified_at is None
-        or resource.resource_pool != terms.resource_pool
-    ):
-        return None
-    return [resource.squad_uuid]
-
-
-def _owned(remote: dict[str, Any], connection: ServiceConnection) -> bool:
-    return (
-        remote.get("username") == connection.username
-        and remote.get("description") == f"my_vps_obj:service:{connection.service_id}"
-        and bool(remote.get("uuid"))
-        and (
-            connection.panel_user_uuid is None or str(remote["uuid"]) == connection.panel_user_uuid
-        )
-        and remote.get("telegramId") is None
-        and remote.get("email") in (None, "")
-    )
-
-
-def _matches_terms(remote: dict[str, Any], service: UserService, squads: list[str]) -> bool:
-    groups = remote.get("activeInternalSquads")
-    if not isinstance(groups, list):
-        return False
-    actual = [item.get("uuid") if isinstance(item, dict) else item for item in groups]
-    if any(not isinstance(item, str) for item in actual) or set(actual) != set(squads):
-        return False
-    try:
-        expiry = datetime.fromisoformat(str(remote.get("expireAt")).replace("Z", "+00:00"))
-    except ValueError:
-        return False
-    return (
-        expiry.tzinfo is not None
-        and as_utc(expiry).isoformat(timespec="milliseconds")
-        == as_utc(service.expires_at).isoformat(timespec="milliseconds")
-        and remote.get("trafficLimitBytes") == service.quota_bytes
-        and remote.get("trafficLimitStrategy") == "NO_RESET"
-        and remote.get("externalSquadUuid") in (None, "")
-        and remote.get("status") in {"DISABLED", "EXPIRED", "LIMITED"}
-    )
-
-
 async def provision_service_identity(
     session_factory: sessionmaker, service_id: str, panel: PanelApiService
 ) -> None:
     async with session_factory() as session:
-        locked = await _locked_service(session, service_id)
+        locked = await locked_service(session, service_id)
         if locked is None:
             return
         user, service, connection = locked
@@ -110,7 +44,7 @@ async def provision_service_identity(
             return
         connection.attempted_at = datetime.now(UTC)
         if connection.state == "pending" and (
-            not _can_prepare(user, service) or await _squads(session, service) is None
+            not _can_prepare(user, service) or await service_squads(session, service) is None
         ):
             await session.commit()
             return
@@ -121,7 +55,7 @@ async def provision_service_identity(
         await session.commit()
 
     async with session_factory() as session:
-        locked = await _locked_service(session, service_id)
+        locked = await locked_service(session, service_id)
         if locked is None:
             return
         user, service, connection = locked
@@ -143,7 +77,7 @@ async def _prepare_locked(
     connection: ServiceConnection,
     panel: PanelApiService,
 ) -> None:
-    squads = await _squads(session, service)
+    squads = await service_squads(session, service)
     if connection.panel_user_uuid is not None:
         lookup = await panel.get_user_by_uuid_lookup(connection.panel_user_uuid)
         remote = lookup.get("user") if lookup.get("ok") is True else None
@@ -178,7 +112,7 @@ async def _prepare_locked(
         if users is None or len(users) != 1:
             return
         remote = users[0]
-    if not _owned(remote, connection):
+    if not owns_identity(remote, connection):
         connection.last_error = "panel_identity_conflict"
         return
     reference = str(remote["uuid"])
@@ -189,9 +123,13 @@ async def _prepare_locked(
         await panel.update_user_status_on_panel(reference, False)
         lookup = await panel.get_user_by_uuid_lookup(reference)
         remote = lookup.get("user") if lookup.get("ok") is True else None
-        if not isinstance(remote, dict) or not _owned(remote, connection):
+        if not isinstance(remote, dict) or not owns_identity(remote, connection):
             return
-    if squads is None or not _matches_terms(remote, service, squads):
+    if (
+        squads is None
+        or remote.get("status") not in {"DISABLED", "EXPIRED", "LIMITED"}
+        or not matches_service_terms(remote, service, squads)
+    ):
         connection.last_error = "panel_identity_terms_mismatch"
         return
     connection.state = "pending"

@@ -18,6 +18,7 @@
     type ServiceTranslate,
   } from "$lib/admin/servicePlans.js";
   import ServiceActivationDialog from "./ServiceActivationDialog.svelte";
+  import ServiceChangeDialog from "./ServiceChangeDialog.svelte";
   let {
     at,
     userId,
@@ -27,10 +28,11 @@
   let services = $state<UserService[]>([]);
   let total = $state<number | undefined>();
   let page = $state(0);
-  let loading = $state(false);
+  let loading = $state(true);
   let failed = $state(false);
   let activationOpen = $state(false);
   let selected = $state<UserService | null>(null);
+  let editing = $state<UserService | null>(null);
   let controller: AbortController | null = null;
   let request = 0;
   async function load(currentPage: number, owner: number | null) {
@@ -63,6 +65,7 @@
     page = 0;
     total = undefined;
     selected = null;
+    editing = null;
     activationOpen = false;
   });
   $effect(() => {
@@ -88,7 +91,7 @@
         >{at("refresh")}</AdminButton
       >{#if userId !== null}<AdminButton
           variant="primary"
-          disabled={banned}
+          disabled={banned || loading || failed}
           onclick={() => {
             activationOpen = true;
           }}>{at("services_activate")}</AdminButton
@@ -122,6 +125,14 @@
                   variant={service.status === "active" ? "success" : "muted"}
                   >{at(`services_status_${service.status}`)}</AdminBadge
                 >{#if service.status === "pending"}<small>{at("services_pending_hint")}</small>{/if}
+                {#if service.sync_pending}<small role="status"
+                    >{at(
+                      service.sync_error ? "services_sync_retrying" : "services_sync_pending"
+                    )}</small
+                  >
+                {:else if service.sync_confirmed_at}<small
+                    >{at("services_sync_confirmed")}: {date(service.sync_confirmed_at)}</small
+                  >{/if}
               </div></td
             >
             <td data-label={at("services_used")}
@@ -150,12 +161,19 @@
               </div></td
             >
             <td data-label={at("services_order_history")}
-              ><AdminButton
-                size="sm"
-                onclick={() => {
-                  selected = service;
-                }}>{at("services_view_history")}</AdminButton
-              ></td
+              ><div class="service-actions">
+                <AdminButton
+                  size="sm"
+                  onclick={() => {
+                    selected = service;
+                  }}>{at("services_view_history")}</AdminButton
+                >{#if userId !== null && service.desired_status !== "cancelled" && service.connection_state !== "revoked"}<AdminButton
+                    size="sm"
+                    onclick={() => {
+                      editing = service;
+                    }}>{at("services_manage")}</AdminButton
+                  >{/if}
+              </div></td
             >
           </tr>{/each}
       </tbody></AdminTable
@@ -202,6 +220,20 @@
       }}
     />{/key}{/if}
 
+{#if editing}{#key editing.id}<ServiceChangeDialog
+      {api}
+      {at}
+      service={editing}
+      onclose={() => {
+        editing = null;
+        void load(page, userId);
+      }}
+      onsaved={() => {
+        editing = null;
+        void load(page, userId);
+      }}
+    />{/key}{/if}
+
 <style>
   .user-services {
     display: grid;
@@ -220,5 +252,10 @@
     display: block;
     color: var(--admin-muted);
     overflow-wrap: anywhere;
+  }
+  .service-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
   }
 </style>

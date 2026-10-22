@@ -11,7 +11,7 @@
   import { builtApiPath, unwrap, type ApiClient } from "$lib/webapp/publicApi";
   import { serviceDate } from "$lib/webapp/independentServices";
   import { serviceBytes, type UserService, type ServiceTranslate } from "$lib/admin/servicePlans";
-  import { activationSnapshot, type ServiceOrder } from "$lib/admin/serviceHistory";
+  import { serviceOrderSnapshot, type ServiceOrder } from "$lib/admin/serviceHistory";
 
   let {
     api,
@@ -91,16 +91,19 @@
       <AdminTable>
         <thead
           ><tr
-            >{#each ["services_order_id", "services_name", "services_recorded_price", "services_quota", "services_period", "services_actor", "services_recorded_at"] as key}<th
+            >{#each ["services_order_id", "services_action", "services_name", "services_recorded_price", "services_quota", "services_period", "services_actor", "services_recorded_at"] as key}<th
                 >{at(key)}</th
               >{/each}</tr
           ></thead
         >
         <tbody
           >{#each orders as order (order.id)}
-            {@const snapshot = activationSnapshot(order)}
+            {@const snapshot = serviceOrderSnapshot(order)}
             <tr>
               <td data-label={at("services_order_id")}>{order.id}</td>
+              <td data-label={at("services_action")}
+                >{at(snapshot ? `services_${snapshot.kind}` : "services_snapshot_unavailable")}</td
+              >
               <td data-label={at("services_name")}>
                 <div>
                   {#if snapshot}<strong>{snapshot.name}</strong><small
@@ -108,11 +111,18 @@
                         revision: snapshot.revision,
                       })}</small
                     >
+                    {#if snapshot.beforeStatus}<small
+                        >{at(`services_status_${snapshot.beforeStatus}`)} → {at(
+                          `services_status_${snapshot.desiredStatus}`
+                        )}</small
+                      >{/if}
                   {:else}<span role="status">{at("services_snapshot_unavailable")}</span>{/if}
                 </div>
               </td>
               <td data-label={at("services_recorded_price")}
-                >{snapshot ? `${snapshot.price} ${snapshot.currency}` : "—"}</td
+                >{snapshot?.price !== null && snapshot
+                  ? `${snapshot.price} ${snapshot.currency}`
+                  : "—"}</td
               >
               <td data-label={at("services_quota")}
                 ><div>

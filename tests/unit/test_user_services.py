@@ -348,6 +348,32 @@ class UserServicesTests(ServiceDatabaseTestCase):
             body = await response.json()
             assert body["ok"] and body["service"]["status"] == "pending"
             service_id = body["service"]["id"]
+            change = {
+                "user_id": 1,
+                "expected_revision": 1,
+                "idempotency_key": "pause-http",
+                "change": {"action": "pause"},
+            }
+            change_path = f"/api/admin/services/{service_id}/changes"
+            assert (await client.post(change_path, json=change)).status == 401
+            assert (await client.post(change_path, json=change, headers=user_headers)).status == 403
+            response = await client.post(change_path, json=change, headers=admin_headers)
+            assert response.status == 200
+            changed = await response.json()
+            assert changed["service"]["desired_status"] == "paused"
+            assert changed["service"]["sync_pending"] and changed["service"]["revision"] == 2
+            response = await client.post(change_path, json=change, headers=admin_headers)
+            assert (await response.json())["duplicate"] is True
+            assert (
+                await client.post(
+                    change_path, json={**change, "force": True}, headers=admin_headers
+                )
+            ).status == 400
+            assert (
+                await client.post(
+                    change_path, json={**change, "idempotency_key": "stale"}, headers=admin_headers
+                )
+            ).status == 409
             assert (
                 await client.get(f"/api/services/{service_id}", headers=user_headers)
             ).status == 404

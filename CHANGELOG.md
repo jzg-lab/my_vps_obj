@@ -36,6 +36,11 @@
   detached service/activation history accessible through admin APIs and a paginated archive page.
   Each service also opens its own activation history, showing original prices, quotas and dates
   without substituting current plan terms; recorded prices are not payment confirmations.
+  Administrators can pause, resume or renew one service with explicit recorded renewal terms.
+  Renewals preserve usage and the original monthly anchor; optimistic versions and durable
+  request keys prevent duplicate extensions. Saved changes retry panel synchronization after
+  failures, and the UI distinguishes pending changes from confirmed panel state. Resume and
+  account unban cannot bypass unconfirmed changes or enable an unprepared service.
   Original activation request scopes survive merges and deletion. Account bans and unbans now
   persist synchronization jobs before contacting the panel and retry after outages or worker restarts. Every known identity
   is checked; unbanning preserves expired, exhausted and paused service restrictions. The admin

@@ -10,6 +10,7 @@ from pydantic import ConfigDict, Field, StrictBool, field_validator
 
 from bot.app.web.http_contracts import HttpBodyModel, HttpResponseModel
 from bot.services.user_service_access import service_status
+from config.service_changes import ServiceChange
 from config.service_periods import as_utc
 from config.service_plans import ServicePlanTerms
 from db.service_models import (
@@ -70,6 +71,14 @@ class DedicatedExitBody(HttpBodyModel):
         return value
 
 
+class ServiceChangeBody(HttpBodyModel):
+    model_config = ConfigDict(extra="forbid", str_strip_whitespace=True)
+    user_id: int = Field(ge=-(2**53 - 1), le=2**53 - 1, strict=True)
+    expected_revision: int = Field(gt=0, strict=True)
+    idempotency_key: str = Field(min_length=1, max_length=128)
+    change: ServiceChange
+
+
 class ServicePlanOut(HttpResponseModel):
     id: str
     revision: int
@@ -119,6 +128,11 @@ class ServiceCatalogPlanOut(HttpResponseModel):
 
 class UserServiceOut(HttpResponseModel):
     id: str
+    revision: int
+    desired_status: str
+    sync_pending: bool
+    sync_error: str | None
+    sync_confirmed_at: datetime | None
     user_id: int | None
     plan_id: str
     plan_revision: int
@@ -152,6 +166,15 @@ class UserServiceOut(HttpResponseModel):
         status = service_status(service, connection, resource, banned=banned)
         return cls(
             id=service.id,
+            revision=service.revision,
+            desired_status=service.desired_status,
+            sync_pending=bool(connection and connection.sync_pending),
+            sync_error=connection.sync_error if connection else None,
+            sync_confirmed_at=(
+                as_utc(connection.sync_confirmed_at)
+                if connection and connection.sync_confirmed_at
+                else None
+            ),
             user_id=service.user_id,
             plan_id=service.plan_id,
             plan_revision=service.plan_revision,

@@ -44,3 +44,37 @@ describe("activationSnapshot", () => {
     expect(activationSnapshot({ ...order, kind: "renew" })).toBeNull();
   });
 });
+
+import { serviceOrderSnapshot } from "./serviceHistory";
+
+describe("operation history", () => {
+  const snapshot = {
+    ...order.snapshot,
+    quota_bytes: 100,
+    desired_status: "paused",
+    before: { expires_at: "2027-01-20T00:00:00Z", desired_status: "paused" },
+    change: { action: "renew", days: 31, price: "3.90", currency: "USD" },
+  };
+  it("uses the renewal's recorded price and quota instead of the activation price", () => {
+    expect(serviceOrderSnapshot({ ...order, kind: "renew", snapshot })).toMatchObject({
+      kind: "renew",
+      price: "3.90",
+      currency: "USD",
+      quotaBytes: 100,
+      beforeStatus: "paused",
+      desiredStatus: "paused",
+    });
+  });
+  it("does not label a pause as a purchase or invent a price for it", () => {
+    expect(
+      serviceOrderSnapshot({
+        ...order,
+        kind: "pause",
+        snapshot: { ...snapshot, change: { action: "pause" } },
+      })
+    ).toMatchObject({ kind: "pause", price: null });
+    expect(
+      serviceOrderSnapshot({ ...order, kind: "renew", snapshot: { ...snapshot, change: {} } })
+    ).toBeNull();
+  });
+});

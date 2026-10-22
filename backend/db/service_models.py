@@ -62,6 +62,7 @@ class UserService(Base):
         String(32), ForeignKey("service_plans.id", ondelete="RESTRICT")
     )
     plan_revision: Mapped[int] = mapped_column(Integer, nullable=False)
+    revision: Mapped[int] = mapped_column(Integer, nullable=False, default=1)
     terms: Mapped[dict[str, object]] = mapped_column(JSON, nullable=False)
     quota_bytes: Mapped[int] = mapped_column(BigInteger, nullable=False)
     used_bytes: Mapped[int] = mapped_column(BigInteger, nullable=False, default=0)
@@ -116,6 +117,11 @@ class ServiceConnection(Base):
     state: Mapped[str] = mapped_column(String(16), nullable=False, default="pending")
     last_error: Mapped[str | None] = mapped_column(String(128))
     attempted_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+
+    sync_pending: Mapped[bool] = mapped_column(Boolean, nullable=False, default=False)
+    sync_error: Mapped[str | None] = mapped_column(String(128))
+    sync_attempted_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+    sync_confirmed_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
 
 
 class DedicatedExit(Base):

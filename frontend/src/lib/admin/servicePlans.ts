@@ -96,6 +96,11 @@ export function serviceErrorKey(failure: unknown): string {
     plan_not_found: "plan_unavailable",
     exit_not_found: "exit_unavailable",
     dedicated_exit_required: "services_resource_required",
+    service_revision_changed: "change_conflict",
+    service_state_unchanged: "change_conflict",
+    service_not_editable: "change_unavailable",
+    service_not_found: "change_unavailable",
+    invalid_renewal_date: "services_invalid_terms",
   };
   const normalized = aliases[code] || code;
   const codes = [
@@ -109,6 +114,9 @@ export function serviceErrorKey(failure: unknown): string {
     "idempotency_owner_changed",
     "services_invalid_terms",
     "services_resource_required",
+    "change_conflict",
+    "change_unavailable",
+    "services_storage_failed",
   ];
   return codes.includes(normalized)
     ? normalized.startsWith("services_")

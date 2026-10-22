@@ -175,6 +175,7 @@ def test_runtime_keeps_only_account_and_operational_workers() -> None:
     assert {task.name for task in main_worker._core_worker_tasks()} == {
         "AccountAccessSync",
         "ServiceProvisioning",
+        "ServiceChanges",
         "OutboundSettingsRefresh",
         "AdminBroadcastWorker",
         "BackupWorker",

@@ -22,6 +22,7 @@ from db.migrator.chain_0107_user_services import _upgrade
 from db.migrator.chain_0108_service_account_history import _upgrade as upgrade_history
 from db.migrator.chain_0109_account_access_sync import _upgrade as upgrade_access
 from db.migrator.chain_0110_service_provisioning import _upgrade as upgrade_provisioning
+from db.migrator.chain_0111_service_changes import _upgrade as upgrade_changes
 from db.models import Base, User
 from db.service_models import (
     AccountAccessSync,
@@ -75,6 +76,8 @@ def scenario(run: Callable[[async_sessionmaker[AsyncSession]], Awaitable[None]])
                 await connection.run_sync(upgrade_access)
                 await connection.run_sync(upgrade_provisioning)
                 await connection.run_sync(upgrade_provisioning)
+                await connection.run_sync(upgrade_changes)
+                await connection.run_sync(upgrade_changes)
             factory = async_sessionmaker(engine, expire_on_commit=False, autoflush=False)
             async with factory.begin() as session:
                 session.add_all([User(user_id=1), User(user_id=2)])
@@ -415,5 +418,53 @@ def test_unban_waits_for_running_sync_then_queues_the_latest_intent() -> None:
             assert user and not user.is_banned and job and job.pending
             await synchronize_account_access(session, 2, panel)
         assert panel.states["11"] == "ACTIVE"
+
+    scenario(run)
+
+
+def test_concurrent_renewals_are_idempotent_and_stale_changes_conflict() -> None:
+    from datetime import timedelta
+
+    from config.service_changes import ServiceChange
+    from db.dal.service_changes_dal import change_service
+
+    async def run(factory: async_sessionmaker[AsyncSession]) -> None:
+        async with factory.begin() as session:
+            plan = await save_plan(session, terms=sample_terms(), enabled=True, actor_id=1)
+            service, _, _ = await activate_service(
+                session,
+                user_id=1,
+                actor_id=1,
+                plan_id=plan.id,
+                expected_revision=1,
+                idempotency_key="activate",
+            )
+            service.used_bytes = 9000
+        change = ServiceChange.model_validate(
+            {"action": "renew", "days": 31, "price": "2.30", "currency": "CNY"}
+        )
+
+        async def renew(key: str) -> tuple[str, bool]:
+            async with factory.begin() as session:
+                updated, order, duplicate = await change_service(
+                    session,
+                    service_id=service.id,
+                    user_id=1,
+                    actor_id=1,
+                    expected_revision=1,
+                    idempotency_key=key,
+                    change=change,
+                )
+                assert updated.expires_at == service.expires_at + timedelta(days=31)
+                assert updated.used_bytes == 9000 and updated.revision == 2
+                return order.id, duplicate
+
+        results = await asyncio.gather(*(renew("same-renewal") for _ in range(8)))
+        assert len({order for order, _ in results}) == 1
+        assert sum(not duplicate for _, duplicate in results) == 1
+        with pytest.raises(ServiceConflict, match="service_revision_changed"):
+            await renew("stale-renewal")
+        async with factory() as session:
+            assert await session.scalar(select(func.count()).select_from(ServiceOrder)) == 2
 
     scenario(run)

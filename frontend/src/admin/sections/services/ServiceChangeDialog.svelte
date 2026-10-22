@@ -1,0 +1,192 @@
+<script lang="ts">
+  import { onMount } from "svelte";
+  import { Input } from "$components/ui";
+  import Dialog from "$components/ui/dialog.svelte";
+  import { AdminButton, AdminField, AdminSelect } from "$components/patterns/admin";
+  import type { ApiClient } from "$lib/webapp/publicApi";
+  import { serviceDate } from "$lib/webapp/independentServices";
+  import {
+    serviceErrorKey,
+    type UserService,
+    type ServiceTranslate,
+  } from "$lib/admin/servicePlans";
+  import {
+    pendingServiceChange,
+    submitServiceChange,
+    type ServiceChangeBody,
+    type ServiceAction,
+  } from "$lib/admin/serviceChanges";
+
+  let {
+    api,
+    at,
+    service,
+    onclose,
+    onsaved,
+  }: {
+    api: ApiClient["api"];
+    at: ServiceTranslate;
+    service: UserService;
+    onclose: () => void;
+    onsaved: () => void;
+  } = $props();
+  let action = $state<ServiceAction>("renew");
+  let days = $state<number | undefined>();
+  let price = $state("");
+  let currency = $state("CNY");
+  let loaded = $state(false);
+  let pending = $state<ServiceChangeBody | null>(null);
+  let busy = $state(false);
+  let storageFailed = $state(false);
+  let rejected = $state(false);
+  let error = $state("");
+  onMount(() => {
+    try {
+      if (service.user_id === null) return;
+      pending = pendingServiceChange(sessionStorage, service.user_id, service.id);
+      if (pending) {
+        action = pending.change.action;
+        days = pending.change.days ?? undefined;
+        price = String(pending.change.price ?? "");
+        currency = pending.change.currency ?? "CNY";
+      }
+    } catch {
+      storageFailed = true;
+      error = "services_storage_failed";
+    } finally {
+      loaded = true;
+    }
+  });
+  async function save(event: SubmitEvent) {
+    event.preventDefault();
+    if (busy || storageFailed || rejected || service.user_id === null) return;
+    if (
+      !pending &&
+      action === "renew" &&
+      (!days ||
+        !Number.isSafeInteger(days) ||
+        days > 36500 ||
+        !/^\d{1,12}(\.\d{1,2})?$/.test(price) ||
+        !/^[A-Z]{3}$/.test(currency))
+    ) {
+      error = "services_invalid_terms";
+      return;
+    }
+    const body: ServiceChangeBody = pending ?? {
+      user_id: service.user_id,
+      expected_revision: service.revision,
+      idempotency_key: crypto.randomUUID(),
+      change:
+        action === "renew"
+          ? { action, days: days ?? null, price, currency }
+          : { action, days: null, price: null, currency: null },
+    };
+    busy = true;
+    error = "";
+    pending = body;
+    try {
+      await submitServiceChange(api, sessionStorage, service.id, body);
+      onsaved();
+    } catch (failure) {
+      error = serviceErrorKey(failure);
+      try {
+        pending = pendingServiceChange(sessionStorage, service.user_id, service.id);
+        rejected = !pending;
+      } catch {
+        storageFailed = true;
+        error = "services_storage_failed";
+      }
+    } finally {
+      busy = false;
+    }
+  }
+</script>
+
+<Dialog
+  open
+  title={at("services_manage")}
+  description={at("services_change_hint")}
+  closeLabel={at("close")}
+  onclose={() => {
+    if (!busy) onclose();
+  }}
+  class="admin-dialog"
+>
+  <form class="service-change" onsubmit={save}>
+    <p><strong>{service.name}</strong><br />{service.id}</p>
+    <p>{at("services_expires")}: {serviceDate(service.expires_at)}</p>
+    {#if pending}<p role="status">{at("services_change_pending_request")}</p>{/if}
+    <fieldset disabled={busy || !loaded || Boolean(pending) || storageFailed || rejected}>
+      <AdminField label={at("services_action")}>
+        <AdminSelect
+          value={action}
+          ariaLabel={at("services_action")}
+          items={[
+            { value: "renew", label: at("services_renew") },
+            {
+              value: service.desired_status === "paused" ? "resume" : "pause",
+              label: at(service.desired_status === "paused" ? "services_resume" : "services_pause"),
+            },
+          ]}
+          onValueChange={(value) => {
+            if (value === "renew" || value === "pause" || value === "resume") action = value;
+          }}
+        />
+      </AdminField>
+      {#if action === "renew"}
+        <p>{at("services_renew_hint")}</p>
+        <AdminField label={at("services_renew_days")}
+          ><Input
+            type="number"
+            value={days ?? ""}
+            oninput={(event) => {
+              days = event.currentTarget.value ? event.currentTarget.valueAsNumber : undefined;
+            }}
+            min="1"
+            max="36500"
+            step="1"
+            required
+          /></AdminField
+        >
+        <AdminField label={at("services_recorded_price")}
+          ><Input bind:value={price} inputmode="decimal" required /></AdminField
+        >
+        <AdminField label={at("services_currency")}
+          ><Input bind:value={currency} maxlength={3} required /></AdminField
+        >
+      {/if}
+    </fieldset>
+    {#if error}<p role="alert">{at(error)}</p>{/if}
+    {#if rejected}<p>{at("services_change_reload")}</p>{/if}
+    <div class="admin-dialog-actions">
+      <AdminButton disabled={busy} onclick={onclose}>{at("cancel")}</AdminButton>
+      <AdminButton
+        type="submit"
+        variant="primary"
+        disabled={busy || !loaded || storageFailed || rejected}>{at("save")}</AdminButton
+      >
+    </div>
+  </form>
+</Dialog>
+
+<style>
+  .service-change,
+  fieldset {
+    display: grid;
+    gap: 16px;
+    min-width: 0;
+  }
+  fieldset {
+    border: 0;
+    padding: 0;
+    margin: 0;
+  }
+  p {
+    margin: 0;
+    color: var(--admin-muted);
+    overflow-wrap: anywhere;
+  }
+  [role="alert"] {
+    color: var(--danger);
+  }
+</style>

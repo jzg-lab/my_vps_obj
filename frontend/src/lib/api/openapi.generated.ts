@@ -2412,6 +2412,23 @@ export interface paths {
     patch?: never;
     trace?: never;
   };
+  "/api/admin/services/{service_id}/changes": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /** Admin Service Change */
+    post: operations["post_admin_service_change_route"];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
   "/api/admin/settings": {
     parameters: {
       query?: never;
@@ -11583,6 +11600,39 @@ export interface components {
       /** Validity Days */
       validity_days: number;
     };
+    /** ServiceChange */
+    ServiceChange: {
+      /**
+       * Action
+       * @enum {string}
+       */
+      action: "pause" | "resume" | "renew";
+      /**
+       * Currency
+       * @default null
+       */
+      currency: string | null;
+      /**
+       * Days
+       * @default null
+       */
+      days: number | null;
+      /**
+       * Price
+       * @default null
+       */
+      price: number | string | null;
+    };
+    /** ServiceChangeBody */
+    ServiceChangeBody: {
+      change: components["schemas"]["ServiceChange"];
+      /** Expected Revision */
+      expected_revision: number;
+      /** Idempotency Key */
+      idempotency_key: string;
+      /** User Id */
+      user_id: number;
+    };
     /** ServiceOrderOut */
     ServiceOrderOut: {
       /** Actor Id */
@@ -12746,6 +12796,8 @@ export interface components {
       cycle_started_at: string | null;
       /** Description */
       description: string;
+      /** Desired Status */
+      desired_status: string;
       /** Exit Ip */
       exit_ip: string | null;
       /** Exit Verified */
@@ -12772,6 +12824,8 @@ export interface components {
        * @enum {string}
        */
       resource_type: "shared" | "dedicated";
+      /** Revision */
+      revision: number;
       /**
        * Starts At
        * Format: date-time
@@ -12779,6 +12833,12 @@ export interface components {
       starts_at: string;
       /** Status */
       status: string;
+      /** Sync Confirmed At */
+      sync_confirmed_at: string | null;
+      /** Sync Error */
+      sync_error: string | null;
+      /** Sync Pending */
+      sync_pending: boolean;
       /**
        * Traffic Rule
        * @enum {string}
@@ -18278,6 +18338,38 @@ export interface operations {
     requestBody: {
       content: {
         "application/json": components["schemas"]["ServiceActivationBody"];
+      };
+    };
+    responses: {
+      /** @description JSON response */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": {
+            duplicate: boolean;
+            /** @constant */
+            ok: true;
+            order: components["schemas"]["ServiceOrderOut"];
+            service: components["schemas"]["UserServiceOut"];
+          };
+        };
+      };
+    };
+  };
+  post_admin_service_change_route: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        service_id: string;
+      };
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["ServiceChangeBody"];
       };
     };
     responses: {

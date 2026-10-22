@@ -12,10 +12,13 @@ function date(value: unknown): value is string {
 
 // Read only the recorded terms; never fall back to today's plan or invent missing values.
 export function activationSnapshot(order: ServiceOrder) {
+  return order.kind === "activate" ? termsSnapshot(order) : null;
+}
+
+function termsSnapshot(order: ServiceOrder) {
   const snapshot = order.snapshot;
   const terms = snapshot.terms;
   if (
-    order.kind !== "activate" ||
     !record(terms) ||
     typeof terms.name !== "string" ||
     typeof terms.price !== "string" ||
@@ -44,5 +47,50 @@ export function activationSnapshot(order: ServiceOrder) {
     startsAt: snapshot.starts_at,
     expiresAt: snapshot.expires_at,
     revision: snapshot.plan_revision,
+  };
+}
+
+export function serviceOrderSnapshot(order: ServiceOrder) {
+  if (order.kind === "activate") {
+    const snapshot = activationSnapshot(order);
+    return snapshot
+      ? { ...snapshot, kind: "activate", beforeStatus: null, desiredStatus: null }
+      : null;
+  }
+  if (!["renew", "pause", "resume"].includes(order.kind)) return null;
+  const snapshot = termsSnapshot(order);
+  const { change, before, quota_bytes: quotaBytes, desired_status: desiredStatus } = order.snapshot;
+  if (
+    !snapshot ||
+    !record(change) ||
+    change.action !== order.kind ||
+    !record(before) ||
+    !date(before.expires_at) ||
+    typeof before.desired_status !== "string" ||
+    !["active", "paused"].includes(before.desired_status) ||
+    typeof desiredStatus !== "string" ||
+    !["active", "paused"].includes(desiredStatus) ||
+    typeof quotaBytes !== "number" ||
+    !Number.isSafeInteger(quotaBytes) ||
+    quotaBytes <= 0
+  )
+    return null;
+  if (
+    order.kind === "renew" &&
+    (typeof change.price !== "string" ||
+      !/^\d{1,12}(\.\d{1,2})?$/.test(change.price) ||
+      typeof change.currency !== "string" ||
+      !/^[A-Z]{3}$/.test(change.currency))
+  )
+    return null;
+  return {
+    ...snapshot,
+    kind: order.kind,
+    quotaBytes,
+    startsAt: before.expires_at,
+    price: order.kind === "renew" ? String(change.price) : null,
+    currency: order.kind === "renew" ? String(change.currency) : null,
+    beforeStatus: before.desired_status,
+    desiredStatus,
   };
 }

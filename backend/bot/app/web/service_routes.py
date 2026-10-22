@@ -25,6 +25,7 @@ from bot.app.web.service_schemas import (
     DedicatedExitOut,
     ServiceActivationBody,
     ServiceCatalogPlanOut,
+    ServiceChangeBody,
     ServiceOrderOut,
     ServicePlanBody,
     ServicePlanOut,
@@ -33,6 +34,7 @@ from bot.app.web.service_schemas import (
 )
 from bot.app.web.webapp.common import _require_user_id
 from db.dal import user_dal, user_services_dal
+from db.dal.service_changes_dal import change_service
 from db.dal.user_services_dal import ServiceConflict, activate_service, save_plan
 from db.service_models import (
     UserService,
@@ -40,6 +42,19 @@ from db.service_models import (
 
 
 def _register_contracts() -> None:
+    register_contract(
+        "admin_service_change_route",
+        RouteContract(
+            request_model=ServiceChangeBody,
+            response_schema=ok_envelope_for(
+                UserServiceOut,
+                key="service",
+                extra={"order": schema_ref(ServiceOrderOut), "duplicate": BOOLEAN_SCHEMA},
+            ),
+            models=(UserServiceOut, ServiceOrderOut),
+            security=ADMIN_SECURITY,
+        ),
+    )
     for name, model, key, body, many, security in (
         ("service_catalog_route", ServiceCatalogPlanOut, "plans", None, True, USER_SECURITY),
         ("admin_service_plans_route", ServicePlanOut, "plans", None, True, ADMIN_SECURITY),
@@ -223,6 +238,34 @@ async def _list_services(request: web.Request, user_id: int | None, *, admin: bo
     return _ok({"services": services, "total": total})
 
 
+async def admin_service_change_route(request: web.Request) -> web.Response:
+    actor = _require_admin_user_id(request)
+    body = await parse_body_or_400(request, ServiceChangeBody)
+    try:
+        async with get_session_factory(request)() as session:
+            service, order, duplicate = await change_service(
+                session,
+                service_id=request.match_info["service_id"],
+                user_id=body.user_id,
+                actor_id=actor,
+                expected_revision=body.expected_revision,
+                idempotency_key=body.idempotency_key,
+                change=body.change,
+            )
+            result = await _service_out(session, service)
+            order_result = ServiceOrderOut.from_orm_order(order)
+            await session.commit()
+    except ServiceConflict as exc:
+        return _error(exc.status, exc.code)
+    return _ok(
+        {
+            "service": result.model_dump(mode="json"),
+            "order": order_result.model_dump(mode="json"),
+            "duplicate": duplicate,
+        }
+    )
+
+
 async def admin_services_route(request: web.Request) -> web.Response:
     _require_admin_user_id(request)
     return await _list_services(request, _query_user(request), admin=True)
@@ -314,6 +357,7 @@ def setup_service_admin_routes(app: web.Application) -> None:
     app.router.add_put("/api/admin/service-plans/{plan_id}", admin_service_plan_update_route)
     app.router.add_get("/api/admin/services", admin_services_route)
     app.router.add_post("/api/admin/services", admin_service_activate_route)
+    app.router.add_post("/api/admin/services/{service_id}/changes", admin_service_change_route)
     app.router.add_get("/api/admin/service-orders", admin_service_orders_route)
     app.router.add_get("/api/admin/dedicated-exits", admin_dedicated_exits_route)
     app.router.add_post("/api/admin/dedicated-exits", admin_dedicated_exit_create_route)

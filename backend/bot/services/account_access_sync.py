@@ -101,10 +101,15 @@ async def synchronize_account_access(
             if connection.state not in {"pending", "revoked"}:
                 error = "service_connection_unconfirmed"
             continue
-        targets[connection.panel_user_uuid] = (
+        enable = (
             service_status(service, connection, resource, banned=bool(user.is_banned), now=now)
             == "active"
         )
+        if enable and connection.sync_pending:
+            targets.pop(connection.panel_user_uuid, None)
+            error = error or "service_change_pending"
+        else:
+            targets[connection.panel_user_uuid] = enable
     for reference, enable in targets.items():
         if panel is None:
             error = error or "panel_service_unavailable"

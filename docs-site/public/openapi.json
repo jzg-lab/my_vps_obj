@@ -14676,6 +14676,102 @@
         "title": "ServiceCatalogPlanOut",
         "type": "object"
       },
+      "ServiceChange": {
+        "additionalProperties": false,
+        "properties": {
+          "action": {
+            "enum": [
+              "pause",
+              "resume",
+              "renew"
+            ],
+            "title": "Action",
+            "type": "string"
+          },
+          "currency": {
+            "anyOf": [
+              {
+                "pattern": "^[A-Z]{3}$",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Currency"
+          },
+          "days": {
+            "anyOf": [
+              {
+                "exclusiveMinimum": 0,
+                "maximum": 36500,
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Days"
+          },
+          "price": {
+            "anyOf": [
+              {
+                "minimum": 0.0,
+                "type": "number"
+              },
+              {
+                "pattern": "^(?!^[-+.]*$)[+-]?0*(?:\\d{0,12}|(?=[\\d.]{1,15}0*$)\\d{0,12}\\.\\d{0,2}0*$)",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Price"
+          }
+        },
+        "required": [
+          "action"
+        ],
+        "title": "ServiceChange",
+        "type": "object"
+      },
+      "ServiceChangeBody": {
+        "additionalProperties": false,
+        "properties": {
+          "change": {
+            "$ref": "#/components/schemas/ServiceChange"
+          },
+          "expected_revision": {
+            "exclusiveMinimum": 0,
+            "title": "Expected Revision",
+            "type": "integer"
+          },
+          "idempotency_key": {
+            "maxLength": 128,
+            "minLength": 1,
+            "title": "Idempotency Key",
+            "type": "string"
+          },
+          "user_id": {
+            "maximum": 9007199254740991,
+            "minimum": -9007199254740991,
+            "title": "User Id",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "user_id",
+          "expected_revision",
+          "idempotency_key",
+          "change"
+        ],
+        "title": "ServiceChangeBody",
+        "type": "object"
+      },
       "ServiceOrderOut": {
         "properties": {
           "actor_id": {
@@ -17327,6 +17423,10 @@
             "title": "Description",
             "type": "string"
           },
+          "desired_status": {
+            "title": "Desired Status",
+            "type": "string"
+          },
           "exit_ip": {
             "anyOf": [
               {
@@ -17387,6 +17487,10 @@
             "title": "Resource Type",
             "type": "string"
           },
+          "revision": {
+            "title": "Revision",
+            "type": "integer"
+          },
           "starts_at": {
             "format": "date-time",
             "title": "Starts At",
@@ -17395,6 +17499,33 @@
           "status": {
             "title": "Status",
             "type": "string"
+          },
+          "sync_confirmed_at": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Sync Confirmed At"
+          },
+          "sync_error": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Sync Error"
+          },
+          "sync_pending": {
+            "title": "Sync Pending",
+            "type": "boolean"
           },
           "traffic_rule": {
             "enum": [
@@ -17422,6 +17553,11 @@
         },
         "required": [
           "id",
+          "revision",
+          "desired_status",
+          "sync_pending",
+          "sync_error",
+          "sync_confirmed_at",
           "user_id",
           "plan_id",
           "plan_revision",
@@ -28997,6 +29133,78 @@
           }
         ],
         "summary": "Admin Service Activate",
+        "tags": [
+          "admin"
+        ]
+      }
+    },
+    "/api/admin/services/{service_id}/changes": {
+      "post": {
+        "operationId": "post_admin_service_change_route",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "service_id",
+            "required": true,
+            "schema": {
+              "pattern": "[^{}/]+",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ServiceChangeBody"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "duplicate": {
+                      "type": "boolean"
+                    },
+                    "ok": {
+                      "const": true,
+                      "type": "boolean"
+                    },
+                    "order": {
+                      "$ref": "#/components/schemas/ServiceOrderOut"
+                    },
+                    "service": {
+                      "$ref": "#/components/schemas/UserServiceOut"
+                    }
+                  },
+                  "required": [
+                    "ok",
+                    "service",
+                    "order",
+                    "duplicate"
+                  ],
+                  "type": "object"
+                }
+              }
+            },
+            "description": "JSON response"
+          }
+        },
+        "security": [
+          {
+            "AdminSession": []
+          },
+          {
+            "AdminBearer": []
+          }
+        ],
+        "summary": "Admin Service Change",
         "tags": [
           "admin"
         ]

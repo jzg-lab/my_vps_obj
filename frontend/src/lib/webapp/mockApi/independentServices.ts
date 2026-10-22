@@ -75,6 +75,11 @@ const archived: UserService[] = Array.from({ length: 26 }, (_, index) => ({
   last_usage_sync_at: stamp,
   status: "cancelled",
   connection_state: "revoked",
+  revision: 1,
+  desired_status: "cancelled",
+  sync_pending: false,
+  sync_error: null,
+  sync_confirmed_at: null,
   exit_ip: null,
   exit_verified: false,
 }));
@@ -126,6 +131,11 @@ export function seedIndependentServicesDemo(owner: number, empty = false) {
       last_usage_sync_at: index < 2 ? stamp : null,
       status: index === 0 ? "exhausted" : "pending",
       connection_state: "pending",
+      revision: 1,
+      desired_status: "active",
+      sync_pending: false,
+      sync_error: null,
+      sync_confirmed_at: null,
       exit_ip: monthly ? "192.0.2.10" : null,
       exit_verified: false,
     });
@@ -231,6 +241,11 @@ export function independentServicesDemoResponse(path: string, options: RequestIn
       last_usage_sync_at: null,
       status: "pending",
       connection_state: "pending",
+      revision: 1,
+      desired_status: "active",
+      sync_pending: false,
+      sync_error: null,
+      sync_confirmed_at: null,
       exit_ip: resource?.ip_address || null,
       exit_verified: false,
     };
@@ -258,6 +273,58 @@ export function independentServicesDemoResponse(path: string, options: RequestIn
     return { ok: true, service, duplicate: false, order };
   }
   const scenario = new URLSearchParams(window.location.search).get("mock");
+  if (/^\/admin\/services\/[^/]+\/changes$/.test(route) && method === "POST") {
+    const body = jsonBody(options) as components["schemas"]["ServiceChangeBody"];
+    const service = services.find(
+      (item) => item.id === route.split("/")[3] && item.user_id === body.user_id
+    );
+    if (!service) return { ok: false, error: "service_not_found" };
+    const key = `${body.user_id}:${body.idempotency_key}`;
+    if (requests.has(key)) return { ok: true, service, duplicate: true };
+    if (service.revision !== body.expected_revision)
+      return { ok: false, error: "service_revision_changed" };
+    const before = {
+      desired_status: service.desired_status,
+      expires_at: service.expires_at,
+      revision: service.revision,
+    };
+    if (body.change.action === "renew")
+      service.expires_at = new Date(
+        Math.max(Date.now(), Date.parse(service.expires_at)) + Number(body.change.days) * 86400000
+      ).toISOString();
+    else {
+      service.desired_status = body.change.action === "pause" ? "paused" : "active";
+      service.status = service.desired_status === "paused" ? "paused" : "pending";
+    }
+    service.revision++;
+    service.sync_pending = true;
+    const plan = plans.find((item) => item.id === service.plan_id)!;
+    const order: ServiceOrder = {
+      id: id(),
+      user_id: service.user_id,
+      service_id: service.id,
+      actor_id: 42,
+      kind: body.change.action,
+      created_at: new Date().toISOString(),
+      snapshot: {
+        terms: { ...plan.terms, name: service.name },
+        plan_id: service.plan_id,
+        plan_revision: service.plan_revision,
+        starts_at: service.starts_at,
+        expires_at: service.expires_at,
+        quota_bytes: service.quota_bytes,
+        used_bytes: service.used_bytes,
+        desired_status: service.desired_status,
+        before,
+        change: body.change,
+        revision: service.revision,
+        fulfillment: "manual",
+      },
+    };
+    orders.unshift(order);
+    requests.set(key, service);
+    return { ok: true, service, order, duplicate: false };
+  }
   if (route === "/admin/service-orders") {
     if (scenario === "history-orders-retry" && !orderFailureShown) {
       orderFailureShown = true;
