@@ -94,6 +94,8 @@
   Final metering and the deletion request are committed together before removing the identity;
   an unexplained missing identity stays pending instead of falsely completing revocation.
   Confirmed deletion retries survive transient panel failures without discarding usage evidence.
+  If the identity remains readable after DELETE, new counters or anomalies are saved and
+  the earlier deletion evidence is invalidated; another service's counters are never adopted.
   Dedicated-exit verification and manual reclaim record the administrator, evidence and
   allocation version. Reclaim requires confirmed identity removal and subsequent operator
   evidence that existing connections stopped and old configurations cannot reconnect; a

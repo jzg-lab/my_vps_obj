@@ -28,6 +28,69 @@ from tests.unit.test_user_services import ServiceDatabaseTestCase, sample_terms
 
 
 class ServiceDeliveryTests(ServiceDatabaseTestCase):
+    async def test_post_delete_identity_read_requires_fresh_usage_evidence(self) -> None:
+        for case, expected_total, expected_error in (
+            ("late_bytes", 1300, None),
+            ("regressed", 1250, "panel_usage_regressed"),
+            ("invalid", 1250, "panel_usage_invalid"),
+            ("foreign", 1250, None),
+        ):
+            with self.subTest(case=case):
+                service, _, _ = await self.activate(case)
+                panel, remote = await self.ready(service.id)
+                remote["status"] = "DISABLED"
+                remote["userTraffic"] = {
+                    "usedTrafficBytes": 1250,
+                    "lifetimeUsedTrafficBytes": 1250,
+                }
+                async with self.sessions.begin() as session:
+                    await request_service_revocation(
+                        session,
+                        service_id=service.id,
+                        user_id=1,
+                        actor_id=1,
+                        expected_revision=1,
+                        idempotency_key=f"post-delete:{case}",
+                        reason="Recheck a deletion that has not completed",
+                    )
+
+                count = 1000 if case == "regressed" else 1300
+                after_delete = {
+                    **remote,
+                    "userTraffic": (
+                        {}
+                        if case == "invalid"
+                        else {"usedTrafficBytes": count, "lifetimeUsedTrafficBytes": count}
+                    ),
+                }
+                if case == "foreign":
+                    after_delete["description"] = "belongs-to-another-service"
+                panel.get_user_by_uuid_lookup.side_effect = [
+                    {"ok": True, "user": remote},
+                    {"ok": True, "user": remote},
+                    {"ok": True, "user": remote},
+                    {"ok": True, "user": after_delete},
+                    {"ok": False, "not_found": True},
+                ]
+                await revoke_service_identity(cast(sessionmaker, self.sessions), service.id, panel)
+                async with self.sessions() as session:
+                    saved = await session.get(UserService, service.id)
+                    connection = await session.get(ServiceConnection, service.id)
+                    assert saved and saved.used_bytes == expected_total
+                    assert connection and connection.revoke_delete_requested_at is None
+                    assert connection.usage_total_bytes == expected_total
+                    assert connection.usage_error == expected_error
+                    if case == "foreign":
+                        assert connection.sync_error == "panel_identity_conflict"
+                await revoke_service_identity(cast(sessionmaker, self.sessions), service.id, panel)
+                async with self.sessions() as session:
+                    connection = await session.get(ServiceConnection, service.id)
+                    assert connection and connection.state != "revoked" and connection.sync_pending
+                    assert connection.sync_error == "service_revoke_usage_unconfirmed"
+                    assert connection.usage_total_bytes == expected_total
+                    assert connection.usage_error == expected_error
+                panel.delete_user_from_panel.assert_awaited_once()
+
     async def test_other_workers_invalidate_stale_deletion_evidence(self) -> None:
         for worker in (synchronize_service_usage, synchronize_service_change):
             with self.subTest(worker=worker.__name__):

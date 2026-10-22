@@ -148,6 +148,14 @@ async def revoke_service_identity(
                         await panel.delete_user_from_panel(reference)
                         result = await panel.get_user_by_uuid_lookup(reference)
                         absent = result.get("not_found") is True
+                        remote = result.get("user") if result.get("ok") is True else None
+                        if isinstance(remote, dict):
+                            # DELETE may be delayed; this observation supersedes its evidence.
+                            connection.revoke_delete_requested_at = None
+                            if owns_identity(remote, connection):
+                                await _preserve_usage(session, service, connection, remote)
+                            else:
+                                connection.sync_error = "panel_identity_conflict"
             if absent:
                 if (
                     connection.cycle_cutover_bytes is not None
