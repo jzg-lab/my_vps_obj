@@ -12,7 +12,7 @@ from bot.services.service_change_sync import ServiceChangeWorker, synchronize_se
 from bot.services.service_panel_state import matches_service_terms, panel_traffic_limit
 from bot.services.service_period_sync import prepare_service_cycle, settle_cancelled_service_period
 from bot.services.service_reconciliation import reconcile_service_usage
-from bot.services.service_usage_sync import synchronize_service_usage
+from bot.services.service_usage_sync import record_service_usage, synchronize_service_usage
 from config.service_changes import ServiceChange
 from config.service_periods import as_utc, monthly_period
 from db.service_models import ServiceConnection, ServiceOrder, ServiceUsagePeriod, UserService
@@ -153,6 +153,74 @@ class ServiceEntitlementTests(ServiceChangeTestCase):
                     select(ServiceOrder).where(ServiceOrder.kind == "settle_usage")
                 )
                 await session.rollback()
+
+    async def test_terminal_retries_count_late_bytes_once_and_block_late_counter_anomalies(
+        self,
+    ) -> None:
+        from bot.services.service_panel_state import locked_service
+
+        service, remote = await self.cancelled_cutover()
+        for total, record_first in (
+            (1200, False),
+            (1225, False),
+            (1225, True),
+            (1250, True),
+            (1250, False),
+        ):
+            remote["userTraffic"] = {
+                "usedTrafficBytes": total,
+                "lifetimeUsedTrafficBytes": total,
+            }
+            async with self.sessions.begin() as session:
+                locked = await locked_service(session, service.id)
+                assert locked
+                _, saved, connection = locked
+                if record_first:
+                    record_service_usage(saved, connection, remote)
+                assert await settle_cancelled_service_period(
+                    session, saved, connection, remote, actor_id=1
+                )
+            async with self.sessions() as session:
+                saved = await session.get(UserService, service.id)
+                connection = await session.get(ServiceConnection, service.id)
+                period = await session.scalar(select(ServiceUsagePeriod))
+                orders = list(
+                    await session.scalars(
+                        select(ServiceOrder).where(ServiceOrder.kind == "settle_usage")
+                    )
+                )
+                assert saved and connection and period
+                assert saved.used_bytes == total - period.cutover_bytes == total - 900
+                assert connection.usage_total_bytes == connection.usage_raw_bytes == total
+                assert connection.cycle_cutover_bytes is None and connection.usage_error is None
+                assert saved.desired_status == "cancelled"
+                assert connection.panel_user_uuid == remote["uuid"]
+                assert period.used_bytes == 900 and period.confirmed_at is None
+                assert len(orders) == 1
+                assert orders[0].snapshot["usage_total_bytes"] == 1200
+                assert orders[0].snapshot["used_bytes"] == 300
+                assert orders[0].snapshot["cutover_bytes"] == 900
+                assert orders[0].snapshot["allowance_confirmed"] is False
+        # A later larger counter cannot clear the anomaly or silently forgive lost bytes.
+        for total in (1100, 1275):
+            remote["userTraffic"] = {
+                "usedTrafficBytes": total,
+                "lifetimeUsedTrafficBytes": total,
+            }
+            async with self.sessions.begin() as session:
+                locked = await locked_service(session, service.id)
+                assert locked
+                _, saved, connection = locked
+                assert not await settle_cancelled_service_period(
+                    session, saved, connection, remote, actor_id=1
+                )
+                assert connection.usage_error == "panel_usage_regressed"
+                assert connection.usage_total_bytes == 1250 and saved.used_bytes == 350
+                assert saved.desired_status == "cancelled" and connection.state != "revoked"
+        assert remote["trafficLimitBytes"] == 10000 and remote["status"] == "DISABLED"
+        self.panel.create_panel_user.assert_not_awaited()
+        self.panel.update_user_details_on_panel.assert_not_awaited()
+        self.panel.update_user_status_on_panel.assert_not_awaited()
 
     async def test_cancelled_pending_period_settles_only_after_exact_anomaly_reconciliation(
         self,

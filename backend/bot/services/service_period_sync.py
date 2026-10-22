@@ -28,8 +28,11 @@ async def settle_cancelled_service_period(
 ) -> bool:
     """Caller holds the account lock and supplies a fresh stopped-identity read.
 
-    True means terminal accounting is ready, not that revocation is complete.
-    Commit the evidence before deleting the identity. This never confirms an allowance.
+    True accepts this observation; it does not complete revocation or prove traffic stopped.
+    Calls after the cutover marker is cleared still accept new counter deltas. Commit each
+    accepted observation before DELETE, including a newer read after reacquiring the lock.
+    The first settlement audit stays an immutable observation, not evidence of no later bytes.
+    Errors block deletion pending reconciliation. This never confirms an allowance.
     """
     if (
         service.desired_status != "cancelled"

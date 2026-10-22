@@ -164,7 +164,7 @@ For a pending cutover, the same transaction:
 
 - Retains the old `ServiceUsagePeriod` unchanged, including original usage/quota,
   fixed cutover and **null `confirmed_at`**.
-- Sets displayed final usage to accepted cumulative total minus that cutover,
+- Sets displayed post-cutover usage to accepted cumulative total minus that cutover,
   using the original pending period's next calendar bounds. Desired status,
   quota, expiry, original terms and identity remain unchanged.
 - Adds one immutable `ServiceOrder(kind="settle_usage")`: the snapshot stores
@@ -176,14 +176,30 @@ For a pending cutover, the same transaction:
   false for the cancelled service. It does not clear B's revocation retry intent,
   mark the identity revoked or release an exit resource.
 
-True means terminal accounting is ready **in the current transaction**, not that
-revocation or Node enforcement is complete. The helper flushes but does not commit.
-B must commit before deleting the remote identity, then reacquire its lock and
-retain its existing ownership/cancellation checks. Any later accepted observation
-before deletion must also be persisted. With no remaining cutover the helper only
+True means the supplied observation was accepted **in the current transaction**,
+not that revocation or Node enforcement is complete. The helper flushes but does not commit.
+B must first commit settlement, then reacquire the account lock and read the same
+stopped identity again, retaining its ownership/cancellation checks. Any later
+accepted observation must also be committed before DELETE. With no remaining cutover the helper only
 accepts the fresh usage observation; it creates no second settlement order.
 Rollback leaves the original pending checkpoint and usage intact. Repeated calls
 under the account lock cannot grant another allowance or duplicate the audit.
+
+Clearing the pending marker does **not** freeze final usage. After reacquiring the
+lock and reading the same stopped identity again, B must accept and commit any
+new bytes with `record_service_usage`/this helper before DELETE. Calling both on
+the same sample adds nothing twice: after the initial settlement, both cumulative
+and service usage advance by the same raw-counter delta, preserving
+`used_bytes = usage_total_bytes - original_cutover_bytes`. For a cutover of 900,
+the first observation of 1200 records 300 bytes; a later observation of 1225
+records 325 bytes, and repeating 1225 still records 325. The original audit stays
+at its own 1200-byte observation; it is not evidence that no further traffic can
+arrive. Counter anomalies still block deletion until accurately reconciled. No
+retry confirms an allowance. Regression:
+`test_terminal_retries_count_late_bytes_once_and_block_late_counter_anomalies`.
+The focused follow-up passed 18 tests and 5 subtests, scoped Ruff/mypy and docs
+consistency checks. Runtime logic was unchanged; full suites/builds/browser checks
+were not repeated for this test-and-contract clarification.
 
 No schema/API fields or migration 0115 are needed. Do not edit 0113 or 0114.
 
