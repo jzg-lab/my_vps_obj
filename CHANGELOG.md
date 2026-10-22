@@ -83,7 +83,10 @@
   common Simplified Chinese browser tags. Core account, service, resource and history flows
   gain Chinese copy, while service dates remain in Beijing time. Language changes update
   the document language for assistive technology. English and Russian remain available,
-  and locale guards catch missing new service strings and changed placeholders.
+  and locale guards catch missing new service strings and changed placeholders. Existing
+  operations screens, shared editors and account/support emails also gain Chinese copy.
+  A Chinese client guide and a three-language installation example cover desktop, mobile
+  and supported TV platforms, with official sources and unverified import paths identified.
 
 - **Nested dialog keyboard focus.** Opening an emoji picker now transfers focus before
   the next keyboard event, so an immediate Escape closes the picker instead of its parent

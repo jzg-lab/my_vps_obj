@@ -1,8 +1,4 @@
-"""Keep the independent-service UI Chinese as new screens and states are added.
-
-The upstream payment/marketing editors are not the phase-one surface. Their
-English/Russian catalogs remain unchanged; this guard follows the open routes.
-"""
+"""Keep independent services and the currently open operations UI Chinese."""
 
 from __future__ import annotations
 
@@ -31,6 +27,19 @@ PREFIXES = (
     "wa_install_",
     "wa_app_launch_",
     "admin_user_merge_",
+    "email_login_code_",
+    "email_set_password_code_",
+    "email_change_",
+    "email_support_",
+    "email_user_notification_",
+    "email_broadcast_",
+    "admin_health_",
+    "admin_ads_",
+    "admin_broadcast_",
+    "admin_telegram_emoji_",
+    "admin_tg_menu_",
+    "admin_error_theme_",
+    "admin_documents_",
 )
 SOURCES = (
     "webapp/auth",
@@ -47,6 +56,45 @@ SOURCES = (
     "admin/sections/DedicatedExitsSection.svelte",
     "admin/sections/ServiceHistorySection.svelte",
     "admin/sections/users",
+    "admin/sections/BackupsSection.svelte",
+    "admin/sections/DocumentsSection.svelte",
+    "admin/sections/documents",
+    "admin/sections/PluginsSection.svelte",
+    "admin/sections/PluginApplyDialog.svelte",
+    "admin/sections/PluginImportDialog.svelte",
+    "admin/sections/PluginRemoveDialog.svelte",
+    "admin/sections/PluginOperations.svelte",
+    "admin/sections/AppearanceSection.svelte",
+    "admin/sections/appearance",
+    "admin/sections/TranslationsSection.svelte",
+    "admin/sections/SupportSection.svelte",
+    "admin/sections/LogsSection.svelte",
+    "admin/sections/BroadcastSection.svelte",
+    "admin/sections/BroadcastHistory.svelte",
+    "admin/sections/BroadcastFailuresDialog.svelte",
+    "admin/sections/AdsSection.svelte",
+    "admin/sections/advertising",
+    "admin/sections/settings/SettingsContent.svelte",
+    "admin/sections/settings/SettingsIconPicker.svelte",
+    "admin/sections/settings/AdministratorsSubsection.svelte",
+    "admin/sections/settings/RoleManagement.svelte",
+    "admin/sections/settings/TelegramMenuAppearance.svelte",
+    "admin/sections/settings/TelegramMenuPreview.svelte",
+    "admin/sections/settings/MenuButtonsField.svelte",
+    "admin/sections/settings/NotificationDeliveryMatrix.svelte",
+    "lib/admin/richTextLabels.ts",
+    "lib/admin/components",
+    "lib/admin/stores/backupsStore.svelte.ts",
+    "lib/admin/stores/documentsStore.svelte.ts",
+    "lib/admin/stores/logsStore.svelte.ts",
+    "lib/admin/stores/settingsStore.svelte.ts",
+    "lib/admin/stores/supportStore.svelte.ts",
+    "lib/admin/stores/themeLibraryStore.svelte.ts",
+    "lib/admin/stores/themesStore.svelte.ts",
+    "lib/admin/stores/translationsStore.svelte.ts",
+    "lib/admin/stores/usersStoreAccess.ts",
+    "lib/admin/stores/usersStoreNotificationPreferences.ts",
+    "lib/telegramEmoji",
     "lib/components/patterns/admin",
 )
 # These calls sit in legacy-only branches of the shared Settings/Security screens.
@@ -85,8 +133,8 @@ def _surface_keys() -> set[str]:
             if source.suffix not in {".svelte", ".ts"} or ".test." in source.name:
                 continue
             content = source.read_text()
-            keys.update(re.findall(r'\bt\(\s*"([a-z0-9_]+)"', content))
-            keys.update("admin_" + key for key in re.findall(r'\bat\(\s*"([a-z0-9_]+)"', content))
+            keys.update(re.findall(r'\bt\(\s*"([a-z0-9_-]+)"', content))
+            keys.update("admin_" + key for key in re.findall(r'\bat\(\s*"([a-z0-9_-]+)"', content))
     for field in manifest_payload():
         if field["section"] in {"pricing", "payments", "trial", "referral", "devices"}:
             continue
@@ -125,3 +173,31 @@ def test_chinese_preserves_placeholders_and_rich_text_contracts() -> None:
         assert Counter(re.findall(tags, translation)) == Counter(re.findall(tags, english[key])), (
             key
         )
+
+
+def test_chinese_client_guide_example_uses_existing_schema() -> None:
+    from config.subscription_guides_config import validate_subscription_guides_config_text
+
+    example = ROOT / "deploy/examples/independent-services-guides.json"
+    config = validate_subscription_guides_config_text(example.read_text())
+    assert set(config["locales"]) == {"zh", "en", "ru"}
+    assert {key: len(value["apps"]) for key, value in config["platforms"].items()} == {
+        "android": 3,
+        "ios": 3,
+        "windows": 4,
+        "macos": 4,
+        "linux": 4,
+        "androidTV": 1,
+        "appleTV": 2,
+    }
+    for content in config["platforms"].values():
+        for app in content["apps"]:
+            assert not app["featured"]
+            assert len(app["blocks"]) == 4
+            assert "尚未完成" in app["blocks"][0]["description"]["zh"]
+            buttons = [button for block in app["blocks"] for button in block["buttons"]]
+            assert any(button["link"] == "{{SUBSCRIPTION_LINK}}" for button in buttons)
+            assert all(
+                button["link"].startswith("https://") or button["link"] == "{{SUBSCRIPTION_LINK}}"
+                for button in buttons
+            )

@@ -1,0 +1,1952 @@
+{
+  "version": "1",
+  "locales": [
+    "zh",
+    "en",
+    "ru"
+  ],
+  "brandingSettings": {
+    "title": "YOUR_BRAND",
+    "logoUrl": "https://example.com/logo.svg",
+    "supportUrl": "https://example.com/support"
+  },
+  "uiConfig": {
+    "subscriptionInfoBlockType": "hidden",
+    "installationGuidesBlockType": "cards"
+  },
+  "baseSettings": {
+    "metaTitle": "YOUR_BRAND",
+    "metaDescription": "Client setup",
+    "hideGetLinkButton": true,
+    "showConnectionKeys": false
+  },
+  "baseTranslations": {
+    "name": {
+      "zh": "用户名",
+      "en": "Username",
+      "ru": "Имя пользователя"
+    },
+    "active": {
+      "zh": "有效",
+      "en": "Active",
+      "ru": "Активна"
+    },
+    "status": {
+      "zh": "状态",
+      "en": "Status",
+      "ru": "Статус"
+    },
+    "expired": {
+      "zh": "已到期",
+      "en": "Expired",
+      "ru": "Истекла"
+    },
+    "expires": {
+      "zh": "到期时间",
+      "en": "Expires",
+      "ru": "Истекает"
+    },
+    "getLink": {
+      "zh": "获取链接",
+      "en": "Get Link",
+      "ru": "Получение ссылки"
+    },
+    "unknown": {
+      "zh": "未知",
+      "en": "Unknown",
+      "ru": "Неизвестно"
+    },
+    "copyLink": {
+      "zh": "复制链接",
+      "en": "Copy link",
+      "ru": "Скопировать ссылку"
+    },
+    "inactive": {
+      "zh": "未激活",
+      "en": "Inactive",
+      "ru": "Неактивна"
+    },
+    "bandwidth": {
+      "zh": "流量",
+      "en": "Bandwidth",
+      "ru": "Трафик"
+    },
+    "expiresIn": {
+      "zh": "后到期",
+      "en": "Expires",
+      "ru": "Истекает"
+    },
+    "linkCopied": {
+      "zh": "链接已复制",
+      "en": "Link copied",
+      "ru": "Ссылка скопирована"
+    },
+    "scanQrCode": {
+      "zh": "在客户端中扫描上方二维码",
+      "en": "Scan the QR code above in the client",
+      "ru": "Отсканируйте QR-код в приложении"
+    },
+    "indefinitely": {
+      "zh": "永久",
+      "en": "Indefinitely",
+      "ru": "Бессрочно"
+    },
+    "scanToImport": {
+      "zh": "扫描以导入此密钥",
+      "en": "Scan to import this key",
+      "ru": "Отсканируйте QR-код для импорта ключа"
+    },
+    "connectionKeysHeader": {
+      "zh": "连接密钥",
+      "en": "Connection Keys",
+      "ru": "Ключи подключения"
+    },
+    "linkCopiedToClipboard": {
+      "zh": "链接已复制到剪贴板",
+      "en": "Link copied to clipboard",
+      "ru": "Ссылка скопирована в буфер обмена"
+    },
+    "scanQrCodeDescription": {
+      "zh": "轻松将订阅添加到任何客户端。还有另一种选择：复制下面的链接并粘贴到客户端中",
+      "en": "Easily add the subscription to any client. There's another option: copy the link below and paste it into the client",
+      "ru": "Простое добавление подписки в любой клиент. Есть и другой вариант: скопируйте ссылку ниже и вставьте в клиент."
+    },
+    "installationGuideHeader": {
+      "zh": "安装",
+      "en": "Installation",
+      "ru": "Установка"
+    }
+  },
+  "svgLibrary": {
+    "Info": "<svg viewBox=\"0 0 24 24\"><circle cx=\"12\" cy=\"12\" r=\"8\" fill=\"currentColor\"/></svg>"
+  },
+  "platforms": {
+    "android": {
+      "svgIconKey": "Info",
+      "apps": [
+        {
+          "name": "Hiddify",
+          "featured": false,
+          "svgIconKey": "Info",
+          "blocks": [
+            {
+              "title": {
+                "zh": "1. 选择服务",
+                "en": "1. Choose a service",
+                "ru": "1. Выберите услугу"
+              },
+              "description": {
+                "zh": "先回到“我的服务”，核对服务名称、额度、到期时间与状态。仅使用这份服务已交付的订阅；等待连接配置或核验时，请联系管理员。此客户端尚未完成本项目真实订阅导入验证。",
+                "en": "In My services, check the name, allowance, expiry and status. Use only the subscription delivered for this service. If setup or verification is pending, contact the administrator. Import with this project has not yet been tested.",
+                "ru": "В разделе «Мои услуги» проверьте название, лимит, срок и статус. Используйте только подписку этой услуги. Если настройка или проверка ожидается, обратитесь к администратору. Импорт подписки этого проекта пока не проверен."
+              },
+              "buttons": [],
+              "svgIconKey": "Info"
+            },
+            {
+              "title": {
+                "zh": "2. 安装官方客户端",
+                "en": "2. Install the official app",
+                "ru": "2. Установите официальное приложение"
+              },
+              "description": {
+                "zh": "打开下方官方渠道，核对设备系统、处理器架构、商店地区及价格后安装。品牌名称不会翻译。允许系统所需的 VPN 权限。",
+                "en": "Use the official channel below. Check the operating system, CPU architecture, store region and price before installing. Grant the required system VPN permission.",
+                "ru": "Откройте официальный источник ниже. Проверьте ОС, архитектуру, регион магазина и цену перед установкой. Разрешите системный VPN-доступ."
+              },
+              "buttons": [
+                {
+                  "type": "external",
+                  "link": "https://github.com/hiddify/hiddify-app/releases",
+                  "text": {
+                    "zh": "官方下载",
+                    "en": "Official download",
+                    "ru": "Официальная загрузка"
+                  },
+                  "svgIconKey": "Info"
+                }
+              ],
+              "svgIconKey": "Info"
+            },
+            {
+              "title": {
+                "zh": "3. 导入这份服务",
+                "en": "3. Import this service",
+                "ru": "3. Импортируйте эту услугу"
+              },
+              "description": {
+                "zh": "使用管理员为此客户端确认兼容的订阅格式。在客户端添加远程订阅／配置，粘贴这份服务的链接并命名。格式错误时联系管理员，不要把链接交给第三方转换网站。订阅链接是凭据，请勿分享。",
+                "en": "Use the subscription format confirmed for this client. Add a remote subscription/profile, paste this service link and name it. Ask the administrator about format errors; do not send the credential to third-party converters or other people.",
+                "ru": "Используйте формат подписки, подтверждённый для этого клиента. Добавьте удалённую подписку/профиль, вставьте ссылку этой услуги и задайте имя. При ошибке формата обратитесь к администратору. Не передавайте ссылку сторонним конвертерам или другим людям."
+              },
+              "buttons": [
+                {
+                  "type": "copyButton",
+                  "link": "{{SUBSCRIPTION_LINK}}",
+                  "text": {
+                    "zh": "复制本服务订阅链接",
+                    "en": "Copy this service link",
+                    "ru": "Копировать ссылку услуги"
+                  },
+                  "svgIconKey": "Info"
+                }
+              ],
+              "svgIconKey": "Info"
+            },
+            {
+              "title": {
+                "zh": "4. 更新与核对",
+                "en": "4. Update and check",
+                "ru": "4. Обновите и проверьте"
+              },
+              "description": {
+                "zh": "在客户端手动更新这份订阅，再选择其中一个节点连接。更新不会续期或补发额度，不会自动改用另一份服务。以网站最后确认用量及北京时间日期为准；统计未知时不视为耗尽。更新、连接或专用出口不符时，记录服务 ID、客户端版本、时间及脱敏错误，联系管理员。",
+                "en": "Manually update this subscription, then choose one of its nodes. Updating does not renew access, add allowance or switch to another service. Use the last confirmed website usage and Beijing-time dates; unknown usage is not exhaustion. Report the service ID, app version, time and redacted error to the administrator.",
+                "ru": "Обновите эту подписку вручную и выберите её узел. Обновление не продлевает услугу, не добавляет лимит и не переключает на другую услугу. Ориентируйтесь на подтверждённый расход и даты по пекинскому времени. Неизвестный расход не означает исчерпание. Передайте администратору ID услуги, версию клиента, время и ошибку без секретов."
+              },
+              "buttons": [],
+              "svgIconKey": "Info"
+            }
+          ]
+        },
+        {
+          "name": "FlClash",
+          "featured": false,
+          "svgIconKey": "Info",
+          "blocks": [
+            {
+              "title": {
+                "zh": "1. 选择服务",
+                "en": "1. Choose a service",
+                "ru": "1. Выберите услугу"
+              },
+              "description": {
+                "zh": "先回到“我的服务”，核对服务名称、额度、到期时间与状态。仅使用这份服务已交付的订阅；等待连接配置或核验时，请联系管理员。此客户端尚未完成本项目真实订阅导入验证。",
+                "en": "In My services, check the name, allowance, expiry and status. Use only the subscription delivered for this service. If setup or verification is pending, contact the administrator. Import with this project has not yet been tested.",
+                "ru": "В разделе «Мои услуги» проверьте название, лимит, срок и статус. Используйте только подписку этой услуги. Если настройка или проверка ожидается, обратитесь к администратору. Импорт подписки этого проекта пока не проверен."
+              },
+              "buttons": [],
+              "svgIconKey": "Info"
+            },
+            {
+              "title": {
+                "zh": "2. 安装官方客户端",
+                "en": "2. Install the official app",
+                "ru": "2. Установите официальное приложение"
+              },
+              "description": {
+                "zh": "打开下方官方渠道，核对设备系统、处理器架构、商店地区及价格后安装。品牌名称不会翻译。允许系统所需的 VPN 权限。",
+                "en": "Use the official channel below. Check the operating system, CPU architecture, store region and price before installing. Grant the required system VPN permission.",
+                "ru": "Откройте официальный источник ниже. Проверьте ОС, архитектуру, регион магазина и цену перед установкой. Разрешите системный VPN-доступ."
+              },
+              "buttons": [
+                {
+                  "type": "external",
+                  "link": "https://github.com/chen08209/FlClash/releases",
+                  "text": {
+                    "zh": "官方下载",
+                    "en": "Official download",
+                    "ru": "Официальная загрузка"
+                  },
+                  "svgIconKey": "Info"
+                }
+              ],
+              "svgIconKey": "Info"
+            },
+            {
+              "title": {
+                "zh": "3. 导入这份服务",
+                "en": "3. Import this service",
+                "ru": "3. Импортируйте эту услугу"
+              },
+              "description": {
+                "zh": "此客户端需要兼容的 Clash/Mihomo YAML 配置。在客户端添加远程订阅／配置，粘贴这份服务的链接并命名。格式错误时联系管理员，不要把链接交给第三方转换网站。订阅链接是凭据，请勿分享。",
+                "en": "This client needs compatible Clash/Mihomo YAML. Add a remote subscription/profile, paste this service link and name it. Ask the administrator about format errors; do not send the credential to third-party converters or other people.",
+                "ru": "Нужна совместимая конфигурация Clash/Mihomo YAML. Добавьте удалённую подписку/профиль, вставьте ссылку этой услуги и задайте имя. При ошибке формата обратитесь к администратору. Не передавайте ссылку сторонним конвертерам или другим людям."
+              },
+              "buttons": [
+                {
+                  "type": "copyButton",
+                  "link": "{{SUBSCRIPTION_LINK}}",
+                  "text": {
+                    "zh": "复制本服务订阅链接",
+                    "en": "Copy this service link",
+                    "ru": "Копировать ссылку услуги"
+                  },
+                  "svgIconKey": "Info"
+                }
+              ],
+              "svgIconKey": "Info"
+            },
+            {
+              "title": {
+                "zh": "4. 更新与核对",
+                "en": "4. Update and check",
+                "ru": "4. Обновите и проверьте"
+              },
+              "description": {
+                "zh": "在客户端手动更新这份订阅，再选择其中一个节点连接。更新不会续期或补发额度，不会自动改用另一份服务。以网站最后确认用量及北京时间日期为准；统计未知时不视为耗尽。更新、连接或专用出口不符时，记录服务 ID、客户端版本、时间及脱敏错误，联系管理员。",
+                "en": "Manually update this subscription, then choose one of its nodes. Updating does not renew access, add allowance or switch to another service. Use the last confirmed website usage and Beijing-time dates; unknown usage is not exhaustion. Report the service ID, app version, time and redacted error to the administrator.",
+                "ru": "Обновите эту подписку вручную и выберите её узел. Обновление не продлевает услугу, не добавляет лимит и не переключает на другую услугу. Ориентируйтесь на подтверждённый расход и даты по пекинскому времени. Неизвестный расход не означает исчерпание. Передайте администратору ID услуги, версию клиента, время и ошибку без секретов."
+              },
+              "buttons": [],
+              "svgIconKey": "Info"
+            }
+          ]
+        },
+        {
+          "name": "v2rayNG",
+          "featured": false,
+          "svgIconKey": "Info",
+          "blocks": [
+            {
+              "title": {
+                "zh": "1. 选择服务",
+                "en": "1. Choose a service",
+                "ru": "1. Выберите услугу"
+              },
+              "description": {
+                "zh": "先回到“我的服务”，核对服务名称、额度、到期时间与状态。仅使用这份服务已交付的订阅；等待连接配置或核验时，请联系管理员。此客户端尚未完成本项目真实订阅导入验证。",
+                "en": "In My services, check the name, allowance, expiry and status. Use only the subscription delivered for this service. If setup or verification is pending, contact the administrator. Import with this project has not yet been tested.",
+                "ru": "В разделе «Мои услуги» проверьте название, лимит, срок и статус. Используйте только подписку этой услуги. Если настройка или проверка ожидается, обратитесь к администратору. Импорт подписки этого проекта пока не проверен."
+              },
+              "buttons": [],
+              "svgIconKey": "Info"
+            },
+            {
+              "title": {
+                "zh": "2. 安装官方客户端",
+                "en": "2. Install the official app",
+                "ru": "2. Установите официальное приложение"
+              },
+              "description": {
+                "zh": "打开下方官方渠道，核对设备系统、处理器架构、商店地区及价格后安装。品牌名称不会翻译。允许系统所需的 VPN 权限。",
+                "en": "Use the official channel below. Check the operating system, CPU architecture, store region and price before installing. Grant the required system VPN permission.",
+                "ru": "Откройте официальный источник ниже. Проверьте ОС, архитектуру, регион магазина и цену перед установкой. Разрешите системный VPN-доступ."
+              },
+              "buttons": [
+                {
+                  "type": "external",
+                  "link": "https://github.com/2dust/v2rayNG/releases",
+                  "text": {
+                    "zh": "官方下载",
+                    "en": "Official download",
+                    "ru": "Официальная загрузка"
+                  },
+                  "svgIconKey": "Info"
+                }
+              ],
+              "svgIconKey": "Info"
+            },
+            {
+              "title": {
+                "zh": "3. 导入这份服务",
+                "en": "3. Import this service",
+                "ru": "3. Импортируйте эту услугу"
+              },
+              "description": {
+                "zh": "使用管理员为此客户端确认兼容的订阅格式。在客户端添加远程订阅／配置，粘贴这份服务的链接并命名。格式错误时联系管理员，不要把链接交给第三方转换网站。订阅链接是凭据，请勿分享。",
+                "en": "Use the subscription format confirmed for this client. Add a remote subscription/profile, paste this service link and name it. Ask the administrator about format errors; do not send the credential to third-party converters or other people.",
+                "ru": "Используйте формат подписки, подтверждённый для этого клиента. Добавьте удалённую подписку/профиль, вставьте ссылку этой услуги и задайте имя. При ошибке формата обратитесь к администратору. Не передавайте ссылку сторонним конвертерам или другим людям."
+              },
+              "buttons": [
+                {
+                  "type": "copyButton",
+                  "link": "{{SUBSCRIPTION_LINK}}",
+                  "text": {
+                    "zh": "复制本服务订阅链接",
+                    "en": "Copy this service link",
+                    "ru": "Копировать ссылку услуги"
+                  },
+                  "svgIconKey": "Info"
+                }
+              ],
+              "svgIconKey": "Info"
+            },
+            {
+              "title": {
+                "zh": "4. 更新与核对",
+                "en": "4. Update and check",
+                "ru": "4. Обновите и проверьте"
+              },
+              "description": {
+                "zh": "在客户端手动更新这份订阅，再选择其中一个节点连接。更新不会续期或补发额度，不会自动改用另一份服务。以网站最后确认用量及北京时间日期为准；统计未知时不视为耗尽。更新、连接或专用出口不符时，记录服务 ID、客户端版本、时间及脱敏错误，联系管理员。",
+                "en": "Manually update this subscription, then choose one of its nodes. Updating does not renew access, add allowance or switch to another service. Use the last confirmed website usage and Beijing-time dates; unknown usage is not exhaustion. Report the service ID, app version, time and redacted error to the administrator.",
+                "ru": "Обновите эту подписку вручную и выберите её узел. Обновление не продлевает услугу, не добавляет лимит и не переключает на другую услугу. Ориентируйтесь на подтверждённый расход и даты по пекинскому времени. Неизвестный расход не означает исчерпание. Передайте администратору ID услуги, версию клиента, время и ошибку без секретов."
+              },
+              "buttons": [],
+              "svgIconKey": "Info"
+            }
+          ]
+        }
+      ],
+      "displayName": "Android"
+    },
+    "ios": {
+      "svgIconKey": "Info",
+      "apps": [
+        {
+          "name": "Shadowrocket",
+          "featured": false,
+          "svgIconKey": "Info",
+          "blocks": [
+            {
+              "title": {
+                "zh": "1. 选择服务",
+                "en": "1. Choose a service",
+                "ru": "1. Выберите услугу"
+              },
+              "description": {
+                "zh": "先回到“我的服务”，核对服务名称、额度、到期时间与状态。仅使用这份服务已交付的订阅；等待连接配置或核验时，请联系管理员。此客户端尚未完成本项目真实订阅导入验证。",
+                "en": "In My services, check the name, allowance, expiry and status. Use only the subscription delivered for this service. If setup or verification is pending, contact the administrator. Import with this project has not yet been tested.",
+                "ru": "В разделе «Мои услуги» проверьте название, лимит, срок и статус. Используйте только подписку этой услуги. Если настройка или проверка ожидается, обратитесь к администратору. Импорт подписки этого проекта пока не проверен."
+              },
+              "buttons": [],
+              "svgIconKey": "Info"
+            },
+            {
+              "title": {
+                "zh": "2. 安装官方客户端",
+                "en": "2. Install the official app",
+                "ru": "2. Установите официальное приложение"
+              },
+              "description": {
+                "zh": "打开下方官方渠道，核对设备系统、处理器架构、商店地区及价格后安装。品牌名称不会翻译。允许系统所需的 VPN 权限。",
+                "en": "Use the official channel below. Check the operating system, CPU architecture, store region and price before installing. Grant the required system VPN permission.",
+                "ru": "Откройте официальный источник ниже. Проверьте ОС, архитектуру, регион магазина и цену перед установкой. Разрешите системный VPN-доступ."
+              },
+              "buttons": [
+                {
+                  "type": "external",
+                  "link": "https://apps.apple.com/us/app/shadowrocket/id932747118",
+                  "text": {
+                    "zh": "官方下载",
+                    "en": "Official download",
+                    "ru": "Официальная загрузка"
+                  },
+                  "svgIconKey": "Info"
+                }
+              ],
+              "svgIconKey": "Info"
+            },
+            {
+              "title": {
+                "zh": "3. 导入这份服务",
+                "en": "3. Import this service",
+                "ru": "3. Импортируйте эту услугу"
+              },
+              "description": {
+                "zh": "使用管理员为此客户端确认兼容的订阅格式。在客户端添加远程订阅／配置，粘贴这份服务的链接并命名。格式错误时联系管理员，不要把链接交给第三方转换网站。订阅链接是凭据，请勿分享。",
+                "en": "Use the subscription format confirmed for this client. Add a remote subscription/profile, paste this service link and name it. Ask the administrator about format errors; do not send the credential to third-party converters or other people.",
+                "ru": "Используйте формат подписки, подтверждённый для этого клиента. Добавьте удалённую подписку/профиль, вставьте ссылку этой услуги и задайте имя. При ошибке формата обратитесь к администратору. Не передавайте ссылку сторонним конвертерам или другим людям."
+              },
+              "buttons": [
+                {
+                  "type": "copyButton",
+                  "link": "{{SUBSCRIPTION_LINK}}",
+                  "text": {
+                    "zh": "复制本服务订阅链接",
+                    "en": "Copy this service link",
+                    "ru": "Копировать ссылку услуги"
+                  },
+                  "svgIconKey": "Info"
+                }
+              ],
+              "svgIconKey": "Info"
+            },
+            {
+              "title": {
+                "zh": "4. 更新与核对",
+                "en": "4. Update and check",
+                "ru": "4. Обновите и проверьте"
+              },
+              "description": {
+                "zh": "在客户端手动更新这份订阅，再选择其中一个节点连接。更新不会续期或补发额度，不会自动改用另一份服务。以网站最后确认用量及北京时间日期为准；统计未知时不视为耗尽。更新、连接或专用出口不符时，记录服务 ID、客户端版本、时间及脱敏错误，联系管理员。",
+                "en": "Manually update this subscription, then choose one of its nodes. Updating does not renew access, add allowance or switch to another service. Use the last confirmed website usage and Beijing-time dates; unknown usage is not exhaustion. Report the service ID, app version, time and redacted error to the administrator.",
+                "ru": "Обновите эту подписку вручную и выберите её узел. Обновление не продлевает услугу, не добавляет лимит и не переключает на другую услугу. Ориентируйтесь на подтверждённый расход и даты по пекинскому времени. Неизвестный расход не означает исчерпание. Передайте администратору ID услуги, версию клиента, время и ошибку без секретов."
+              },
+              "buttons": [],
+              "svgIconKey": "Info"
+            }
+          ]
+        },
+        {
+          "name": "Stash",
+          "featured": false,
+          "svgIconKey": "Info",
+          "blocks": [
+            {
+              "title": {
+                "zh": "1. 选择服务",
+                "en": "1. Choose a service",
+                "ru": "1. Выберите услугу"
+              },
+              "description": {
+                "zh": "先回到“我的服务”，核对服务名称、额度、到期时间与状态。仅使用这份服务已交付的订阅；等待连接配置或核验时，请联系管理员。此客户端尚未完成本项目真实订阅导入验证。",
+                "en": "In My services, check the name, allowance, expiry and status. Use only the subscription delivered for this service. If setup or verification is pending, contact the administrator. Import with this project has not yet been tested.",
+                "ru": "В разделе «Мои услуги» проверьте название, лимит, срок и статус. Используйте только подписку этой услуги. Если настройка или проверка ожидается, обратитесь к администратору. Импорт подписки этого проекта пока не проверен."
+              },
+              "buttons": [],
+              "svgIconKey": "Info"
+            },
+            {
+              "title": {
+                "zh": "2. 安装官方客户端",
+                "en": "2. Install the official app",
+                "ru": "2. Установите официальное приложение"
+              },
+              "description": {
+                "zh": "打开下方官方渠道，核对设备系统、处理器架构、商店地区及价格后安装。品牌名称不会翻译。允许系统所需的 VPN 权限。",
+                "en": "Use the official channel below. Check the operating system, CPU architecture, store region and price before installing. Grant the required system VPN permission.",
+                "ru": "Откройте официальный источник ниже. Проверьте ОС, архитектуру, регион магазина и цену перед установкой. Разрешите системный VPN-доступ."
+              },
+              "buttons": [
+                {
+                  "type": "external",
+                  "link": "https://apps.apple.com/us/app/stash-rule-based-proxy/id1596063349",
+                  "text": {
+                    "zh": "官方下载",
+                    "en": "Official download",
+                    "ru": "Официальная загрузка"
+                  },
+                  "svgIconKey": "Info"
+                }
+              ],
+              "svgIconKey": "Info"
+            },
+            {
+              "title": {
+                "zh": "3. 导入这份服务",
+                "en": "3. Import this service",
+                "ru": "3. Импортируйте эту услугу"
+              },
+              "description": {
+                "zh": "此客户端需要兼容的 Clash/Mihomo YAML 配置。在客户端添加远程订阅／配置，粘贴这份服务的链接并命名。格式错误时联系管理员，不要把链接交给第三方转换网站。订阅链接是凭据，请勿分享。",
+                "en": "This client needs compatible Clash/Mihomo YAML. Add a remote subscription/profile, paste this service link and name it. Ask the administrator about format errors; do not send the credential to third-party converters or other people.",
+                "ru": "Нужна совместимая конфигурация Clash/Mihomo YAML. Добавьте удалённую подписку/профиль, вставьте ссылку этой услуги и задайте имя. При ошибке формата обратитесь к администратору. Не передавайте ссылку сторонним конвертерам или другим людям."
+              },
+              "buttons": [
+                {
+                  "type": "copyButton",
+                  "link": "{{SUBSCRIPTION_LINK}}",
+                  "text": {
+                    "zh": "复制本服务订阅链接",
+                    "en": "Copy this service link",
+                    "ru": "Копировать ссылку услуги"
+                  },
+                  "svgIconKey": "Info"
+                }
+              ],
+              "svgIconKey": "Info"
+            },
+            {
+              "title": {
+                "zh": "4. 更新与核对",
+                "en": "4. Update and check",
+                "ru": "4. Обновите и проверьте"
+              },
+              "description": {
+                "zh": "在客户端手动更新这份订阅，再选择其中一个节点连接。更新不会续期或补发额度，不会自动改用另一份服务。以网站最后确认用量及北京时间日期为准；统计未知时不视为耗尽。更新、连接或专用出口不符时，记录服务 ID、客户端版本、时间及脱敏错误，联系管理员。",
+                "en": "Manually update this subscription, then choose one of its nodes. Updating does not renew access, add allowance or switch to another service. Use the last confirmed website usage and Beijing-time dates; unknown usage is not exhaustion. Report the service ID, app version, time and redacted error to the administrator.",
+                "ru": "Обновите эту подписку вручную и выберите её узел. Обновление не продлевает услугу, не добавляет лимит и не переключает на другую услугу. Ориентируйтесь на подтверждённый расход и даты по пекинскому времени. Неизвестный расход не означает исчерпание. Передайте администратору ID услуги, версию клиента, время и ошибку без секретов."
+              },
+              "buttons": [],
+              "svgIconKey": "Info"
+            }
+          ]
+        },
+        {
+          "name": "Streisand",
+          "featured": false,
+          "svgIconKey": "Info",
+          "blocks": [
+            {
+              "title": {
+                "zh": "1. 选择服务",
+                "en": "1. Choose a service",
+                "ru": "1. Выберите услугу"
+              },
+              "description": {
+                "zh": "先回到“我的服务”，核对服务名称、额度、到期时间与状态。仅使用这份服务已交付的订阅；等待连接配置或核验时，请联系管理员。此客户端尚未完成本项目真实订阅导入验证。",
+                "en": "In My services, check the name, allowance, expiry and status. Use only the subscription delivered for this service. If setup or verification is pending, contact the administrator. Import with this project has not yet been tested.",
+                "ru": "В разделе «Мои услуги» проверьте название, лимит, срок и статус. Используйте только подписку этой услуги. Если настройка или проверка ожидается, обратитесь к администратору. Импорт подписки этого проекта пока не проверен."
+              },
+              "buttons": [],
+              "svgIconKey": "Info"
+            },
+            {
+              "title": {
+                "zh": "2. 安装官方客户端",
+                "en": "2. Install the official app",
+                "ru": "2. Установите официальное приложение"
+              },
+              "description": {
+                "zh": "打开下方官方渠道，核对设备系统、处理器架构、商店地区及价格后安装。品牌名称不会翻译。允许系统所需的 VPN 权限。",
+                "en": "Use the official channel below. Check the operating system, CPU architecture, store region and price before installing. Grant the required system VPN permission.",
+                "ru": "Откройте официальный источник ниже. Проверьте ОС, архитектуру, регион магазина и цену перед установкой. Разрешите системный VPN-доступ."
+              },
+              "buttons": [
+                {
+                  "type": "external",
+                  "link": "https://apps.apple.com/us/app/streisand/id6450534064",
+                  "text": {
+                    "zh": "官方下载",
+                    "en": "Official download",
+                    "ru": "Официальная загрузка"
+                  },
+                  "svgIconKey": "Info"
+                }
+              ],
+              "svgIconKey": "Info"
+            },
+            {
+              "title": {
+                "zh": "3. 导入这份服务",
+                "en": "3. Import this service",
+                "ru": "3. Импортируйте эту услугу"
+              },
+              "description": {
+                "zh": "使用管理员为此客户端确认兼容的订阅格式。在客户端添加远程订阅／配置，粘贴这份服务的链接并命名。格式错误时联系管理员，不要把链接交给第三方转换网站。订阅链接是凭据，请勿分享。",
+                "en": "Use the subscription format confirmed for this client. Add a remote subscription/profile, paste this service link and name it. Ask the administrator about format errors; do not send the credential to third-party converters or other people.",
+                "ru": "Используйте формат подписки, подтверждённый для этого клиента. Добавьте удалённую подписку/профиль, вставьте ссылку этой услуги и задайте имя. При ошибке формата обратитесь к администратору. Не передавайте ссылку сторонним конвертерам или другим людям."
+              },
+              "buttons": [
+                {
+                  "type": "copyButton",
+                  "link": "{{SUBSCRIPTION_LINK}}",
+                  "text": {
+                    "zh": "复制本服务订阅链接",
+                    "en": "Copy this service link",
+                    "ru": "Копировать ссылку услуги"
+                  },
+                  "svgIconKey": "Info"
+                }
+              ],
+              "svgIconKey": "Info"
+            },
+            {
+              "title": {
+                "zh": "4. 更新与核对",
+                "en": "4. Update and check",
+                "ru": "4. Обновите и проверьте"
+              },
+              "description": {
+                "zh": "在客户端手动更新这份订阅，再选择其中一个节点连接。更新不会续期或补发额度，不会自动改用另一份服务。以网站最后确认用量及北京时间日期为准；统计未知时不视为耗尽。更新、连接或专用出口不符时，记录服务 ID、客户端版本、时间及脱敏错误，联系管理员。",
+                "en": "Manually update this subscription, then choose one of its nodes. Updating does not renew access, add allowance or switch to another service. Use the last confirmed website usage and Beijing-time dates; unknown usage is not exhaustion. Report the service ID, app version, time and redacted error to the administrator.",
+                "ru": "Обновите эту подписку вручную и выберите её узел. Обновление не продлевает услугу, не добавляет лимит и не переключает на другую услугу. Ориентируйтесь на подтверждённый расход и даты по пекинскому времени. Неизвестный расход не означает исчерпание. Передайте администратору ID услуги, версию клиента, время и ошибку без секретов."
+              },
+              "buttons": [],
+              "svgIconKey": "Info"
+            }
+          ]
+        }
+      ],
+      "displayName": "iOS / iPadOS"
+    },
+    "windows": {
+      "svgIconKey": "Info",
+      "apps": [
+        {
+          "name": "Hiddify",
+          "featured": false,
+          "svgIconKey": "Info",
+          "blocks": [
+            {
+              "title": {
+                "zh": "1. 选择服务",
+                "en": "1. Choose a service",
+                "ru": "1. Выберите услугу"
+              },
+              "description": {
+                "zh": "先回到“我的服务”，核对服务名称、额度、到期时间与状态。仅使用这份服务已交付的订阅；等待连接配置或核验时，请联系管理员。此客户端尚未完成本项目真实订阅导入验证。",
+                "en": "In My services, check the name, allowance, expiry and status. Use only the subscription delivered for this service. If setup or verification is pending, contact the administrator. Import with this project has not yet been tested.",
+                "ru": "В разделе «Мои услуги» проверьте название, лимит, срок и статус. Используйте только подписку этой услуги. Если настройка или проверка ожидается, обратитесь к администратору. Импорт подписки этого проекта пока не проверен."
+              },
+              "buttons": [],
+              "svgIconKey": "Info"
+            },
+            {
+              "title": {
+                "zh": "2. 安装官方客户端",
+                "en": "2. Install the official app",
+                "ru": "2. Установите официальное приложение"
+              },
+              "description": {
+                "zh": "打开下方官方渠道，核对设备系统、处理器架构、商店地区及价格后安装。品牌名称不会翻译。允许系统所需的 VPN 权限。",
+                "en": "Use the official channel below. Check the operating system, CPU architecture, store region and price before installing. Grant the required system VPN permission.",
+                "ru": "Откройте официальный источник ниже. Проверьте ОС, архитектуру, регион магазина и цену перед установкой. Разрешите системный VPN-доступ."
+              },
+              "buttons": [
+                {
+                  "type": "external",
+                  "link": "https://github.com/hiddify/hiddify-app/releases",
+                  "text": {
+                    "zh": "官方下载",
+                    "en": "Official download",
+                    "ru": "Официальная загрузка"
+                  },
+                  "svgIconKey": "Info"
+                }
+              ],
+              "svgIconKey": "Info"
+            },
+            {
+              "title": {
+                "zh": "3. 导入这份服务",
+                "en": "3. Import this service",
+                "ru": "3. Импортируйте эту услугу"
+              },
+              "description": {
+                "zh": "使用管理员为此客户端确认兼容的订阅格式。在客户端添加远程订阅／配置，粘贴这份服务的链接并命名。格式错误时联系管理员，不要把链接交给第三方转换网站。订阅链接是凭据，请勿分享。",
+                "en": "Use the subscription format confirmed for this client. Add a remote subscription/profile, paste this service link and name it. Ask the administrator about format errors; do not send the credential to third-party converters or other people.",
+                "ru": "Используйте формат подписки, подтверждённый для этого клиента. Добавьте удалённую подписку/профиль, вставьте ссылку этой услуги и задайте имя. При ошибке формата обратитесь к администратору. Не передавайте ссылку сторонним конвертерам или другим людям."
+              },
+              "buttons": [
+                {
+                  "type": "copyButton",
+                  "link": "{{SUBSCRIPTION_LINK}}",
+                  "text": {
+                    "zh": "复制本服务订阅链接",
+                    "en": "Copy this service link",
+                    "ru": "Копировать ссылку услуги"
+                  },
+                  "svgIconKey": "Info"
+                }
+              ],
+              "svgIconKey": "Info"
+            },
+            {
+              "title": {
+                "zh": "4. 更新与核对",
+                "en": "4. Update and check",
+                "ru": "4. Обновите и проверьте"
+              },
+              "description": {
+                "zh": "在客户端手动更新这份订阅，再选择其中一个节点连接。更新不会续期或补发额度，不会自动改用另一份服务。以网站最后确认用量及北京时间日期为准；统计未知时不视为耗尽。更新、连接或专用出口不符时，记录服务 ID、客户端版本、时间及脱敏错误，联系管理员。",
+                "en": "Manually update this subscription, then choose one of its nodes. Updating does not renew access, add allowance or switch to another service. Use the last confirmed website usage and Beijing-time dates; unknown usage is not exhaustion. Report the service ID, app version, time and redacted error to the administrator.",
+                "ru": "Обновите эту подписку вручную и выберите её узел. Обновление не продлевает услугу, не добавляет лимит и не переключает на другую услугу. Ориентируйтесь на подтверждённый расход и даты по пекинскому времени. Неизвестный расход не означает исчерпание. Передайте администратору ID услуги, версию клиента, время и ошибку без секретов."
+              },
+              "buttons": [],
+              "svgIconKey": "Info"
+            }
+          ]
+        },
+        {
+          "name": "FlClash",
+          "featured": false,
+          "svgIconKey": "Info",
+          "blocks": [
+            {
+              "title": {
+                "zh": "1. 选择服务",
+                "en": "1. Choose a service",
+                "ru": "1. Выберите услугу"
+              },
+              "description": {
+                "zh": "先回到“我的服务”，核对服务名称、额度、到期时间与状态。仅使用这份服务已交付的订阅；等待连接配置或核验时，请联系管理员。此客户端尚未完成本项目真实订阅导入验证。",
+                "en": "In My services, check the name, allowance, expiry and status. Use only the subscription delivered for this service. If setup or verification is pending, contact the administrator. Import with this project has not yet been tested.",
+                "ru": "В разделе «Мои услуги» проверьте название, лимит, срок и статус. Используйте только подписку этой услуги. Если настройка или проверка ожидается, обратитесь к администратору. Импорт подписки этого проекта пока не проверен."
+              },
+              "buttons": [],
+              "svgIconKey": "Info"
+            },
+            {
+              "title": {
+                "zh": "2. 安装官方客户端",
+                "en": "2. Install the official app",
+                "ru": "2. Установите официальное приложение"
+              },
+              "description": {
+                "zh": "打开下方官方渠道，核对设备系统、处理器架构、商店地区及价格后安装。品牌名称不会翻译。允许系统所需的 VPN 权限。",
+                "en": "Use the official channel below. Check the operating system, CPU architecture, store region and price before installing. Grant the required system VPN permission.",
+                "ru": "Откройте официальный источник ниже. Проверьте ОС, архитектуру, регион магазина и цену перед установкой. Разрешите системный VPN-доступ."
+              },
+              "buttons": [
+                {
+                  "type": "external",
+                  "link": "https://github.com/chen08209/FlClash/releases",
+                  "text": {
+                    "zh": "官方下载",
+                    "en": "Official download",
+                    "ru": "Официальная загрузка"
+                  },
+                  "svgIconKey": "Info"
+                }
+              ],
+              "svgIconKey": "Info"
+            },
+            {
+              "title": {
+                "zh": "3. 导入这份服务",
+                "en": "3. Import this service",
+                "ru": "3. Импортируйте эту услугу"
+              },
+              "description": {
+                "zh": "此客户端需要兼容的 Clash/Mihomo YAML 配置。在客户端添加远程订阅／配置，粘贴这份服务的链接并命名。格式错误时联系管理员，不要把链接交给第三方转换网站。订阅链接是凭据，请勿分享。",
+                "en": "This client needs compatible Clash/Mihomo YAML. Add a remote subscription/profile, paste this service link and name it. Ask the administrator about format errors; do not send the credential to third-party converters or other people.",
+                "ru": "Нужна совместимая конфигурация Clash/Mihomo YAML. Добавьте удалённую подписку/профиль, вставьте ссылку этой услуги и задайте имя. При ошибке формата обратитесь к администратору. Не передавайте ссылку сторонним конвертерам или другим людям."
+              },
+              "buttons": [
+                {
+                  "type": "copyButton",
+                  "link": "{{SUBSCRIPTION_LINK}}",
+                  "text": {
+                    "zh": "复制本服务订阅链接",
+                    "en": "Copy this service link",
+                    "ru": "Копировать ссылку услуги"
+                  },
+                  "svgIconKey": "Info"
+                }
+              ],
+              "svgIconKey": "Info"
+            },
+            {
+              "title": {
+                "zh": "4. 更新与核对",
+                "en": "4. Update and check",
+                "ru": "4. Обновите и проверьте"
+              },
+              "description": {
+                "zh": "在客户端手动更新这份订阅，再选择其中一个节点连接。更新不会续期或补发额度，不会自动改用另一份服务。以网站最后确认用量及北京时间日期为准；统计未知时不视为耗尽。更新、连接或专用出口不符时，记录服务 ID、客户端版本、时间及脱敏错误，联系管理员。",
+                "en": "Manually update this subscription, then choose one of its nodes. Updating does not renew access, add allowance or switch to another service. Use the last confirmed website usage and Beijing-time dates; unknown usage is not exhaustion. Report the service ID, app version, time and redacted error to the administrator.",
+                "ru": "Обновите эту подписку вручную и выберите её узел. Обновление не продлевает услугу, не добавляет лимит и не переключает на другую услугу. Ориентируйтесь на подтверждённый расход и даты по пекинскому времени. Неизвестный расход не означает исчерпание. Передайте администратору ID услуги, версию клиента, время и ошибку без секретов."
+              },
+              "buttons": [],
+              "svgIconKey": "Info"
+            }
+          ]
+        },
+        {
+          "name": "Clash Verge Rev",
+          "featured": false,
+          "svgIconKey": "Info",
+          "blocks": [
+            {
+              "title": {
+                "zh": "1. 选择服务",
+                "en": "1. Choose a service",
+                "ru": "1. Выберите услугу"
+              },
+              "description": {
+                "zh": "先回到“我的服务”，核对服务名称、额度、到期时间与状态。仅使用这份服务已交付的订阅；等待连接配置或核验时，请联系管理员。此客户端尚未完成本项目真实订阅导入验证。",
+                "en": "In My services, check the name, allowance, expiry and status. Use only the subscription delivered for this service. If setup or verification is pending, contact the administrator. Import with this project has not yet been tested.",
+                "ru": "В разделе «Мои услуги» проверьте название, лимит, срок и статус. Используйте только подписку этой услуги. Если настройка или проверка ожидается, обратитесь к администратору. Импорт подписки этого проекта пока не проверен."
+              },
+              "buttons": [],
+              "svgIconKey": "Info"
+            },
+            {
+              "title": {
+                "zh": "2. 安装官方客户端",
+                "en": "2. Install the official app",
+                "ru": "2. Установите официальное приложение"
+              },
+              "description": {
+                "zh": "打开下方官方渠道，核对设备系统、处理器架构、商店地区及价格后安装。品牌名称不会翻译。允许系统所需的 VPN 权限。",
+                "en": "Use the official channel below. Check the operating system, CPU architecture, store region and price before installing. Grant the required system VPN permission.",
+                "ru": "Откройте официальный источник ниже. Проверьте ОС, архитектуру, регион магазина и цену перед установкой. Разрешите системный VPN-доступ."
+              },
+              "buttons": [
+                {
+                  "type": "external",
+                  "link": "https://github.com/clash-verge-rev/clash-verge-rev/releases",
+                  "text": {
+                    "zh": "官方下载",
+                    "en": "Official download",
+                    "ru": "Официальная загрузка"
+                  },
+                  "svgIconKey": "Info"
+                }
+              ],
+              "svgIconKey": "Info"
+            },
+            {
+              "title": {
+                "zh": "3. 导入这份服务",
+                "en": "3. Import this service",
+                "ru": "3. Импортируйте эту услугу"
+              },
+              "description": {
+                "zh": "此客户端需要兼容的 Clash/Mihomo YAML 配置。在客户端添加远程订阅／配置，粘贴这份服务的链接并命名。格式错误时联系管理员，不要把链接交给第三方转换网站。订阅链接是凭据，请勿分享。",
+                "en": "This client needs compatible Clash/Mihomo YAML. Add a remote subscription/profile, paste this service link and name it. Ask the administrator about format errors; do not send the credential to third-party converters or other people.",
+                "ru": "Нужна совместимая конфигурация Clash/Mihomo YAML. Добавьте удалённую подписку/профиль, вставьте ссылку этой услуги и задайте имя. При ошибке формата обратитесь к администратору. Не передавайте ссылку сторонним конвертерам или другим людям."
+              },
+              "buttons": [
+                {
+                  "type": "copyButton",
+                  "link": "{{SUBSCRIPTION_LINK}}",
+                  "text": {
+                    "zh": "复制本服务订阅链接",
+                    "en": "Copy this service link",
+                    "ru": "Копировать ссылку услуги"
+                  },
+                  "svgIconKey": "Info"
+                }
+              ],
+              "svgIconKey": "Info"
+            },
+            {
+              "title": {
+                "zh": "4. 更新与核对",
+                "en": "4. Update and check",
+                "ru": "4. Обновите и проверьте"
+              },
+              "description": {
+                "zh": "在客户端手动更新这份订阅，再选择其中一个节点连接。更新不会续期或补发额度，不会自动改用另一份服务。以网站最后确认用量及北京时间日期为准；统计未知时不视为耗尽。更新、连接或专用出口不符时，记录服务 ID、客户端版本、时间及脱敏错误，联系管理员。",
+                "en": "Manually update this subscription, then choose one of its nodes. Updating does not renew access, add allowance or switch to another service. Use the last confirmed website usage and Beijing-time dates; unknown usage is not exhaustion. Report the service ID, app version, time and redacted error to the administrator.",
+                "ru": "Обновите эту подписку вручную и выберите её узел. Обновление не продлевает услугу, не добавляет лимит и не переключает на другую услугу. Ориентируйтесь на подтверждённый расход и даты по пекинскому времени. Неизвестный расход не означает исчерпание. Передайте администратору ID услуги, версию клиента, время и ошибку без секретов."
+              },
+              "buttons": [],
+              "svgIconKey": "Info"
+            }
+          ]
+        },
+        {
+          "name": "v2rayN",
+          "featured": false,
+          "svgIconKey": "Info",
+          "blocks": [
+            {
+              "title": {
+                "zh": "1. 选择服务",
+                "en": "1. Choose a service",
+                "ru": "1. Выберите услугу"
+              },
+              "description": {
+                "zh": "先回到“我的服务”，核对服务名称、额度、到期时间与状态。仅使用这份服务已交付的订阅；等待连接配置或核验时，请联系管理员。此客户端尚未完成本项目真实订阅导入验证。",
+                "en": "In My services, check the name, allowance, expiry and status. Use only the subscription delivered for this service. If setup or verification is pending, contact the administrator. Import with this project has not yet been tested.",
+                "ru": "В разделе «Мои услуги» проверьте название, лимит, срок и статус. Используйте только подписку этой услуги. Если настройка или проверка ожидается, обратитесь к администратору. Импорт подписки этого проекта пока не проверен."
+              },
+              "buttons": [],
+              "svgIconKey": "Info"
+            },
+            {
+              "title": {
+                "zh": "2. 安装官方客户端",
+                "en": "2. Install the official app",
+                "ru": "2. Установите официальное приложение"
+              },
+              "description": {
+                "zh": "打开下方官方渠道，核对设备系统、处理器架构、商店地区及价格后安装。品牌名称不会翻译。允许系统所需的 VPN 权限。",
+                "en": "Use the official channel below. Check the operating system, CPU architecture, store region and price before installing. Grant the required system VPN permission.",
+                "ru": "Откройте официальный источник ниже. Проверьте ОС, архитектуру, регион магазина и цену перед установкой. Разрешите системный VPN-доступ."
+              },
+              "buttons": [
+                {
+                  "type": "external",
+                  "link": "https://github.com/2dust/v2rayN/releases",
+                  "text": {
+                    "zh": "官方下载",
+                    "en": "Official download",
+                    "ru": "Официальная загрузка"
+                  },
+                  "svgIconKey": "Info"
+                }
+              ],
+              "svgIconKey": "Info"
+            },
+            {
+              "title": {
+                "zh": "3. 导入这份服务",
+                "en": "3. Import this service",
+                "ru": "3. Импортируйте эту услугу"
+              },
+              "description": {
+                "zh": "使用管理员为此客户端确认兼容的订阅格式。在客户端添加远程订阅／配置，粘贴这份服务的链接并命名。格式错误时联系管理员，不要把链接交给第三方转换网站。订阅链接是凭据，请勿分享。",
+                "en": "Use the subscription format confirmed for this client. Add a remote subscription/profile, paste this service link and name it. Ask the administrator about format errors; do not send the credential to third-party converters or other people.",
+                "ru": "Используйте формат подписки, подтверждённый для этого клиента. Добавьте удалённую подписку/профиль, вставьте ссылку этой услуги и задайте имя. При ошибке формата обратитесь к администратору. Не передавайте ссылку сторонним конвертерам или другим людям."
+              },
+              "buttons": [
+                {
+                  "type": "copyButton",
+                  "link": "{{SUBSCRIPTION_LINK}}",
+                  "text": {
+                    "zh": "复制本服务订阅链接",
+                    "en": "Copy this service link",
+                    "ru": "Копировать ссылку услуги"
+                  },
+                  "svgIconKey": "Info"
+                }
+              ],
+              "svgIconKey": "Info"
+            },
+            {
+              "title": {
+                "zh": "4. 更新与核对",
+                "en": "4. Update and check",
+                "ru": "4. Обновите и проверьте"
+              },
+              "description": {
+                "zh": "在客户端手动更新这份订阅，再选择其中一个节点连接。更新不会续期或补发额度，不会自动改用另一份服务。以网站最后确认用量及北京时间日期为准；统计未知时不视为耗尽。更新、连接或专用出口不符时，记录服务 ID、客户端版本、时间及脱敏错误，联系管理员。",
+                "en": "Manually update this subscription, then choose one of its nodes. Updating does not renew access, add allowance or switch to another service. Use the last confirmed website usage and Beijing-time dates; unknown usage is not exhaustion. Report the service ID, app version, time and redacted error to the administrator.",
+                "ru": "Обновите эту подписку вручную и выберите её узел. Обновление не продлевает услугу, не добавляет лимит и не переключает на другую услугу. Ориентируйтесь на подтверждённый расход и даты по пекинскому времени. Неизвестный расход не означает исчерпание. Передайте администратору ID услуги, версию клиента, время и ошибку без секретов."
+              },
+              "buttons": [],
+              "svgIconKey": "Info"
+            }
+          ]
+        }
+      ],
+      "displayName": "Windows"
+    },
+    "macos": {
+      "svgIconKey": "Info",
+      "apps": [
+        {
+          "name": "Hiddify",
+          "featured": false,
+          "svgIconKey": "Info",
+          "blocks": [
+            {
+              "title": {
+                "zh": "1. 选择服务",
+                "en": "1. Choose a service",
+                "ru": "1. Выберите услугу"
+              },
+              "description": {
+                "zh": "先回到“我的服务”，核对服务名称、额度、到期时间与状态。仅使用这份服务已交付的订阅；等待连接配置或核验时，请联系管理员。此客户端尚未完成本项目真实订阅导入验证。",
+                "en": "In My services, check the name, allowance, expiry and status. Use only the subscription delivered for this service. If setup or verification is pending, contact the administrator. Import with this project has not yet been tested.",
+                "ru": "В разделе «Мои услуги» проверьте название, лимит, срок и статус. Используйте только подписку этой услуги. Если настройка или проверка ожидается, обратитесь к администратору. Импорт подписки этого проекта пока не проверен."
+              },
+              "buttons": [],
+              "svgIconKey": "Info"
+            },
+            {
+              "title": {
+                "zh": "2. 安装官方客户端",
+                "en": "2. Install the official app",
+                "ru": "2. Установите официальное приложение"
+              },
+              "description": {
+                "zh": "打开下方官方渠道，核对设备系统、处理器架构、商店地区及价格后安装。品牌名称不会翻译。允许系统所需的 VPN 权限。",
+                "en": "Use the official channel below. Check the operating system, CPU architecture, store region and price before installing. Grant the required system VPN permission.",
+                "ru": "Откройте официальный источник ниже. Проверьте ОС, архитектуру, регион магазина и цену перед установкой. Разрешите системный VPN-доступ."
+              },
+              "buttons": [
+                {
+                  "type": "external",
+                  "link": "https://github.com/hiddify/hiddify-app/releases",
+                  "text": {
+                    "zh": "官方下载",
+                    "en": "Official download",
+                    "ru": "Официальная загрузка"
+                  },
+                  "svgIconKey": "Info"
+                }
+              ],
+              "svgIconKey": "Info"
+            },
+            {
+              "title": {
+                "zh": "3. 导入这份服务",
+                "en": "3. Import this service",
+                "ru": "3. Импортируйте эту услугу"
+              },
+              "description": {
+                "zh": "使用管理员为此客户端确认兼容的订阅格式。在客户端添加远程订阅／配置，粘贴这份服务的链接并命名。格式错误时联系管理员，不要把链接交给第三方转换网站。订阅链接是凭据，请勿分享。",
+                "en": "Use the subscription format confirmed for this client. Add a remote subscription/profile, paste this service link and name it. Ask the administrator about format errors; do not send the credential to third-party converters or other people.",
+                "ru": "Используйте формат подписки, подтверждённый для этого клиента. Добавьте удалённую подписку/профиль, вставьте ссылку этой услуги и задайте имя. При ошибке формата обратитесь к администратору. Не передавайте ссылку сторонним конвертерам или другим людям."
+              },
+              "buttons": [
+                {
+                  "type": "copyButton",
+                  "link": "{{SUBSCRIPTION_LINK}}",
+                  "text": {
+                    "zh": "复制本服务订阅链接",
+                    "en": "Copy this service link",
+                    "ru": "Копировать ссылку услуги"
+                  },
+                  "svgIconKey": "Info"
+                }
+              ],
+              "svgIconKey": "Info"
+            },
+            {
+              "title": {
+                "zh": "4. 更新与核对",
+                "en": "4. Update and check",
+                "ru": "4. Обновите и проверьте"
+              },
+              "description": {
+                "zh": "在客户端手动更新这份订阅，再选择其中一个节点连接。更新不会续期或补发额度，不会自动改用另一份服务。以网站最后确认用量及北京时间日期为准；统计未知时不视为耗尽。更新、连接或专用出口不符时，记录服务 ID、客户端版本、时间及脱敏错误，联系管理员。",
+                "en": "Manually update this subscription, then choose one of its nodes. Updating does not renew access, add allowance or switch to another service. Use the last confirmed website usage and Beijing-time dates; unknown usage is not exhaustion. Report the service ID, app version, time and redacted error to the administrator.",
+                "ru": "Обновите эту подписку вручную и выберите её узел. Обновление не продлевает услугу, не добавляет лимит и не переключает на другую услугу. Ориентируйтесь на подтверждённый расход и даты по пекинскому времени. Неизвестный расход не означает исчерпание. Передайте администратору ID услуги, версию клиента, время и ошибку без секретов."
+              },
+              "buttons": [],
+              "svgIconKey": "Info"
+            }
+          ]
+        },
+        {
+          "name": "FlClash",
+          "featured": false,
+          "svgIconKey": "Info",
+          "blocks": [
+            {
+              "title": {
+                "zh": "1. 选择服务",
+                "en": "1. Choose a service",
+                "ru": "1. Выберите услугу"
+              },
+              "description": {
+                "zh": "先回到“我的服务”，核对服务名称、额度、到期时间与状态。仅使用这份服务已交付的订阅；等待连接配置或核验时，请联系管理员。此客户端尚未完成本项目真实订阅导入验证。",
+                "en": "In My services, check the name, allowance, expiry and status. Use only the subscription delivered for this service. If setup or verification is pending, contact the administrator. Import with this project has not yet been tested.",
+                "ru": "В разделе «Мои услуги» проверьте название, лимит, срок и статус. Используйте только подписку этой услуги. Если настройка или проверка ожидается, обратитесь к администратору. Импорт подписки этого проекта пока не проверен."
+              },
+              "buttons": [],
+              "svgIconKey": "Info"
+            },
+            {
+              "title": {
+                "zh": "2. 安装官方客户端",
+                "en": "2. Install the official app",
+                "ru": "2. Установите официальное приложение"
+              },
+              "description": {
+                "zh": "打开下方官方渠道，核对设备系统、处理器架构、商店地区及价格后安装。品牌名称不会翻译。允许系统所需的 VPN 权限。",
+                "en": "Use the official channel below. Check the operating system, CPU architecture, store region and price before installing. Grant the required system VPN permission.",
+                "ru": "Откройте официальный источник ниже. Проверьте ОС, архитектуру, регион магазина и цену перед установкой. Разрешите системный VPN-доступ."
+              },
+              "buttons": [
+                {
+                  "type": "external",
+                  "link": "https://github.com/chen08209/FlClash/releases",
+                  "text": {
+                    "zh": "官方下载",
+                    "en": "Official download",
+                    "ru": "Официальная загрузка"
+                  },
+                  "svgIconKey": "Info"
+                }
+              ],
+              "svgIconKey": "Info"
+            },
+            {
+              "title": {
+                "zh": "3. 导入这份服务",
+                "en": "3. Import this service",
+                "ru": "3. Импортируйте эту услугу"
+              },
+              "description": {
+                "zh": "此客户端需要兼容的 Clash/Mihomo YAML 配置。在客户端添加远程订阅／配置，粘贴这份服务的链接并命名。格式错误时联系管理员，不要把链接交给第三方转换网站。订阅链接是凭据，请勿分享。",
+                "en": "This client needs compatible Clash/Mihomo YAML. Add a remote subscription/profile, paste this service link and name it. Ask the administrator about format errors; do not send the credential to third-party converters or other people.",
+                "ru": "Нужна совместимая конфигурация Clash/Mihomo YAML. Добавьте удалённую подписку/профиль, вставьте ссылку этой услуги и задайте имя. При ошибке формата обратитесь к администратору. Не передавайте ссылку сторонним конвертерам или другим людям."
+              },
+              "buttons": [
+                {
+                  "type": "copyButton",
+                  "link": "{{SUBSCRIPTION_LINK}}",
+                  "text": {
+                    "zh": "复制本服务订阅链接",
+                    "en": "Copy this service link",
+                    "ru": "Копировать ссылку услуги"
+                  },
+                  "svgIconKey": "Info"
+                }
+              ],
+              "svgIconKey": "Info"
+            },
+            {
+              "title": {
+                "zh": "4. 更新与核对",
+                "en": "4. Update and check",
+                "ru": "4. Обновите и проверьте"
+              },
+              "description": {
+                "zh": "在客户端手动更新这份订阅，再选择其中一个节点连接。更新不会续期或补发额度，不会自动改用另一份服务。以网站最后确认用量及北京时间日期为准；统计未知时不视为耗尽。更新、连接或专用出口不符时，记录服务 ID、客户端版本、时间及脱敏错误，联系管理员。",
+                "en": "Manually update this subscription, then choose one of its nodes. Updating does not renew access, add allowance or switch to another service. Use the last confirmed website usage and Beijing-time dates; unknown usage is not exhaustion. Report the service ID, app version, time and redacted error to the administrator.",
+                "ru": "Обновите эту подписку вручную и выберите её узел. Обновление не продлевает услугу, не добавляет лимит и не переключает на другую услугу. Ориентируйтесь на подтверждённый расход и даты по пекинскому времени. Неизвестный расход не означает исчерпание. Передайте администратору ID услуги, версию клиента, время и ошибку без секретов."
+              },
+              "buttons": [],
+              "svgIconKey": "Info"
+            }
+          ]
+        },
+        {
+          "name": "Clash Verge Rev",
+          "featured": false,
+          "svgIconKey": "Info",
+          "blocks": [
+            {
+              "title": {
+                "zh": "1. 选择服务",
+                "en": "1. Choose a service",
+                "ru": "1. Выберите услугу"
+              },
+              "description": {
+                "zh": "先回到“我的服务”，核对服务名称、额度、到期时间与状态。仅使用这份服务已交付的订阅；等待连接配置或核验时，请联系管理员。此客户端尚未完成本项目真实订阅导入验证。",
+                "en": "In My services, check the name, allowance, expiry and status. Use only the subscription delivered for this service. If setup or verification is pending, contact the administrator. Import with this project has not yet been tested.",
+                "ru": "В разделе «Мои услуги» проверьте название, лимит, срок и статус. Используйте только подписку этой услуги. Если настройка или проверка ожидается, обратитесь к администратору. Импорт подписки этого проекта пока не проверен."
+              },
+              "buttons": [],
+              "svgIconKey": "Info"
+            },
+            {
+              "title": {
+                "zh": "2. 安装官方客户端",
+                "en": "2. Install the official app",
+                "ru": "2. Установите официальное приложение"
+              },
+              "description": {
+                "zh": "打开下方官方渠道，核对设备系统、处理器架构、商店地区及价格后安装。品牌名称不会翻译。允许系统所需的 VPN 权限。",
+                "en": "Use the official channel below. Check the operating system, CPU architecture, store region and price before installing. Grant the required system VPN permission.",
+                "ru": "Откройте официальный источник ниже. Проверьте ОС, архитектуру, регион магазина и цену перед установкой. Разрешите системный VPN-доступ."
+              },
+              "buttons": [
+                {
+                  "type": "external",
+                  "link": "https://github.com/clash-verge-rev/clash-verge-rev/releases",
+                  "text": {
+                    "zh": "官方下载",
+                    "en": "Official download",
+                    "ru": "Официальная загрузка"
+                  },
+                  "svgIconKey": "Info"
+                }
+              ],
+              "svgIconKey": "Info"
+            },
+            {
+              "title": {
+                "zh": "3. 导入这份服务",
+                "en": "3. Import this service",
+                "ru": "3. Импортируйте эту услугу"
+              },
+              "description": {
+                "zh": "此客户端需要兼容的 Clash/Mihomo YAML 配置。在客户端添加远程订阅／配置，粘贴这份服务的链接并命名。格式错误时联系管理员，不要把链接交给第三方转换网站。订阅链接是凭据，请勿分享。",
+                "en": "This client needs compatible Clash/Mihomo YAML. Add a remote subscription/profile, paste this service link and name it. Ask the administrator about format errors; do not send the credential to third-party converters or other people.",
+                "ru": "Нужна совместимая конфигурация Clash/Mihomo YAML. Добавьте удалённую подписку/профиль, вставьте ссылку этой услуги и задайте имя. При ошибке формата обратитесь к администратору. Не передавайте ссылку сторонним конвертерам или другим людям."
+              },
+              "buttons": [
+                {
+                  "type": "copyButton",
+                  "link": "{{SUBSCRIPTION_LINK}}",
+                  "text": {
+                    "zh": "复制本服务订阅链接",
+                    "en": "Copy this service link",
+                    "ru": "Копировать ссылку услуги"
+                  },
+                  "svgIconKey": "Info"
+                }
+              ],
+              "svgIconKey": "Info"
+            },
+            {
+              "title": {
+                "zh": "4. 更新与核对",
+                "en": "4. Update and check",
+                "ru": "4. Обновите и проверьте"
+              },
+              "description": {
+                "zh": "在客户端手动更新这份订阅，再选择其中一个节点连接。更新不会续期或补发额度，不会自动改用另一份服务。以网站最后确认用量及北京时间日期为准；统计未知时不视为耗尽。更新、连接或专用出口不符时，记录服务 ID、客户端版本、时间及脱敏错误，联系管理员。",
+                "en": "Manually update this subscription, then choose one of its nodes. Updating does not renew access, add allowance or switch to another service. Use the last confirmed website usage and Beijing-time dates; unknown usage is not exhaustion. Report the service ID, app version, time and redacted error to the administrator.",
+                "ru": "Обновите эту подписку вручную и выберите её узел. Обновление не продлевает услугу, не добавляет лимит и не переключает на другую услугу. Ориентируйтесь на подтверждённый расход и даты по пекинскому времени. Неизвестный расход не означает исчерпание. Передайте администратору ID услуги, версию клиента, время и ошибку без секретов."
+              },
+              "buttons": [],
+              "svgIconKey": "Info"
+            }
+          ]
+        },
+        {
+          "name": "v2rayN",
+          "featured": false,
+          "svgIconKey": "Info",
+          "blocks": [
+            {
+              "title": {
+                "zh": "1. 选择服务",
+                "en": "1. Choose a service",
+                "ru": "1. Выберите услугу"
+              },
+              "description": {
+                "zh": "先回到“我的服务”，核对服务名称、额度、到期时间与状态。仅使用这份服务已交付的订阅；等待连接配置或核验时，请联系管理员。此客户端尚未完成本项目真实订阅导入验证。",
+                "en": "In My services, check the name, allowance, expiry and status. Use only the subscription delivered for this service. If setup or verification is pending, contact the administrator. Import with this project has not yet been tested.",
+                "ru": "В разделе «Мои услуги» проверьте название, лимит, срок и статус. Используйте только подписку этой услуги. Если настройка или проверка ожидается, обратитесь к администратору. Импорт подписки этого проекта пока не проверен."
+              },
+              "buttons": [],
+              "svgIconKey": "Info"
+            },
+            {
+              "title": {
+                "zh": "2. 安装官方客户端",
+                "en": "2. Install the official app",
+                "ru": "2. Установите официальное приложение"
+              },
+              "description": {
+                "zh": "打开下方官方渠道，核对设备系统、处理器架构、商店地区及价格后安装。品牌名称不会翻译。允许系统所需的 VPN 权限。",
+                "en": "Use the official channel below. Check the operating system, CPU architecture, store region and price before installing. Grant the required system VPN permission.",
+                "ru": "Откройте официальный источник ниже. Проверьте ОС, архитектуру, регион магазина и цену перед установкой. Разрешите системный VPN-доступ."
+              },
+              "buttons": [
+                {
+                  "type": "external",
+                  "link": "https://github.com/2dust/v2rayN/releases",
+                  "text": {
+                    "zh": "官方下载",
+                    "en": "Official download",
+                    "ru": "Официальная загрузка"
+                  },
+                  "svgIconKey": "Info"
+                }
+              ],
+              "svgIconKey": "Info"
+            },
+            {
+              "title": {
+                "zh": "3. 导入这份服务",
+                "en": "3. Import this service",
+                "ru": "3. Импортируйте эту услугу"
+              },
+              "description": {
+                "zh": "使用管理员为此客户端确认兼容的订阅格式。在客户端添加远程订阅／配置，粘贴这份服务的链接并命名。格式错误时联系管理员，不要把链接交给第三方转换网站。订阅链接是凭据，请勿分享。",
+                "en": "Use the subscription format confirmed for this client. Add a remote subscription/profile, paste this service link and name it. Ask the administrator about format errors; do not send the credential to third-party converters or other people.",
+                "ru": "Используйте формат подписки, подтверждённый для этого клиента. Добавьте удалённую подписку/профиль, вставьте ссылку этой услуги и задайте имя. При ошибке формата обратитесь к администратору. Не передавайте ссылку сторонним конвертерам или другим людям."
+              },
+              "buttons": [
+                {
+                  "type": "copyButton",
+                  "link": "{{SUBSCRIPTION_LINK}}",
+                  "text": {
+                    "zh": "复制本服务订阅链接",
+                    "en": "Copy this service link",
+                    "ru": "Копировать ссылку услуги"
+                  },
+                  "svgIconKey": "Info"
+                }
+              ],
+              "svgIconKey": "Info"
+            },
+            {
+              "title": {
+                "zh": "4. 更新与核对",
+                "en": "4. Update and check",
+                "ru": "4. Обновите и проверьте"
+              },
+              "description": {
+                "zh": "在客户端手动更新这份订阅，再选择其中一个节点连接。更新不会续期或补发额度，不会自动改用另一份服务。以网站最后确认用量及北京时间日期为准；统计未知时不视为耗尽。更新、连接或专用出口不符时，记录服务 ID、客户端版本、时间及脱敏错误，联系管理员。",
+                "en": "Manually update this subscription, then choose one of its nodes. Updating does not renew access, add allowance or switch to another service. Use the last confirmed website usage and Beijing-time dates; unknown usage is not exhaustion. Report the service ID, app version, time and redacted error to the administrator.",
+                "ru": "Обновите эту подписку вручную и выберите её узел. Обновление не продлевает услугу, не добавляет лимит и не переключает на другую услугу. Ориентируйтесь на подтверждённый расход и даты по пекинскому времени. Неизвестный расход не означает исчерпание. Передайте администратору ID услуги, версию клиента, время и ошибку без секретов."
+              },
+              "buttons": [],
+              "svgIconKey": "Info"
+            }
+          ]
+        }
+      ],
+      "displayName": "macOS"
+    },
+    "linux": {
+      "svgIconKey": "Info",
+      "apps": [
+        {
+          "name": "Hiddify",
+          "featured": false,
+          "svgIconKey": "Info",
+          "blocks": [
+            {
+              "title": {
+                "zh": "1. 选择服务",
+                "en": "1. Choose a service",
+                "ru": "1. Выберите услугу"
+              },
+              "description": {
+                "zh": "先回到“我的服务”，核对服务名称、额度、到期时间与状态。仅使用这份服务已交付的订阅；等待连接配置或核验时，请联系管理员。此客户端尚未完成本项目真实订阅导入验证。",
+                "en": "In My services, check the name, allowance, expiry and status. Use only the subscription delivered for this service. If setup or verification is pending, contact the administrator. Import with this project has not yet been tested.",
+                "ru": "В разделе «Мои услуги» проверьте название, лимит, срок и статус. Используйте только подписку этой услуги. Если настройка или проверка ожидается, обратитесь к администратору. Импорт подписки этого проекта пока не проверен."
+              },
+              "buttons": [],
+              "svgIconKey": "Info"
+            },
+            {
+              "title": {
+                "zh": "2. 安装官方客户端",
+                "en": "2. Install the official app",
+                "ru": "2. Установите официальное приложение"
+              },
+              "description": {
+                "zh": "打开下方官方渠道，核对设备系统、处理器架构、商店地区及价格后安装。品牌名称不会翻译。允许系统所需的 VPN 权限。",
+                "en": "Use the official channel below. Check the operating system, CPU architecture, store region and price before installing. Grant the required system VPN permission.",
+                "ru": "Откройте официальный источник ниже. Проверьте ОС, архитектуру, регион магазина и цену перед установкой. Разрешите системный VPN-доступ."
+              },
+              "buttons": [
+                {
+                  "type": "external",
+                  "link": "https://github.com/hiddify/hiddify-app/releases",
+                  "text": {
+                    "zh": "官方下载",
+                    "en": "Official download",
+                    "ru": "Официальная загрузка"
+                  },
+                  "svgIconKey": "Info"
+                }
+              ],
+              "svgIconKey": "Info"
+            },
+            {
+              "title": {
+                "zh": "3. 导入这份服务",
+                "en": "3. Import this service",
+                "ru": "3. Импортируйте эту услугу"
+              },
+              "description": {
+                "zh": "使用管理员为此客户端确认兼容的订阅格式。在客户端添加远程订阅／配置，粘贴这份服务的链接并命名。格式错误时联系管理员，不要把链接交给第三方转换网站。订阅链接是凭据，请勿分享。",
+                "en": "Use the subscription format confirmed for this client. Add a remote subscription/profile, paste this service link and name it. Ask the administrator about format errors; do not send the credential to third-party converters or other people.",
+                "ru": "Используйте формат подписки, подтверждённый для этого клиента. Добавьте удалённую подписку/профиль, вставьте ссылку этой услуги и задайте имя. При ошибке формата обратитесь к администратору. Не передавайте ссылку сторонним конвертерам или другим людям."
+              },
+              "buttons": [
+                {
+                  "type": "copyButton",
+                  "link": "{{SUBSCRIPTION_LINK}}",
+                  "text": {
+                    "zh": "复制本服务订阅链接",
+                    "en": "Copy this service link",
+                    "ru": "Копировать ссылку услуги"
+                  },
+                  "svgIconKey": "Info"
+                }
+              ],
+              "svgIconKey": "Info"
+            },
+            {
+              "title": {
+                "zh": "4. 更新与核对",
+                "en": "4. Update and check",
+                "ru": "4. Обновите и проверьте"
+              },
+              "description": {
+                "zh": "在客户端手动更新这份订阅，再选择其中一个节点连接。更新不会续期或补发额度，不会自动改用另一份服务。以网站最后确认用量及北京时间日期为准；统计未知时不视为耗尽。更新、连接或专用出口不符时，记录服务 ID、客户端版本、时间及脱敏错误，联系管理员。",
+                "en": "Manually update this subscription, then choose one of its nodes. Updating does not renew access, add allowance or switch to another service. Use the last confirmed website usage and Beijing-time dates; unknown usage is not exhaustion. Report the service ID, app version, time and redacted error to the administrator.",
+                "ru": "Обновите эту подписку вручную и выберите её узел. Обновление не продлевает услугу, не добавляет лимит и не переключает на другую услугу. Ориентируйтесь на подтверждённый расход и даты по пекинскому времени. Неизвестный расход не означает исчерпание. Передайте администратору ID услуги, версию клиента, время и ошибку без секретов."
+              },
+              "buttons": [],
+              "svgIconKey": "Info"
+            }
+          ]
+        },
+        {
+          "name": "FlClash",
+          "featured": false,
+          "svgIconKey": "Info",
+          "blocks": [
+            {
+              "title": {
+                "zh": "1. 选择服务",
+                "en": "1. Choose a service",
+                "ru": "1. Выберите услугу"
+              },
+              "description": {
+                "zh": "先回到“我的服务”，核对服务名称、额度、到期时间与状态。仅使用这份服务已交付的订阅；等待连接配置或核验时，请联系管理员。此客户端尚未完成本项目真实订阅导入验证。",
+                "en": "In My services, check the name, allowance, expiry and status. Use only the subscription delivered for this service. If setup or verification is pending, contact the administrator. Import with this project has not yet been tested.",
+                "ru": "В разделе «Мои услуги» проверьте название, лимит, срок и статус. Используйте только подписку этой услуги. Если настройка или проверка ожидается, обратитесь к администратору. Импорт подписки этого проекта пока не проверен."
+              },
+              "buttons": [],
+              "svgIconKey": "Info"
+            },
+            {
+              "title": {
+                "zh": "2. 安装官方客户端",
+                "en": "2. Install the official app",
+                "ru": "2. Установите официальное приложение"
+              },
+              "description": {
+                "zh": "打开下方官方渠道，核对设备系统、处理器架构、商店地区及价格后安装。品牌名称不会翻译。允许系统所需的 VPN 权限。",
+                "en": "Use the official channel below. Check the operating system, CPU architecture, store region and price before installing. Grant the required system VPN permission.",
+                "ru": "Откройте официальный источник ниже. Проверьте ОС, архитектуру, регион магазина и цену перед установкой. Разрешите системный VPN-доступ."
+              },
+              "buttons": [
+                {
+                  "type": "external",
+                  "link": "https://github.com/chen08209/FlClash/releases",
+                  "text": {
+                    "zh": "官方下载",
+                    "en": "Official download",
+                    "ru": "Официальная загрузка"
+                  },
+                  "svgIconKey": "Info"
+                }
+              ],
+              "svgIconKey": "Info"
+            },
+            {
+              "title": {
+                "zh": "3. 导入这份服务",
+                "en": "3. Import this service",
+                "ru": "3. Импортируйте эту услугу"
+              },
+              "description": {
+                "zh": "此客户端需要兼容的 Clash/Mihomo YAML 配置。在客户端添加远程订阅／配置，粘贴这份服务的链接并命名。格式错误时联系管理员，不要把链接交给第三方转换网站。订阅链接是凭据，请勿分享。",
+                "en": "This client needs compatible Clash/Mihomo YAML. Add a remote subscription/profile, paste this service link and name it. Ask the administrator about format errors; do not send the credential to third-party converters or other people.",
+                "ru": "Нужна совместимая конфигурация Clash/Mihomo YAML. Добавьте удалённую подписку/профиль, вставьте ссылку этой услуги и задайте имя. При ошибке формата обратитесь к администратору. Не передавайте ссылку сторонним конвертерам или другим людям."
+              },
+              "buttons": [
+                {
+                  "type": "copyButton",
+                  "link": "{{SUBSCRIPTION_LINK}}",
+                  "text": {
+                    "zh": "复制本服务订阅链接",
+                    "en": "Copy this service link",
+                    "ru": "Копировать ссылку услуги"
+                  },
+                  "svgIconKey": "Info"
+                }
+              ],
+              "svgIconKey": "Info"
+            },
+            {
+              "title": {
+                "zh": "4. 更新与核对",
+                "en": "4. Update and check",
+                "ru": "4. Обновите и проверьте"
+              },
+              "description": {
+                "zh": "在客户端手动更新这份订阅，再选择其中一个节点连接。更新不会续期或补发额度，不会自动改用另一份服务。以网站最后确认用量及北京时间日期为准；统计未知时不视为耗尽。更新、连接或专用出口不符时，记录服务 ID、客户端版本、时间及脱敏错误，联系管理员。",
+                "en": "Manually update this subscription, then choose one of its nodes. Updating does not renew access, add allowance or switch to another service. Use the last confirmed website usage and Beijing-time dates; unknown usage is not exhaustion. Report the service ID, app version, time and redacted error to the administrator.",
+                "ru": "Обновите эту подписку вручную и выберите её узел. Обновление не продлевает услугу, не добавляет лимит и не переключает на другую услугу. Ориентируйтесь на подтверждённый расход и даты по пекинскому времени. Неизвестный расход не означает исчерпание. Передайте администратору ID услуги, версию клиента, время и ошибку без секретов."
+              },
+              "buttons": [],
+              "svgIconKey": "Info"
+            }
+          ]
+        },
+        {
+          "name": "Clash Verge Rev",
+          "featured": false,
+          "svgIconKey": "Info",
+          "blocks": [
+            {
+              "title": {
+                "zh": "1. 选择服务",
+                "en": "1. Choose a service",
+                "ru": "1. Выберите услугу"
+              },
+              "description": {
+                "zh": "先回到“我的服务”，核对服务名称、额度、到期时间与状态。仅使用这份服务已交付的订阅；等待连接配置或核验时，请联系管理员。此客户端尚未完成本项目真实订阅导入验证。",
+                "en": "In My services, check the name, allowance, expiry and status. Use only the subscription delivered for this service. If setup or verification is pending, contact the administrator. Import with this project has not yet been tested.",
+                "ru": "В разделе «Мои услуги» проверьте название, лимит, срок и статус. Используйте только подписку этой услуги. Если настройка или проверка ожидается, обратитесь к администратору. Импорт подписки этого проекта пока не проверен."
+              },
+              "buttons": [],
+              "svgIconKey": "Info"
+            },
+            {
+              "title": {
+                "zh": "2. 安装官方客户端",
+                "en": "2. Install the official app",
+                "ru": "2. Установите официальное приложение"
+              },
+              "description": {
+                "zh": "打开下方官方渠道，核对设备系统、处理器架构、商店地区及价格后安装。品牌名称不会翻译。允许系统所需的 VPN 权限。",
+                "en": "Use the official channel below. Check the operating system, CPU architecture, store region and price before installing. Grant the required system VPN permission.",
+                "ru": "Откройте официальный источник ниже. Проверьте ОС, архитектуру, регион магазина и цену перед установкой. Разрешите системный VPN-доступ."
+              },
+              "buttons": [
+                {
+                  "type": "external",
+                  "link": "https://github.com/clash-verge-rev/clash-verge-rev/releases",
+                  "text": {
+                    "zh": "官方下载",
+                    "en": "Official download",
+                    "ru": "Официальная загрузка"
+                  },
+                  "svgIconKey": "Info"
+                }
+              ],
+              "svgIconKey": "Info"
+            },
+            {
+              "title": {
+                "zh": "3. 导入这份服务",
+                "en": "3. Import this service",
+                "ru": "3. Импортируйте эту услугу"
+              },
+              "description": {
+                "zh": "此客户端需要兼容的 Clash/Mihomo YAML 配置。在客户端添加远程订阅／配置，粘贴这份服务的链接并命名。格式错误时联系管理员，不要把链接交给第三方转换网站。订阅链接是凭据，请勿分享。",
+                "en": "This client needs compatible Clash/Mihomo YAML. Add a remote subscription/profile, paste this service link and name it. Ask the administrator about format errors; do not send the credential to third-party converters or other people.",
+                "ru": "Нужна совместимая конфигурация Clash/Mihomo YAML. Добавьте удалённую подписку/профиль, вставьте ссылку этой услуги и задайте имя. При ошибке формата обратитесь к администратору. Не передавайте ссылку сторонним конвертерам или другим людям."
+              },
+              "buttons": [
+                {
+                  "type": "copyButton",
+                  "link": "{{SUBSCRIPTION_LINK}}",
+                  "text": {
+                    "zh": "复制本服务订阅链接",
+                    "en": "Copy this service link",
+                    "ru": "Копировать ссылку услуги"
+                  },
+                  "svgIconKey": "Info"
+                }
+              ],
+              "svgIconKey": "Info"
+            },
+            {
+              "title": {
+                "zh": "4. 更新与核对",
+                "en": "4. Update and check",
+                "ru": "4. Обновите и проверьте"
+              },
+              "description": {
+                "zh": "在客户端手动更新这份订阅，再选择其中一个节点连接。更新不会续期或补发额度，不会自动改用另一份服务。以网站最后确认用量及北京时间日期为准；统计未知时不视为耗尽。更新、连接或专用出口不符时，记录服务 ID、客户端版本、时间及脱敏错误，联系管理员。",
+                "en": "Manually update this subscription, then choose one of its nodes. Updating does not renew access, add allowance or switch to another service. Use the last confirmed website usage and Beijing-time dates; unknown usage is not exhaustion. Report the service ID, app version, time and redacted error to the administrator.",
+                "ru": "Обновите эту подписку вручную и выберите её узел. Обновление не продлевает услугу, не добавляет лимит и не переключает на другую услугу. Ориентируйтесь на подтверждённый расход и даты по пекинскому времени. Неизвестный расход не означает исчерпание. Передайте администратору ID услуги, версию клиента, время и ошибку без секретов."
+              },
+              "buttons": [],
+              "svgIconKey": "Info"
+            }
+          ]
+        },
+        {
+          "name": "v2rayN",
+          "featured": false,
+          "svgIconKey": "Info",
+          "blocks": [
+            {
+              "title": {
+                "zh": "1. 选择服务",
+                "en": "1. Choose a service",
+                "ru": "1. Выберите услугу"
+              },
+              "description": {
+                "zh": "先回到“我的服务”，核对服务名称、额度、到期时间与状态。仅使用这份服务已交付的订阅；等待连接配置或核验时，请联系管理员。此客户端尚未完成本项目真实订阅导入验证。",
+                "en": "In My services, check the name, allowance, expiry and status. Use only the subscription delivered for this service. If setup or verification is pending, contact the administrator. Import with this project has not yet been tested.",
+                "ru": "В разделе «Мои услуги» проверьте название, лимит, срок и статус. Используйте только подписку этой услуги. Если настройка или проверка ожидается, обратитесь к администратору. Импорт подписки этого проекта пока не проверен."
+              },
+              "buttons": [],
+              "svgIconKey": "Info"
+            },
+            {
+              "title": {
+                "zh": "2. 安装官方客户端",
+                "en": "2. Install the official app",
+                "ru": "2. Установите официальное приложение"
+              },
+              "description": {
+                "zh": "打开下方官方渠道，核对设备系统、处理器架构、商店地区及价格后安装。品牌名称不会翻译。允许系统所需的 VPN 权限。",
+                "en": "Use the official channel below. Check the operating system, CPU architecture, store region and price before installing. Grant the required system VPN permission.",
+                "ru": "Откройте официальный источник ниже. Проверьте ОС, архитектуру, регион магазина и цену перед установкой. Разрешите системный VPN-доступ."
+              },
+              "buttons": [
+                {
+                  "type": "external",
+                  "link": "https://github.com/2dust/v2rayN/releases",
+                  "text": {
+                    "zh": "官方下载",
+                    "en": "Official download",
+                    "ru": "Официальная загрузка"
+                  },
+                  "svgIconKey": "Info"
+                }
+              ],
+              "svgIconKey": "Info"
+            },
+            {
+              "title": {
+                "zh": "3. 导入这份服务",
+                "en": "3. Import this service",
+                "ru": "3. Импортируйте эту услугу"
+              },
+              "description": {
+                "zh": "使用管理员为此客户端确认兼容的订阅格式。在客户端添加远程订阅／配置，粘贴这份服务的链接并命名。格式错误时联系管理员，不要把链接交给第三方转换网站。订阅链接是凭据，请勿分享。",
+                "en": "Use the subscription format confirmed for this client. Add a remote subscription/profile, paste this service link and name it. Ask the administrator about format errors; do not send the credential to third-party converters or other people.",
+                "ru": "Используйте формат подписки, подтверждённый для этого клиента. Добавьте удалённую подписку/профиль, вставьте ссылку этой услуги и задайте имя. При ошибке формата обратитесь к администратору. Не передавайте ссылку сторонним конвертерам или другим людям."
+              },
+              "buttons": [
+                {
+                  "type": "copyButton",
+                  "link": "{{SUBSCRIPTION_LINK}}",
+                  "text": {
+                    "zh": "复制本服务订阅链接",
+                    "en": "Copy this service link",
+                    "ru": "Копировать ссылку услуги"
+                  },
+                  "svgIconKey": "Info"
+                }
+              ],
+              "svgIconKey": "Info"
+            },
+            {
+              "title": {
+                "zh": "4. 更新与核对",
+                "en": "4. Update and check",
+                "ru": "4. Обновите и проверьте"
+              },
+              "description": {
+                "zh": "在客户端手动更新这份订阅，再选择其中一个节点连接。更新不会续期或补发额度，不会自动改用另一份服务。以网站最后确认用量及北京时间日期为准；统计未知时不视为耗尽。更新、连接或专用出口不符时，记录服务 ID、客户端版本、时间及脱敏错误，联系管理员。",
+                "en": "Manually update this subscription, then choose one of its nodes. Updating does not renew access, add allowance or switch to another service. Use the last confirmed website usage and Beijing-time dates; unknown usage is not exhaustion. Report the service ID, app version, time and redacted error to the administrator.",
+                "ru": "Обновите эту подписку вручную и выберите её узел. Обновление не продлевает услугу, не добавляет лимит и не переключает на другую услугу. Ориентируйтесь на подтверждённый расход и даты по пекинскому времени. Неизвестный расход не означает исчерпание. Передайте администратору ID услуги, версию клиента, время и ошибку без секретов."
+              },
+              "buttons": [],
+              "svgIconKey": "Info"
+            }
+          ]
+        }
+      ],
+      "displayName": "Linux"
+    },
+    "androidTV": {
+      "svgIconKey": "Info",
+      "apps": [
+        {
+          "name": "FlClash",
+          "featured": false,
+          "svgIconKey": "Info",
+          "blocks": [
+            {
+              "title": {
+                "zh": "1. 选择服务",
+                "en": "1. Choose a service",
+                "ru": "1. Выберите услугу"
+              },
+              "description": {
+                "zh": "先回到“我的服务”，核对服务名称、额度、到期时间与状态。仅使用这份服务已交付的订阅；等待连接配置或核验时，请联系管理员。此客户端尚未完成本项目真实订阅导入验证。",
+                "en": "In My services, check the name, allowance, expiry and status. Use only the subscription delivered for this service. If setup or verification is pending, contact the administrator. Import with this project has not yet been tested.",
+                "ru": "В разделе «Мои услуги» проверьте название, лимит, срок и статус. Используйте только подписку этой услуги. Если настройка или проверка ожидается, обратитесь к администратору. Импорт подписки этого проекта пока не проверен."
+              },
+              "buttons": [],
+              "svgIconKey": "Info"
+            },
+            {
+              "title": {
+                "zh": "2. 安装官方客户端",
+                "en": "2. Install the official app",
+                "ru": "2. Установите официальное приложение"
+              },
+              "description": {
+                "zh": "打开下方官方渠道，核对设备系统、处理器架构、商店地区及价格后安装。品牌名称不会翻译。允许系统所需的 VPN 权限。",
+                "en": "Use the official channel below. Check the operating system, CPU architecture, store region and price before installing. Grant the required system VPN permission.",
+                "ru": "Откройте официальный источник ниже. Проверьте ОС, архитектуру, регион магазина и цену перед установкой. Разрешите системный VPN-доступ."
+              },
+              "buttons": [
+                {
+                  "type": "external",
+                  "link": "https://github.com/chen08209/FlClash/releases",
+                  "text": {
+                    "zh": "官方下载",
+                    "en": "Official download",
+                    "ru": "Официальная загрузка"
+                  },
+                  "svgIconKey": "Info"
+                }
+              ],
+              "svgIconKey": "Info"
+            },
+            {
+              "title": {
+                "zh": "3. 导入这份服务",
+                "en": "3. Import this service",
+                "ru": "3. Импортируйте эту услугу"
+              },
+              "description": {
+                "zh": "此客户端需要兼容的 Clash/Mihomo YAML 配置。在客户端添加远程订阅／配置，粘贴这份服务的链接并命名。格式错误时联系管理员，不要把链接交给第三方转换网站。订阅链接是凭据，请勿分享。",
+                "en": "This client needs compatible Clash/Mihomo YAML. Add a remote subscription/profile, paste this service link and name it. Ask the administrator about format errors; do not send the credential to third-party converters or other people.",
+                "ru": "Нужна совместимая конфигурация Clash/Mihomo YAML. Добавьте удалённую подписку/профиль, вставьте ссылку этой услуги и задайте имя. При ошибке формата обратитесь к администратору. Не передавайте ссылку сторонним конвертерам или другим людям."
+              },
+              "buttons": [
+                {
+                  "type": "copyButton",
+                  "link": "{{SUBSCRIPTION_LINK}}",
+                  "text": {
+                    "zh": "复制本服务订阅链接",
+                    "en": "Copy this service link",
+                    "ru": "Копировать ссылку услуги"
+                  },
+                  "svgIconKey": "Info"
+                }
+              ],
+              "svgIconKey": "Info"
+            },
+            {
+              "title": {
+                "zh": "4. 更新与核对",
+                "en": "4. Update and check",
+                "ru": "4. Обновите и проверьте"
+              },
+              "description": {
+                "zh": "在客户端手动更新这份订阅，再选择其中一个节点连接。更新不会续期或补发额度，不会自动改用另一份服务。以网站最后确认用量及北京时间日期为准；统计未知时不视为耗尽。更新、连接或专用出口不符时，记录服务 ID、客户端版本、时间及脱敏错误，联系管理员。",
+                "en": "Manually update this subscription, then choose one of its nodes. Updating does not renew access, add allowance or switch to another service. Use the last confirmed website usage and Beijing-time dates; unknown usage is not exhaustion. Report the service ID, app version, time and redacted error to the administrator.",
+                "ru": "Обновите эту подписку вручную и выберите её узел. Обновление не продлевает услугу, не добавляет лимит и не переключает на другую услугу. Ориентируйтесь на подтверждённый расход и даты по пекинскому времени. Неизвестный расход не означает исчерпание. Передайте администратору ID услуги, версию клиента, время и ошибку без секретов."
+              },
+              "buttons": [],
+              "svgIconKey": "Info"
+            }
+          ]
+        }
+      ],
+      "displayName": "Android TV"
+    },
+    "appleTV": {
+      "svgIconKey": "Info",
+      "apps": [
+        {
+          "name": "Shadowrocket",
+          "featured": false,
+          "svgIconKey": "Info",
+          "blocks": [
+            {
+              "title": {
+                "zh": "1. 选择服务",
+                "en": "1. Choose a service",
+                "ru": "1. Выберите услугу"
+              },
+              "description": {
+                "zh": "先回到“我的服务”，核对服务名称、额度、到期时间与状态。仅使用这份服务已交付的订阅；等待连接配置或核验时，请联系管理员。此客户端尚未完成本项目真实订阅导入验证。",
+                "en": "In My services, check the name, allowance, expiry and status. Use only the subscription delivered for this service. If setup or verification is pending, contact the administrator. Import with this project has not yet been tested.",
+                "ru": "В разделе «Мои услуги» проверьте название, лимит, срок и статус. Используйте только подписку этой услуги. Если настройка или проверка ожидается, обратитесь к администратору. Импорт подписки этого проекта пока не проверен."
+              },
+              "buttons": [],
+              "svgIconKey": "Info"
+            },
+            {
+              "title": {
+                "zh": "2. 安装官方客户端",
+                "en": "2. Install the official app",
+                "ru": "2. Установите официальное приложение"
+              },
+              "description": {
+                "zh": "打开下方官方渠道，核对设备系统、处理器架构、商店地区及价格后安装。品牌名称不会翻译。允许系统所需的 VPN 权限。",
+                "en": "Use the official channel below. Check the operating system, CPU architecture, store region and price before installing. Grant the required system VPN permission.",
+                "ru": "Откройте официальный источник ниже. Проверьте ОС, архитектуру, регион магазина и цену перед установкой. Разрешите системный VPN-доступ."
+              },
+              "buttons": [
+                {
+                  "type": "external",
+                  "link": "https://apps.apple.com/us/app/shadowrocket/id932747118",
+                  "text": {
+                    "zh": "官方下载",
+                    "en": "Official download",
+                    "ru": "Официальная загрузка"
+                  },
+                  "svgIconKey": "Info"
+                }
+              ],
+              "svgIconKey": "Info"
+            },
+            {
+              "title": {
+                "zh": "3. 导入这份服务",
+                "en": "3. Import this service",
+                "ru": "3. Импортируйте эту услугу"
+              },
+              "description": {
+                "zh": "使用管理员为此客户端确认兼容的订阅格式。在客户端添加远程订阅／配置，粘贴这份服务的链接并命名。格式错误时联系管理员，不要把链接交给第三方转换网站。订阅链接是凭据，请勿分享。",
+                "en": "Use the subscription format confirmed for this client. Add a remote subscription/profile, paste this service link and name it. Ask the administrator about format errors; do not send the credential to third-party converters or other people.",
+                "ru": "Используйте формат подписки, подтверждённый для этого клиента. Добавьте удалённую подписку/профиль, вставьте ссылку этой услуги и задайте имя. При ошибке формата обратитесь к администратору. Не передавайте ссылку сторонним конвертерам или другим людям."
+              },
+              "buttons": [
+                {
+                  "type": "copyButton",
+                  "link": "{{SUBSCRIPTION_LINK}}",
+                  "text": {
+                    "zh": "复制本服务订阅链接",
+                    "en": "Copy this service link",
+                    "ru": "Копировать ссылку услуги"
+                  },
+                  "svgIconKey": "Info"
+                }
+              ],
+              "svgIconKey": "Info"
+            },
+            {
+              "title": {
+                "zh": "4. 更新与核对",
+                "en": "4. Update and check",
+                "ru": "4. Обновите и проверьте"
+              },
+              "description": {
+                "zh": "在客户端手动更新这份订阅，再选择其中一个节点连接。更新不会续期或补发额度，不会自动改用另一份服务。以网站最后确认用量及北京时间日期为准；统计未知时不视为耗尽。更新、连接或专用出口不符时，记录服务 ID、客户端版本、时间及脱敏错误，联系管理员。",
+                "en": "Manually update this subscription, then choose one of its nodes. Updating does not renew access, add allowance or switch to another service. Use the last confirmed website usage and Beijing-time dates; unknown usage is not exhaustion. Report the service ID, app version, time and redacted error to the administrator.",
+                "ru": "Обновите эту подписку вручную и выберите её узел. Обновление не продлевает услугу, не добавляет лимит и не переключает на другую услугу. Ориентируйтесь на подтверждённый расход и даты по пекинскому времени. Неизвестный расход не означает исчерпание. Передайте администратору ID услуги, версию клиента, время и ошибку без секретов."
+              },
+              "buttons": [],
+              "svgIconKey": "Info"
+            }
+          ]
+        },
+        {
+          "name": "Stash",
+          "featured": false,
+          "svgIconKey": "Info",
+          "blocks": [
+            {
+              "title": {
+                "zh": "1. 选择服务",
+                "en": "1. Choose a service",
+                "ru": "1. Выберите услугу"
+              },
+              "description": {
+                "zh": "先回到“我的服务”，核对服务名称、额度、到期时间与状态。仅使用这份服务已交付的订阅；等待连接配置或核验时，请联系管理员。此客户端尚未完成本项目真实订阅导入验证。",
+                "en": "In My services, check the name, allowance, expiry and status. Use only the subscription delivered for this service. If setup or verification is pending, contact the administrator. Import with this project has not yet been tested.",
+                "ru": "В разделе «Мои услуги» проверьте название, лимит, срок и статус. Используйте только подписку этой услуги. Если настройка или проверка ожидается, обратитесь к администратору. Импорт подписки этого проекта пока не проверен."
+              },
+              "buttons": [],
+              "svgIconKey": "Info"
+            },
+            {
+              "title": {
+                "zh": "2. 安装官方客户端",
+                "en": "2. Install the official app",
+                "ru": "2. Установите официальное приложение"
+              },
+              "description": {
+                "zh": "打开下方官方渠道，核对设备系统、处理器架构、商店地区及价格后安装。品牌名称不会翻译。允许系统所需的 VPN 权限。",
+                "en": "Use the official channel below. Check the operating system, CPU architecture, store region and price before installing. Grant the required system VPN permission.",
+                "ru": "Откройте официальный источник ниже. Проверьте ОС, архитектуру, регион магазина и цену перед установкой. Разрешите системный VPN-доступ."
+              },
+              "buttons": [
+                {
+                  "type": "external",
+                  "link": "https://apps.apple.com/us/app/stash-rule-based-proxy/id1596063349",
+                  "text": {
+                    "zh": "官方下载",
+                    "en": "Official download",
+                    "ru": "Официальная загрузка"
+                  },
+                  "svgIconKey": "Info"
+                }
+              ],
+              "svgIconKey": "Info"
+            },
+            {
+              "title": {
+                "zh": "3. 导入这份服务",
+                "en": "3. Import this service",
+                "ru": "3. Импортируйте эту услугу"
+              },
+              "description": {
+                "zh": "此客户端需要兼容的 Clash/Mihomo YAML 配置。在客户端添加远程订阅／配置，粘贴这份服务的链接并命名。格式错误时联系管理员，不要把链接交给第三方转换网站。订阅链接是凭据，请勿分享。",
+                "en": "This client needs compatible Clash/Mihomo YAML. Add a remote subscription/profile, paste this service link and name it. Ask the administrator about format errors; do not send the credential to third-party converters or other people.",
+                "ru": "Нужна совместимая конфигурация Clash/Mihomo YAML. Добавьте удалённую подписку/профиль, вставьте ссылку этой услуги и задайте имя. При ошибке формата обратитесь к администратору. Не передавайте ссылку сторонним конвертерам или другим людям."
+              },
+              "buttons": [
+                {
+                  "type": "copyButton",
+                  "link": "{{SUBSCRIPTION_LINK}}",
+                  "text": {
+                    "zh": "复制本服务订阅链接",
+                    "en": "Copy this service link",
+                    "ru": "Копировать ссылку услуги"
+                  },
+                  "svgIconKey": "Info"
+                }
+              ],
+              "svgIconKey": "Info"
+            },
+            {
+              "title": {
+                "zh": "4. 更新与核对",
+                "en": "4. Update and check",
+                "ru": "4. Обновите и проверьте"
+              },
+              "description": {
+                "zh": "在客户端手动更新这份订阅，再选择其中一个节点连接。更新不会续期或补发额度，不会自动改用另一份服务。以网站最后确认用量及北京时间日期为准；统计未知时不视为耗尽。更新、连接或专用出口不符时，记录服务 ID、客户端版本、时间及脱敏错误，联系管理员。",
+                "en": "Manually update this subscription, then choose one of its nodes. Updating does not renew access, add allowance or switch to another service. Use the last confirmed website usage and Beijing-time dates; unknown usage is not exhaustion. Report the service ID, app version, time and redacted error to the administrator.",
+                "ru": "Обновите эту подписку вручную и выберите её узел. Обновление не продлевает услугу, не добавляет лимит и не переключает на другую услугу. Ориентируйтесь на подтверждённый расход и даты по пекинскому времени. Неизвестный расход не означает исчерпание. Передайте администратору ID услуги, версию клиента, время и ошибку без секретов."
+              },
+              "buttons": [],
+              "svgIconKey": "Info"
+            }
+          ]
+        }
+      ],
+      "displayName": "Apple TV"
+    }
+  }
+}

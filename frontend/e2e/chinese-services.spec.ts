@@ -4,7 +4,9 @@ async function chooseChinese(page: Page) {
   await page.goto(url("settings"));
   await page.locator(".language-select-trigger:not(.theme-select-trigger)").click();
   await page.getByRole("option", { name: /简体中文/ }).click();
-  await expect(page.locator(".language-select-trigger:not(.theme-select-trigger)")).toContainText("语言");
+  await expect(page.locator(".language-select-trigger:not(.theme-select-trigger)")).toContainText(
+    "语言"
+  );
   await expect(page.locator("html")).toHaveAttribute("lang", "zh-hans");
 }
 for (const width of [1440, 390]) {
@@ -14,7 +16,9 @@ for (const width of [1440, 390]) {
     await page.setViewportSize({ width, height: 1000 });
     await chooseChinese(page);
     await page.reload();
-    await expect(page.locator(".language-select-trigger:not(.theme-select-trigger)")).toContainText("简体中文");
+    await expect(page.locator(".language-select-trigger:not(.theme-select-trigger)")).toContainText(
+      "简体中文"
+    );
     await expect(page.locator("html")).toHaveAttribute("lang", "zh-hans");
     await page.goto(url("app/"));
     const screen = page.locator(".services-screen");
@@ -43,7 +47,9 @@ for (const width of [1440, 390]) {
     await page.goto(url("settings"));
     await page.locator(".language-select-trigger:not(.theme-select-trigger)").click();
     await page.getByRole("option", { name: /English/ }).click();
-    await expect(page.locator(".language-select-trigger:not(.theme-select-trigger)")).toContainText("Language");
+    await expect(page.locator(".language-select-trigger:not(.theme-select-trigger)")).toContainText(
+      "Language"
+    );
     await page.reload();
     await expect(page.locator("html")).toHaveAttribute("lang", "en");
   });
@@ -104,6 +110,93 @@ for (const width of [1440, 390]) {
     await expect(page.getByPlaceholder("按名称或说明搜索设置")).toBeVisible();
     await page.getByPlaceholder("按名称或说明搜索设置").fill("默认语言");
     await expect(page.getByText("默认语言", { exact: true }).first()).toBeVisible();
+    expect(errors).toEqual([]);
+  });
+  test(`Chinese document, plugin, theme and backup controls at ${width}px`, async ({
+    page,
+  }, info) => {
+    const errors: string[] = [];
+    page.on("pageerror", (error) => errors.push(error.message));
+    await page.setViewportSize({ width, height: 1000 });
+    await chooseChinese(page);
+    await page.goto(url("admin/documents"));
+    await page.getByRole("button", { name: "新建文档", exact: true }).click();
+    let dialog = page.getByRole("dialog");
+    await expect(dialog.getByRole("button", { name: "粗体", exact: true })).toBeVisible();
+    await dialog.getByRole("button", { name: "用途", exact: true }).click();
+    await page.getByRole("option", { name: "隐私政策", exact: true }).click();
+    await expect(page.locator(".admin-select-content")).toHaveCount(0);
+    await expect(dialog).toContainText("显示在用户设置");
+    await dialog.screenshot({ path: info.outputPath(`chinese-document-${width}.png`) });
+    await page.keyboard.press("Escape");
+
+    await page.goto(url("admin/plugins"));
+    await page.getByRole("button", { name: "添加插件", exact: true }).first().click();
+    dialog = page.getByRole("dialog");
+    await expect(dialog).toContainText("将插件 ZIP 拖到此处");
+    await dialog.getByRole("button", { name: "Git 仓库", exact: true }).click();
+    await expect(dialog.getByPlaceholder("https://github.com/author/repository")).toBeVisible();
+    await expect(dialog).toContainText("包含可用软件包索引");
+    await dialog.screenshot({ path: info.outputPath(`chinese-plugin-${width}.png`) });
+    await page.keyboard.press("Escape");
+
+    await page.goto(url("admin/appearance"));
+    await page
+      .locator(".appearance-library")
+      .getByRole("button", { name: "添加主题", exact: true })
+      .click();
+    dialog = page.getByRole("dialog");
+    await expect(dialog).toContainText("将归档拖到此处");
+    await expect(dialog).toContainText("最大 20 MB");
+    await dialog.screenshot({ path: info.outputPath(`chinese-theme-${width}.png`) });
+    await page.keyboard.press("Escape");
+
+    await page.goto(url("admin/backups"));
+    const restore = page.locator(".backups-restore-card");
+    await expect(restore.getByRole("button", { name: "从备份恢复", exact: true })).toBeDisabled();
+    await expect(page.getByText("选择 ZIP 或备份分卷", { exact: true })).toBeVisible();
+    await expect(restore).toContainText("恢复");
+    expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1)).toBe(
+      true
+    );
+    await page.screenshot({ path: info.outputPath(`chinese-backup-${width}.png`), fullPage: true });
+    expect(errors).toEqual([]);
+  });
+  test(`Chinese advertising and message menus at ${width}px`, async ({ page }, info) => {
+    const errors: string[] = [];
+    page.on("pageerror", (error) => errors.push(error.message));
+    await page.setViewportSize({ width, height: 1000 });
+    await chooseChinese(page);
+    await page.goto(url("admin/ads"));
+    await page.locator('[data-admin-action="create-ad"]').click();
+    await expect(page.getByRole("dialog")).toContainText("活动标识");
+    await page
+      .getByRole("dialog")
+      .screenshot({ path: info.outputPath(`chinese-ad-create-${width}.png`) });
+    await page.keyboard.press("Escape");
+    await page.getByRole("button", { name: "打开活动", exact: true }).first().click();
+    const workspace = page.locator(".ad-workspace");
+    await workspace.getByRole("tab", { name: "CSV 导入", exact: true }).click();
+    await expect(workspace).toContainText("列映射");
+    await expect(workspace).toContainText("汇总指标不能识别单个用户");
+    expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1)).toBe(
+      true
+    );
+    await page.screenshot({
+      path: info.outputPath(`chinese-ad-import-${width}.png`),
+      fullPage: true,
+    });
+
+    await page.goto(url("admin/broadcast"));
+    await expect(page.getByRole("heading", { name: "群发历史", exact: true })).toBeVisible();
+    await expect(page.getByRole("button", { name: "粗体", exact: true })).toBeVisible();
+    await page.getByRole("button", { name: "表情", exact: true }).first().click();
+    const picker = page.getByRole("dialog");
+    await expect(picker).toContainText("选择表情");
+    await expect(picker).toContainText("最近使用");
+    await picker.screenshot({ path: info.outputPath(`chinese-emoji-${width}.png`) });
+    await page.keyboard.press("Escape");
+    await expect(page.getByRole("heading", { name: "群发历史", exact: true })).toBeVisible();
     expect(errors).toEqual([]);
   });
 }

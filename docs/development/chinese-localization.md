@@ -14,11 +14,19 @@
 
 ## 覆盖与持续补齐
 
-已加入用户登录、账号安全、客服、服务目录/详情，以及后台套餐、资源、账号生命周期、开通历史、通用控件、一期设置字段的中文。旧支付和营销业务未因此启用。前端演示构建读取中文资源，测试不能只在翻译函数里模拟中文。
+已加入用户登录、账号安全、客服、服务目录/详情，以及后台套餐、资源、账号生命周期、开通历史、通用控件、一期设置字段的中文。进一步覆盖当前仍开放的文档、备份、外观、插件、翻译、日志、群发和广告页面，包括富文本编辑器、表情库、配置诊断和操作错误。认证、通知及客服邮件也使用相同语言资源。翻译不会启用旧支付、礼品或推荐业务。前端演示构建读取中文资源，测试不能只在翻译函数里模拟中文。
 
 `tests/contracts/test_chinese_locale.py` 检查服务/状态前缀、开放页面中的直接翻译调用和一期设置 manifest；新 A/B 服务键缺中文会失败。全部中文键还要存在英俄基础键，保留占位符计数及富文本标签。动态组合键需在该测试的前缀或对应页面测试中覆盖，不能只写组件 fallback。
 
 新增页面交付步骤：开发者先增加 en/ru 键 → C 补中文 → 扩展上述范围及场景 → 跑 locale contract、类型检查及受影响桌面/手机流程。测试范围不代表整个上游 6,383 键均已翻译。
+
+## 客户端教程
+
+[中文客户端教程](../user-guide/clients-zh.md) 按选择服务、官方安装、导入和更新组织。仓库中的 `deploy/examples/independent-services-guides.json` 可通过现有 v1 教程配置加载，含中文、英文、俄文：Android/iOS 各 3 款，Windows/macOS/Linux 各 4 款，Android TV 1 款、Apple TV 2 款。电视只列有官方支持依据的候选。
+
+截至 2026-10-23 已核查官方仓库、发行信息和 Apple 商店的平台要求、维护情况及收费信息。精确最低系统版本无法从已核查发行说明确认时如实注明；不由安装包名推断兼容。教程对 YAML、URI 等输出差异分别提示，所有客户端均保留导入待实测声明。
+
+示例只有品牌、Logo、客服及订阅占位信息，不修改运行配置。`{{SUBSCRIPTION_LINK}}` 必须由 B 的交付入口注入当前所选服务链接，不能接入旧账号级订阅。契约检查调用既有 v1 validator，并检查七个平台的候选数量、四步流程、三种语言及链接边界。
 
 ## v0.13 协作依赖
 
@@ -28,18 +36,21 @@
 
 ## 已运行证据（2026-10-23）
 
-- 第一批后端全套：5,585 项通过、45 项条件跳过、630 个子测试通过；未设置真实 PostgreSQL/面板/Node 联调变量。
-- 第一批前端静态检查通过：runes、ESLint、Svelte/TypeScript、格式。语言相关 15 项单元测试通过。
+- 扩展翻译和教程配置后的后端全套：5,586 项通过、45 项条件跳过、630 个子测试通过；未设置真实 PostgreSQL/面板/Node 联调变量。中文契约、语言及偏好相关 11 项测试通过。
+- 前端静态检查通过：runes、ESLint、Svelte/TypeScript、格式。Ruff、架构检查、锁文件检查及改动文档中的相对路径检查通过。
+- 前端全部 203 个测试文件、1,492 项单元测试通过；全量 mypy 检查 1,335 个文件通过。文档导航与生成文档同步检查通过，两个新文档入口已加入侧栏。
 - 独立演示构建及中文 Playwright 4 项通过：1440px、390px，切换/刷新、服务日期、服务详情、套餐下拉/表单、资源登记、账号删除确认、历史与设置搜索。截图保存在当前工作区的 `frontend/test-results/`；包含明确的演示业务名称和示例 IP。
 - 第一次浏览器失败为测试选中了语言与主题两个同类按钮，以及未填完整必填字段导致业务校验未触发；修正选择器和测试输入后通过。没有为过测修改业务组件。
-- 待完成：更多后台页面中文核对、客户端推荐/教程配置、最终全矩阵、A/B 新键及真实导入验收。以上是检查点，不是整个 C 包验收完成。
+- 待完成：扩展后台页面的桌面/手机视觉核对、最终前端和文档构建、A/B 新键集成及真实导入验收。当前浏览器时段已释放，后续构建和 Playwright 需按主窗口安排串行进行。以上是检查点，不是整个 C 包验收完成。
 
 复现（在隔离工作区，Python/Node 依赖已可用时）：
 
 ```sh
 python -m pytest -q tests/contracts/test_chinese_locale.py tests/unit/test_chinese_language.py tests/unit/test_webapp_account_language.py
 npm --prefix frontend run check
-npm --prefix frontend test -- src/lib/webapp/i18n.test.ts src/lib/webapp/installGuideRuntime.test.ts
+npm --prefix frontend test
+npm run typecheck:py
+npm run check:docs
 npm --prefix frontend run test:e2e -- chinese-services.spec.ts
 ```
 
