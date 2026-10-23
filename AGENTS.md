@@ -6,6 +6,8 @@
 
 本项目基于 Minishop 二次开发，不是仅靠插件实现。目标是一个账号持有多份独立服务。MVP 由管理员人工开通，不接支付，使用通用订阅客户端；自有 App 后续开发。流量按上传加下载的业务载荷计算，用户体验优先于绝对零超额承诺。使用[隔离项目开发环境](docs/development/project-local.md)，不得把现有生产 3x-ui 节点当作可随意处置的测试设施。
 
+现有线上试测站已于 2026-10-23 替换为二开版。服务器连接使用本机 `ssh vpn-prod`；入口、目录、密钥路径、版本与备份见[线上服务器资料](docs/development/project-local.md#production-access)。后续先读该记录并验证连接，不重复索取已保存的信息；密码和私钥不写入仓库。
+
 保留下述上游约定。若存在 `.codegraph/`，理解或查找代码时先用 CodeGraph，再做文本搜索；未经用户要求不得创建索引。
 
 本文是 AI 智能体入口。开发约定、架构及强制质量门禁的唯一来源为中文[贡献指南](CONTRIBUTING.md)，**改代码前必须阅读**。架构概览：[docs/architecture.md](docs/architecture.md)。

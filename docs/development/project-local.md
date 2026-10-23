@@ -69,7 +69,7 @@ npm run project:down
 - `frontend/`、`backend/`、`tests/`、`deploy/` 复用上游目录和接口契约。后续迁移只追加，不改旧迁移。
 - `docker-compose.project-dev.yml` 覆盖本项目的镜像、容器、网络和数据卷名称；基础 Compose 与 Remnawave overlay 继续复用。
 - 常规 CI 运行源码检查；完整面板矩阵暂限 3.4.5。上游镜像发布和自动提 PR 工作流在本仓库不执行。
-- 正式部署、现有 3x-ui 节点接管和数据迁移另行安排。
+- 现有线上网站已按用户授权替换为二开版试测，见下方服务器资料；现有两台 3x-ui 节点接管仍另行安排。
 - `experiments/` 保存早期离线评估，单独按目录 README 运行；正常 `pytest` 只收集 `tests/`，不将“复现上游缺口”的实验当成产品回归测试。
 
 新业务模型、接口与当前未完成边界见[独立服务开发说明](independent-services.md)。
@@ -82,3 +82,59 @@ npm run project:down
 本轮还使用现有备份与恢复代码执行商店数据库恢复，包含月度检查点、额度调整、原始价格快照和合成资源绑定，88 张表恢复前后内容一致。恢复时停本项目 backend/worker，保留旧数据库及恢复日志，完成后重新启动并核查健康；不要把较旧商店备份直接视为外部面板已经同步。详细流程和 CLI 入口见[备份说明](../features/backups.md)。私有演练摘要和归档在忽略的 `data/backups/`，不公开提交。
 
 重复真实节点测试前须独占本地面板写入时段，先记录本轮资源标识，使用临时商店 schema 和回环端口，结束后仅删除本轮资源。默认的无 Node 面板 QA 必须等临时 Node 清理后运行，不修改其保护条件。
+
+## 线上服务器资料
+
+<a id="production-access"></a>
+
+2026-10-23（北京时间），用户授权直接替换现有线上站点并自行试测。网站与业务后台统一管理套餐、账号及服务；Remnawave 仍是独立的节点控制组件。线上环境与上文的本机 Colima 开发环境分别维护。
+
+| 项目 | 已核实位置 |
+| --- | --- |
+| 用户网站 | <https://vpn.yourouter.org/home> |
+| 套餐后台 | <https://vpn.yourouter.org/admin/service-plans> |
+| 节点控制面板 | <https://panel.yourouter.org/auth/login> |
+| 服务器 | `38.76.215.26`，Linux x86_64，4 CPU / 4 GB 内存 |
+| SSH | `ssh vpn-prod`，`root`，端口 `22` |
+| 本机连接配置 | `~/.ssh/config` 中的 `Host vpn-prod` |
+| 本机专用私钥 | `~/.ssh/my_vps_obj_prod_ed25519`，权限 `0600`；公钥已加入服务器 `authorized_keys` |
+| 网站 Compose 目录 | `/opt/remnawave-minishop`；使用 `docker-compose.yml` 与 `docker-compose.override.yml` |
+| 线上配置与应用文件 | `/opt/remnawave-minishop/.env`、`/opt/remnawave-minishop/data` |
+| 本次源码与构建材料 | `/opt/my-vps-obj/releases/32185a16` |
+| 当前部署摘要 | `/opt/my-vps-obj/last-deployment.json` |
+| 切换前备份 | `/opt/my-vps-obj/backups/pre-32185a16-20261023T091750Z` |
+| 面板 / HTTPS / Node 目录 | `/opt/remnawave`、`/opt/remnawave-edge`、`/opt/remnawave-node` |
+
+SSH 公钥认证原本关闭，本轮已启用并通过不复用旧连接的密钥登录验证；保留原密码登录方式。密码不存入本文、Git 或服务器资料。换电脑时需另行配置密钥，不能假设本机别名自动同步。
+
+### 当前版本与配置
+
+本次产品提交为 `32185a1631438c9997747bf7f103cf53436789b4`，镜像为 `my-vps-obj/backend:32185a16`、`my-vps-obj/worker:32185a16`、`my-vps-obj/frontend:32185a16`，迁移任务使用同一 backend 镜像。后台显示 `v3.8.2-feat-independent-services+g32185a16`。面板 **3.4.5**、Node **3.4.2**、数据库、Redis 与 Caddy 沿用原部署，没有随业务程序升级。
+
+为降低 4 GB 服务器上的构建负载，前端在本机按正式构建脚本生成，再在服务器重建三个应用镜像。Python 依赖文件与服务器原固定摘要镜像逐字节一致（SHA-256 `ad6edf1a019a9d1f3dfff1e46a4d41552c607afa5a93cf782db536ea8452b8ec`）；前端 package/lock 和运行入口相对 v3.8.2 未变。因此本轮使用原固定摘要运行环境，完整替换 backend/locales 和前端静态文件，并加入服务教程。构建文件 `Dockerfile.redeploy`、对应 ignore、元数据和前端产物留在本次源码目录；该做法仅适用于这次依赖相同的提交，后续依赖变化应使用仓库完整 Dockerfile 构建。
+
+运行配置为 `APP_RUNTIME_MODE=production`、`PANEL_WRITE_MODE=live`、`DEFAULT_LANGUAGE=zh-hans`；QA 登录、测试支付、Telegram、试用、余额及分销关闭。原 SMTP、账号、会话密钥、面板凭据和域名保留。原有一个账号和一份旧测试订阅保留；旧订阅没有自动变成新服务，新套餐与服务从后台自行创建和开通。
+
+原部署目录为 root 的 `0700`，导致容器内健康检查无法遍历 Compose 文件。本轮将目录及两个 Compose 文件的组设为应用组 `10001`，权限分别为 `0750`、`0640`；`.env` 保持 `0600`。修复后后台健康接口返回空告警列表。面板 API 正常读取两个节点组；直接诊断内部面板时须使用项目客户端，它会附带面板要求的转发请求头。
+
+### 日常检查与更新
+
+```sh
+ssh vpn-prod
+cd /opt/remnawave-minishop
+docker compose ps
+docker compose config --quiet
+curl -fsS http://127.0.0.1:8080/healthz
+curl -fsS http://127.0.0.1:8082/health
+docker compose logs --since 10m --tail 100 backend worker
+```
+
+后续更新仍在当前 Compose 项目内替换 backend、worker、frontend 与 migrate 的镜像，保留数据卷、绑定目录和网络。先构建并验证明确提交的自有镜像，再停止 backend/worker、备份、应用追加迁移并启动。不要把原上游镜像更新当作二开版更新，也不要把本机 `.env.project-dev` 或 QA 数据复制到公网。
+
+### 备份与回退
+
+本次切换前保存了完整应用目录归档 `application-files.tar.gz`、停止 backend/worker 后的 `postgres.dump`、原 Compose 展开记录、文件哈希清单、迁移及启动日志。PostgreSQL 归档已用 `pg_restore --list` 校验可读取。归档含配置与凭据，仅留服务器私有备份目录，不提交 Git。
+
+需要回退时，先停止新 backend/worker 并另备份切换后的数据，再恢复这份备份中匹配的数据库、应用文件和旧镜像配置；不要只降级程序而让新业务数据继续由旧模型处理。数据库恢复会回到上述备份时点，之后新建的套餐/服务应先单独留存，并核对面板中已产生的连接。商店数据库恢复方法见[备份说明](../features/backups.md)，本次没有执行线上回退演练，也没有备份或恢复外部面板数据库。
+
+公开站点、会话鉴权、用户服务/目录、后台套餐/资源接口，以及 1440px／390px 页面和套餐编辑弹窗已验证；节点组加载正常，无页面脚本异常和横向溢出。邮箱发码、真实客户端导入及公网独享出口本轮未重测；详细结果见[线上替换记录](../implementation-plan.md#production-cutover-20261023)。
