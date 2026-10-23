@@ -171,6 +171,9 @@ class InviteOnlyRegistrationTests(unittest.IsolatedAsyncioTestCase):
                 verify_code=AsyncMock(return_value=SimpleNamespace(ok=True, operation_key=None))
             ),
         )
+        request.cookies = {"minishop_lang": "zh-CN"}
+        request.headers = {"Accept-Language": "ru"}
+        request.app["i18n"] = SimpleNamespace(locales_data={"en": {}, "ru": {}, "zh-hans": {}})
         with (
             patch.object(auth_email.user_dal, "get_user_by_email", AsyncMock(return_value=None)),
             patch.object(
@@ -207,6 +210,7 @@ class InviteOnlyRegistrationTests(unittest.IsolatedAsyncioTestCase):
             response = await auth_email.email_auth_verify_route(request)
         self.assertEqual(response.status, 200)
         self.assertTrue(json.loads(response.text)["ok"])
+        self.assertEqual(create_user.await_args.kwargs["language_code"], "zh-hans")
         self.assertIsNone(create_user.await_args.kwargs["referred_by_id"])
         self.assertEqual(gift.status, "ready")
         self.assertIsNone(gift.recipient_id)
@@ -514,6 +518,7 @@ class InviteOnlyRegistrationTests(unittest.IsolatedAsyncioTestCase):
         )
         user = SimpleNamespace(
             user_id=42,
+            language_code="ru",
             email_verified_at=datetime.now(UTC),
             is_banned=False,
             telegram_id=None,
@@ -525,6 +530,9 @@ class InviteOnlyRegistrationTests(unittest.IsolatedAsyncioTestCase):
             email_auth_service=email_service,
         )
 
+        request.headers = {"Accept-Language": "zh-CN"}
+        request.cookies = {"minishop_lang": "zh-hans"}
+        request.app["i18n"] = SimpleNamespace(locales_data={"en": {}, "ru": {}, "zh-hans": {}})
         with (
             patch.object(
                 auth_email.user_dal,
@@ -545,6 +553,7 @@ class InviteOnlyRegistrationTests(unittest.IsolatedAsyncioTestCase):
         self.assertEqual(response.status, 200)
         self.assertTrue(payload["ok"])
         create_user.assert_not_awaited()
+        self.assertEqual(user.language_code, "ru")
 
     async def test_email_verify_requires_invite_for_new_user(self):
         settings = self._settings(invite_only=True)
@@ -699,6 +708,8 @@ class InviteOnlyRegistrationTests(unittest.IsolatedAsyncioTestCase):
             email_auth_service=email_service,
         )
 
+        request.headers = {"Accept-Language": "zh-CN,en;q=0.8"}
+        request.app["i18n"] = SimpleNamespace(locales_data={"en": {}, "ru": {}, "zh-hans": {}})
         with (
             patch.object(
                 auth_email.user_dal,
@@ -739,6 +750,7 @@ class InviteOnlyRegistrationTests(unittest.IsolatedAsyncioTestCase):
             response = await auth_email.email_auth_magic_route(request)
 
         payload = json.loads(response.text)
+        self.assertEqual(create_user.await_args.kwargs["language_code"], "zh-hans")
         self.assertEqual(response.status, 200)
         self.assertTrue(payload["ok"])
         self.assertEqual(

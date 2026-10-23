@@ -87,7 +87,7 @@ export const DEFAULT_THEME_VARIANTS: Record<string, PreviewThemeTokens> = {
 
 export const DEFAULT_DARK_THEME: PreviewTheme = {
   key: "dark",
-  names: { ru: "По умолчанию", en: "Default" },
+  names: { ru: "По умолчанию", en: "Default", "zh-hans": "默认" },
   enabled: true,
   default: true,
   assets_version: 3,
@@ -98,7 +98,7 @@ export const DEFAULT_DARK_THEME: PreviewTheme = {
 
 export const LEGACY_LIGHT_THEME: PreviewTheme = {
   key: "light",
-  names: { ru: "Светлая", en: "Light" },
+  names: { ru: "Светлая", en: "Light", "zh-hans": "浅色" },
   enabled: true,
   default: false,
   hidden: true,
@@ -109,7 +109,7 @@ export const LEGACY_LIGHT_THEME: PreviewTheme = {
 
 export const WINDOWS_95_THEME: PreviewTheme = {
   key: "windows95",
-  names: { ru: "Windows 95", en: "Windows 95" },
+  names: { ru: "Windows 95", en: "Windows 95", "zh-hans": "Windows 95" },
   enabled: true,
   default: false,
   css_file: "style.css",
@@ -127,7 +127,7 @@ export const WINDOWS_95_THEME: PreviewTheme = {
 
 export const ASCII_THEME: PreviewTheme = {
   key: "ascii",
-  names: { ru: "ASCII", en: "ASCII" },
+  names: { ru: "ASCII", en: "ASCII", "zh-hans": "ASCII" },
   enabled: true,
   default: false,
   css_file: "style.css",

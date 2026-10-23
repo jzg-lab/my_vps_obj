@@ -1,20 +1,21 @@
-# Audit Logger Plugin
+# 审计日志插件
 
-Минимальный внешний плагин для проверки структуры пакета и публичных хуков.
-Он не добавляет бизнес-логику: только регистрирует сервис-маркер, подписывается
-на событие `user.registered` и публикует небольшой health route в webapp scope.
+最小外部插件示例，用于检查包结构和公开钩子。只注册服务标记、订阅 `user.registered`，并在网页应用作用域发布简单健康路由，不增加业务逻辑。
 
-## Установка в dev-окружение
+<a id="установка-в-dev-окружение"></a>
+
+## 安装到开发环境
 
 ```bash
 pip install -e examples/plugins/audit_logger_plugin
 ```
 
-После установки entry point `minishop.plugins` вернёт объект `plugin` из пакета
-`minishop_audit_logger`.
+安装后，`minishop.plugins` 入口点返回 `minishop_audit_logger` 包中的 `plugin` 对象。
 
-## Что показывает пример
+<a id="что-показывает-пример"></a>
 
-- `Plugin.setup(ctx)` — доступ к `PluginContext.services` и подписка на доменные события.
-- `events.subscribe(...)` — публичная сигнатура подписчика `(event_name, payload: dict)`.
-- `Plugin.setup_web(ctx, app, scope=WEB_SCOPE_WEBAPP)` — добавление route только в нужный web scope.
+## 示例内容
+
+- `Plugin.setup(ctx)`：访问 `PluginContext.services` 并订阅领域事件。
+- `events.subscribe(...)`：公开订阅签名 `(event_name, payload: dict)`。
+- `Plugin.setup_web(ctx, app, scope=WEB_SCOPE_WEBAPP)`：只在指定网页作用域添加路由。

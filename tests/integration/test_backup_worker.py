@@ -361,9 +361,16 @@ def test_backup_worker_routes_large_archives_to_telegram_album(tmp_path, monkeyp
     bot = _FakeBot()
     result = asyncio.run(_FakePgDumpBackupWorker(settings, bot).create_and_send_backup())
 
-    bot.send_document.assert_not_awaited()
     assert bot.send_media_group.await_count >= 1
     assert result.archive_path.is_file()
+    # The last batch may contain one part, which Telegram sends as a document.
+    expected_files = (result.archive_path.stat().st_size + 16) // 17 + 1
+    delivered_files = bot.send_document.await_count + sum(
+        len(call.kwargs["media"]) for call in bot.send_media_group.await_args_list
+    )
+    assert delivered_files == expected_files
+    for call in bot.send_document.await_args_list:
+        assert Path(call.kwargs["document"].path).name != result.archive_path.name
     assert not list(Path(settings.BACKUP_DIR).glob("telegram-parts-*"))
 
 

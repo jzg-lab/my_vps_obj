@@ -52,7 +52,7 @@ MAX_THEME_SEPARATOR_LENGTH = 8
 
 
 class ThemeTokens(BaseModel):
-    """CSS design tokens for the subscription Mini App shell."""
+    """订阅小程序界面的 CSS 设计变量。"""
 
     # Theme packages may define their own CSS custom properties. Keep those
     # overrides alongside the documented tokens instead of discarding them.
@@ -193,7 +193,7 @@ class ThemeTokens(BaseModel):
 
 
 class WebappTheme(BaseModel):
-    """Single theme descriptor loaded from WEBAPP_THEMES_DIR/<key>/theme.json."""
+    """从 WEBAPP_THEMES_DIR/<key>/theme.json 加载的单个主题描述。"""
 
     model_config = {"extra": "ignore"}
 
@@ -233,7 +233,7 @@ class WebappTheme(BaseModel):
 
 
 class WebappThemesConfig(BaseModel):
-    """Runtime catalog assembled from individual theme descriptor files."""
+    """由各个主题描述文件组装的运行时主题目录。"""
 
     model_config = {"extra": "ignore"}
 

@@ -1,5 +1,5 @@
 # Angie
 
-Каноничная инструкция: [docs/getting-started/deployment.md](../../../docs/getting-started/deployment.md#angie).
+完整说明： [docs/getting-started/deployment.md](../../../docs/getting-started/deployment.md#angie).
 
-Файлы этого примера остаются рядом: `docker-compose.yml`, `.env.example` и `angie.conf.template`.
+本示例文件保留在同一目录： `docker-compose.yml`, `.env.example`、`angie.conf.template`.

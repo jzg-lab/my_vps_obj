@@ -7,6 +7,7 @@ from sqlalchemy.orm import sessionmaker
 
 from bot.app.web.context import (
     get_email_auth_service,
+    get_i18n,
     get_session_factory,
     get_settings,
 )
@@ -34,6 +35,7 @@ from .common import (
     _parse_model_payload,
     _telegram_id_for_user,
 )
+from .language import initial_webapp_language
 from .payloads import (
     WebAppEmailCodeAuthPayload,
     WebAppEmailMagicAuthPayload,
@@ -223,7 +225,11 @@ async def email_auth_verify_route(request: web.Request) -> web.Response:
                 db_user, _ = await user_dal.create_email_user(
                     session,
                     email=email,
-                    language_code=_normalize_language(settings.DEFAULT_LANGUAGE),
+                    language_code=initial_webapp_language(
+                        request,
+                        getattr(get_i18n(request), "locales_data", {}),
+                        settings.DEFAULT_LANGUAGE,
+                    ),
                     email_verified_at=datetime.now(UTC),
                     referred_by_id=invite_check.referrer_user_id,
                     partner_user_id=invite_check.partner_user_id,
@@ -329,7 +335,11 @@ async def email_auth_magic_route(request: web.Request) -> web.Response:
                 db_user, _ = await user_dal.create_email_user(
                     session,
                     email=verified_email,
-                    language_code=_normalize_language(settings.DEFAULT_LANGUAGE),
+                    language_code=initial_webapp_language(
+                        request,
+                        getattr(get_i18n(request), "locales_data", {}),
+                        settings.DEFAULT_LANGUAGE,
+                    ),
                     email_verified_at=datetime.now(UTC),
                     referred_by_id=invite_check.referrer_user_id,
                     partner_user_id=invite_check.partner_user_id,

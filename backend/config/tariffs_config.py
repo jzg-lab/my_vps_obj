@@ -237,14 +237,13 @@ class TributePeriodSubscription(NamedTuple):
 
 
 class TributeTariffConfig(BaseModel):
-    """Creator-side mapping for one tariff.
+    """单个套餐在创作者侧的映射。
 
-    A period may be sold by its own Tribute subscription, with its own share
-    link and subscription id, because Tribute publishes one subscription per
-    offer rather than one per tariff. ``period_links`` and
-    ``period_subscription_ids`` carry those overrides; the tariff-level
-    ``link``/``subscription_id`` pair stays as the default for periods that do
-    not declare their own, which is what a single-subscription tariff uses.
+    Tribute 按每个销售规格发布订阅，而非每个套餐发布一份订阅，因此每种时长
+    可以通过独立的 Tribute 订阅销售，并拥有自己的分享链接和订阅编号。
+    ``period_links`` 和 ``period_subscription_ids`` 保存这些覆盖值；
+    未单独声明的时长继续使用套餐级 ``link``／``subscription_id`` 默认值，
+    仅关联一份订阅的套餐也使用这组默认值。
     """
 
     period_unit: PeriodUnit = "month"

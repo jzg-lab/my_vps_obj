@@ -17,7 +17,7 @@ Remnawave Minishop 使用 Docker Compose 运行 PostgreSQL、Redis、backend、w
 1 vCPU、1 GB 内存是小型 Minishop 的实际下限。此时建议配置 1–2 GB swap 并监控磁盘余量。常规生产环境建议从 2 vCPU、2 GB 内存起步，以容纳容器启动、更新和短时负载峰值。表中只计算 Minishop；若 Remnawave Panel、反向代理或监控也运行在同一 VPS，请叠加其资源需求。数据库、日志和本地备份增长后还需增加磁盘空间。
 
 :::tip[服务器选择]
-[![wCloud VPS 与节点服务器](wcloud.jpg)](https://wcloud.host/?from=yKyhIg2jXbNdWZsFzd_tyxLVBYiicNjK)
+[wCloud VPS 与节点服务器](https://wcloud.host/?from=yKyhIg2jXbNdWZsFzd_tyxLVBYiicNjK)
 
 可按实际需求选择 VPS，包括适用于 Remnawave Node 的服务器。购买前应独立比较价格、地区和资源，不把供应商示例当作本项目的必选条件。
 :::

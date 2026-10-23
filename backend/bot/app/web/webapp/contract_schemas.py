@@ -172,7 +172,7 @@ EMAIL_REQUEST_RESPONSE_SCHEMA: dict[str, Any] = ok_envelope_with(
 PAYMENT_PROVIDER_SCHEMA: dict[str, Any] = {
     "type": "object",
     "additionalProperties": True,
-    "description": "Provider-specific payment payload returned by the selected integration.",
+    "description": "所选支付集成返回的渠道专用付款数据。",
 }
 PAYMENT_RESPONSE_SCHEMA: dict[str, Any] = ok_envelope_with(
     {
@@ -464,7 +464,7 @@ TARIFF_CHANGE_ACTION_SCHEMA: dict[str, Any] = {
 TARIFF_SWITCH_OPTIONS_SCHEMA: dict[str, Any] = {
     "type": "object",
     "additionalProperties": True,
-    "description": "Raw switch calculation details from the subscription service.",
+    "description": "订阅服务返回的套餐切换原始计算明细。",
 }
 TARIFF_CHANGE_TARGET_SCHEMA: dict[str, Any] = {
     "type": "object",

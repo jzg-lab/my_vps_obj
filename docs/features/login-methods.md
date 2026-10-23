@@ -1,97 +1,72 @@
-# Способы входа
+<a id="способы-входа"></a>
 
-Minishop поддерживает семь способов входа:
+# 登录方式
 
-1. **Email-код** — одноразовый код или magic link из письма.
-2. **Email и пароль** — пароль, заданный после подтверждения email.
-3. **Telegram** — Mini Apps `initData` внутри Telegram и OAuth / OpenID Connect в браузере.
-4. **Google** — серверный OAuth 2.0 / OpenID Connect flow.
-5. **Yandex ID** — OAuth-приложение Яндекса.
-6. **Discord** — OAuth2-приложение Discord.
-7. **Passkey** — ключ доступа WebAuthn.
+Minishop 支持七种登录方式：
 
-В админке способы собраны в **Система → Настройки → Способы входа**. Пользователь управляет
-паролем, passkey, привязанными провайдерами и адресом для уведомлений в
-**Настройки → Безопасность**.
+1. **邮箱验证码**：一次性验证码或邮件中的快捷登录链接。
+2. **邮箱与密码**：验证邮箱后设置的密码。
+3. **Telegram**：Telegram 内使用 Mini Apps `initData`，浏览器使用 OAuth／OpenID Connect。
+4. **Google**：服务器端 OAuth 2.0／OpenID Connect。
+5. **Yandex ID**：Yandex OAuth 应用。
+6. **Discord**：Discord OAuth2 应用。
+7. **通行密钥**：WebAuthn 密钥。
 
-| Способ | Когда доступен | Что нужно настроить |
+后台配置入口为“系统 → 设置 → 登录方式”。用户在“设置 → 安全”管理密码、通行密钥、已绑定渠道和通知邮箱。
+
+| 方式 | 可用条件 | 所需配置 |
 | --- | --- | --- |
-| [Email-код](#email-код) | Включён `EMAIL_LOGIN_ENABLED` и готов SMTP | SMTP, адрес отправителя и публичный URL Mini App |
-| [Email и пароль](#email-и-пароль) | Пользователь подтвердил email и задал пароль | Те же SMTP-настройки для подтверждения и восстановления |
-| [Telegram](#telegram) | Включён `TELEGRAM_LOGIN_ENABLED` | BotFather и `BOT_TOKEN`; для браузера также Telegram OAuth |
-| [Google](#google) | Включён `GOOGLE_OIDC_ENABLED` | OAuth client ID, secret и callback |
-| [Yandex ID](#yandex-id) | Включён `YANDEX_OIDC_ENABLED` | OAuth client ID, secret и callback |
-| [Discord](#discord) | Включён `DISCORD_OIDC_ENABLED` | OAuth2 application ID, secret и callback |
-| [Ключи доступа (passkey)](#ключи-доступа-passkey) | Включён `PASSKEY_LOGIN_ENABLED` | HTTPS, RP ID и разрешённые origins |
+| [邮箱验证码](#邮箱验证码) | 开启 `EMAIL_LOGIN_ENABLED` 且 SMTP 就绪 | SMTP、发件地址、公开 Mini App URL |
+| [邮箱与密码](#邮箱与密码) | 用户已验证邮箱并设置密码 | 相同 SMTP 配置，用于验证和恢复 |
+| [Telegram](#telegram) | 开启 `TELEGRAM_LOGIN_ENABLED` | BotFather、`BOT_TOKEN`；浏览器另需 Telegram OAuth |
+| [Google](#google) | 开启 `GOOGLE_OIDC_ENABLED` | OAuth 客户端 ID、密钥、回调 |
+| [Yandex ID](#yandex-id) | 开启 `YANDEX_OIDC_ENABLED` | OAuth 客户端 ID、密钥、回调 |
+| [Discord](#discord) | 开启 `DISCORD_OIDC_ENABLED` | OAuth2 应用 ID、密钥、回调 |
+| [通行密钥](#通行密钥passkey) | 开启 `PASSKEY_LOGIN_ENABLED` | HTTPS、RP ID、允许的源地址 |
 
-У каждого доступного провайдера есть отдельный переключатель **Рекомендуемый способ входа**.
-Если он включён, Minishop показывает красный индикатор внимания в настройках, пока пользователь
-не привяжет этот способ. Если выключен, способ остаётся доступным для входа и привязки, но его
-отсутствие само по себе не включает индикатор. По умолчанию рекомендации включены, чтобы обновление
-сохраняло прежнее поведение; администратор может оставить только нужные способы.
+每个可用渠道有独立“推荐登录方式”开关。开启后，用户尚未绑定该方式时，设置显示红色提醒；关闭后仍可登录和绑定，但缺少该方式不会单独触发提醒。推荐默认开启，以保留升级前行为；管理员可只保留需要的推荐。
 
-В разделе **Внешний вид** переключатель **Компактные способы входа** заменяет широкие кнопки
-значками провайдеров. Режим включён по умолчанию, но применяется только при наличии более одного
-доступного способа входа: единственный способ остаётся широкой кнопкой или формой. В разделе
-**Способы входа** для каждого провайдера есть переключатель **Широкая кнопка входа**: он
-оставляет этот способ широким при включённом компактном режиме. Для email он сразу показывает
-форму входа и включён по умолчанию; если его выключить, форма открывается нажатием на значок
-почты. В стандартной теме компактные способы входа отображаются без круглой подложки. Настройка
-рекомендуемого способа входа продолжает отдельно управлять индикатором внимания.
+“外观 → 紧凑登录方式”将宽按钮换为渠道图标，默认开启，但仅在可用方式多于一种时生效；只有一种时仍显示宽按钮或表单。“登录方式”中每个渠道的“宽登录按钮”可覆盖紧凑模式。邮箱默认开启宽按钮，直接显示表单；关闭后点击邮箱图标才显示表单。标准主题中的紧凑图标没有圆形底色。推荐开关仍独立控制提醒。
 
-Доступ к админке определяется ролью внутреннего аккаунта и не зависит от способа входа.
-Первый владелец назначается серверной командой после подтверждения email.
+后台权限取决于内部账号角色，与登录方式无关。首位所有者在验证邮箱后通过服务器命令指定。
 
-## Модель аккаунта и защита от дублей
+<a id="модель-аккаунта-и-защита-от-дублей"></a>
 
-Один пользователь Minishop может иметь несколько способов входа и несколько подтверждённых
-email-адресов. Роли адресов разделены:
+## 账号模型与防重复
 
-- **основной email** используется для входа по коду/паролю, восстановления доступа и синхронизации
-  поля email в Remnawave Panel;
-- **email для уведомлений** явно выбирается пользователем из подтверждённых адресов;
-- Google и Yandex ID идентифицируются стабильной парой `provider + subject`, а не адресом почты;
-- дополнительный адрес OIDC не становится логином по email и не меняет запись в Remnawave Panel
-  сам по себе.
+一个账号可绑定多个登录方式和多个已验证邮箱，地址用途相互独立：
 
-Если новый вход Google или Yandex ID возвращает email, уже занятый существующим аккаунтом,
-backend **не создаёт второго пользователя и не связывает аккаунты только по совпавшей строке**.
-После успешного OAuth backend отправляет одноразовый код на уже подтверждённый адрес. OAuth
-подтверждает доступ к аккаунту провайдера, а код — владение существующим аккаунтом Minishop.
-Только после обеих проверок identity привязывается к исходной записи и пользователь входит в неё.
-Основной email, адрес уведомлений и поле email в Remnawave Panel при этом не меняются.
+- **主邮箱**用于验证码／密码登录、账号恢复和 Remnawave 面板邮箱同步。
+- **通知邮箱**由用户在已验证地址中明确选择。
+- Google、Yandex ID 以稳定的 `provider + subject` 识别身份，不以邮箱识别。
+- OIDC 附加邮箱不会自动成为邮箱登录名，也不会自动更改面板记录。
 
-Контекст незавершённой привязки хранится в короткоживущей подписанной HttpOnly-cookie. Клиент
-отправляет обратно только код: `provider`, стабильный `subject`, точный email и ID целевого
-пользователя нельзя подменить в браузере. Перед повторной отправкой и подтверждением backend снова
-проверяет владельца email, существующие identity и включённость провайдера. Истёкший контекст,
-сменившийся владелец адреса и параллельная привязка завершаются ошибкой без создания пользователя.
+新 Google／Yandex ID 登录返回的邮箱已被现有账号使用时，后端**不会新建重复用户，也不会只凭相同邮箱字符串绑定**。OAuth 成功后，向已有已验证邮箱发送一次性验证码。OAuth 证明渠道身份，验证码证明现有 Minishop 账号归属。两项都通过后，身份才绑定原记录并登录；主邮箱、通知邮箱和面板邮箱不变。
 
-При объединении сохраняются подтверждённые адреса обеих записей, но основной адрес целевого
-аккаунта не меняется автоматически. Подписки, платежи, реферальные ограничения и другие сущности
-проходят существующие проверки конфликтов. Если безопасное объединение невозможно, операция
-останавливается без частичных изменений.
+待绑定上下文保存在短期签名 HttpOnly cookie 中，客户端只提交验证码，不能替换 `provider`、稳定 `subject`、精确邮箱和目标用户 ID。重新发送与确认前，后端再次校验邮箱归属、已有身份和渠道启用状态。上下文过期、地址归属变化或并发绑定会失败，不创建新用户。
 
-## Общие требования
+合并保留双方已验证邮箱，但不自动修改目标主邮箱。订阅、付款、邀请限制等继续执行已有冲突检查，不能安全合并时整体停止，不产生部分更改。
 
-Укажите публичный HTTPS URL Mini App и стабильный секрет сессий:
+<a id="общие-требования"></a>
+
+## 公共要求
+
+填写公开 HTTPS Mini App URL 和固定会话密钥：
 
 ```ini
 SUBSCRIPTION_MINI_APP_URL=https://app.example.com/
 WEBAPP_SESSION_SECRET=<stable-random-secret>
 ```
 
-Маршруты `/auth/*` должны попадать в Web App API. В штатном Docker Compose они проходят через
-frontend nginx. Для собственного reverse proxy не отправляйте callback в webhook-сервер на порту
-`8080` — Web App backend слушает внутренний порт `8081`.
+`/auth/*` 必须进入网页 API。标准 Compose 通过 frontend nginx 转发。自定义反向代理不要把回调发到 `8080` webhook 服务器；网页后端使用内部 `8081`。
 
-Для production используйте отдельные OAuth-приложения и секреты. Не помещайте client secret в
-frontend, публичные JSON-конфиги или URL.
+生产环境应使用独立 OAuth 应用和密钥，不要把客户端密钥放入前端、公开 JSON 配置或 URL。
 
-## Общая настройка email
+<a id="общая-настройка-email"></a>
 
-Email-код и вход по паролю используют один SMTP-контур. Включите способ входа и заполните все
-обязательные параметры:
+## 邮件公共配置
+
+邮箱验证码与密码登录共用 SMTP。启用方式并填写所有必填项：
 
 ```ini
 EMAIL_LOGIN_ENABLED=True
@@ -103,11 +78,9 @@ SMTP_PASSWORD=<smtp-password-or-api-key>
 SMTP_FROM_EMAIL=no-reply@domain.com
 ```
 
-Если хотя бы одно SMTP-поле пустое, backend возвращает `email_auth_enabled=false` в bootstrap, а
-frontend скрывает email-вход. Для magic link также нужен корректный
-`SUBSCRIPTION_MINI_APP_URL`, потому что ссылка в письме строится на его основе.
+任一必填 SMTP 字段为空时，后端启动数据返回 `email_auth_enabled=false`，前端隐藏邮箱登录。快捷登录链接还需要有效 `SUBSCRIPTION_MINI_APP_URL`。
 
-Типовой расширенный SMTP-конфиг:
+常见完整配置：
 
 ```ini
 SMTP_HOST=smtp-relay.brevo.com
@@ -129,85 +102,74 @@ BRUTE_FORCE_WINDOW_SECONDS=900
 BRUTE_FORCE_LOCK_SECONDS=900
 ```
 
-Для Brevo обычно подходит порт `587` с STARTTLS. Если основной порт недоступен, приложение
-пробует порты из `SMTP_FALLBACK_PORTS`; порт `465` используется через SSL wrapper автоматически.
-`SMTP_FROM_EMAIL` должен быть подтверждён у SMTP-провайдера, иначе письмо часто отклоняется или
-попадает в спам. `SMTP_FROM_NAME` можно оставить пустым — тогда используется название Web App.
+Brevo 通常使用 `587` 和 STARTTLS。主端口不可用时依次尝试 `SMTP_FALLBACK_PORTS`；`465` 自动使用 SSL。发件地址须由 SMTP 渠道验证，否则可能被拒绝或进入垃圾邮件。`SMTP_FROM_NAME` 可留空，使用网页应用名称。
 
-HTML-письма используют бренд Mini App: название из `WEBAPP_TITLE`, accent из внешнего вида и
-логотип из раздела **Внешний вид**. Загруженный через админку файл backend прикладывает как inline
-image (`cid:webapp-logo`), поэтому получателю не нужен доступ к внутреннему
-`/webapp-uploaded-logo/...`. Публичный `https://` URL используется как внешний `<img>` и может
-быть скрыт почтовым клиентом до разрешения загрузки изображений.
+HTML 邮件采用 Mini App 品牌：`WEBAPP_TITLE`、外观强调色及标志。后台上传的标志由后端作为内嵌附件 `cid:webapp-logo` 发送，接收者无需访问内部 `/webapp-uploaded-logo/...`。公开 `https://` 标志作为外部图片，邮件客户端可能在用户允许加载前隐藏。
 
-Полный справочник переменных:
-[SMTP и вход по email](../configuration/env-vars.md#smtp-и-вход-по-email).
+完整变量见 [SMTP 与邮箱登录](../configuration/env-vars.md#smtp-и-вход-по-email)。
 
-## Email-код
+<a id="email-код"></a>
 
-Email-код позволяет зарегистрироваться или войти без Telegram:
+## 邮箱验证码
 
-1. Пользователь вводит email.
-2. Backend проверяет rate limit и создаёт одноразовый код.
-3. Письмо отправляется через SMTP. При валидном `SUBSCRIPTION_MINI_APP_URL` оно также содержит
-   magic link.
-4. Пользователь вводит код в Mini App или открывает magic link.
-5. Backend создаёт нового email-пользователя или находит существующего.
-6. Referral-параметр из URL применяется к новой или существующей записи.
-7. Пользователь получает Web App-сессию.
+无需 Telegram 即可注册或登录：
 
-Коды хранятся в базе в хешированном виде, устаревают по `EMAIL_CODE_TTL_SECONDS`, повторная
-отправка ограничена `EMAIL_CODE_RESEND_SECONDS`, а число попыток — `EMAIL_CODE_MAX_ATTEMPTS` и
-общими brute-force настройками.
+1. 输入邮箱。
+2. 后端校验限流并生成一次性验证码。
+3. SMTP 发送邮件；`SUBSCRIPTION_MINI_APP_URL` 有效时同时包含快捷登录链接。
+4. 用户输入验证码或打开快捷链接。
+5. 后端创建邮箱用户或查找已有账号。
+6. URL 中邀请参数应用于新记录或已有记录。
+7. 用户获得网页会话。
 
-После входа пользователь может привязать email к Telegram-аккаунту через код или привязать
-Telegram к email-аккаунту через Mini Apps `initData` либо Telegram OAuth.
+验证码以哈希保存，按 `EMAIL_CODE_TTL_SECONDS` 过期；重发受 `EMAIL_CODE_RESEND_SECONDS` 限制，尝试次数受 `EMAIL_CODE_MAX_ATTEMPTS` 及公共防暴力尝试配置约束。
 
-### Проверка email-кода
+登录后，可通过验证码为 Telegram 账号绑定邮箱，也可通过 Mini Apps `initData` 或 Telegram OAuth 为邮箱账号绑定 Telegram。
 
-1. Перезапустите backend и frontend после изменения `.env`.
-2. Откройте `https://app.domain.com/` вне Telegram и убедитесь, что email-вход виден.
-3. Запросите код на тестовый адрес.
-4. Проверьте письмо, magic link и ручной ввод шестизначного кода.
-5. Если письмо не пришло, проверьте backend:
+<a id="проверка-email-кода"></a>
+
+### 验证邮箱登录
+
+1. 修改 `.env` 后重启 backend、frontend。
+2. 在 Telegram 之外打开 `https://app.domain.com/`，确认邮箱入口可见。
+3. 向测试邮箱请求验证码。
+4. 检查邮件、快捷链接及手动输入六位验证码。
+5. 未收到邮件时查看日志：
 
 ```bash
 docker compose logs -f backend
 ```
 
-Частые причины:
+常见原因：
 
-- форма скрыта — не заполнено обязательное SMTP-поле или выключен `EMAIL_LOGIN_ENABLED`;
-- письмо не отправляется — неверен порт, STARTTLS/SSL, SMTP login/API key или отправитель;
-- magic link ведёт не туда — `SUBSCRIPTION_MINI_APP_URL` не является публичным HTTPS URL Mini App;
-- код сразу устаревает — неверен `EMAIL_CODE_TTL_SECONDS` или время на сервере;
-- `rate_limited` — ещё не прошёл `EMAIL_CODE_RESEND_SECONDS` либо сработала brute-force защита.
+- 表单隐藏：SMTP 必填项缺失或 `EMAIL_LOGIN_ENABLED` 关闭。
+- 发送失败：端口、STARTTLS／SSL、SMTP 账号／API 密钥或发件人错误。
+- 快捷链接错误：`SUBSCRIPTION_MINI_APP_URL` 不是公开 HTTPS Mini App 地址。
+- 验证码立即过期：有效期配置或服务器时间错误。
+- `rate_limited`：重发间隔未到，或触发防暴力尝试保护。
 
-## Email и пароль
+<a id="email-и-пароль"></a>
 
-После подтверждения email пользователь может задать или изменить пароль в настройках профиля.
-Пароль хранится как PBKDF2-SHA256 hash с солью. После установки доступен путь:
+## 邮箱与密码
+
+验证邮箱后，可在个人资料设置或修改密码。密码以带盐 PBKDF2-SHA256 哈希保存。设置后可访问：
 
 ```text
 https://app.domain.com/login/password
 ```
 
-При неудачном входе frontend предлагает перейти к обычному email-коду. Установка, изменение и
-восстановление пароля также подтверждаются email-кодом, поэтому рабочий SMTP остаётся обязательным.
+登录失败时，前端提供切换验证码入口。设置、修改、恢复密码也需要邮箱验证码，因此仍要求 SMTP 正常。
 
 ## Telegram
 
-Telegram-вход работает двумя способами:
+- Telegram 内由后端校验 Mini Apps `initData`。
+- 普通浏览器使用带 PKCE、`nonce` 的 OAuth／OpenID Connect 授权码流程，回调为 `/auth/telegram/callback`，服务器通过 JWKS 校验 `id_token`。
 
-- внутри Telegram Mini App backend проверяет Telegram Mini Apps `initData`;
-- в обычном браузере используется Telegram OAuth / OpenID Connect Authorization Code Flow с
-  PKCE, `nonce`, callback `/auth/telegram/callback` и серверной проверкой `id_token` по JWKS.
+`initData` 不需要额外 OAuth 密钥，但需要有效 `BOT_TOKEN`、公开 HTTPS Mini App URL 和 BotFather Mini Apps 配置。浏览器外部登录按钮和为邮箱账号绑定 Telegram 需要 OAuth。
 
-`initData` не требует отдельного OAuth-секрета, но требует корректного `BOT_TOKEN`, публичного
-HTTPS Mini App URL и настройки Mini Apps в BotFather. OAuth нужен для кнопки Telegram вне клиента
-Telegram и для привязки Telegram к email-аккаунту.
+<a id="переменные-telegram"></a>
 
-### Переменные Telegram
+### Telegram 变量
 
 ```ini
 WEBAPP_ENABLED=True
@@ -223,111 +185,98 @@ TELEGRAM_OAUTH_REQUEST_ACCESS=write
 TELEGRAM_OAUTH_USE_BOT_PROXY=True
 ```
 
-`TELEGRAM_OAUTH_CLIENT_ID` можно не задавать, если client ID совпадает с bot ID: приложение
-возьмёт его из префикса `BOT_TOKEN`. `TELEGRAM_OAUTH_CLIENT_SECRET` для браузерного OAuth
-обязателен.
+客户端 ID 与机器人 ID 相同时，可省略 `TELEGRAM_OAUTH_CLIENT_ID`，从 `BOT_TOKEN` 前缀读取。浏览器 OAuth 必须填写 `TELEGRAM_OAUTH_CLIENT_SECRET`。
 
-`TELEGRAM_OAUTH_REQUEST_ACCESS=write` добавляет scope `telegram:bot_access`, чтобы бот мог
-написать пользователю после входа. Если это не нужно, оставьте переменную пустой. Также
-поддерживается `phone`, если вы осознанно запрашиваете телефон.
+`TELEGRAM_OAUTH_REQUEST_ACCESS=write` 添加 `telegram:bot_access` 权限，以便机器人在登录后联系用户；不需要则留空。也支持 `phone`，仅在确实需要请求手机号时使用。
 
-`WEBAPP_AUTH_MAX_AGE_SECONDS` ограничивает возраст `initData` и OAuth `id_token`, а
-`WEBAPP_LOGIN_TOKEN_TTL_SECONDS` — TTL OAuth state, nonce и login-token.
+`WEBAPP_AUTH_MAX_AGE_SECONDS` 限制 `initData`、OAuth `id_token` 的年龄；`WEBAPP_LOGIN_TOKEN_TTL_SECONDS` 控制 OAuth state、nonce 和登录令牌有效期。
 
-Полный справочник:
-[Веб-приложение, внешний вид и Telegram Login](../configuration/env-vars.md#веб-приложение-внешний-вид-и-telegram-login).
+完整参考：[网页应用、外观与 Telegram 登录](../configuration/env-vars.md#веб-приложение-внешний-вид-и-telegram-login)。
 
-### Настройка Telegram в BotFather
+<a id="настройка-telegram-в-botfather"></a>
 
-1. Откройте `@BotFather` → `/mybots` → выберите бота.
-2. В **Bot Settings → Domain** укажите домен без протокола и пути, например `app.domain.com`.
-3. В **Bot Settings → Mini Apps** укажите `https://app.domain.com/`.
-4. В **Bot Settings → Web Login** включите OpenID Connect Login, если переключатель доступен.
-5. Скопируйте client ID и secret в `TELEGRAM_OAUTH_CLIENT_ID` и
-   `TELEGRAM_OAUTH_CLIENT_SECRET`.
-6. В **Web Login → Allowed URLs** добавьте:
+### BotFather 配置
+
+1. 打开 `@BotFather` → `/mybots`，选择机器人。
+2. 在机器人设置的域名项（`Bot Settings → Domain`）填写不含协议和路径的域名，如 `app.domain.com`。
+3. 在 Mini Apps 设置填写 `https://app.domain.com/`。
+4. 网页登录（`Web Login`）提供开关时，启用 OpenID Connect Login。
+5. 将客户端 ID、密钥复制到 `TELEGRAM_OAUTH_CLIENT_ID`、`TELEGRAM_OAUTH_CLIENT_SECRET`。
+6. 在允许地址（`Web Login → Allowed URLs`）添加：
 
 ```text
 https://app.domain.com/
 https://app.domain.com/auth/telegram/callback
 ```
 
-После изменения `.env` пересоздайте backend и frontend:
+修改 `.env` 后重建 backend、frontend：
 
 ```bash
 docker compose up -d --force-recreate backend frontend
 ```
 
-### Проксирование Telegram OAuth
+<a id="проксирование-telegram-oauth"></a>
 
-Публичный домен `SUBSCRIPTION_MINI_APP_URL` должен идти в `frontend:80`. Frontend nginx сам
-проксирует `/api/*` и `/auth/*` во внутренний Web App server на `backend:8081`. Готовые схемы
-Caddy, Angie, Nginx, Newt и прямой публикации описаны в
-[развертывании](../getting-started/deployment.md#готовые-папки-запуска).
+### Telegram OAuth 代理
 
-Если backend не может напрямую открыть `oauth.telegram.org`, задайте SOCKS5 endpoint:
+`SUBSCRIPTION_MINI_APP_URL` 公开域名应进入 `frontend:80`。frontend nginx 自动将 `/api/*`、`/auth/*` 转到 `backend:8081`。Caddy、Angie、Nginx、Newt 和直接发布方案见[部署目录](../getting-started/deployment.md#готовые-папки-запуска)。
+
+后端无法直接访问 `oauth.telegram.org` 时配置 SOCKS5：
 
 ```ini
 TELEGRAM_BOT_PROXY_URL=socks5://username:password@proxy.example.com:1080
 TELEGRAM_OAUTH_USE_BOT_PROXY=True
 ```
 
-Через proxy пойдут обмен authorization code на token и загрузка JWKS. Страница `/auth`
-по-прежнему открывается через сеть пользователя, входящий Telegram webhook приходит на публичный
-`WEBHOOK_BASE_URL`, а `initData` и legacy Login Widget проверяются локально. Чтобы Bot API
-продолжал использовать proxy, а OAuth ходил напрямую, задайте
-`TELEGRAM_OAUTH_USE_BOT_PROXY=False`.
+授权码换令牌及 JWKS 加载走代理。`/auth` 页面仍通过用户网络打开，Telegram webhook 仍进入公开 `WEBHOOK_BASE_URL`；`initData` 和旧 Login Widget 在本地校验。若只让 Bot API 走代理、OAuth 直连，设置 `TELEGRAM_OAUTH_USE_BOT_PROXY=False`。
 
-### Проверка Telegram
+<a id="проверка-telegram"></a>
 
-Внутри Telegram:
+### 验证 Telegram 登录
 
-1. Откройте Mini App кнопкой бота или URL из BotFather.
-2. Убедитесь, что вход проходит без OAuth redirect.
-3. При ошибке проверьте URL Mini App, домен BotFather и возраст `initData`.
+Telegram 内：
 
-В обычном браузере:
+1. 通过机器人按钮或 BotFather URL 打开 Mini App。
+2. 确认无需 OAuth 跳转即可登录。
+3. 失败时检查 Mini App URL、BotFather 域名和 `initData` 年龄。
 
-1. Откройте `https://app.domain.com/` и нажмите вход через Telegram.
-2. Проверьте redirect на Telegram OAuth и возврат на
-   `https://app.domain.com/auth/telegram/callback`.
-3. После callback пользователь должен вернуться на `/` со статусом `telegram_auth=success`,
-   который frontend удалит из URL.
+普通浏览器：
 
-Для диагностики:
+1. 打开 `https://app.domain.com/`，点击 Telegram 登录。
+2. 确认跳转 Telegram OAuth 并返回 `https://app.domain.com/auth/telegram/callback`。
+3. 回调后应返回带 `telegram_auth=success` 的 `/`，前端随后移除此参数。
+
+诊断命令：
 
 ```bash
 curl -i https://app.domain.com/auth/telegram/start
 docker compose logs -f backend frontend
 ```
 
-Частые причины:
+常见原因：
 
-- `telegram_oauth_not_configured` — не задан secret или client ID не получен из настройки/токена;
-- `Telegram OAuth nonce mismatch` — устарели session/state, изменился
-  `WEBAPP_SESSION_SECRET` либо callback пришёл с другого домена;
-- `Telegram OAuth ID token is stale` — слишком мал `WEBAPP_AUTH_MAX_AGE_SECONDS` или сбито время;
-- callback не проходит — Allowed URL не совпадает либо `/auth/*` не доходит до Web App API;
-- `invalid_token` — backend не имеет доступа к token endpoint/JWKS или неверно настроен proxy;
-- Mini App не открывается — домен BotFather не совпадает с `SUBSCRIPTION_MINI_APP_URL`.
+- `telegram_oauth_not_configured`：密钥缺失，或无法从配置／令牌获得客户端 ID。
+- `Telegram OAuth nonce mismatch`：会话／state 过期、会话密钥变化，或回调来自另一域名。
+- `Telegram OAuth ID token is stale`：最大年龄太小或服务器时间错误。
+- 回调失败：允许 URL 不匹配，或 `/auth/*` 未到网页 API。
+- `invalid_token`：后端无法访问令牌接口／JWKS，或代理配置错误。
+- Mini App 无法打开：BotFather 域名与应用 URL 不匹配。
 
-Общие логи: [авторизация Mini App и Telegram OAuth](../troubleshooting/logs.md#авторизация-mini-app-и-telegram-oauth).
+相关日志：[Mini App 与 Telegram OAuth 认证](../troubleshooting/logs.md#авторизация-mini-app-и-telegram-oauth)。
 
 ## Google
 
-1. Откройте [Google Cloud Console](https://console.cloud.google.com/apis/credentials) и выберите
-   отдельный production-проект.
-2. Настройте OAuth consent screen: название сервиса, контакты, домен, privacy policy и terms.
-3. Создайте OAuth 2.0 Client ID типа **Web application**.
-4. **Authorized JavaScript origins** оставьте пустым. Minishop использует серверный Authorization
-   Code Flow с PKCE и не загружает Google Identity Services JavaScript SDK.
-5. В **Authorized redirect URIs** добавьте точный адрес:
+1. 打开 [Google Cloud Console](https://console.cloud.google.com/apis/credentials)，选择独立生产项目。
+2. 配置 OAuth 同意页面：服务名、联系方式、域名、隐私政策、用户协议。
+3. 创建类型为网页应用（`Web application`）的 OAuth 2.0 客户端 ID。
+4. 授权 JavaScript 源地址（`Authorized JavaScript origins`）留空。Minishop 使用服务器端授权码流程和 PKCE，不加载 Google Identity Services JavaScript SDK。
+5. 在授权重定向 URI 中添加精确地址：
 
 ```text
 https://app.example.com/auth/google/callback
 ```
 
-6. Сохраните настройки и включите способ:
+6. 保存并启用：
 
 ```ini
 GOOGLE_OIDC_ENABLED=True
@@ -335,26 +284,22 @@ GOOGLE_OIDC_CLIENT_ID=<client-id>.apps.googleusercontent.com
 GOOGLE_OIDC_CLIENT_SECRET=<client-secret>
 ```
 
-Minishop запрашивает только `openid email profile`, проверяет подпись и стандартные OIDC claims
-(`iss`, `aud`, `exp`, `nonce`) и принимает email только при `email_verified=true`.
+只请求 `openid email profile`，验证签名及标准 OIDC 声明 `iss`、`aud`、`exp`、`nonce`，仅接受 `email_verified=true` 的邮箱。
 
-Google требует точного совпадения redirect URI, включая схему, регистр, порт, путь и слеш.
-Подробности:
-[OAuth 2.0 for Web Server Applications](https://developers.google.com/identity/protocols/oauth2/web-server).
+Google 要求重定向 URI 完全一致，包括协议、大小写、端口、路径和斜杠。见[网页服务器 OAuth 2.0](https://developers.google.com/identity/protocols/oauth2/web-server)。
 
 ## Yandex ID
 
-1. Откройте [Yandex OAuth](https://oauth.yandex.ru/) и создайте приложение для авторизации
-   пользователей.
-2. Добавьте платформу **Веб-сервисы**.
-3. Укажите Redirect URI:
+1. 打开 [Yandex OAuth](https://oauth.yandex.ru/)，创建用户认证应用。
+2. 添加网页服务平台。
+3. 填写重定向 URI：
 
 ```text
 https://app.example.com/auth/yandex/callback
 ```
 
-4. Разрешите минимальные права `login:email`, `login:info` и `login:avatar`.
-5. Сохраните настройки и включите способ:
+4. 只允许 `login:email`、`login:info`、`login:avatar` 所需最小权限。
+5. 保存并启用：
 
 ```ini
 YANDEX_OIDC_ENABLED=True
@@ -362,23 +307,20 @@ YANDEX_OIDC_CLIENT_ID=<client-id>
 YANDEX_OIDC_CLIENT_SECRET=<client-secret>
 ```
 
-Для контакта Minishop использует `default_email`, возвращённый Yandex ID. Адрес добавляется как
-подтверждённый адрес провайдера, но не заменяет основной email существующего аккаунта.
+Minishop 使用 Yandex 返回的 `default_email` 作为已验证渠道地址，但不替换已有账号主邮箱。
 
-Пошаговая регистрация:
-[официальная документация Yandex ID](https://yandex.com/dev/id/doc/en/register-auth).
+注册步骤见 [Yandex ID 官方文档](https://yandex.com/dev/id/doc/en/register-auth)。
 
 ## Discord
 
-1. Откройте [Discord Developer Portal](https://discord.com/developers/applications) и создайте
-   приложение.
-2. В разделе **OAuth2** добавьте Redirect URL:
+1. 打开 [Discord Developer Portal](https://discord.com/developers/applications)，创建应用。
+2. 在 OAuth2 中添加回调地址：
 
 ```text
 https://app.example.com/auth/discord/callback
 ```
 
-3. Скопируйте Application ID и Client Secret и включите способ:
+3. 复制应用 ID 和客户端密钥并启用：
 
 ```ini
 DISCORD_OIDC_ENABLED=True
@@ -386,23 +328,17 @@ DISCORD_OIDC_CLIENT_ID=<application-id>
 DISCORD_OIDC_CLIENT_SECRET=<client-secret>
 ```
 
-Minishop использует серверный Authorization Code Flow и запрашивает только `identify email`.
-Профиль загружается через Discord API `/users/@me`; email принимается как подтверждённый только
-при `verified=true`. Для уже существующего аккаунта совпадение email подтверждается кодом так же,
-как для Yandex ID.
+使用服务器端授权码流程，只请求 `identify email`。通过 Discord `/users/@me` 获取资料，邮箱仅在 `verified=true` 时视为已验证。与已有账号邮箱相同时，和 Yandex ID 一样要求验证码确认。
 
-Официальный справочник:
-[Discord OAuth2](https://docs.discord.com/developers/topics/oauth2).
+官方参考：[Discord OAuth2](https://docs.discord.com/developers/topics/oauth2)。
 
-Настройки Google, Yandex ID и Discord, сохранённые в админке, применяются к следующим запросам
-`/auth/{provider}/start` и `/auth/{provider}/callback` без перезапуска backend. Экран входа и
-кешированные данные кабинета также обновляются после сохранения. Если админка сообщает, что ключ
-«сохранён, но не применён», он не считается активным до перезапуска.
+后台保存 Google、Yandex ID、Discord 设置后，后续 `/auth/{provider}/start`、`/callback` 请求立即应用，无需重启后端；登录页和缓存的个人中心数据也会刷新。如果后台提示“已保存但未应用”，则在重启前不能视为生效。
 
-## Ключи доступа (passkey)
+<a id="ключи-доступа-passkey"></a>
 
-Passkey работает через WebAuthn и требует HTTPS. Исключение браузеров для локального `localhost`
-не следует использовать как production-настройку.
+## 通行密钥（passkey）
+
+通行密钥使用 WebAuthn，要求 HTTPS。浏览器对 `localhost` 的本地例外不能作为生产配置。
 
 ```ini
 PASSKEY_LOGIN_ENABLED=True
@@ -412,102 +348,84 @@ PASSKEY_ORIGINS=https://app.example.com
 PASSKEY_CHALLENGE_TTL_SECONDS=300
 ```
 
-- `PASSKEY_RP_ID` — домен без протокола, порта и пути;
-- `PASSKEY_RP_NAME` — имя сервиса, которое устройство показывает при создании ключа;
-- `PASSKEY_ORIGINS` — полный origin с `https://`; несколько origins разделяются запятыми;
-- после смены RP ID старые ключи перестанут работать для нового домена;
-- не отключайте остальные способы, пока не проверили passkey на втором устройстве.
+- `PASSKEY_RP_ID`：不含协议、端口和路径的域名。
+- `PASSKEY_RP_NAME`：设备创建密钥时显示的服务名。
+- `PASSKEY_ORIGINS`：含 `https://` 的完整源地址，多个以逗号分隔。
+- 更换 RP ID 后，旧密钥不能用于新域名。
+- 在第二台设备验证前，不要关闭其他登录方式。
 
-Подробнее:
-[Passkeys на MDN](https://developer.mozilla.org/en-US/docs/Web/Security/Authentication/Passkeys).
+参考 [MDN 通行密钥说明](https://developer.mozilla.org/en-US/docs/Web/Security/Authentication/Passkeys)。
 
-## Привязка способов и адрес для уведомлений
+<a id="привязка-способов-и-адрес-для-уведомлений"></a>
 
-В настройках профиля пользователь может:
+## 绑定登录方式与通知邮箱
 
-- привязать email к Telegram-аккаунту через код;
-- привязать Telegram через Mini Apps `initData` или Telegram OAuth;
-- задать или изменить пароль;
-- привязать Google, Yandex ID, Discord и passkey;
-- выбрать email для уведомлений из подтверждённых адресов.
+用户可在个人资料设置：
 
-Если привязываемый способ уже принадлежит другому аккаунту, появляется общий диалог
-объединения: Telegram, Google, Yandex ID, Discord и email используют один сценарий.
-Свежая авторизация привязываемого способа подтверждает второй аккаунт; текущий аккаунт
-подтверждается повторным входом через уже привязанного провайдера, passkey или кодом email.
-SMTP и email-вход не обязательны при подтверждении через провайдера или passkey.
-После явного согласия сохраняются текущий Minishop ID, основной адрес и настройки,
-переносятся доступные способы входа и связанные данные, а старые Web App-кеши сбрасываются.
-Новые зарегистрированные провайдеры используют тот же механизм без правил для каждой пары.
+- 通过验证码为 Telegram 账号绑定邮箱。
+- 通过 Mini Apps `initData` 或 OAuth 绑定 Telegram。
+- 设置或修改密码。
+- 绑定 Google、Yandex ID、Discord 和通行密钥。
+- 从已验证地址选择通知邮箱。
 
-Если новый OAuth-профиль ещё не привязан к аккаунту, а его email занят другой записью,
-привязка из настроек сохраняет только доказанную identity провайдера: чужой email и его
-аккаунт остаются без изменений. Для объединения с владельцем email требуется подтверждение
-адреса кодом. Две разные identity одного провайдера, административная история второго
-аккаунта и другие несовместимые данные отклоняются без частичного переноса.
-Подробности протокола — в [описании независимых аккаунтов](telegram-optional.md).
+绑定方式已属于其他账号时，显示统一合并对话框；Telegram、Google、Yandex ID、Discord、邮箱共用流程。新鲜授权证明第二个账号，当前账号通过已有渠道、通行密钥或邮箱验证码再次验证。渠道／通行密钥验证不强制要求 SMTP 和邮箱登录。用户明确同意后，保留当前 Minishop ID、主邮箱及设置，迁移可用登录方式及关联数据，并清理旧网页缓存。新增渠道也复用同一机制，不为渠道组合增加独立规则。
 
-Основной email меняется отдельным двухэтапным сценарием: код сначала отправляется на текущий адрес,
-затем второй код — на новый. После подтверждения новый адрес становится основным и адресом
-уведомлений, а Minishop синхронизирует его в Remnawave Panel. Привязка или отвязка OIDC-провайдера
-сама по себе поле email в Panel не меняет.
+新 OAuth 身份尚未绑定、但邮箱被其他账号占用时，从设置绑定只保存已证明的渠道身份，不改动他人邮箱或账号。与邮箱所有者合并必须再用验证码证明。相同渠道的两个不同身份、第二账号的管理角色历史或其他不兼容数据会导致整体拒绝。协议见[独立账号说明](telegram-optional.md)。
 
-Смену основного адреса можно отключить независимо от email-входа:
+主邮箱变更独立分两步：先验证旧邮箱验证码，再验证新邮箱验证码。成功后新地址成为主邮箱和通知邮箱，并同步至 Remnawave。单独绑定／解绑 OIDC 不修改面板邮箱。
+
+可独立于邮箱登录关闭地址变更：
 
 ```ini
 EMAIL_ADDRESS_CHANGE_ENABLED=True
 ```
 
-При отключении кнопка в кабинете становится неактивной, а backend отклоняет все этапы уже
-начатого сценария. Это не мешает впервые привязать email, войти по коду/паролю или выбрать другой
-подтверждённый OIDC-адрес для уведомлений.
+关闭后按钮禁用，后端拒绝已开始流程的所有步骤，但仍允许首次绑定邮箱、验证码／密码登录，或选择另一个已验证 OIDC 通知地址。
 
-Смена адреса проходит так:
+地址变更流程：
 
-1. Код отправляется на текущий основной адрес.
-2. После проверки пользователь вводит новый адрес; занятый адрес отклоняется до создания записей.
-3. Второй код отправляется на новый адрес и привязан к пользователю и точному адресу.
-4. После подтверждения обновляются основной email, адрес уведомлений и email в Remnawave Panel.
-   На старый адрес приходит уведомление безопасности, на новый — подтверждение смены.
+1. 向当前主邮箱发验证码。
+2. 验证后输入新地址；已占用地址在创建记录前拒绝。
+3. 向新地址发送与用户及精确地址绑定的第二个验证码。
+4. 确认后更新主邮箱、通知邮箱和面板邮箱；旧邮箱收到安全通知，新邮箱收到更改确认。
 
-Уникальность проверяется до отправки кода и повторно в транзакции. Ограничения базы закрывают
-гонку параллельных запросов. Коды входа, восстановления и подтверждения основного email идут на
-адрес соответствующей операции; автоматические уведомления — на выбранный адрес уведомлений.
+唯一性在发验证码前和事务中各校验一次，数据库约束阻止并发竞争。登录、恢复、主邮箱确认邮件发到对应操作地址，自动通知发到所选通知邮箱。
 
-## Общая проверка
+<a id="общая-проверка"></a>
 
-1. Проверьте каждый включённый способ на экране входа.
-2. Войдите по email-коду, задайте пароль, выйдите и войдите по паролю.
-3. Проверьте Telegram внутри Mini App и отдельно в обычном браузере.
-4. Войдите новыми Google, Yandex ID и Discord аккаунтами; для совпавшего email подтвердите связывание
-   кодом и убедитесь, что дубль пользователя не создан.
-5. Добавьте passkey, выйдите, войдите с ним и проверьте удаление ключа при наличии другого способа.
-6. В **Настройки → Безопасность** проверьте список identity, основной email и адрес уведомлений.
-7. Убедитесь, что подписка и email в Remnawave Panel не меняются от простой привязки OAuth.
+## 整体验证
 
-Общие причины ошибок:
+1. 检查登录页每个已启用方式。
+2. 验证码登录、设置密码、退出，再用密码登录。
+3. 分别检查 Telegram Mini App 内和普通浏览器登录。
+4. 使用新的 Google、Yandex ID、Discord 账号登录；邮箱相同时用验证码确认，确保不产生重复账号。
+5. 添加通行密钥、退出、用密钥登录；保留其他方式时验证删除密钥。
+6. 在“设置 → 安全”检查身份列表、主邮箱、通知邮箱。
+7. 确认单独绑定 OAuth 不改变面板订阅和邮箱。
 
-- кнопка скрыта — способ выключен или заполнены не все обязательные параметры;
-- `redirect_uri_mismatch` — callback отличается схемой, доменом, портом, путём или слешем;
-- `account_exists` — совпавший основной email ещё не подтверждён для автоматической привязки;
-- OIDC-контекст устарел — повторите вход через провайдера;
-- passkey недоступен — нет HTTPS, RP ID не соответствует домену или origin не разрешён;
-- уведомления идут не туда — проверьте выбранный адрес, способ последнего входа его не меняет.
+常见问题：
 
-Email-уведомления поддержки, платежей и жизненного цикла подписки используют тот же SMTP-контур.
-См. также [уведомления](notifications.md) и [поддержку пользователей](support.md).
+- 按钮隐藏：方式关闭或必填参数缺失。
+- `redirect_uri_mismatch`：协议、域名、端口、路径、斜杠不一致。
+- `account_exists`：相同主邮箱尚未确认，不能自动绑定。
+- OIDC 上下文过期：重新通过渠道登录。
+- 通行密钥不可用：无 HTTPS、RP ID 与域名不符，或源地址不允许。
+- 通知发错地址：检查明确选择的通知邮箱；最近使用的登录方式不会改变它。
 
-## Настройка локального SMTP-сервера
+客服、支付和订阅生命周期邮件共用 SMTP。另见[通知](notifications.md)、[客服](support.md)。
 
-Перед запуском настройте DNS-записи домена:
+<a id="настройка-локального-smtp-сервера"></a>
 
-- A — `mail.example.com` с IP сервера;
-- MX — `mail.example.com` с приоритетом 10;
-- PTR — `mail.example.com` у хостера VPS;
-- TXT — `v=spf1 ip4:1.2.3.4 ~all`, где `1.2.3.4` — реальный IPv4 сервера.
+## 本地 SMTP 服务器配置
 
-Изменения DNS могут применяться от нескольких часов до суток. Для STARTTLS нужен сертификат
-домена `mail.example.com`. Например, в Caddy:
+启动前配置域名 DNS：
+
+- A：`mail.example.com` 指向服务器 IP。
+- MX：`mail.example.com`，优先级 10。
+- PTR：在 VPS 提供商处设置为 `mail.example.com`。
+- TXT：`v=spf1 ip4:1.2.3.4 ~all`，替换为服务器实际 IPv4。
+
+DNS 生效可能需要数小时至一天。STARTTLS 需要 `mail.example.com` 证书，例如 Caddy：
 
 ```txt
 https://mail.example.com {
@@ -515,9 +433,9 @@ https://mail.example.com {
 }
 ```
 
-Установка:
+安装步骤：
 
-1. Подготовьте Compose:
+1. 准备 Compose：
 
 ```bash
 mkdir -p /opt/mailserver
@@ -526,23 +444,25 @@ curl -O https://gitlab.com/3252a8/remnawave-minishop/-/raw/main/deploy/examples/
 nano docker-compose.yml
 ```
 
-<!-- GitHub source URL (disabled): https://raw.githubusercontent.com/3252a8/remnawave-minishop/refs/heads/main/deploy/examples/mail/docker-compose.yml -->
+<!-- GitHub 源地址（停用）：https://raw.githubusercontent.com/3252a8/remnawave-minishop/refs/heads/main/deploy/examples/mail/docker-compose.yml -->
 
-2. Запустите:
+2. 启动：
 
 ```bash
 docker compose up -d
 ```
 
-3. Создайте пользователя:
+3. 创建用户：
 
 ```bash
 docker exec -it mailserver setup email add no-reply@example.com
 docker exec -it mailserver setup email list
 ```
 
-Созданный адрес и пароль можно использовать в почтовом клиенте и SMTP-настройках Minishop.
+创建的地址和密码可用于邮件客户端及 Minishop SMTP 设置。
 
-## Рекламные источники
+<a id="рекламные-источники"></a>
 
-Кампании, ссылки, предложения и проверка источника покупки описаны в [разделе рекламы](./advertising/index.md).
+## 广告来源
+
+活动、链接、优惠与购买来源核查见[广告说明](./advertising/index.md)。

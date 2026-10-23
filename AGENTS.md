@@ -1,69 +1,29 @@
 # AGENTS.md
 
-## my_vps_obj project decisions
+## my_vps_obj 项目决策
 
-Read [requirements](docs/requirements.md), [product design](docs/product-design.md),
-[implementation plan](docs/implementation-plan.md) and the relevant local docs first.
-Use first principles and the smallest complete change; distinguish verified behavior
-from proposed behavior. Ask about unresolved business rules before implementing them.
+先阅读[需求](docs/requirements.md)、[产品设计](docs/product-design.md)、[实施计划](docs/implementation-plan.md)和相关本地文档。遵循第一性原理，采用最小且完整的修改；区分已验证行为与拟议行为。业务规则未确定时，先询问再实现。
 
-This is a Minishop-derived project, not a plugin-only implementation. Keep one account
-with multiple independent services as the target. The MVP uses manual admin activation,
-no payments, and general subscription clients; a first-party App comes later. Traffic
-means upload + download payload; user experience takes priority over a zero-overage promise.
-Use the isolated [project development stand](docs/development/project-local.md).
-Never treat existing production 3x-ui nodes as disposable test infrastructure.
+本项目基于 Minishop 二次开发，不是仅靠插件实现。目标是一个账号持有多份独立服务。MVP 由管理员人工开通，不接支付，使用通用订阅客户端；自有 App 后续开发。流量按上传加下载的业务载荷计算，用户体验优先于绝对零超额承诺。使用[隔离项目开发环境](docs/development/project-local.md)，不得把现有生产 3x-ui 节点当作可随意处置的测试设施。
 
-Retain the upstream conventions below. If `.codegraph/` exists, use CodeGraph before
-text searches for code understanding; do not create an index without a user request.
+保留下述上游约定。若存在 `.codegraph/`，理解或查找代码时先用 CodeGraph，再做文本搜索；未经用户要求不得创建索引。
 
-Entry point for AI agents. The single source of truth for conventions, architecture, and
-enforced quality gates is [CONTRIBUTING.md](CONTRIBUTING.md) (written in Russian) — **read it
-before changing code.** Architecture overview: [docs/architecture.md](docs/architecture.md).
+本文是 AI 智能体入口。开发约定、架构及强制质量门禁的唯一来源为中文[贡献指南](CONTRIBUTING.md)，**改代码前必须阅读**。架构概览：[docs/architecture.md](docs/architecture.md)。
 
-Non-negotiables (details in CONTRIBUTING.md §2):
+不可违反的规则（详见贡献指南第 2 节）：
 
-- Never hand-edit generated artifacts — run their generator (`openapi.json`, `events.md`,
-  `openapi.generated.ts`, settings manifest).
-- DB migrations are append-only — never edit or reorder existing ones.
-- Never silence the type checker on first-party code (`# type: ignore` / `any`); the whole
-  backend mypy run must stay green.
-- Never break the wire contracts: the HTTP `{"ok": …}` envelope, flat-dict event payloads,
-  the plugin `(event_name, dict)` subscriber signature.
-- Frontend: first-party Svelte code is runes-only and enforced for `frontend/src`; no
-  `export let`, `$:`, `$$props`, `$$restProps`, `<slot>`, `<svelte:component>`,
-  `createEventDispatcher`, or class API `$set`. First-party frontend code is TypeScript-only
-  (`.ts` / `<script lang="ts">`, enforced by architecture gates); no global `checkJs`;
-  use literal API paths; `unwrap` the envelope.
-- User/admin-facing copy is localized, not hard-coded: every new or changed UI/bot text key must
-  have at least `locales/ru.json` and `locales/en.json` entries; component fallbacks are not a
-  substitute for base locale keys.
-- UI reuse is mandatory: follow CONTRIBUTING.md §4.1 and its component map. Prefer the existing
-  component for the entity/action, inspect two actual consumers, and extend shared patterns before
-  assembling a local replacement. Shared CSS classes are not a substitute for a shared component.
-  Verify every affected consumer on desktop/mobile, including open menus and dialogs.
-- Decompose, then type; no module > ~900 lines without a reason; mind the
-  monkeypatch/re-export trap (CONTRIBUTING.md §5).
-- "Compatibility with other bots" is a feature (keep), not legacy.
-- Keep core and separately shipped PRO functionality isolated. Public core documentation and
-  navigation may mention minishop PRO, summarize its public capabilities, and link to the official
-  PRO site; this exception does not allow copying PRO code, private contracts, assets, or runtime
-  dependencies into core.
-- Balance work must include gift-deletion refunds. The temporary user flow that discards an unused
-  paid gift without a refund may exist only until balance refund integration is implemented. When
-  implementing or changing the user-balance flow, replace that behavior with an atomic credit of
-  the gift's actually paid value to the purchaser's balance before revoking/removing the gift
-  entitlement. Keep the `TODO(balance-gift-refund)` marker until the refund path and regression
-  tests are implemented.
+- 生成产物必须运行生成器，不得手改，包括 `openapi.json`、`events.md`、`openapi.generated.ts` 和设置清单。
+- 数据库迁移只能追加，不得修改或重排已有迁移。
+- 不得用 `# type: ignore`／`any` 压制自有代码类型检查；整个后端 mypy 必须通过。
+- 不得破坏线上契约：HTTP `{"ok": …}` 包装、事件扁平字典载荷、插件 `(event_name, dict)` 订阅签名。
+- `frontend/src` 自有 Svelte 只使用 runes，禁止 `export let`、`$:`、`$$props`、`$$restProps`、`<slot>`、`<svelte:component>`、`createEventDispatcher` 和类 API `$set`。所有自有前端使用 TypeScript（`.ts`／`<script lang="ts">`），由架构门禁保护；不开全局 `checkJs`，使用 API 字面量路径，并 `unwrap` 响应包装。
+- 用户和管理员文案必须本地化，不得硬编码。新增或变更的界面／机器人键至少包含 `locales/ru.json`、`locales/en.json` 基础条目，中文路径同时提供 `locales/zh-hans.json`；组件回退不能替代基础语言键。
+- 必须复用界面组件：遵循贡献指南第 4.1 节及组件表，优先已有实体／操作组件，查看两个实际消费者，先扩展共享模式，再考虑局部替代。共享 CSS 不等于共享组件。验证受影响消费者的桌面／手机布局，包括打开的菜单和对话框。
+- 先拆分再完善类型；没有理由的模块不得超过约 900 行；注意 monkeypatch／重新导出陷阱（贡献指南第 5 节）。
+- “兼容其他机器人”是应保留的功能，不是可删除旧代码。
+- 核心与单独交付的 PRO 隔离。公开核心文档和导航可提及 minishop PRO、概述公开能力并链接官网；不得复制 PRO 代码、私有契约、资源或运行时依赖到核心。
+- 余额工作必须包含删除礼品退款。丢弃未使用已付礼品却不退款的临时流程，只能保留到余额退款集成完成。实现或修改用户余额流程时，必须先原子地把礼品实付金额记入购买者余额，再撤销／移除礼品权益。退款路径及回归测试实现前保留 `TODO(balance-gift-refund)`。
 
-Before pushing, use the changed-zone validation matrix in CONTRIBUTING.md §1. Product or shared
-code changes still run their relevant gates (and the full suite when isolation is unclear), while
-prose-only documentation and docs-site-only changes use the scoped documentation checks defined
-there. Commits: Conventional Commits, no `Co-Authored-By` trailer.
+推送前按贡献指南第 1 节修改区域矩阵验证。产品或共享代码运行相关门禁，无法证明隔离时完整检查；纯文档或仅文档站修改运行其中规定的限定检查。提交采用英文 Conventional Commits，不加 `Co-Authored-By` 尾注。
 
-Maintain root `CHANGELOG.md` as the single source of release history, published at `/changelog/`
-by the docs generator. Before committing a noteworthy Core change, update `В разработке · dev`:
-describe the resulting behavior, merge related work into existing entries, and remove superseded
-or duplicate entries. Do not append one bullet per commit or repeat already released behavior.
-Use neutral wording such as «коды активации» / "activation codes" in changelogs and commit messages.
-See CONTRIBUTING.md §8 for release rollover and history provenance.
+根 `CHANGELOG.md` 是唯一发布历史来源，由文档生成器发布到 `/changelog/`。提交值得记录的核心修改前，更新“开发中 · dev”：描述最终行为，合并相关条目，移除失效或重复项；不按每次提交新增条目，也不重复已发布行为。更新历史和提交说明使用“激活码”／“activation codes”等中性措辞。版本滚动和来源规则见贡献指南第 8 节。

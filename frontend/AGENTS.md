@@ -1,5 +1,3 @@
-# Frontend
+# 前端
 
-Read [CONTRIBUTING.md §4.1](../CONTRIBUTING.md#41-переиспользование-ui) before changing UI.
-It is the single source for component selection, reuse rules, exceptions, and visual verification.
-Follow the component map there; do not copy another section's markup or global CSS.
+修改界面前阅读[贡献指南第 4.1 节](../CONTRIBUTING.md#41-界面组件复用)。它是组件选择、复用规则、例外与视觉验证的唯一来源。遵循其中组件表，不复制其他区域的结构或全局 CSS。

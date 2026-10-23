@@ -26,7 +26,7 @@ from bot.services.email_templates import (  # noqa: E402
     render_user_notification,
 )
 
-LANGUAGE = "ru"
+LANGUAGE = "zh-hans"
 PREVIEW_LOGO_FILE = (
     REPO_ROOT
     / "backend"
@@ -58,7 +58,7 @@ PREVIEW_LOGO_URL = prepare_preview_logo_url()
 
 
 class PreviewI18n:
-    def __init__(self, path: Path, default: str = "ru"):
+    def __init__(self, path: Path, default: str = "zh-hans"):
         self.default_lang = default
         self.locales_data = {}
         for item in path.glob("*.json"):
@@ -150,7 +150,7 @@ def payment_preview(
 ):
     return preview(
         item_id,
-        "Платежи",
+        "付款",
         title,
         render_payment_success(
             SETTINGS,
@@ -179,7 +179,7 @@ def user_notification_preview(
     subject = t(subject_key)
     return preview(
         item_id,
-        "Уведомления",
+        "通知",
         title,
         render_user_notification(
             SETTINGS,
@@ -198,7 +198,7 @@ def user_notification_preview(
 def expiring_preview(item_id: str, title: str, days_left: int):
     return preview(
         item_id,
-        "Подписка",
+        "订阅",
         title,
         render_subscription_expiring(
             SETTINGS,
@@ -223,7 +223,7 @@ def lifecycle_preview(
 ):
     return preview(
         item_id,
-        "Подписка",
+        "订阅",
         title,
         render_subscription_lifecycle_notification(
             SETTINGS,
@@ -243,15 +243,15 @@ def lifecycle_preview(
 def support_snapshot_rows():
     return [
         ("email_support_row_tariff", "Premium"),
-        ("email_support_row_remaining", "3 д. 4 ч."),
+        ("email_support_row_remaining", "3 天 4 小时"),
     ]
 
 
 EMAIL_PREVIEWS = [
     preview(
         "login-code",
-        "Доступ",
-        "Код для входа",
+        "访问",
+        "登录验证码",
         render_login_code(
             SETTINGS,
             code=SAMPLE["code"],
@@ -263,8 +263,8 @@ EMAIL_PREVIEWS = [
     ),
     preview(
         "set-password-code",
-        "Доступ",
-        "Код для создания пароля",
+        "访问",
+        "创建密码验证码",
         render_login_code(
             SETTINGS,
             code=SAMPLE["code"],
@@ -275,8 +275,8 @@ EMAIL_PREVIEWS = [
     ),
     preview(
         "account-merged",
-        "Аккаунт",
-        "Аккаунты объединены",
+        "账号",
+        "账号已合并",
         render_account_merged(
             SETTINGS,
             language_code=LANGUAGE,
@@ -288,190 +288,187 @@ EMAIL_PREVIEWS = [
     ),
     payment_preview(
         "payment-subscription",
-        "Оплата подписки",
+        "订阅付款",
         "subscription",
         months=1,
     ),
     payment_preview(
         "payment-traffic",
-        "Покупка трафика",
+        "购买流量",
         "traffic",
         traffic_gb=SAMPLE["regular_traffic"],
     ),
     payment_preview(
         "payment-premium-traffic",
-        "Покупка premium-трафика",
+        "购买高级流量",
         "premium_topup",
         traffic_gb=SAMPLE["premium_traffic"],
     ),
-    payment_preview("payment-hwid", "Покупка HWID-устройств", "hwid_device", months=2),
-    payment_preview("payment-tariff-upgrade", "Платное повышение тарифа", "tariff_upgrade"),
+    payment_preview("payment-hwid", "增加 HWID 设备", "hwid_device", months=2),
+    payment_preview("payment-tariff-upgrade", "付费升级套餐", "tariff_upgrade"),
     user_notification_preview(
         "payment-failed",
-        "Неуспешная оплата",
+        "付款失败",
         "email_payment_failed_subject",
-        "Платеж не был завершен. Можно попробовать еще раз из личного кабинета.",
+        "付款未完成，可从个人中心重试。",
     ),
     user_notification_preview(
         "payment-method-bound",
-        "Способ оплаты привязан",
+        "支付方式已绑定",
         "email_payment_method_bound_subject",
-        "Автопродление подключено, следующий платеж пройдет автоматически.",
+        "已开启自动续期，下次将自动付款。",
     ),
     user_notification_preview(
         "referral-bonus",
-        "Реферальный бонус",
+        "邀请奖励",
         "email_referral_bonus_subject",
-        "Друг активировал подписку, и бонусные дни уже добавлены к вашему аккаунту.",
+        "好友已激活订阅，奖励天数已加到您的账号。",
     ),
     user_notification_preview(
         "trial-traffic-depleted",
-        "Трафик пробного периода закончился",
+        "试用流量已耗尽",
         "email_trial_traffic_depleted_subject",
-        "Пробный трафик израсходован. Оформите подписку, чтобы продолжить пользоваться сервисом.",
+        "试用流量已用完，请开通订阅继续使用。",
     ),
     user_notification_preview(
         "regular-traffic-almost",
-        "Обычный трафик почти закончился",
+        "普通流量即将耗尽",
         "email_traffic_warning_regular_almost_subject",
-        "Использовано больше 85% трафика тарифа. Можно докупить пакет заранее.",
+        "套餐流量已使用超过 85%，可提前加购流量包。",
         cta_label_key="email_traffic_warning_regular_cta",
     ),
     user_notification_preview(
         "regular-traffic-depleted",
-        "Обычный трафик закончился",
+        "普通流量已耗尽",
         "email_traffic_warning_regular_depleted_subject",
-        "Трафик тарифа израсходован. Докупите пакет, чтобы восстановить доступ.",
+        "套餐流量已用完，请加购流量包恢复访问。",
         cta_label_key="email_traffic_warning_regular_cta",
     ),
     user_notification_preview(
         "premium-traffic-almost",
-        "Premium-трафик почти закончился",
+        "高级流量即将耗尽",
         "email_traffic_warning_premium_almost_subject",
-        "Premium-трафика осталось мало. Можно докупить пакет до полного расхода.",
+        "高级流量剩余较少，可在耗尽前加购。",
         cta_label_key="email_traffic_warning_premium_cta",
     ),
     user_notification_preview(
         "premium-traffic-depleted",
-        "Premium-трафик закончился",
+        "高级流量已耗尽",
         "email_traffic_warning_premium_depleted_subject",
-        (
-            "Premium-трафик израсходован. Докупите пакет, "
-            "чтобы продолжить использовать premium-маршруты."
-        ),
+        ("高级流量已用完，请加购流量包，以继续使用高级线路。"),
         cta_label_key="email_traffic_warning_premium_cta",
     ),
     expiring_preview(
         "subscription-expiring-today",
-        "Подписка заканчивается сегодня",
+        "订阅今天到期",
         0,
     ),
     expiring_preview(
         "subscription-expiring-tomorrow",
-        "Подписка заканчивается завтра",
+        "订阅明天到期",
         1,
     ),
     expiring_preview(
         "subscription-expiring-days",
-        "Подписка скоро закончится",
+        "订阅即将到期",
         3,
     ),
     lifecycle_preview(
         "lifecycle-before-days",
-        "Lifecycle: осталось несколько дней",
+        "生命周期：还剩几天",
         "before_days",
-        "Подписка скоро закончится. Продлите ее заранее, чтобы доступ не прерывался.",
+        "订阅即将到期，请提前续期以避免中断。",
         days_left=3,
     ),
     lifecycle_preview(
         "lifecycle-before-hours",
-        "Lifecycle: осталось несколько часов",
+        "生命周期：还剩几小时",
         "before_hours",
-        "До окончания подписки осталось несколько часов.",
+        "距离订阅到期只剩几小时。",
         hours_before=6,
     ),
     lifecycle_preview(
         "lifecycle-expired",
-        "Lifecycle: подписка закончилась",
+        "生命周期：订阅已到期",
         "expired",
-        "Подписка закончилась. Продлите доступ в личном кабинете.",
+        "订阅已到期，请在个人中心续期。",
     ),
     lifecycle_preview(
         "lifecycle-expired-after",
-        "Lifecycle: подписка закончилась вчера",
+        "生命周期：订阅昨天到期",
         "expired_24h_after",
-        "Вчера подписка была отключена. Вы можете восстановить доступ продлением.",
+        "订阅昨天已停用，可续期恢复访问。",
     ),
     lifecycle_preview(
         "lifecycle-autorenew",
-        "Lifecycle: автопродление завтра",
+        "生命周期：明天自动续期",
         "before_2d_autorenew",
-        "Завтра будет выполнено автопродление подписки.",
+        "订阅将在明天自动续期。",
     ),
     lifecycle_preview(
         "lifecycle-mirrored",
-        "Lifecycle: копия Telegram-уведомления",
+        "生命周期：Telegram 通知副本",
         "before_days",
-        "Это письмо дублирует важное уведомление, отправленное в Telegram.",
+        "此邮件是 Telegram 重要通知的副本。",
         mirrored_from_telegram=True,
         days_left=2,
     ),
     preview(
         "support-new-ticket-admin",
-        "Поддержка",
-        "Новый тикет для администратора",
+        "支持",
+        "管理员新工单通知",
         render_support_new_ticket_admin(
             SETTINGS,
             I18N,
             LANGUAGE,
             ticket_id=42,
             user_display="alex@example.com",
-            subject="Не работает подключение",
-            body_preview="Пользователь не может подключиться после продления.",
+            subject="无法连接",
+            body_preview="用户续期后无法连接。",
             snapshot_rows=support_snapshot_rows(),
             ticket_url="https://mini.example.com/app/admin/support/42",
         ),
     ),
     preview(
         "support-user-reply-admin",
-        "Поддержка",
-        "Ответ пользователя для администратора",
+        "支持",
+        "管理员收到用户回复",
         render_support_user_reply_admin(
             SETTINGS,
             I18N,
             LANGUAGE,
             ticket_id=42,
             user_display="alex@example.com",
-            subject="Не работает подключение",
-            body_preview="Проблема повторилась на телефоне и ноутбуке.",
+            subject="无法连接",
+            body_preview="手机和笔记本上都出现相同问题。",
             snapshot_rows=support_snapshot_rows(),
             ticket_url="https://mini.example.com/app/admin/support/42",
         ),
     ),
     preview(
         "support-admin-reply-user",
-        "Поддержка",
-        "Ответ поддержки пользователю",
+        "支持",
+        "用户收到客服回复",
         render_support_admin_reply_user(
             SETTINGS,
             I18N,
             LANGUAGE,
             ticket_id=42,
-            subject="Не работает подключение",
-            body_preview="Мы обновили конфигурацию. Попробуйте подключиться еще раз.",
+            subject="无法连接",
+            body_preview="配置已更新，请重新尝试连接。",
             ticket_url=SAMPLE["ticket_url"],
         ),
     ),
     preview(
         "support-ticket-closed-user",
-        "Поддержка",
-        "Тикет закрыт",
+        "支持",
+        "工单已关闭",
         render_support_ticket_closed_user(
             SETTINGS,
             I18N,
             LANGUAGE,
             ticket_id=42,
-            subject="Не работает подключение",
+            subject="无法连接",
             ticket_url=SAMPLE["ticket_url"],
         ),
     ),

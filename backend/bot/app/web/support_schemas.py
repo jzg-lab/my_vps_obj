@@ -17,7 +17,7 @@ class SupportTypingIn(HttpBodyModel):
 
 
 class SupportCountsOut(HttpResponseModel):
-    """Ticket counters keyed by known statuses, with room for future status keys."""
+    """按已知状态统计的工单数量，允许后续增加状态键。"""
 
     model_config = ConfigDict(extra="allow")
 
@@ -110,7 +110,7 @@ class AdminSupportTicketOut(SupportTicketOut):
 
 
 class SupportMessageButtonOut(HttpResponseModel):
-    """A button the admin attached, already resolved to the link it opens."""
+    """管理员附加的按钮，已解析为点击后打开的链接。"""
 
     label: str
     url: str

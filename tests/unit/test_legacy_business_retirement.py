@@ -159,7 +159,7 @@ def test_openapi_explains_retirement_without_losing_historical_types() -> None:
     retired = document["paths"]["/api/admin/users/{user_id}/extend"]["post"]
     assert retired["deprecated"] is True
     assert "410" in retired["responses"]
-    assert retired["responses"]["200"]["description"] == "Historical response (not served)"
+    assert retired["responses"]["200"]["description"] == "历史响应（不再提供）"
     assert "deprecated" not in document["paths"]["/api/admin/services"]["post"]
 
 

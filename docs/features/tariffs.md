@@ -141,14 +141,14 @@ v2 目录设置 `schema_version: 2` 和 `period_unit: "day"`。
     {
       "key": "standard",
       "names": {
-        "ru": "Стандарт",
+        "zh-hans": "标准",
         "en": "Standard"
       },
       "descriptions": {
-        "ru": "Базовый набор серверов"
+        "zh-hans": "基础服务器组"
       },
       "premium_names": {
-        "ru": "Premium-серверы",
+        "zh-hans": "高级服务器",
         "en": "Premium servers"
       },
       "squad_uuids": [
@@ -273,7 +273,7 @@ v2 目录设置 `schema_version: 2` 和 `period_unit: "day"`。
 | `tariffs[].enabled` | 是否在公开商店可见。隐藏套餐（`false`）可由后台指定，或通过 `access_code` 私有链接开放首次购买；已指定套餐仍可供该用户续订。切换后不再提供原隐藏套餐。选项数量按可见套餐加当前已指定隐藏套餐计算，因此仅有一个可见套餐时，普通用户直接进入其条件页。 |
 | `tariffs[].access_code` | 隐藏套餐的可选私有码，必须为全目录唯一的 32 位十六进制字符。后台以密码学安全随机源生成，并创建 `/checkout/<access_code>` URL。启用套餐禁止此字段。删除或重建代码立即撤销旧链接，套餐仍不出现在商店和切换列表。 |
 | `tariffs[].squad_uuids` | 套餐用户使用的 Remnawave Internal Squads。 |
-| `tariffs[].premium_names` | 按语言划分的高级区域名称，用于限额卡片、高级加购弹窗及预警。未设置时，俄语／英语默认值分别为 `Premium-серверы` / `Premium servers`。 |
+| `tariffs[].premium_names` | 按语言划分的高级区域名称，用于限额卡片、高级加购弹窗及预警。未设置时，俄语／英语默认值均表示“高级服务器”，中文名称可通过 `zh-hans` 显式配置。 |
 | `tariffs[].premium_squad_uuids` | 具有独立高级限额的 Internal Squads。计量节点通过面板 API 自动取自这些 squad 的可访问节点。 |
 | `tariffs[].premium_monthly_gb` | 每个高级周期的独立流量限额。字段名为兼容保留，周期频率由 `premium_traffic_limit_strategy` 决定。`0` 或缺省表示基础额度为零，只有加购或发放额外高级流量后才可访问高级 squad。 |
 | `tariffs[].premium_unlimited` | 显式启用高级 squad 无限量访问，默认 `false`；设为 `true` 时忽略 `premium_monthly_gb`。 |
@@ -462,7 +462,7 @@ period 套餐流量加购增加 `topup_balance_bytes` 和总 `traffic_limit_byte
   "monthly_gb": 0,
   "traffic_limit_strategy": "NO_RESET",
   "squad_uuids": ["standard-squad-uuid"],
-  "premium_names": { "ru": "Premium-серверы", "en": "Premium servers" },
+  "premium_names": { "zh-hans": "高级服务器", "en": "Premium servers" },
   "premium_squad_uuids": ["premium-squad-uuid"],
   "premium_monthly_gb": 32,
   "premium_traffic_limit_strategy": "MONTH",

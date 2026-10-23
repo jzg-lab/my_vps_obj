@@ -489,7 +489,7 @@
         href={appRepositoryUrl}
         target="_blank"
         rel="noopener noreferrer"
-        title="Documentation"
+        title={at("documents_list_title", {}, "Documents")}
       >
         <span>remnawave-minishop</span>
         <span>{appVersion || "dev+local"}</span>

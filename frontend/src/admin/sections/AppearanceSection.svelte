@@ -360,7 +360,10 @@
 
   function fontItemsWithCurrent(items: FontOption[], value: unknown): FontOption[] {
     return fontItemsWithCurrentOptions(
-      items,
+      items.map((item) => ({
+        ...item,
+        label: item.labelKey ? at(item.labelKey, {}, item.label) : item.label,
+      })),
       value,
       at("appearance_font_custom_current", {}, "Custom")
     );

@@ -2,9 +2,11 @@ const frame = document.getElementById("demo-frame");
 const runtimeBase = "/demo/runtime";
 const runtimeAppPath = `${runtimeBase}/app/index.html`;
 const demoBase = "/demo";
-const defaultMock = "tariffs";
+const defaultMock = "services";
 const publicRouteAliases = new Map([["/app", "/home"]]);
-const stateMocks = new Set([
+const stateMocks = new Set(["services", "services-empty", "auth", "emails"]);
+const routeMocks = new Set([
+  ...stateMocks,
   "tariffs",
   "depleted",
   "no-subscription",
@@ -17,10 +19,10 @@ const stateMocks = new Set([
   "user-balance",
   "compact",
   "server-status",
-  "auth",
-  "emails",
+  "guides",
+  "install",
 ]);
-const routeMocks = new Set([...stateMocks, "guides", "install"]);
+
 const params = new URLSearchParams(window.location.search);
 
 const normalizePath = (value) => {
@@ -147,6 +149,8 @@ if (initialMock === "emails") {
   canonicalizeInitialPublicUrl(initialRoute);
 }
 if (initialMock !== "emails") {
+  params.set("default_language", "zh-hans");
+  if (!params.has("delivery")) params.set("delivery", "1");
   params.set("mock", initialMock);
   params.delete("path");
   params.delete("screen");
@@ -181,6 +185,9 @@ const runtimeSrc = (route, searchParams = new URLSearchParams()) => {
   const nextParams = new URLSearchParams(searchParams);
   nextParams.delete("screen");
   nextParams.delete("admin_section");
+  nextParams.set("mock", normalizeRouteMock(nextParams.get("mock") || defaultMock));
+  nextParams.set("default_language", "zh-hans");
+  if (!nextParams.has("delivery")) nextParams.set("delivery", "1");
   nextParams.set("path", normalizePath(route));
   return `${runtimeAppPath}?${nextParams.toString()}${window.location.hash || ""}`;
 };

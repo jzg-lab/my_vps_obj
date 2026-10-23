@@ -1,686 +1,425 @@
-# Список изменений
+<a id="список-изменений"></a>
 
-Новые возможности, исправления и важные замечания к обновлению Remnawave Minishop.
-Сначала — изменения ветки `dev`, затем опубликованные версии от новых к старым.
+# 更新历史
 
-История собрана из [релизов GitLab](https://gitlab.com/3252a8/remnawave-minishop/-/releases)
-и [релизов GitHub](https://github.com/3252a8/remnawave-minishop/releases).
-Даты выпуска указаны в UTC по исходным релизам GitLab; дата появления зеркала в GitHub
-может быть позже. Теги без опубликованного релиза сюда не включены.
+Remnawave Minishop 的新功能、修复及重要升级说明。先列出 `dev` 分支变更，再按从新到旧列出已发布版本。
 
-## В разработке · dev
+历史整理自 [GitLab 发布记录](https://gitlab.com/3252a8/remnawave-minishop/-/releases)和 [GitHub 发布记录](https://github.com/3252a8/remnawave-minishop/releases)。发布日期采用 GitLab 原始发布记录的 UTC 时间；GitHub 镜像可能较晚。未正式发布的标签不列入。
 
-Номер и дата следующего выпуска пока не назначены.
-[Сравнить с v3.8.1](https://gitlab.com/3252a8/remnawave-minishop/-/compare/v3.8.1...dev).
+<a id="в-разработке--dev"></a>
 
-### Добавлено
+## 开发中 · dev
 
-- **my_vps_obj development foundation.** The derived project keeps its agreed requirements,
-  product design and implementation plan alongside the Minishop source. A dedicated local
-  Compose overlay builds project images, isolates service names and data volumes, and disables
-  payments and outbound notifications by default. Upstream publication workflows are restricted
-  to the upstream repository.
-- **Independent service records.** Administrators can define shared-node or dedicated-exit
-  plan templates and manually open separate services through authenticated APIs and new admin
-  pages. The plan editor supports both resource types and total/monthly allowances; dedicated
-  exits have an inventory page, and user details show separate service records. Each opening
-  retains its commercial terms and price; retries return the original service. Dedicated-exit
-  reservations are exclusive, and user reads are scoped to the authenticated account. New
-  services remain pending until metering and delivery are confirmed. The admin activation form retains
-  uncertain requests across reloads for idempotent retry. The user home now lists independent
-  services with separate usage, expiry and details, including visible overage and sync status.
-  A sanitized catalog explains manual activation. This deployment hides the old customer
-  checkout, top-up and marketing flows while retaining account/security settings. Account
-  merges now move service ownership without pooling entitlements or replacing connection
-  identities. Deletion requires released dedicated exits and revoked connections, then retains
-  detached service/activation history accessible through admin APIs and a paginated archive page.
-  Each service also opens its own activation history, showing original prices, quotas and dates
-  without substituting current plan terms; recorded prices are not payment confirmations.
-  Administrators can pause, resume or renew one service with explicit recorded renewal terms.
-  Renewals preserve usage and the original monthly anchor; optimistic versions and durable
-  request keys prevent duplicate extensions. Saved changes retry panel synchronization after
-  failures, and the UI distinguishes pending changes from confirmed panel state. Resume and
-  account unban cannot bypass unconfirmed changes or enable an unprepared service.
-  Original activation request scopes survive merges and deletion. Account bans and unbans now
-  persist synchronization jobs before contacting the panel and retry after outages or worker restarts. Every known identity
-  is checked; unbanning preserves expired, exhausted and paused service restrictions. The admin
-  user page distinguishes pending changes from confirmed panel state and offers retry. The
-  account synchronizer skips already revoked service identities without changing their history.
-  Account deletion requires bound services to finish their metered revocation first, in both
-  the website and Telegram; it cannot bypass counter reconciliation or terminal settlement.
-  The deployed website now rejects old subscription/checkout mutations and subscription delivery
-  with HTTP 410, including implicit login bonuses. Payment and account-level panel webhooks
-  are retired; old entitlement workers no longer start, and queued core events move to the
-  dead-letter queue without applying entitlements or discarding their payloads. The independent
-  admin UI hides retired subscription operations, account-level quotas and sales settings; stale
-  subscription filters and deep links no longer present a competing service model. Account
-  lifecycle actions remain available, and historical payments are read-only. Telegram
-  menus now direct service management to the website; old entitlement callbacks, stale input
-  states and built-in payment handlers are retired after normal authorization. Registration,
-  language and account lifecycle actions remain available without implicit subscription grants.
-  Pre-checkout is rejected; received historical payment receipts enter the existing queue for
-  dead-letter reconciliation without granting entitlements. Real-node acceptance remains
-  in progress. A dedicated worker now prepares
-  disabled service identities with exact groups, quota and expiry, without account-level
-  identity fields. Durable uncertainty markers protect account deletion after interrupted
-  requests; retries reconcile the same identity, reject ownership conflicts, and never
-  recreate a missing bound identity. Preparation remains pending and does not enable access.
-  Independent usage sampling now saves cumulative observations per service. Repeated samples
-  do not count twice; outages, missing data and counter regressions preserve confirmed usage
-  and its timestamp. User and admin views show unconfirmed usage without hiding overage.
-  Monthly allowances now switch from a durable cumulative checkpoint without resetting
-  panel counters or interrupting healthy connections. Traffic after that checkpoint belongs
-  to the new cycle; the page changes only after panel confirmation. Retries retain one
-  absolute cap, and closed periods retain actual usage, including overage. Periodic
-  reconciliation restricts confirmed expiry/exhaustion even without an admin action;
-  preparation, renewal, unban and delivery share the same entitlement checks.
-  Template quota edits now queue audited adjustments for existing services, preserving
-  usage, original terms and closed-period records. Lower quotas retain visible overage.
-  Administrators can reconcile reset counters from exact checked records while paused or cancelled,
-  after panel disablement is confirmed;
-  recovery preserves cumulative history, records the counter mapping and never replaces
-  the identity or automatically resumes it. Cancelled services reject renewal and resume;
-  terminal settlement retains the old period and fixed checkpoint, records exact subsequent
-  usage, and clears the pending switch without claiming that a new allowance was confirmed.
-  Evidence must commit before identity deletion. A committed reconciliation remains safely
-  retryable after revocation finishes, without contacting the removed panel identity or
-  applying the correction twice.
-  Administrators can request delivery of a prepared service after confirmed metering and,
-  for dedicated exits, recorded verification. The durable request uses the shared entitlement
-  synchronizer; pauses, bans, expiry and exhaustion still prevent access, including after retries.
-  Service-specific subscription reads now recheck ownership and panel terms without exposing
-  credentials in lists, browser storage or panel response logs. The service detail now opens
-  localized client instructions from a bundled, validated guide config and inserts only the
-  selected service's confirmed link; the retired account-level guide endpoint stays unavailable.
-  Terminal cancellation saves
-  revocation intent and retries the original identity, preserving the last accepted usage.
-  Final metering and the deletion request are committed together before removing the identity;
-  an unexplained missing identity stays pending instead of falsely completing revocation.
-  Confirmed deletion retries survive transient panel failures without discarding usage evidence.
-  If the identity remains readable after DELETE, new counters or anomalies are saved and
-  the earlier deletion evidence is invalidated; another service's counters are never adopted.
-  Counter regressions or resets observed before disablement also remain latched, even when
-  later reads return larger values; stopping access does not forgive missing usage.
-  Dedicated-exit verification and manual reclaim record the administrator, evidence and
-  allocation version. Reclaim requires confirmed identity removal and subsequent operator
-  evidence that existing connections stopped and old configurations cannot reconnect; a
-  panel response alone cannot release the resource. Actual Node enforcement, fixed exits,
-  exclusivity and old-configuration rejection remain unverified.
+下一版本的版本号和发布日期尚未确定。
+[对比 v3.8.1](https://gitlab.com/3252a8/remnawave-minishop/-/compare/v3.8.1...dev).
 
-- **Simplified Chinese for independent services.** The website and operations UI can load
-  `zh-hans` through the existing language preference and scoped locale mechanism, including
-  common Simplified Chinese browser tags. Core account, service, resource and history flows
-  gain Chinese copy, including quota adjustment and usage reconciliation; service dates
-  remain in Beijing time. Language changes update
-  the document language for assistive technology. English and Russian remain available,
-  and locale guards catch missing new service strings and changed placeholders. Existing
-  operations screens, shared editors and account/support emails also gain Chinese copy.
-  A Chinese client guide and a three-language installation example cover desktop, mobile
-  and supported TV platforms, with official sources and unverified import paths identified.
-  Documentation navigation, demo controls, API reference introductions and community
-  project details use Chinese copy; community star labels retain it after live refreshes.
+<a id="добавлено"></a>
 
-- **Nested dialog keyboard focus.** Opening an emoji picker now transfers focus before
-  the next keyboard event, so an immediate Escape closes the picker instead of its parent
-  editor. Existing focus-restoration assertions remain in place.
+### 新增
 
-- **Надёжные обработчики поддержки.** Внешние интеграции получают ограниченный контекст
-  владельца выбранного обращения, события новых сообщений после сохранения и постраничную
-  сверку изменений. Условная отправка проверяет версию диалога, статус и назначенного
-  оператора под общей блокировкой; повтор задания возвращает исходный ответ. Автоматический
-  ответ имеет отдельный источник и подпись, сохраняет непрочитанные сообщения для оператора.
-  Контекст включает статусы последних платежей, подключение, устройства, ОС, приложение
-  и последний сервер с указанием источника и неизвестных значений. Интеграции получают
-  собственные ссылки подписки и загрузки приложений из той же конфигурации, что
-  пользовательская инструкция, включая назначение внешнему скваду. Название последнего
-  сервера берётся из каталога узлов; ошибка отдельного чтения не скрывает доступные
-  сведения. Ответы поддерживают
-  обычные кнопки; повтор задания проверяет и текст, и кнопки. Панель обращения позволяет
-  вставить готовый текст с кнопками одним действием, сохраняя редактор при ошибке
-  или смене тикета.
+- **my_vps_obj 开发基础。** 二次开发项目将已确认的需求、产品设计和实施计划与 Minishop 源码共同维护。独立本地 Compose 覆盖配置构建项目镜像，隔离服务名和数据卷，默认禁用支付及对外通知。上游发布流程仅在上游仓库执行。
+- **独立服务记录。** 管理员可定义共享节点或专用出口套餐模板，通过鉴权 API 和新后台页面人工开通独立服务。套餐编辑器支持两种资源类型及总量／月度额度；专用出口有资源清单，用户详情分别展示服务。每次开通保存商业条款和价格，重试返回原服务；专用出口独占预留，用户只能读取自己账号的数据。新服务在计量和交付确认前保持待处理。开通表单跨刷新保留结果不明的请求，以便幂等重试。用户首页分别展示各服务的用量、有效期、详情、超额和同步状态；脱敏套餐目录说明人工开通方式。本部署隐藏旧结算、充值和营销流程，保留账号与安全设置。账号合并只转移服务归属，不合并权益或替换连接身份。删除账号前必须释放专用出口并撤销连接；脱离账号的服务与开通历史通过后台 API 和分页归档页保留。每份服务可查看原始价格、额度和日期的开通记录，不使用现有模板条款替换；记录价格不代表付款确认。管理员可暂停、恢复或按明确记录的续期条款续期单份服务；续期保留用量与原月度锚点，乐观版本和持久请求键防止重复延长。已保存变更在失败后重试面板同步，界面区分待处理与面板已确认状态；恢复及解封不能绕过未确认变更或启用尚未准备好的服务。原开通请求范围在合并和删除后仍保留。账号封禁／解封先持久化同步任务再访问面板，中断或 worker 重启后可重试，检查所有已知身份；解封保留到期、耗尽和暂停限制。后台用户页区分待处理变更与面板确认状态并支持重试。账号同步跳过已撤销身份并保留历史；网站和 Telegram 删除账号前都要求已绑定服务完成计量撤销，不能绕过异常核对或终态结算。旧订阅／结算写操作、订阅交付及隐式登录奖励返回 HTTP 410；支付和账号级面板 webhook 停用，旧权益 worker 不再启动，排队核心事件转入死信队列，既不发放权益也不丢弃载荷。独立服务后台隐藏旧订阅操作、账号级额度和销售设置，旧筛选与深链接不再展示冲突的服务模型；保留账号生命周期操作，历史付款只读。Telegram 菜单引导用户到网站管理服务，旧权益回调、遗留输入状态和内置支付处理器在正常鉴权后停用；注册、语言及账号操作仍可用，不隐式发放订阅。拒绝预结算，收到的历史付款凭证进入现有队列供死信核对，不授予权益。真实节点验收仍在进行。专用 worker 以精确分组、额度和到期时间准备禁用的服务身份，不使用账号级身份字段。持久化不确定标记保护中断请求后的账号删除；重试核对同一身份，拒绝归属冲突，不重建已绑定却丢失的身份。准备阶段保持待处理，不启用访问。独立用量采样按服务保存累计观测，重复样本不重复计量；故障、缺失数据或计数回退时保留已确认用量及时间戳。前后台展示未确认状态，不隐藏超额。月度额度从持久累计检查点切换，不重置面板计数、不打断正常连接；检查点后流量归新周期，页面在面板确认后切换，重试保持同一绝对上限，已结束周期保留含超额的实际用量。定期核对无需管理员操作即可限制已确认到期／耗尽服务；准备、续期、解封和交付共用权益检查。模板额度修改为现有服务排入可审计调整，保留用量、原始条款和已结束周期；调低额度仍展示超额。服务暂停或取消且面板禁用已确认后，管理员可凭精确核查记录校正重置计数；恢复保留累计历史和计数映射，不替换身份、不自动恢复访问。取消后禁止续期和恢复；终态结算保留旧周期与固定检查点，记录后续精确用量，清除待切换状态而不虚称新额度已确认。删除身份前必须提交计量证据；撤销完成后可安全重试已提交核对，不访问已删除的面板身份、不重复校正。准备好的服务在计量确认后可申请交付，专用出口还须记录验证；持久请求使用共享权益同步器，暂停、封禁、到期和耗尽在重试后仍阻止访问。读取服务订阅时重新检查归属和面板条款，不在列表、浏览器存储或面板响应日志暴露凭据。服务详情从随包提供并验证的教程配置打开本地化客户端说明，只插入当前服务已确认链接；旧账号级教程接口继续不可用。终态取消保存撤销意图并重试原身份，保留最后接受的用量；最终计量与删除请求在移除身份前一同提交，原因不明的身份缺失保持待处理，不虚假完成撤销。已确认删除可跨面板临时故障重试，不丢弃计量证据。DELETE 后仍能读到身份时，保存新计数或异常并使旧删除证据失效，不采用其他服务的计数；停用前观察到的回退或重置保持待核对，即使后续读数变大也不抹去缺失用量。专用出口验证和人工回收记录管理员、证据及分配版本；回收要求确认身份已移除，且运营者随后提供旧连接已断开、旧配置不能重连的证据，不能仅凭面板响应释放资源。真实 Node 限制、固定出口、独占性及旧配置拒绝仍未验证。
+
+- **独立服务简体中文。** 网站与运营后台通过现有语言偏好和按范围加载机制提供 `zh-hans`，识别常见简体中文浏览器语言标签。账号、服务、资源和历史等核心流程提供中文，包括额度调整和用量核对；服务日期保持北京时间。切换语言同步更新文档语言，便于辅助技术识别。新邮箱账号通过验证码或登录链接注册时，沿用页面的语言 Cookie／浏览器语言选择；已有账号继续使用保存的偏好。英语和俄语继续可选，语言检查保护新增服务文案和占位符。运营页面、共享编辑器及账号／支持邮件补充中文。中文客户端指南和三语安装示例覆盖桌面、手机及支持的电视平台，注明官方下载来源与尚未验证的导入路径。中文文档正文、导航、社区目录、邮件预览、API 参考及生成的事件／面板兼容性目录同步使用中文，项目自有截图和第三方项目简介封面同步汉化，保留技术标识和历史来源。文档演示默认中文独立服务，保留已保存的语言选择；主题配色和系统字体选项同步本地化。
+
+
+- **嵌套对话框键盘焦点。** 表情选择器在下一次键盘事件前接管焦点，立即按 Escape 会关闭选择器而不是父编辑器；保留已有焦点恢复断言。
+
+- **可靠的支持处理器。** 外部集成获得所选工单所有者的受限上下文、保存后的新消息事件及分页变更核对。条件发送在同一锁内检查对话版本、状态和负责人；重复任务返回原回复。自动回复有独立来源和签名，并保留操作员的未读消息。上下文包含最近付款状态、连接、设备、系统、应用和最后服务器，注明来源及未知值。集成从与用户教程相同的配置取得专属订阅和下载链接，包含外部分组分配；最后服务器名称来自节点目录，单项读取失败不隐藏其余信息。回复支持普通按钮，任务重试同时核对文本和按钮。工单面板可一键插入带按钮的预设文本，出错或切换工单时保留编辑器内容。
   ([64ff99b6](https://gitlab.com/3252a8/remnawave-minishop/-/commit/64ff99b60416b68237049df9343cd4682af80099),
   [eaaf506d](https://gitlab.com/3252a8/remnawave-minishop/-/commit/eaaf506d3e3009b5ed4c54f412c419959421ad81),
   [74fcf09f](https://gitlab.com/3252a8/remnawave-minishop/-/commit/74fcf09f3164d5f74dbdeedc87075ac359d1b361))
 
-- **Лимиты тарифов в Mini App.** При покупке подписки, подарка и смене тарифа
-  количество устройств, обычный и премиум-трафик показаны компактными бейджами
-  в строке с названием; описание остаётся ниже. Неизвестный лимит, безлимит
-  и отсутствие премиум-трафика различаются. Пакеты трафика показывают диапазон
-  доступных объёмов; оформление использует общие элементы и CSS-переменные темы.
+- **Mini App 套餐上限。** 购买订阅、礼品和变更套餐时，设备数、普通及高级流量以紧凑标签与名称同排显示，描述置于下方。区分未知上限、不限量和没有高级流量。流量包显示可选容量范围，使用共享元素与主题 CSS 变量。
   ([#104](https://gitlab.com/3252a8/remnawave-minishop/-/work_items/104))
   ([08ffdb12](https://gitlab.com/3252a8/remnawave-minishop/-/commit/08ffdb12f87bc052bd758ded580919f9e6138abc))
 
-- **События плагинов в логах пользователя.** Публичный `PluginContext.emit_event()`
-  сохраняет источник `plugin:<имя>:<событие>`; в карточке пользователя есть отдельная
-  отметка «Плагин». Подписчики получают прежний payload, который не копируется в журнал.
+- **用户日志中的插件事件。** 公开 `PluginContext.emit_event()` 保存 `plugin:<名称>:<事件>` 来源，用户卡片增加“插件”标记。订阅者接收原载荷，载荷不复制进日志。
   ([#128](https://gitlab.com/3252a8/remnawave-minishop/-/work_items/128))
   ([1e72cc1c](https://gitlab.com/3252a8/remnawave-minishop/-/commit/1e72cc1c4d22b08c56b8a86ec2934255cf9d3eba))
 
-- **Cryptomus.** Криптосчета с ценой в RUB или USD доступны в Telegram и Web App.
-  Отдельный способ автоплатежа поддерживает недельный, месячный и трёхмесячный
-  план провайдера; отмена останавливает план у Cryptomus. Подписи, неполная
-  оплата и повторные уведомления проверяются до выдачи покупки. P2P СБП
-  не включён: Merchant API не описывает такой метод. Настройки собраны в одной
-  карточке провайдера с отдельными группами разовой оплаты и автоплатежей.
+- **Cryptomus。** Telegram 和网页应用支持以 RUB 或 USD 定价的加密货币账单。独立自动支付方式支持提供商的每周、每月和每三月计划，取消会停止 Cryptomus 计划。交付前验证签名、未足额付款和重复通知。不启用 P2P 快速支付系统（SBP），因为 Merchant API 未定义此方法。后台一张提供商卡片分组展示单次与自动支付设置。
   ([#95](https://gitlab.com/3252a8/remnawave-minishop/-/work_items/95))
   ([b27a7465](https://gitlab.com/3252a8/remnawave-minishop/-/commit/b27a7465fc150f1a8b0bc89e99607cccf63c6148))
   ([2aba04c2](https://gitlab.com/3252a8/remnawave-minishop/-/commit/2aba04c2ead293361af3ed2ba55e31f2d2ae2a53))
 
-- **CisPay.** Разовые платежи картой, СБП и криптовалютой; отдельные автоплатежи
-  картой и СБП в RUB на 7–360 дней, с подтверждённой отменой и восстановлением
-  оплаченных циклов по истории провайдера. Иконки и настройки доступны в админке:
-  одна карточка провайдера содержит общие настройки, разовую оплату и отдельные
-  группы автоплатежей картой и СБП без повторяющихся переключателей.
+- **CisPay。** 支持银行卡、快速支付系统及加密货币单次支付；银行卡和快速支付系统可分别进行 RUB 自动支付，周期 7–360 天，支持确认取消及按提供商历史恢复已付款周期。后台提供图标与设置，一张卡片包含通用、单次和两类自动支付分组，不重复开关。
   ([#94](https://gitlab.com/3252a8/remnawave-minishop/-/work_items/94))
   ([650987c9](https://gitlab.com/3252a8/remnawave-minishop/-/commit/650987c95cb48d379b8f9f20fad6100e43667146))
-- **Anore.** Разовые счета в RUB и USD доступны в Telegram и Web App; касса,
-  методы оплаты и оформление настраиваются в админке. Подписанные уведомления
-  и сверка статуса проверяют исходную сумму и валюту, повторная доставка не
-  начисляет покупку повторно. Рекуррентные списания API провайдера не описывает.
+- **Anore。** Telegram 与网页应用支持 RUB 和 USD 单次账单；后台可配置收银台、支付方法和外观。签名通知和状态核对检查原金额及币种，重复投递不重复授予购买权益。提供商 API 未定义循环扣款。
   ([#107](https://gitlab.com/3252a8/remnawave-minishop/-/work_items/107))
   ([880bd90d](https://gitlab.com/3252a8/remnawave-minishop/-/commit/880bd90dbc00cc332011b47ff631486b1a74677e))
 
-- **Учёт активации подарка по приглашению.** Настройка
-  `REFERRAL_GIFT_ACTIVATION_ENABLED` по умолчанию включена. Успешная
-  активация начисляет период получателю и пригласившему по существующей связи и
-  сохранённым условиям подарка. При ограничении первым событием личная покупка и
-  учитываемая активация занимают одно общее место; повторный запрос не удваивает срок.
-  Покупка подарка, открытие ссылки и старые активации не создают начислений.
+- **邀请中的礼品激活计量。** 默认开启 `REFERRAL_GIFT_ACTIVATION_ENABLED`，成功激活按已有邀请关系和礼品快照为领取者与邀请者增加有效期。仅首次事件奖励时，个人购买与符合条件的激活共用一次名额；重试不重复增加。购买礼品、打开链接或旧激活不产生奖励。
   ([#108](https://gitlab.com/3252a8/remnawave-minishop/-/work_items/108))
   ([59a409c9](https://gitlab.com/3252a8/remnawave-minishop/-/commit/59a409c9daf133ec7c23161194d1bb82f3835055))
 
-- **История платежей в личном кабинете и Telegram.** Раздел доступен из настроек,
-  бокового меню на десктопе и бот-меню. Кнопка перехода из настроек занимает
-  всю ширину контейнера на десктопе. Пользователь видит собственные покупки
-  с постраничной навигацией, обработку платежа провайдером и ожидание начисления.
-  Неоплаченные просроченные ссылки скрыты; действующую ссылку можно открыть
-  нажатием на статус «Ожидает оплаты». При перелистывании и обновлении загрузка
-  показана скелетонами внутри таблицы; высота списка сохраняется для короткой страницы,
-  пустого ответа и ошибки. Пояснения к статусам появляются при наведении
-  или нажатии. Редакторы сообщений и кнопок меню предлагают прямой переход в раздел.
+- **个人中心与 Telegram 付款历史。** 可从设置、桌面侧栏和机器人菜单进入，桌面设置入口占满容器宽度。用户分页查看自己的购买、提供商处理状态和权益发放等待状态。隐藏已过期未付款链接，点击“等待付款”可打开有效链接。翻页与刷新在表格中展示骨架屏，短页、空响应和错误时保持列表高度。悬停或点击可查看状态解释；消息和菜单按钮编辑器支持直达此页面。
   ([#55](https://gitlab.com/3252a8/remnawave-minishop/-/work_items/55),
   [#131](https://gitlab.com/3252a8/remnawave-minishop/-/issues/131))
   ([9b6d7044](https://gitlab.com/3252a8/remnawave-minishop/-/commit/9b6d7044287d9a38a3f7b4071cf36f1f0bf0c790))
   ([4962b3cb](https://gitlab.com/3252a8/remnawave-minishop/-/commit/4962b3cbcdf947d9d0da82fa3942a66638853a8f))
   ([51221a21](https://gitlab.com/3252a8/remnawave-minishop/-/commit/51221a2123502f6df1e12ab51c08c5c7c3f36ec5))
 
-- **QR подарочных ссылок и экспорт изображения.** Подарки открывают общий QR-диалог;
-  изображение текущей ссылки можно скачать в PNG или скопировать при поддержке
-  буфера обмена. Отказ копирования показывает понятное сообщение и сохраняет скачивание.
-  В инструкции подключения QR отцентрирован; компактные кнопки стоят справа
-  и не влияют на положение изображения.
+- **礼品链接二维码及图片导出。** 礼品使用共享二维码对话框，可下载当前链接的 PNG，在剪贴板支持时复制图片；复制被拒时给出明确消息，并保留下载。连接教程二维码居中，右侧紧凑按钮不影响图片位置。
   ([#123](https://gitlab.com/3252a8/remnawave-minishop/-/work_items/123),
   [#124](https://gitlab.com/3252a8/remnawave-minishop/-/work_items/124))
   ([687ba6dd](https://gitlab.com/3252a8/remnawave-minishop/-/commit/687ba6dd2ce20024c9bcd2fa5a296a2289b3cea4), [c0519541](https://gitlab.com/3252a8/remnawave-minishop/-/commit/c051954100e0198b13b57bae8146653485dfc640))
 
-- **Экраны и шорткоды плагинов в сообщениях.** Все редакторы кнопок предлагают
-  клиентские страницы активных расширений. Плагины могут добавлять локализованные
-  шорткоды с пакетной загрузкой значений и безопасной подстановкой в сообщения.
+- **消息中的插件页面与短代码。** 所有按钮编辑器提供已启用扩展的用户页面；插件可增加本地化短代码，批量加载值并安全替换到消息。
   ([#126](https://gitlab.com/3252a8/remnawave-minishop/-/work_items/126))
   ([f055b7db](https://gitlab.com/3252a8/remnawave-minishop/-/commit/f055b7dbfd03add18378ede6160695dd1beeaebb))
 
-- **Ручное слияние аккаунтов в админке.** Из блока опасных действий администратор
-  находит второй аккаунт через поиск пользователей, сравнивает компактные карточки
-  со свежими способами входа и ограничениями и подтверждает сохраняемый ID.
-  Подписки и совместимые способы входа переносятся по общим правилам; конфликты,
-  блокировки и история административных ролей запрещают действие, результат
-  записывается в журнал. Общие использованные коды активации не мешают объединению:
-  обе записи истории и начисленные периоды сохраняются, повторное применение кода
-  не разрешается. Событие объединения отправляется только после успешного
-  сохранения транзакции; откат не запускает перенос данных расширений.
+- **后台手动合并账号。** 管理员从危险操作区搜索第二账号，比较包含最新登录方式和限制的简洁卡片，并确认保留的 ID。按通用规则迁移订阅与兼容登录方式；冲突、封禁和管理角色历史会阻止合并，结果写入日志。双方使用同一激活码不妨碍合并：保留两条历史与已增加有效期，不允许再次使用。合并事件仅在事务成功提交后发送，回滚不会触发扩展数据迁移。
   ([#96](https://gitlab.com/3252a8/remnawave-minishop/-/work_items/96))
   ([c0471f4b](https://gitlab.com/3252a8/remnawave-minishop/-/commit/c0471f4b62a14dfaa6d71b27a34df43a5d6f8ed0))
 
-- **Автопродление с баланса.** Настройки баланса перенесены в платёжные системы отдельной
-  карточкой с переходом в партнёрскую программу. `USER_BALANCE_RECURRING_ENABLED`, выключенный
-  по умолчанию, позволяет пользователю включить автопродление в карточке оплаты, когда выбранный
-  личный или партнёрский баланс покрывает весь период с гибкими лимитами. Продления списываются
-  только из выбранного источника; смешанная оплата, подарки и отдельные докупки не становятся
-  рекуррентными. Докупка ресурсов блокируется при включённом автопродлении с баланса.
+- **余额自动续期。** 余额设置移至支付系统独立卡片，提供合作伙伴计划入口。默认关闭的 `USER_BALANCE_RECURRING_ENABLED` 允许用户在所选个人／伙伴余额足以覆盖含灵活上限的完整周期时，在付款卡片启用自动续期。仅从所选来源扣款；混合支付、礼品和独立加购不会变为循环付款。余额自动续期启用时禁止资源加购。
   ([291d9e67](https://gitlab.com/3252a8/remnawave-minishop/-/commit/291d9e67da1d87e7a2ef5b831675ea67475d75ec))
 
-- **Начисление периода за приглашение в составе триала.** Настройка
-  `REFERRAL_WELCOME_BONUS_ADDS_TO_TRIAL` вместо отдельной подписки при регистрации по
-  приглашению добавляет положенные дни к бесплатному пробному периоду. Бот сообщает
-  общий срок при регистрации, Web App показывает его перед активацией; начисление
-  отмечается использованным при выдаче триала. В веб-админке переключатель доступен
-  в настройках реферальной программы, рядом с числом дней приветственного начисления;
-  изменение учитывается общим сохранением и может быть сброшено до сохранения. Поиск
-  по настройкам находит каждую настройку реферальной программы по названию или имени
-  переменной и подсвечивает её; названия в поиске совпадают с подписями полей на русском
-  и английском, включая число дней приветственного начисления. Переход прокручивает
-  раздел и к нижним полям: нажатие результата не отменяет собственную прокрутку.
-  По умолчанию настройка выключена.
-  Правила привязки Telegram сохраняются; покупка до активации триала не начисляет эти дни.
+- **将邀请注册奖励并入试用。** `REFERRAL_WELCOME_BONUS_ADDS_TO_TRIAL` 将邀请注册应得天数加到免费试用，而非另发订阅。机器人注册时告知总时长，应用在激活前展示；试用发放时标记奖励已用。后台邀请设置中的开关紧邻欢迎奖励天数，参与统一保存，保存前可重置。设置搜索按名称或变量名找到并高亮所有邀请设置；搜索名称与俄语／英语字段标签一致，包括欢迎奖励天数。跳转可滚动到下方字段，点击结果不取消自身滚动。默认关闭；保留 Telegram 绑定规则，试用激活前购买不授予这些天数。
   ([ac52973f](https://gitlab.com/3252a8/remnawave-minishop/-/commit/ac52973f820c417a8a0b163a5c2310cfbc46c9e8))
   ([6ee74f80](https://gitlab.com/3252a8/remnawave-minishop/-/commit/6ee74f80d0f4bb9041334450a6e3e671a8156c62), [e7a00a6f](https://gitlab.com/3252a8/remnawave-minishop/-/commit/e7a00a6fe2ceba5d65d7fbb862a81e16af493eeb), [181c82d1](https://gitlab.com/3252a8/remnawave-minishop/-/commit/181c82d1dbee601e03d8662b81d9702d8b815eb1))
 
-- **Вход по QR-коду.** При включённом `QR_LOGIN_ENABLED` новое устройство показывает
-  код магазина, а устройство с активной сессией сканирует его через Telegram или
-  камеру браузера и подтверждает вход числом с экрана нового устройства. Код
-  одноразовый, хранится как хеш; сессию получает только браузер, начавший вход.
-  Три неверных числа отклоняют запрос. В настройках показан публичный адрес магазина.
-  Камера разрешена только для самого магазина при включённом способе входа;
-  закрытие окна отменяет запрос, запоздавшие ответы не меняют повторно открытый диалог.
-  Кнопка сканирования в настройках занимает всю ширину контейнера и на десктопе.
+- **二维码登录。** 开启 `QR_LOGIN_ENABLED` 后，新设备显示商店二维码；已登录设备通过 Telegram 或浏览器摄像头扫描，并输入新设备屏幕数字确认。二维码一次性使用，仅存哈希，只有发起登录的浏览器可取得会话。数字错误三次拒绝请求。设置展示商店公开地址；仅开启此方式时允许商店自身使用摄像头。关闭窗口取消请求，迟到响应不影响重新打开的对话框。桌面设置中的扫描按钮同样占满宽度。
   ([e167842b](https://gitlab.com/3252a8/remnawave-minishop/-/commit/e167842b74c591d997f75e38cfd79da15e2e95cd), [992e6168](https://gitlab.com/3252a8/remnawave-minishop/-/commit/992e616823db67eabf1b96f6ffdd4d8bccfc4201), [83c8a3af](https://gitlab.com/3252a8/remnawave-minishop/-/commit/83c8a3afc7b0b3acb3805e6d6cdd2812a6b5cbdc))
 
-### Изменено
+<a id="изменено"></a>
 
-- **Зависимости и сборка.** Обновлены совместимые Python-пакеты, библиотеки
-  веб-интерфейса и документации, инструменты проверки кода. Lock-файлы
-  пересозданы штатными генераторами; базовые образы Node и Docker CLI
-  закреплены по актуальным неизменяемым digest. Проверка подписанных артефактов
-  использует исправленный Cosign 3.1.3 с проверкой контрольной суммы исполняемого файла.
-  Сканирование образов учитывает длительную первичную загрузку базы уязвимостей.
+### 变更
+
+- **依赖与构建。** 更新兼容的 Python 包、网页和文档库、代码检查工具；使用标准生成器重建 lock 文件，Node 与 Docker CLI 基础镜像固定为最新不可变摘要。签名产物检查使用修复后的 Cosign 3.1.3，并验证可执行文件校验和。镜像扫描考虑漏洞库首次下载较慢的情况。
   ([3cc6b483](https://gitlab.com/3252a8/remnawave-minishop/-/commit/3cc6b483fb70a0ec97fc66a3575c4b1b344fdfd8))
 
-- **Remnawave Panel 3.4.5.** Версия добавлена в сертифицированную матрицу API
-  и стала текущим пресетом dev-стенда. Проверяются чтение и запись на живой панели,
-  обновление `2.8.1 → 3.4.5` на той же базе и сохранение подписок после синхронизации;
-  предыдущие сертифицированные версии остаются в матрице. Изменений настроек Core
-  для обновления панели не требуется.
+- **Remnawave Panel 3.4.5。** 加入 API 认证矩阵，成为当前开发环境预设。验证真实面板读写、同库 `2.8.1 → 3.4.5` 升级及同步后订阅保留；此前认证版本继续保留。面板升级不要求调整核心设置。
   ([c5f384ce](https://gitlab.com/3252a8/remnawave-minishop/-/commit/c5f384ce751d9453b2fd5782f3f8b640d02977c0))
-  ([изменения панели](https://f.docs.rw/t/topic/354/26))
+  ([面板变更](https://f.docs.rw/t/topic/354/26))
 
-- **Реферальные условия тарифов.** Одинаковые условия нескольких тарифов показаны
-  одним набором периодов с перечислением применимых тарифов. Разные длительности,
-  начисления периода и ограничения доступа сохраняют отдельные сводки.
+- **套餐邀请条款。** 多套餐条款相同时合并为一组周期并列出适用套餐；时长、奖励和访问限制不同的仍分别汇总。
   ([#125](https://gitlab.com/3252a8/remnawave-minishop/-/work_items/125))
   ([301144ca](https://gitlab.com/3252a8/remnawave-minishop/-/commit/301144ca5658820f71f1799a72ffb5b61b917c43))
 
-- **Приглашения и пробный период.** После окончания подписки, выданной за регистрацию
-  по приглашению, доступен обычный триал. Покупка во время этой подписки и подписки,
-  выданные после неё, по-прежнему закрывают триал; действующая подписка его блокирует.
+- **邀请与试用。** 邀请注册所获订阅结束后可使用普通试用；该订阅期间购买或之后获得的订阅仍会关闭试用，现有有效订阅仍阻止试用。
   ([ac52973f](https://gitlab.com/3252a8/remnawave-minishop/-/commit/ac52973f820c417a8a0b163a5c2310cfbc46c9e8))
 
-### Исправлено
+<a id="исправлено"></a>
 
-- В стандартный список разрешённых IP Wata добавлен `51.250.117.109`, чтобы
-  уведомления с этого адреса не отклонялись с HTTP 403. Проверка подписи сохранена.
+### 修复
 
-- Автообъединение записей панели по Telegram ID сохраняет исходный вручную созданный
-  аккаунт и его имя. Подписка Minishop переносится с тарифом, лимитами, историей,
-  согласием на продление и действующей публичной ссылкой; оплаченные сроки объединяются.
-  Повтор после частичного сбоя не удваивает срок и учитывает новые покупки или отмену.
-  Неоднозначные связи и записи другого локального владельца требуют ручного разбора.
+- Wata 默认 IP 允许清单增加 `51.250.117.109`，避免该地址通知被 HTTP 403 拒绝；保留签名检查。
+
+- 按 Telegram ID 自动合并面板记录时，保留最初手动创建的账号及名称。迁移 Minishop 套餐、上限、历史、续期同意及有效公开链接，并合并已付时长。部分失败后重试不重复增加时间，同时考虑新购买或取消。关联不明确或属于其他本地所有者的记录须人工处理。
   ([#132](https://gitlab.com/3252a8/remnawave-minishop/-/work_items/132))
   ([f21223f5](https://gitlab.com/3252a8/remnawave-minishop/-/commit/f21223f50ea87da258b1805379206807e62bf229))
 
-- Форма плагинов различает установку нового пакета и обновление существующего.
-  При обновлении она показывает сохранение включённого или выключенного состояния;
-  название операции и кнопка подтверждения больше не обещают выключенную установку.
+- 插件表单区分新安装与更新。更新时显示保留启用／停用状态，操作名称和确认按钮不再误称会停用安装。
   ([#129](https://gitlab.com/3252a8/remnawave-minishop/-/issues/129))
   ([431e829c](https://gitlab.com/3252a8/remnawave-minishop/-/commit/431e829cdc6138132b0b15c1af3181e28abcddf1))
 
-- На главной странице документации баннер, заголовок и кнопки центрированы
-  на мобильных устройствах и десктопе. Баннер помещается в ширину страницы,
-  а кнопки расположены компактнее и переносятся без лишних отступов.
+- 文档首页横幅、标题和按钮在手机与桌面居中；横幅适配页面宽度，按钮更紧凑，换行无多余间距。
   ([4d5740c5](https://gitlab.com/3252a8/remnawave-minishop/-/commit/4d5740c5c69ae6ee668d2cca282b1bdfe6c009a4))
 
-- Приватная ссылка скрытого тарифа подтверждает цену и позволяет создать платёж
-  при первой покупке и переходе с триала, включая выбранные дополнительные устройства.
-  Код доступа учитывается при повторном расчёте корзины; без действительного кода
-  неназначенный скрытый тариф остаётся недоступным.
+- 隐藏套餐私有链接在首次购买和试用转付费时可确认价格并创建付款，包含所选额外设备。重算购物车时保留访问码；无有效码时，未分配的隐藏套餐仍不可访问。
   ([#127](https://gitlab.com/3252a8/remnawave-minishop/-/work_items/127))
   ([d3c83fe0](https://gitlab.com/3252a8/remnawave-minishop/-/commit/d3c83fe0232aa6f5fc639745ac4e3f895783c697))
 
-- Публичный шлюз подписки работает с внутренним HTTP endpoint Remnawave Panel:
-  служебные proxy-заголовки формируются из доверенного адреса клиента, а профиль,
-  HWID и статусы отказа панели сохраняются. Оба примера внешнего Nginx принимают
-  крупные заголовки настроек клиента с запасом под заголовки магазина.
+- 公开订阅网关兼容 Remnawave Panel 内部 HTTP 端点：从可信客户端地址构造代理头，保留配置、HWID 和面板拒绝状态。两份外部 Nginx 示例支持较大客户端设置头，并为商店头预留空间。
   ([681a9d9d](https://gitlab.com/3252a8/remnawave-minishop/-/commit/681a9d9d4bb38ffa6e486e6768b22c23b76088cc))
 
-- Полоса устройств различает доступный конечный лимит, его достижение или превышение,
-  безлимит и ожидание данных. Предупреждение определяется точным количеством устройств,
-  сопровождается доступной подписью и обновляется после отключения или обновления списка;
-  округление заполнения до 100% само по себе не означает исчерпания лимита.
+- 设备进度区分有限额度、达到或超过额度、不限量和等待数据。告警按精确设备数计算，提供可访问标签，并在断开设备或刷新列表后更新；进度四舍五入为 100% 本身不表示额度耗尽。
   ([3a68326f](https://gitlab.com/3252a8/remnawave-minishop/-/commit/3a68326fbbd469bb540d8a4fdcb9b7838e6c7df7))
 
-- Список документов в настройках сначала показывает ожидание ответа API.
-  Иконки соответствуют роли документа; порядок и ссылки остаются стабильными.
-  Старые ссылки политики и соглашения появляются после определения отсутствия
-  соответствующих документов, включая пустой ответ и недоступность старого API.
+- 设置中的文档列表先等待 API 响应。图标对应文档用途，顺序和链接稳定；确认缺少相应文档后才显示旧隐私与协议链接，包括空响应或旧 API 不可用的情况。
   ([17a70235](https://gitlab.com/3252a8/remnawave-minishop/-/commit/17a70235971da47cb6af2cdf3e8039e153477fd9))
 
-- После перехода из документа в кабинет Telegram SDK восстанавливается из
-  сохранённого контекста запуска, даже если query/hash уже отсутствуют.
-  Документы и кабинет используют общий lifecycle fullscreen и безопасных отступов
-  с очисткой обработчиков и поддержкой поздней загрузки SDK. Обычный браузер
-  не получает Telegram-отступы из повреждённых данных; подписанные параметры
-  авторизации не переносятся в публичные ссылки документов.
+- 从文档返回个人中心后，即使查询参数／哈希已不存在，Telegram SDK 仍从已保存启动上下文恢复。文档与个人中心共用全屏及安全边距生命周期，清理处理器并支持 SDK 延迟加载。普通浏览器不会因损坏数据得到 Telegram 边距；签名鉴权参数不进入公开文档链接。
 
-- Документы без опубликованных пунктов бокового меню сохраняют всю доступную
-  ширину при переходе от мобильной к десктопной разметке. Колонка навигации
-  появляется только при наличии меню; ограничение ширины текста для чтения сохранено.
+- 没有已发布侧栏项目的文档，在手机切到桌面布局时仍使用完整可用宽度。仅存在菜单时显示导航列，保留适合阅读的正文宽度限制。
   ([807d2096](https://gitlab.com/3252a8/remnawave-minishop/-/commit/807d20967bf5e42edb817ca54be444e5b4c84cdb))
 
-- Проверка SVG в импорте тем демо разбирает XML без удаления комментариев:
-  некорректная разметка, чужие пространства имён и закодированные внешние ссылки
-  отклоняются. Параметры возврата OAuth кодируются как данные запроса; HTTPS-клиенты
-  явно требуют TLS 1.2 или новее. Проверка эмодзи использует точные диапазоны Unicode
-  без неоднозначных диапазонов регулярного выражения.
+- 演示主题导入的 SVG 验证解析 XML 时不删除注释；拒绝无效结构、外部命名空间和编码的外部链接。OAuth 返回参数作为查询数据编码；HTTPS 客户端显式要求 TLS 1.2 或更高。表情检查使用精确 Unicode 范围，避免含糊正则区间。
   ([ce1cf256](https://gitlab.com/3252a8/remnawave-minishop/-/commit/ce1cf256ba9848ab38458747a732eb0d9ac0b57f))
 
-- Адреса Xray Checker, Uptime Kuma, SMTP и сервиса курсов PayKilla, сохранённые
-  администратором, разрешают подключения к точному внутреннему хосту и порту без
-  перезапуска. Разрешения следуют текущим настройкам; мониторинг обновляет соединения,
-  а смена URL курсов исключает использование кэша прежнего источника. Отдельный worker
-  подхватывает сохранённые и сброшенные настройки SMTP и платёжных провайдеров из базы.
+- 管理员保存的 Xray Checker、Uptime Kuma、SMTP 和 PayKilla 汇率地址，可无需重启连接精确的内部主机与端口。许可随当前设置变化，监控更新连接，汇率地址更改后不使用旧来源缓存。独立 worker 从数据库读取保存和重置后的 SMTP 与支付提供商设置。
   ([5fe9d6b8](https://gitlab.com/3252a8/remnawave-minishop/-/commit/5fe9d6b803f24cac6d0ebd6745bcdb9d44effa9c))
 
-### Производительность
+<a id="производительность"></a>
 
-- Зависимости локальных проверок переиспользуются вне рабочей копии. Linux-окружение
-  тестов отделено от исходников и сборки фронтенда, удерживается без фонового процесса
-  и использует проверенный образ Docker Hub по неизменяемому digest. Очистка старых
-  окружений затрагивает только их собственные не запущенные keeper-контейнеры.
-  Браузерные проверки CI разделены на два прогона; полный локальный стенд корректно
-  исключает отключённые необязательные зависимости.
+### 性能
+
+- 本地检查依赖在工作副本外复用。Linux 测试环境与源码及前端构建隔离，无后台进程保留环境，使用经验证的 Docker Hub 不可变摘要镜像。旧环境清理只处理自身未运行的保留容器。CI 浏览器检查拆成两轮；完整本地环境正确排除已禁用的可选依赖。
   ([1f2b3782](https://gitlab.com/3252a8/remnawave-minishop/-/commit/1f2b3782d7c0c28873007905b731ae045ba1ca3d), [a507fd4b](https://gitlab.com/3252a8/remnawave-minishop/-/commit/a507fd4b5bf2bc268b0438be0d5090699c5f3a2b))
 
-### При обновлении
+<a id="при-обновлении"></a>
 
-- Автоплатежи CisPay включаются через `CISPAY_SUBSCRIPTION_CARD_ENABLED` и
-  `CISPAY_SUBSCRIPTION_SBP_ENABLED`; провайдер должен разрешить их магазину.
+### 升级注意
 
-- Миграция `0105` сохраняет владельца и исходную покупку рекуррентного плана.
-  Автоплатежи Cryptomus включаются отдельно через `CRYPTOMUS_SUBSCRIPTION_ENABLED`;
-  расписание и списания ведёт провайдер, подтверждение и начисление — штатный worker.
+- 通过 `CISPAY_SUBSCRIPTION_CARD_ENABLED` 和 `CISPAY_SUBSCRIPTION_SBP_ENABLED` 启用 CisPay 自动付款，提供商也须为商店开通权限。
 
-- Миграция `0102` сохраняет согласие на автопродление с баланса. Разрешение
-  `USER_BALANCE_RECURRING_ENABLED` включается отдельно в настройках платёжных систем;
-  для автоматических списаний должен работать штатный worker.
+- 迁移 `0105` 保存循环计划所有者和原始购买。Cryptomus 自动付款通过 `CRYPTOMUS_SUBSCRIPTION_ENABLED` 单独启用；提供商负责排期和扣款，标准 worker 负责确认与权益发放。
 
-- Приглашённые пользователи после окончания подписки, выданной за регистрацию,
-  получают доступ к пробному периоду без ручного сброса триала.
+- 迁移 `0102` 保存余额自动续期同意。支付系统设置中须另行启用 `USER_BALANCE_RECURRING_ENABLED`；自动扣款要求标准 worker 运行。
+
+- 邀请注册所获订阅结束后，用户无需人工重置即可使用试用。
 
 ## v3.8.1 — 2026-10-06
 
 [GitLab](https://gitlab.com/3252a8/remnawave-minishop/-/releases/v3.8.1) · [GitHub](https://github.com/3252a8/remnawave-minishop/releases/tag/v3.8.1)
 
-### Обзор
+<a id="обзор"></a>
 
-Добавлены telegram custom emoji, цветные кнопки в телеграм бот-меню, расширена рекламная аналитика. Улучшены перенос резервных копий между серверами, управление аккаунтами пользователей, платежи, учёт трафика, уведомления и синхронизация с Remnawave; усилена безопасность.
+### 概览
 
-### Изменения
+新增 Telegram 自定义表情与机器人菜单彩色按钮，扩展广告分析。改进跨服务器备份迁移、用户账号管理、支付、流量计量、通知和 Remnawave 同步，并加强安全性。
 
-* **Добавлены настройки оформления Telegram и библиотека эмодзи.** Цвета кнопок, custom emoji и предпросмотр меню доступны в админке. Эмодзи поддерживаются в рассылках, письмах и обращениях поддержки. ([a97c04e4](https://gitlab.com/3252a8/remnawave-minishop/-/commit/a97c04e4048e3dbdc60e33a08c40127f4cb9f09a), [1b192d57](https://gitlab.com/3252a8/remnawave-minishop/-/commit/1b192d579e34d2dfba6fb9a9c662e1d75911e8e9), [df59e047](https://gitlab.com/3252a8/remnawave-minishop/-/commit/df59e04795a3add62b164dee4a4fdbdb59b63656), [148a5d94](https://gitlab.com/3252a8/remnawave-minishop/-/commit/148a5d94a5ae5a38ad26c3b5560034efa6da390c))
-* **Расширена рекламная аналитика.** Кампании объединяют ссылки, UTM, контакты, расходы и источники заказов. Добавлены отчёты по периодам и когортам, импорт статистики с предпросмотром, CSV-выгрузки и кабинет рекламодателя с командой `/my_ads`. ([4b05c59f](https://gitlab.com/3252a8/remnawave-minishop/-/commit/4b05c59fc2a3ccc78ebd3c7102c1017e14dbe330), [75cc04e5](https://gitlab.com/3252a8/remnawave-minishop/-/commit/75cc04e5b4431a3db3847205c04965a1d679043e))
-* **Расширен и проверен перенос бэкапов между серверами через админку.** Архив включает установленные плагины и пользовательские темы; удалённые пакеты и временные файлы исключены. Большие архивы отправляются в Telegram частями и собираются при восстановлении. Ручное создание работает и без Telegram. ([874f14d6](https://gitlab.com/3252a8/remnawave-minishop/-/commit/874f14d60c2ee43bd783cdb22efcb37d22b2298f), [1566e94e](https://gitlab.com/3252a8/remnawave-minishop/-/commit/1566e94e76dd765f5f167224e63703c869d35ee5), [144e467f](https://gitlab.com/3252a8/remnawave-minishop/-/commit/144e467f093c4127f438113a0a9b1c89bc13e874))
-* **Улучшено управление аккаунтами и устройствами.** Карточка пользователя открывается в основной области админки вместо модалки и теперь лучше адаптирована для мобильных экранов. Пользователи теперь могут переименовывать устройства. Объединение аккаунтов разных провайдеров подтверждается повторным входом, passkey или email-кодом и больше не требует обязательного SMTP. ([cc10b4e3](https://gitlab.com/3252a8/remnawave-minishop/-/commit/cc10b4e3ca9099b1130151205802a4aeff5ad473), [d2684d42](https://gitlab.com/3252a8/remnawave-minishop/-/commit/d2684d4229c0a831201d6421dc45c37d88069d2c), [33762c9f](https://gitlab.com/3252a8/remnawave-minishop/-/commit/33762c9f7f955349fa4286b1c0757ca9a2b65c65))
-* **Улучшена синхронизация с Remnawave.** Перепривязка после смены идентификаторов панели сохраняет подписки, сроки и историю; неполные привязки восстанавливаются. Дубли с одинаковым Telegram ID объединяются. Подтверждённое удаление профиля больше не блокирует выдачу оплаченной подписки. Адреса API и браузерной панели разделены. ([6b43d46f](https://gitlab.com/3252a8/remnawave-minishop/-/commit/6b43d46fb7d1b0e2ee05307b7a3be5e9a49faf8b), [a64bc651](https://gitlab.com/3252a8/remnawave-minishop/-/commit/a64bc65193ffd16116f57e093d482fcde405ac79), [2a1b9bd7](https://gitlab.com/3252a8/remnawave-minishop/-/commit/2a1b9bd7852124c4bfe631c7017a3d8409fb576c), [312541a8](https://gitlab.com/3252a8/remnawave-minishop/-/commit/312541a8db3862972b77f8c07898acd9c8dd0464), [331c1564](https://gitlab.com/3252a8/remnawave-minishop/-/commit/331c1564516958812d66a2c7ff97021ee4456b6a))
-* **Улучшены уведомления и перевыпуск доступа.** Уведомления учитывают текущий срок подписки и настройки каналов без перезапуска worker; временные ошибки доставки повторяются отдельно по каналам. Перевыпуск восстанавливается после потери ответа без повторной смены ссылки. Шлюз корректно передаёт заголовки клиента и скрывает токены в журналах. ([a19c59d7](https://gitlab.com/3252a8/remnawave-minishop/-/commit/a19c59d7dbfaf06485188ed6acad3b364547a6a7), [320c7d2e](https://gitlab.com/3252a8/remnawave-minishop/-/commit/320c7d2e418db6bc99e32db77e25e626c22be396), [f887ec3e](https://gitlab.com/3252a8/remnawave-minishop/-/commit/f887ec3ef8bb4d41f32c950dc8287e42767ae442))
-* **Исправлены сценарии оплаты.** Оплаченные заказы YooKassa с устаревшим расчётом переходят на проверку без бесконечных повторов. При вводе кода активации автоматически выбирается совместимый способ оплаты; продление открывается на действующем тарифе. Платёжные интеграции используют настроенный оператором адрес API. ([dd397b4d](https://gitlab.com/3252a8/remnawave-minishop/-/commit/dd397b4dc31b2eb4f311e0b07176c1e285db454c), [ed8d24e6](https://gitlab.com/3252a8/remnawave-minishop/-/commit/ed8d24e668f8d1648e5767eca0269b18dc518e3b), [8ec08e9c](https://gitlab.com/3252a8/remnawave-minishop/-/commit/8ec08e9c5bc813407e1b8273d4e545fdd74246f9), [dd20fb52](https://gitlab.com/3252a8/remnawave-minishop/-/commit/dd20fb52d0f1fe752e9913385e8430e7b04e73e7))
-* **Исправлен учёт трафика.** Покупка тарифа после триала сбрасывает использованный пробный трафик. Переносимые пакеты учитываются при каждом сбросе счётчика без повторного списания. Главная показывает отдельный лимит premium-трафика триала; название блока настраивается. ([914604e1](https://gitlab.com/3252a8/remnawave-minishop/-/commit/914604e1f7499c2e2fad73dbe63207ab5301dbee), [e328463c](https://gitlab.com/3252a8/remnawave-minishop/-/commit/e328463cf30e1f0c3f4083fd1d66450762a1295a), [bd7c004c](https://gitlab.com/3252a8/remnawave-minishop/-/commit/bd7c004c81c4afc9f4f456d78255f4cd95a54726), [34143c04](https://gitlab.com/3252a8/remnawave-minishop/-/commit/34143c04a059ccd4ae3199fccaced22a70ebce90))
-* **Расширены приглашения и связанные начисления.** Добавлены статистика приглашённых, начисленного периода и QR-коды ссылок. Начисления сохраняются в очереди и повторяются независимо для участников. Первая покупка учитывает только подходящие подписки; ограничения партнёрской программы применяются и к существующим связям. Действительная подарочная ссылка разрешает регистрацию в режиме только по приглашению. ([e5d2495b](https://gitlab.com/3252a8/remnawave-minishop/-/commit/e5d2495b4939eef021db575b9dc9eda8e698554c), [27217858](https://gitlab.com/3252a8/remnawave-minishop/-/commit/2721785878c52f89c409f0a50c7ff4820a1fe5f4), [118a0f67](https://gitlab.com/3252a8/remnawave-minishop/-/commit/118a0f675f3683ec0d8294c2a27e6faabeef5f6f), [269b1023](https://gitlab.com/3252a8/remnawave-minishop/-/commit/269b1023533d9ca585c8afb3d19211461c370b59), [2cf966e6](https://gitlab.com/3252a8/remnawave-minishop/-/commit/2cf966e64bd18f53d74680dfa0dc6bf58782dc9a), [7964b5e5](https://gitlab.com/3252a8/remnawave-minishop/-/commit/7964b5e5b390087d84ccbe81239aac89c04b1709))
-* **Улучшены темы и инструкции подключения.** Администратор может отдельно разрешить эффекты темы в пользовательском Mini App. Расширена поддержка безопасного SVG. После ошибки загрузки инструкции можно получить повторно; настройка анимации цен применяется ко всем значениям checkout. ([93b0cd50](https://gitlab.com/3252a8/remnawave-minishop/-/commit/93b0cd50b85faea85287d9bd3b3289a9efdfab3b), [8e8c2ac3](https://gitlab.com/3252a8/remnawave-minishop/-/commit/8e8c2ac3c9ef72cee1c04d691f31bbbb6184ab1a), [87adec45](https://gitlab.com/3252a8/remnawave-minishop/-/commit/87adec4534e6fed4df89be1216b3f4709a25ab5b), [c13440b3](https://gitlab.com/3252a8/remnawave-minishop/-/commit/c13440b3e12136cd382a5899033df4af92234948))
-* **Усилена безопасность Mini App и интеграций.** Добавлены атомарные квоты запросов, проверка browser origin и точное доверие адресам прокси. Защищены владельцы от административной блокировки, платёжные ключи от отправки на посторонний origin, SMTP-подключения и CSV-экспорт от выполнения формул. ([f530ca1b](https://gitlab.com/3252a8/remnawave-minishop/-/commit/f530ca1b4c700bb297b8357aeaa2e31a52f08b5f), [7689c39e](https://gitlab.com/3252a8/remnawave-minishop/-/commit/7689c39ecb939c63517d73bcb20aeaa10e4e6e02), [29a44312](https://gitlab.com/3252a8/remnawave-minishop/-/commit/29a4431201fa857b2a0fb646ded1baabc5da5899), [82735247](https://gitlab.com/3252a8/remnawave-minishop/-/commit/82735247cbf40f28dca3376296b3579cca9cfe0e), [d7d5cb3c](https://gitlab.com/3252a8/remnawave-minishop/-/commit/d7d5cb3cda59ad320970c748a78a32bb13db2a93), [c26ab8a8](https://gitlab.com/3252a8/remnawave-minishop/-/commit/c26ab8a82aac25e169d54ac980a935d04a91f41f), [bb2a88fe](https://gitlab.com/3252a8/remnawave-minishop/-/commit/bb2a88fe7dd5dcc226d6b0e40e97e702e0959471))
-* **Обновлен функционал плагинов, зависимости и документация.** Git-плагины сохраняют выбранную ветку при проверке обновлений; ленивые импорты уменьшают память launcher. Обновлены зависимости и инструменты сборки, закреплены исправленные версии пакетов. Добавлен каталог Awesome Minishop и расширены руководства. ([1c1c5f8e](https://gitlab.com/3252a8/remnawave-minishop/-/commit/1c1c5f8e0b233d5d3040c90c0366f3879b0119fa), [933bad98](https://gitlab.com/3252a8/remnawave-minishop/-/commit/933bad988da9c8fbd727b8f8db5ef4f60d4fee76), [8f90cda4](https://gitlab.com/3252a8/remnawave-minishop/-/commit/8f90cda43a6f6376a53c011bcd49d620ab3262f0), [bc337981](https://gitlab.com/3252a8/remnawave-minishop/-/commit/bc3379812b370ed4420b97338fc24fce5c87f1a6), [5e741824](https://gitlab.com/3252a8/remnawave-minishop/-/commit/5e7418243e40151f620b4be475fd253a62725c13), [e3b88fa9](https://gitlab.com/3252a8/remnawave-minishop/-/commit/e3b88fa9600b3f2bc303de391b9261bb0f9342d2))
+<a id="изменения"></a>
 
-### При обновлении
+### 变更
 
-* Добавлены миграции `0094`–`0100` для начислений, перевыпуска доступа, названий устройств, рекламной аналитики, учёта трафика и уведомлений. Для фоновой доставки и повторов должен работать штатный worker. ([118a0f67](https://gitlab.com/3252a8/remnawave-minishop/-/commit/118a0f675f3683ec0d8294c2a27e6faabeef5f6f), [a19c59d7](https://gitlab.com/3252a8/remnawave-minishop/-/commit/a19c59d7dbfaf06485188ed6acad3b364547a6a7))
-* Если API панели доступен только внутри Docker, задайте браузерный адрес отдельно через `PANEL_PUBLIC_URL`. Пустое значение сохраняет прежнее поведение ссылок. ([331c1564](https://gitlab.com/3252a8/remnawave-minishop/-/commit/331c1564516958812d66a2c7ff97021ee4456b6a))
-* Для собственного reverse proxy укажите точный IP/CIDR или `host:имя-сервиса` в `TRUSTED_PROXIES`. Старое доверие всем частным сетям замените точными адресами; стандартные Docker-прокси поддерживаются без явной настройки. ([29a44312](https://gitlab.com/3252a8/remnawave-minishop/-/commit/29a4431201fa857b2a0fb646ded1baabc5da5899))
-* Исторические начисления и неизвестный расход трафика не восстанавливаются предположительно. Статистика начислений начинается с новой миграции; восстановление нескольких пропущенных сбросов требует полной истории панели. Историю уведомлений вручную очищать не нужно. ([e5d2495b](https://gitlab.com/3252a8/remnawave-minishop/-/commit/e5d2495b4939eef021db575b9dc9eda8e698554c), [e328463c](https://gitlab.com/3252a8/remnawave-minishop/-/commit/e328463cf30e1f0c3f4083fd1d66450762a1295a), [a19c59d7](https://gitlab.com/3252a8/remnawave-minishop/-/commit/a19c59d7dbfaf06485188ed6acad3b364547a6a7))
+* **Telegram 外观设置与表情库。** 后台可配置按钮颜色、自定义表情及菜单预览；群发、邮件和支持工单支持表情。 ([a97c04e4](https://gitlab.com/3252a8/remnawave-minishop/-/commit/a97c04e4048e3dbdc60e33a08c40127f4cb9f09a), [1b192d57](https://gitlab.com/3252a8/remnawave-minishop/-/commit/1b192d579e34d2dfba6fb9a9c662e1d75911e8e9), [df59e047](https://gitlab.com/3252a8/remnawave-minishop/-/commit/df59e04795a3add62b164dee4a4fdbdb59b63656), [148a5d94](https://gitlab.com/3252a8/remnawave-minishop/-/commit/148a5d94a5ae5a38ad26c3b5560034efa6da390c))
+* **广告分析扩展。** 活动整合链接、UTM、联系人、费用和订单来源；新增按周期与群组报表、带预览的统计导入、CSV 导出，以及通过 `/my_ads` 使用的广告主中心。 ([4b05c59f](https://gitlab.com/3252a8/remnawave-minishop/-/commit/4b05c59fc2a3ccc78ebd3c7102c1017e14dbe330), [75cc04e5](https://gitlab.com/3252a8/remnawave-minishop/-/commit/75cc04e5b4431a3db3847205c04965a1d679043e))
+* **扩展并验证后台跨服务器备份迁移。** 归档包含已安装插件和自定义主题，排除已删除包与临时文件。大型归档分片发到 Telegram，恢复时重组；无 Telegram 也可手动创建备份。 ([874f14d6](https://gitlab.com/3252a8/remnawave-minishop/-/commit/874f14d60c2ee43bd783cdb22efcb37d22b2298f), [1566e94e](https://gitlab.com/3252a8/remnawave-minishop/-/commit/1566e94e76dd765f5f167224e63703c869d35ee5), [144e467f](https://gitlab.com/3252a8/remnawave-minishop/-/commit/144e467f093c4127f438113a0a9b1c89bc13e874))
+* **改进账号与设备管理。** 用户卡片改在后台主区域打开，替代弹窗并适配手机。用户可重命名设备。不同提供商账号合并可通过重新登录、通行密钥或邮箱验证码确认，不再强制要求 SMTP。 ([cc10b4e3](https://gitlab.com/3252a8/remnawave-minishop/-/commit/cc10b4e3ca9099b1130151205802a4aeff5ad473), [d2684d42](https://gitlab.com/3252a8/remnawave-minishop/-/commit/d2684d4229c0a831201d6421dc45c37d88069d2c), [33762c9f](https://gitlab.com/3252a8/remnawave-minishop/-/commit/33762c9f7f955349fa4286b1c0757ca9a2b65c65))
+* **改进 Remnawave 同步。** 面板标识变化后重新关联会保留订阅、有效期和历史，修复不完整关联，合并相同 Telegram ID 的重复记录。确认配置已删除不再阻止发放已付款订阅。分离 API 与浏览器面板地址。 ([6b43d46f](https://gitlab.com/3252a8/remnawave-minishop/-/commit/6b43d46fb7d1b0e2ee05307b7a3be5e9a49faf8b), [a64bc651](https://gitlab.com/3252a8/remnawave-minishop/-/commit/a64bc65193ffd16116f57e093d482fcde405ac79), [2a1b9bd7](https://gitlab.com/3252a8/remnawave-minishop/-/commit/2a1b9bd7852124c4bfe631c7017a3d8409fb576c), [312541a8](https://gitlab.com/3252a8/remnawave-minishop/-/commit/312541a8db3862972b77f8c07898acd9c8dd0464), [331c1564](https://gitlab.com/3252a8/remnawave-minishop/-/commit/331c1564516958812d66a2c7ff97021ee4456b6a))
+* **改进通知和访问凭据重发。** 通知实时使用当前订阅有效期和渠道设置，无需重启 worker；临时投递错误按渠道独立重试。重发在响应丢失后可恢复，不再次变更链接。网关正确转发客户端头，并在日志隐藏令牌。 ([a19c59d7](https://gitlab.com/3252a8/remnawave-minishop/-/commit/a19c59d7dbfaf06485188ed6acad3b364547a6a7), [320c7d2e](https://gitlab.com/3252a8/remnawave-minishop/-/commit/320c7d2e418db6bc99e32db77e25e626c22be396), [f887ec3e](https://gitlab.com/3252a8/remnawave-minishop/-/commit/f887ec3ef8bb4d41f32c950dc8287e42767ae442))
+* **修复支付流程。** 已付款但价格计算过时的 YooKassa 订单转为核查，不再无限重试。输入激活码后自动选择兼容付款方式；续期打开当前套餐。支付集成使用运营者配置的 API 地址。 ([dd397b4d](https://gitlab.com/3252a8/remnawave-minishop/-/commit/dd397b4dc31b2eb4f311e0b07176c1e285db454c), [ed8d24e6](https://gitlab.com/3252a8/remnawave-minishop/-/commit/ed8d24e668f8d1648e5767eca0269b18dc518e3b), [8ec08e9c](https://gitlab.com/3252a8/remnawave-minishop/-/commit/8ec08e9c5bc813407e1b8273d4e545fdd74246f9), [dd20fb52](https://gitlab.com/3252a8/remnawave-minishop/-/commit/dd20fb52d0f1fe752e9913385e8430e7b04e73e7))
+* **修复流量计量。** 试用后购买套餐会清除试用已用流量。可结转流量包在每次计数重置时核算，不重复扣减。首页显示试用高级流量独立额度，区块名称可配置。 ([914604e1](https://gitlab.com/3252a8/remnawave-minishop/-/commit/914604e1f7499c2e2fad73dbe63207ab5301dbee), [e328463c](https://gitlab.com/3252a8/remnawave-minishop/-/commit/e328463cf30e1f0c3f4083fd1d66450762a1295a), [bd7c004c](https://gitlab.com/3252a8/remnawave-minishop/-/commit/bd7c004c81c4afc9f4f456d78255f4cd95a54726), [34143c04](https://gitlab.com/3252a8/remnawave-minishop/-/commit/34143c04a059ccd4ae3199fccaced22a70ebce90))
+* **扩展邀请与奖励。** 新增受邀人数、增加时长统计及链接二维码。奖励持久入队，各参与方独立重试。首次购买仅计符合条件的订阅；合作伙伴限制同样适用于已有关系。有效礼品链接可在仅限邀请模式下注册。 ([e5d2495b](https://gitlab.com/3252a8/remnawave-minishop/-/commit/e5d2495b4939eef021db575b9dc9eda8e698554c), [27217858](https://gitlab.com/3252a8/remnawave-minishop/-/commit/2721785878c52f89c409f0a50c7ff4820a1fe5f4), [118a0f67](https://gitlab.com/3252a8/remnawave-minishop/-/commit/118a0f675f3683ec0d8294c2a27e6faabeef5f6f), [269b1023](https://gitlab.com/3252a8/remnawave-minishop/-/commit/269b1023533d9ca585c8afb3d19211461c370b59), [2cf966e6](https://gitlab.com/3252a8/remnawave-minishop/-/commit/2cf966e64bd18f53d74680dfa0dc6bf58782dc9a), [7964b5e5](https://gitlab.com/3252a8/remnawave-minishop/-/commit/7964b5e5b390087d84ccbe81239aac89c04b1709))
+* **改进主题和连接教程。** 管理员可独立允许用户 Mini App 主题特效，扩展安全 SVG 支持。教程加载失败可重试；价格动画设置作用于结算全部数值。 ([93b0cd50](https://gitlab.com/3252a8/remnawave-minishop/-/commit/93b0cd50b85faea85287d9bd3b3289a9efdfab3b), [8e8c2ac3](https://gitlab.com/3252a8/remnawave-minishop/-/commit/8e8c2ac3c9ef72cee1c04d691f31bbbb6184ab1a), [87adec45](https://gitlab.com/3252a8/remnawave-minishop/-/commit/87adec4534e6fed4df89be1216b3f4709a25ab5b), [c13440b3](https://gitlab.com/3252a8/remnawave-minishop/-/commit/c13440b3e12136cd382a5899033df4af92234948))
+* **加强 Mini App 与集成安全。** 新增原子请求配额、浏览器来源验证及精确代理地址信任。防止管理员封禁所有者、支付密钥发往其他来源、SMTP 连接风险和 CSV 公式执行。 ([f530ca1b](https://gitlab.com/3252a8/remnawave-minishop/-/commit/f530ca1b4c700bb297b8357aeaa2e31a52f08b5f), [7689c39e](https://gitlab.com/3252a8/remnawave-minishop/-/commit/7689c39ecb939c63517d73bcb20aeaa10e4e6e02), [29a44312](https://gitlab.com/3252a8/remnawave-minishop/-/commit/29a4431201fa857b2a0fb646ded1baabc5da5899), [82735247](https://gitlab.com/3252a8/remnawave-minishop/-/commit/82735247cbf40f28dca3376296b3579cca9cfe0e), [d7d5cb3c](https://gitlab.com/3252a8/remnawave-minishop/-/commit/d7d5cb3cda59ad320970c748a78a32bb13db2a93), [c26ab8a8](https://gitlab.com/3252a8/remnawave-minishop/-/commit/c26ab8a82aac25e169d54ac980a935d04a91f41f), [bb2a88fe](https://gitlab.com/3252a8/remnawave-minishop/-/commit/bb2a88fe7dd5dcc226d6b0e40e97e702e0959471))
+* **更新插件功能、依赖和文档。** Git 插件检查更新时保留所选分支；延迟导入降低启动器内存。更新依赖和构建工具，固定已修复包版本。新增 Awesome Minishop 目录并扩充指南。 ([1c1c5f8e](https://gitlab.com/3252a8/remnawave-minishop/-/commit/1c1c5f8e0b233d5d3040c90c0366f3879b0119fa), [933bad98](https://gitlab.com/3252a8/remnawave-minishop/-/commit/933bad988da9c8fbd727b8f8db5ef4f60d4fee76), [8f90cda4](https://gitlab.com/3252a8/remnawave-minishop/-/commit/8f90cda43a6f6376a53c011bcd49d620ab3262f0), [bc337981](https://gitlab.com/3252a8/remnawave-minishop/-/commit/bc3379812b370ed4420b97338fc24fce5c87f1a6), [5e741824](https://gitlab.com/3252a8/remnawave-minishop/-/commit/5e7418243e40151f620b4be475fd253a62725c13), [e3b88fa9](https://gitlab.com/3252a8/remnawave-minishop/-/commit/e3b88fa9600b3f2bc303de391b9261bb0f9342d2))
 
-Контрибьюторы: wormy09 (`e328463c`, `d2684d42`, `e5d2495b`, `27217858`) и Roycce (`75cc04e5`, `933bad98`). Автообновление списка временных email-доменов — github-actions\[bot\] (`96a1466e`).
+<a id="при-обновлении-1"></a>
+
+### 升级注意
+
+* 新增迁移 `0094`–`0100`，涉及奖励、访问凭据重发、设备名称、广告分析、流量计量和通知。后台投递与重试要求标准 worker 运行。 ([118a0f67](https://gitlab.com/3252a8/remnawave-minishop/-/commit/118a0f675f3683ec0d8294c2a27e6faabeef5f6f), [a19c59d7](https://gitlab.com/3252a8/remnawave-minishop/-/commit/a19c59d7dbfaf06485188ed6acad3b364547a6a7))
+* 面板 API 仅 Docker 内可访问时，通过 `PANEL_PUBLIC_URL` 单独设置浏览器地址；留空保留原链接行为。 ([331c1564](https://gitlab.com/3252a8/remnawave-minishop/-/commit/331c1564516958812d66a2c7ff97021ee4456b6a))
+* 自定义反向代理须在 `TRUSTED_PROXIES` 配置精确 IP／CIDR 或 `host:服务名`。将原来信任所有私网改为精确地址；标准 Docker 代理无需显式配置。 ([29a44312](https://gitlab.com/3252a8/remnawave-minishop/-/commit/29a4431201fa857b2a0fb646ded1baabc5da5899))
+* 不推测恢复历史奖励或未知流量。奖励统计从新迁移开始；补算多次遗漏的重置需要完整面板历史。无需手动清理通知历史。 ([e5d2495b](https://gitlab.com/3252a8/remnawave-minishop/-/commit/e5d2495b4939eef021db575b9dc9eda8e698554c), [e328463c](https://gitlab.com/3252a8/remnawave-minishop/-/commit/e328463cf30e1f0c3f4083fd1d66450762a1295a), [a19c59d7](https://gitlab.com/3252a8/remnawave-minishop/-/commit/a19c59d7dbfaf06485188ed6acad3b364547a6a7))
+
+贡献者：wormy09（`e328463c`、`d2684d42`、`e5d2495b`、`27217858`）和 Roycce（`75cc04e5`、`933bad98`）。临时邮箱域名列表由 github-actions\[bot\] 自动更新（`96a1466e`）。
 
 ## v3.8.0 — 2026-09-30
 
 [GitLab](https://gitlab.com/3252a8/remnawave-minishop/-/releases/v3.8.0) · [GitHub](https://github.com/3252a8/remnawave-minishop/releases/tag/v3.8.0)
 
-### Обзор
+<a id="обзор-1"></a>
 
-Добавлены независимые от Telegram аккаунты, установка подписанных плагинов, публичный
-шлюз подписки, информационные страницы и JavaScript-эффекты тем. Улучшены платежи,
-уведомления, админка и производительность.
+### 概览
 
-### Добавлено
+新增独立于 Telegram 的账号、签名插件安装、公开订阅网关、信息页面和 JavaScript 主题特效。改进支付、通知、后台与性能。
 
-- **Аккаунты без Telegram.** Core может работать как браузерный магазин с email-входом,
-  независимым Minishop ID и необязательной привязкой Telegram. Права владельца и
-  администраторов управляются централизованно; публичные ID используются в карточках,
-  связанных записях и уведомлениях, существующие связи с панелью сохраняются при миграции. ([e060e2e9](https://gitlab.com/3252a8/remnawave-minishop/-/commit/e060e2e98577bd5f3191a0a6b18e1a302698cc38), [ca46af6d](https://gitlab.com/3252a8/remnawave-minishop/-/commit/ca46af6dcbf0098e697ed57a1ddb40ff580174b2), [2a045291](https://gitlab.com/3252a8/remnawave-minishop/-/commit/2a045291f42980c7d884fc843fcb79fd201ae192))
-- **Установка плагинов из подписанных ZIP-пакетов.** Менеджер проверяет подпись, минимальную
-  версию Core и необходимые возможности API, показывает настройки и состояние пакетов,
-  поддерживает удаление активных пакетов и подтверждает изменения после перезапуска процессов. ([ea82a92f](https://gitlab.com/3252a8/remnawave-minishop/-/commit/ea82a92f1cc548fcc2882be30a60f180624fa53a), [d97a9358](https://gitlab.com/3252a8/remnawave-minishop/-/commit/d97a93586aa1409800168d815c989ea767cd1abf), [a498317b](https://gitlab.com/3252a8/remnawave-minishop/-/commit/a498317bcb42ad26a956677ca1e101727e28d8d4), [98382cd6](https://gitlab.com/3252a8/remnawave-minishop/-/commit/98382cd65d216c4280bd238f7c4c7fde5088bc2c), [5f283037](https://gitlab.com/3252a8/remnawave-minishop/-/commit/5f28303741c96b31009c9cb8f5afa6c3f3ddba12))
-- **Расширения пользовательских и административных разделов.** Плагины могут добавлять
-  страницы, карточки, инструкции подключения, внешние заказы с выдачей после оплаты,
-  устойчивые фоновые задачи, журналируемые права и данные для резервного копирования.
-  Существующие разделы допускают композицию расширений; учитываются скрытые разделы,
-  прямые ссылки, runtime-ассеты и обновление установленных расширений. ([33121363](https://gitlab.com/3252a8/remnawave-minishop/-/commit/331213638460da024df4186fc60141d4cb9607cf), [af122b9d](https://gitlab.com/3252a8/remnawave-minishop/-/commit/af122b9d1332430e39c0fb5bc877226974c1d3f3), [bc8ca963](https://gitlab.com/3252a8/remnawave-minishop/-/commit/bc8ca963526433493e9bb8f8375408e530c18204), [f1f91d94](https://gitlab.com/3252a8/remnawave-minishop/-/commit/f1f91d947a6bc6836f93cb7a63e2ebcc9e6980a0))
-- **Переводы плагинов в админке.** Строки плагинов вынесены из общих групп в
-  отдельный подраздел с группой для каждого плагина; плагин может задать
-  дополнительные вложенные группы своих строк с переводимыми названиями. ([1b5b3697](https://gitlab.com/3252a8/remnawave-minishop/-/commit/1b5b3697ad3a34be7b4ba9d86e629ccffed346d4), [0d16c02a](https://gitlab.com/3252a8/remnawave-minishop/-/commit/0d16c02a89e09408adcf2c1acbfcc39e12322dc8))
-- **Публичный шлюз подписки.** Ссылки подключения можно выдавать через домен магазина;
-  режим ссылки доступен в админке, шлюз включён по умолчанию и принимает увеличенные
-  заголовки ответов подписки. ([0c046b2c](https://gitlab.com/3252a8/remnawave-minishop/-/commit/0c046b2c60bf85cc7cdb316ef8f1356bc531fb2f), [8e60f1f9](https://gitlab.com/3252a8/remnawave-minishop/-/commit/8e60f1f9cb47e6b7ada0d8fe4bf964e6de0e2dea), [4969be67](https://gitlab.com/3252a8/remnawave-minishop/-/commit/4969be67e519fcf0484572ec86066bc693f509fb), [d3e63b62](https://gitlab.com/3252a8/remnawave-minishop/-/commit/d3e63b627ad4f3bfdfe658acdbd3264341187724))
-- **Аналитика кодов активации.** Добавлены поиск, фильтры статуса и области применения,
-  прямые ссылки на детали и выручка подтверждённых платежей по валютам в истории активаций. ([caddef66](https://gitlab.com/3252a8/remnawave-minishop/-/commit/caddef66eea805e09cd844c593efb13e5b41e5d6))
-- **Информационные страницы.** Добавлены управляемые страницы с Markdown и открытием
-  документов внутри Mini App; редактирование сохраняет форматирование и состояние документов.
-  Хранилище документов блокирует конкурентные изменения также при запуске Core на Windows. ([d94c943a](https://gitlab.com/3252a8/remnawave-minishop/-/commit/d94c943ae97242e45633e138204ffecd33e71029), [fc816ca6](https://gitlab.com/3252a8/remnawave-minishop/-/commit/fc816ca6d4037b6c64fdb522c3684626a800aa37), [8ff40829](https://gitlab.com/3252a8/remnawave-minishop/-/commit/8ff408292f7af1197a327e5f8b6d1c2bef471965), [de94f444](https://gitlab.com/3252a8/remnawave-minishop/-/commit/de94f444c3abc43251b6f49c27fbcd8c7fd01ac6))
-- **JavaScript-эффекты тем.** Пакеты оформления могут содержать эффекты; расширены их настройки
-  и управление темами, включая сохранение черновика при совместной записи настроек внешнего вида.
-  Живой предпросмотр эффекта в библиотеке показывает реальный макет главной с наложенным
-  адаптером, а открытый предпросмотр темы в Mini App сразу запускает эффект предпросматриваемой
-  темы — без перезапуска сервиса. ([8c311f9a](https://gitlab.com/3252a8/remnawave-minishop/-/commit/8c311f9ab3fef0cec6823b0026a36fd0d439d7d1), [b4f02e65](https://gitlab.com/3252a8/remnawave-minishop/-/commit/b4f02e6545d640ca8f2c958982259b41b8620eba), [a8b786c9](https://gitlab.com/3252a8/remnawave-minishop/-/commit/a8b786c9ad4293bae5d4fe577a6c2e6415bb178f))
-- **Диагностика рассылок.** В истории видны подробности недоставленных сообщений;
-  немедленная рассылка ставится в очередь вне административного HTTP-запроса. ([355a7532](https://gitlab.com/3252a8/remnawave-minishop/-/commit/355a75324205a8a98276c97c5ee9f5dcb226f922), [ffcb90d2](https://gitlab.com/3252a8/remnawave-minishop/-/commit/ffcb90d26842b7fbc7e2dc077c0eb411670a61a4), [bb53fb70](https://gitlab.com/3252a8/remnawave-minishop/-/commit/bb53fb700b0f9130d23af7f827a5fb4d90c19b48))
+<a id="добавлено-1"></a>
 
-### Изменено
+### 新增
 
-- **Зависимости.** Обновлены Python- и npm-пакеты, а frontend переведён на
-  стабильную ветку nginx 1.30. В сборке веб-интерфейса и сайта документации
-  устранены известные уязвимости в транзитивных пакетах `brace-expansion` и `undici`. ([bd153166](https://gitlab.com/3252a8/remnawave-minishop/-/commit/bd1531668dceb22bcb93149561cbb2e19edd5758), [ea6c8830](https://gitlab.com/3252a8/remnawave-minishop/-/commit/ea6c88308e2fd5e1f9c9ed26c81c2b0792826327), [2b975207](https://gitlab.com/3252a8/remnawave-minishop/-/commit/2b975207e645e9b6a830e9139d863589ec7f7ba2))
-- **Регистрация passkey.** При поддержке устройства предпочтение отдаётся EdDSA;
-  проверка отклоняет повреждённые данные CBOR и некорректные форматы аттестации. ([e060e2e9](https://gitlab.com/3252a8/remnawave-minishop/-/commit/e060e2e98577bd5f3191a0a6b18e1a302698cc38))
-- **Вход и сессии.** Способы входа адаптируются к ширине экрана: широкие кнопки располагаются
-  перед компактными. Срок сессии доступен в настройках и по умолчанию составляет 30 дней. ([88992d4d](https://gitlab.com/3252a8/remnawave-minishop/-/commit/88992d4d9e132982339ab6af09d0b41e85dc2838), [4a9aee9a](https://gitlab.com/3252a8/remnawave-minishop/-/commit/4a9aee9ae7a4ebb842c977ee8d99dbc065fefc82), [e7f82c1a](https://gitlab.com/3252a8/remnawave-minishop/-/commit/e7f82c1ad9a1f4eb2d59aee27ea9de10cfeb8156))
-- **Карточка пользователя.** Упрощён мобильный вид, доступен переход в профиль панели;
-  изменения тарифа проверяются, ошибки действий показываются явно, а блокировка аккаунта
-  синхронизируется с доступом к VPN в панели. ([5cd0838c](https://gitlab.com/3252a8/remnawave-minishop/-/commit/5cd0838ca0b2a3621f69d7336bc2a60afdfe8bd8), [da0e5772](https://gitlab.com/3252a8/remnawave-minishop/-/commit/da0e577259d8cd78c11219f88a067c94a956a361), [e0e3d315](https://gitlab.com/3252a8/remnawave-minishop/-/commit/e0e3d31505681d65a8c9932de28aa84392077aa4))
-- **Уведомления и поддержка.** Унифицированы данные аккаунтов и переходы из журнала,
-  темы обращений показываются в уведомлениях и диалогах, оплаченные повышения тарифа
-  отражаются в платёжных уведомлениях. Кнопка карточки пользователя в журнале открывает
-  нужный профиль в Telegram Mini App, в том числе из рейтингов, и не создаёт ссылку
-  с шаблонным именем бота. Заблокированным пользователям автоматические уведомления
-  больше не отправляются ни в Telegram, ни по email. ([5c4636df](https://gitlab.com/3252a8/remnawave-minishop/-/commit/5c4636df4a972e92b727c33bcac660cabd88ee3b), [e193e7fc](https://gitlab.com/3252a8/remnawave-minishop/-/commit/e193e7fc3778406e467707047466a301544ef22a), [a78a8d49](https://gitlab.com/3252a8/remnawave-minishop/-/commit/a78a8d49596634e496e68d800a371ca5aa3f2f88), [bc0f1305](https://gitlab.com/3252a8/remnawave-minishop/-/commit/bc0f13054a8f449eb9354a05f20bc0bf351c1722), [14eebebd](https://gitlab.com/3252a8/remnawave-minishop/-/commit/14eebebda66c186465a47adbe31937983901c00b))
+- **无需 Telegram 的账号。** 核心可作为邮箱登录、独立 Minishop ID、可选 Telegram 绑定的浏览器商店运行。集中管理所有者和管理员权限；卡片、关联记录及通知使用公开 ID，迁移保留已有面板关联。 ([e060e2e9](https://gitlab.com/3252a8/remnawave-minishop/-/commit/e060e2e98577bd5f3191a0a6b18e1a302698cc38), [ca46af6d](https://gitlab.com/3252a8/remnawave-minishop/-/commit/ca46af6dcbf0098e697ed57a1ddb40ff580174b2), [2a045291](https://gitlab.com/3252a8/remnawave-minishop/-/commit/2a045291f42980c7d884fc843fcb79fd201ae192))
+- **安装签名 ZIP 插件。** 管理器检查签名、最低核心版本与所需 API 能力，展示包设置和状态，支持删除启用包，并在进程重启后确认变更。 ([ea82a92f](https://gitlab.com/3252a8/remnawave-minishop/-/commit/ea82a92f1cc548fcc2882be30a60f180624fa53a), [d97a9358](https://gitlab.com/3252a8/remnawave-minishop/-/commit/d97a93586aa1409800168d815c989ea767cd1abf), [a498317b](https://gitlab.com/3252a8/remnawave-minishop/-/commit/a498317bcb42ad26a956677ca1e101727e28d8d4), [98382cd6](https://gitlab.com/3252a8/remnawave-minishop/-/commit/98382cd65d216c4280bd238f7c4c7fde5088bc2c), [5f283037](https://gitlab.com/3252a8/remnawave-minishop/-/commit/5f28303741c96b31009c9cb8f5afa6c3f3ddba12))
+- **扩展用户与后台区域。** 插件可增加页面、卡片、连接教程、付款后交付的外部订单、可靠后台任务、可审计权限及备份数据。已有区域支持扩展组合，考虑隐藏区域、直达链接、运行时资源及已安装扩展更新。 ([33121363](https://gitlab.com/3252a8/remnawave-minishop/-/commit/331213638460da024df4186fc60141d4cb9607cf), [af122b9d](https://gitlab.com/3252a8/remnawave-minishop/-/commit/af122b9d1332430e39c0fb5bc877226974c1d3f3), [bc8ca963](https://gitlab.com/3252a8/remnawave-minishop/-/commit/bc8ca963526433493e9bb8f8375408e530c18204), [f1f91d94](https://gitlab.com/3252a8/remnawave-minishop/-/commit/f1f91d947a6bc6836f93cb7a63e2ebcc9e6980a0))
+- **后台插件翻译。** 插件文案从通用组移到独立区域，每个插件一组；插件可进一步定义带可翻译名称的嵌套分组。 ([1b5b3697](https://gitlab.com/3252a8/remnawave-minishop/-/commit/1b5b3697ad3a34be7b4ba9d86e629ccffed346d4), [0d16c02a](https://gitlab.com/3252a8/remnawave-minishop/-/commit/0d16c02a89e09408adcf2c1acbfcc39e12322dc8))
+- **公开订阅网关。** 可通过商店域名发放连接链接，后台可选择链接模式；网关默认启用，并支持较大的订阅响应头。 ([0c046b2c](https://gitlab.com/3252a8/remnawave-minishop/-/commit/0c046b2c60bf85cc7cdb316ef8f1356bc531fb2f), [8e60f1f9](https://gitlab.com/3252a8/remnawave-minishop/-/commit/8e60f1f9cb47e6b7ada0d8fe4bf964e6de0e2dea), [4969be67](https://gitlab.com/3252a8/remnawave-minishop/-/commit/4969be67e519fcf0484572ec86066bc693f509fb), [d3e63b62](https://gitlab.com/3252a8/remnawave-minishop/-/commit/d3e63b627ad4f3bfdfe658acdbd3264341187724))
+- **激活码分析。** 新增搜索、状态和适用范围筛选、详情直达，以及激活历史中按币种统计的已确认付款收入。 ([caddef66](https://gitlab.com/3252a8/remnawave-minishop/-/commit/caddef66eea805e09cd844c593efb13e5b41e5d6))
+- **信息页面。** 新增可管理 Markdown 页面，在 Mini App 内打开文档，编辑保留格式和状态。核心在 Windows 运行时，文档存储同样阻止并发修改。 ([d94c943a](https://gitlab.com/3252a8/remnawave-minishop/-/commit/d94c943ae97242e45633e138204ffecd33e71029), [fc816ca6](https://gitlab.com/3252a8/remnawave-minishop/-/commit/fc816ca6d4037b6c64fdb522c3684626a800aa37), [8ff40829](https://gitlab.com/3252a8/remnawave-minishop/-/commit/8ff408292f7af1197a327e5f8b6d1c2bef471965), [de94f444](https://gitlab.com/3252a8/remnawave-minishop/-/commit/de94f444c3abc43251b6f49c27fbcd8c7fd01ac6))
+- **JavaScript 主题特效。** 主题包可包含特效，扩展设置与主题管理；外观设置并发写入时保留草稿。主题库实时预览在真实首页布局叠加适配器；Mini App 打开主题预览后立即运行该主题特效，无需重启。 ([8c311f9a](https://gitlab.com/3252a8/remnawave-minishop/-/commit/8c311f9ab3fef0cec6823b0026a36fd0d439d7d1), [b4f02e65](https://gitlab.com/3252a8/remnawave-minishop/-/commit/b4f02e6545d640ca8f2c958982259b41b8620eba), [a8b786c9](https://gitlab.com/3252a8/remnawave-minishop/-/commit/a8b786c9ad4293bae5d4fe577a6c2e6415bb178f))
+- **群发诊断。** 历史显示未送达消息详情；立即群发在管理员 HTTP 请求之外入队。 ([355a7532](https://gitlab.com/3252a8/remnawave-minishop/-/commit/355a75324205a8a98276c97c5ee9f5dcb226f922), [ffcb90d2](https://gitlab.com/3252a8/remnawave-minishop/-/commit/ffcb90d26842b7fbc7e2dc077c0eb411670a61a4), [bb53fb70](https://gitlab.com/3252a8/remnawave-minishop/-/commit/bb53fb700b0f9130d23af7f827a5fb4d90c19b48))
 
-### Исправлено
+<a id="изменено-1"></a>
 
-- **Главная страница личного кабинета.** Размер логотипа ограничен доступной областью,
-  поэтому нижний блок с подпиской и действиями остаётся у нижнего края без лишней прокрутки. ([a2282f31](https://gitlab.com/3252a8/remnawave-minishop/-/commit/a2282f31da304564186aa1636caff60281521242))
-- **Синхронизация с панелью.** Новые пользователи панели с Telegram ID или email
-  появляются в магазине вместе с подписками без возврата на стабильную версию.
-  Email из панели остаётся неподтверждённым до входа с кодом; совпадение с другим
-  локальным аккаунтом требует ручной проверки. ([3e47e2b6](https://gitlab.com/3252a8/remnawave-minishop/-/commit/3e47e2b64f04836699897dfb8408230f2c5605f6))
-- **Партнёрские ссылки.** При регистрации через Google, Yandex и Discord код из веб-ссылки
-  сохраняется при переходе к провайдеру и учитывается при создании аккаунта. В уведомлениях
-  о новой регистрации через Telegram, email и внешние сервисы теперь указывается пригласивший партнёр. ([1e329cf8](https://gitlab.com/3252a8/remnawave-minishop/-/commit/1e329cf88037912427005a5d11a049e5ecf3ff05))
-- **Журнал событий.** Кнопка карточки пользователя в групповых уведомлениях открывает личный
-  чат с ботом с адресным переходом к карточке; если имя бота неизвестно, используется веб-ссылка. ([14eebebd](https://gitlab.com/3252a8/remnawave-minishop/-/commit/14eebebda66c186465a47adbe31937983901c00b))
-- **Объединение аккаунтов.** Если Telegram уже привязан к другому аккаунту, после подтверждения
-  профиля открывается объединение с кодом из почты. Оно работает в браузере и Telegram Mini App;
-  подписки объединяются только после подтверждения обеих сторон. ([21d83ab7](https://gitlab.com/3252a8/remnawave-minishop/-/commit/21d83ab71c805f039742eb2513d9d8de24b3f4a0))
-- **Оплата и рекуррентные подписки.** Поддержаны фиксированные периоды оплаты; для пополнения
-  скрыты рекуррентные способы, а при оплате балансом выбираются совместимые методы.
-  Отмена Tribute Creator ведёт в бота. Администратор может сменить тариф при активном
-  автопродлении Tribute: Shop Order отменяется через API, для Creator локальное
-  автопродление отключается после отмены администратором в Tribute. Пользователь может
-  подтвердить отмену Creator в диалоге Mini App и сразу отключить локальное
-  автопродление без изменения оплаченного срока. ([523e3646](https://gitlab.com/3252a8/remnawave-minishop/-/commit/523e36467478a56a04bdc32097009a3b2e215ff2), [0ac2488a](https://gitlab.com/3252a8/remnawave-minishop/-/commit/0ac2488a1911fd68095fb03eae7d5f1703f8c5e8), [0de2db99](https://gitlab.com/3252a8/remnawave-minishop/-/commit/0de2db9922c2054e3fe69185adb7b9d10075c34e), [1d9e6ff0](https://gitlab.com/3252a8/remnawave-minishop/-/commit/1d9e6ff00dbcaab3885ffe31f1cfd84b767df499), [62bf0f41](https://gitlab.com/3252a8/remnawave-minishop/-/commit/62bf0f4193b708b3abf7ed3dc73289faf5093b55))
-- **Mini App на мобильных устройствах.** Диалоги, выпадающие списки и другие наложения
-  ограничены безопасной областью Telegram; исправлены компоновка поддержки и редактора,
-  Telegram-ссылки и административные превью. ([81e7a765](https://gitlab.com/3252a8/remnawave-minishop/-/commit/81e7a765748a9b92a8f83f7a9fd3c1f8516073b4), [317b72c7](https://gitlab.com/3252a8/remnawave-minishop/-/commit/317b72c78f8b520c54caad12e135ebba06531170), [29790339](https://gitlab.com/3252a8/remnawave-minishop/-/commit/297903391ad9211fce59945904cfbcd690dd76fa), [e027c982](https://gitlab.com/3252a8/remnawave-minishop/-/commit/e027c982913d804b27ebbbc4878402d540a45af6))
-- **Инструкции подключения.** Happ и INCY получают корректные зашифрованные ссылки в кнопках
-  приложений; QR-код и копирование используют HTTP-ссылку подписки независимо от выбора
-  приложения и доступны без кнопки подключения. Сбой загрузки экрана допускает
-  восстановление. Начальный профиль использует публичный URL панели. ([44054551](https://gitlab.com/3252a8/remnawave-minishop/-/commit/44054551a986449fddc7b7061067626e4534358d), [01d6661b](https://gitlab.com/3252a8/remnawave-minishop/-/commit/01d6661b61365f148cf2f42af8070037d0f6148a), [f11955cc](https://gitlab.com/3252a8/remnawave-minishop/-/commit/f11955cc8c7c3db34943b238ae96cb0e4ca99009), [04841434](https://gitlab.com/3252a8/remnawave-minishop/-/commit/0484143477b6f4ccb1da6f96fa93014658ca1ea7))
-- **Идентификация и тарифы.** Сохраняются неразрешённые связи старых аккаунтов с панелью
-  и числовые идентификаторы пользователей в вебхуках Torrent Blocker. Интерфейс тарифов
-  больше не обещает сброс трафика, который панель не выполнит. ([f9fbb93c](https://gitlab.com/3252a8/remnawave-minishop/-/commit/f9fbb93cbc3dc91f7aa1e10357deafd543b65914), [9192b420](https://gitlab.com/3252a8/remnawave-minishop/-/commit/9192b420ff836b5b6342a9f3407297d37bb5430f), [be3cab79](https://gitlab.com/3252a8/remnawave-minishop/-/commit/be3cab79e615686fbda81b69fa63dec617bb7802))
-- **Email-рассылки.** Доступность доставки определяется готовностью SMTP независимо
-  от включённости входа по email. ([bb53fb70](https://gitlab.com/3252a8/remnawave-minishop/-/commit/bb53fb700b0f9130d23af7f827a5fb4d90c19b48))
+### 变更
 
-### Производительность
+- **依赖。** 更新 Python 和 npm 包，前端转向 nginx 1.30 稳定分支；修复网页与文档构建中间接依赖 `brace-expansion`、`undici` 的已知漏洞。 ([bd153166](https://gitlab.com/3252a8/remnawave-minishop/-/commit/bd1531668dceb22bcb93149561cbb2e19edd5758), [ea6c8830](https://gitlab.com/3252a8/remnawave-minishop/-/commit/ea6c88308e2fd5e1f9c9ed26c81c2b0792826327), [2b975207](https://gitlab.com/3252a8/remnawave-minishop/-/commit/2b975207e645e9b6a830e9139d863589ec7f7ba2))
+- **通行密钥注册。** 设备支持时优先 EdDSA；拒绝损坏的 CBOR 与无效证明格式。 ([e060e2e9](https://gitlab.com/3252a8/remnawave-minishop/-/commit/e060e2e98577bd5f3191a0a6b18e1a302698cc38))
+- **登录与会话。** 登录方式随屏宽排列，宽按钮置于紧凑按钮之前。会话有效期可配置，默认 30 天。 ([88992d4d](https://gitlab.com/3252a8/remnawave-minishop/-/commit/88992d4d9e132982339ab6af09d0b41e85dc2838), [4a9aee9a](https://gitlab.com/3252a8/remnawave-minishop/-/commit/4a9aee9ae7a4ebb842c977ee8d99dbc065fefc82), [e7f82c1a](https://gitlab.com/3252a8/remnawave-minishop/-/commit/e7f82c1ad9a1f4eb2d59aee27ea9de10cfeb8156))
+- **用户卡片。** 简化手机布局，可直达面板用户；验证套餐变更并明确显示操作错误，封禁账号同步到面板 VPN 访问限制。 ([5cd0838c](https://gitlab.com/3252a8/remnawave-minishop/-/commit/5cd0838ca0b2a3621f69d7336bc2a60afdfe8bd8), [da0e5772](https://gitlab.com/3252a8/remnawave-minishop/-/commit/da0e577259d8cd78c11219f88a067c94a956a361), [e0e3d315](https://gitlab.com/3252a8/remnawave-minishop/-/commit/e0e3d31505681d65a8c9932de28aa84392077aa4))
+- **通知与支持。** 统一账号数据和日志跳转，在通知及对话框显示工单主题，付款通知包含付费套餐升级。日志用户按钮打开正确 Telegram Mini App 用户，包括排行榜，不生成带模板机器人名的链接。不再向封禁用户发送 Telegram 或邮件自动通知。 ([5c4636df](https://gitlab.com/3252a8/remnawave-minishop/-/commit/5c4636df4a972e92b727c33bcac660cabd88ee3b), [e193e7fc](https://gitlab.com/3252a8/remnawave-minishop/-/commit/e193e7fc3778406e467707047466a301544ef22a), [a78a8d49](https://gitlab.com/3252a8/remnawave-minishop/-/commit/a78a8d49596634e496e68d800a371ca5aa3f2f88), [bc0f1305](https://gitlab.com/3252a8/remnawave-minishop/-/commit/bc0f13054a8f449eb9354a05f20bc0bf351c1722), [14eebebd](https://gitlab.com/3252a8/remnawave-minishop/-/commit/14eebebda66c186465a47adbe31937983901c00b))
 
-- Ускорены первый вход в админку, загрузка переводов и представлений плагинов, работа
-  слайдеров. Web App ожидает bootstrap-данные и повторяет загрузку при запуске API;
-  интерфейс админки появляется после готовности переводов. Большие группы переводов
-  раскрываются порциями, а неизменённый файл переводов не сверяется с базой при каждом запросе. ([0b2c5f00](https://gitlab.com/3252a8/remnawave-minishop/-/commit/0b2c5f003df18e3ea0fc9b756580f5f282a1d844), [e2b60313](https://gitlab.com/3252a8/remnawave-minishop/-/commit/e2b603139c12f8908bf5c8cabc57581ab4592946), [0d16c02a](https://gitlab.com/3252a8/remnawave-minishop/-/commit/0d16c02a89e09408adcf2c1acbfcc39e12322dc8), [e85b6812](https://gitlab.com/3252a8/remnawave-minishop/-/commit/e85b68122a04e62361cb9b0bf0f9190d48c668f9))
-- Список бэкапов загружается по метаданным файлов без проверки содержимого всех ZIP;
-  состав выбранного архива проверяется отдельно. Открытие списка больше не задерживает
-  запросы остальных разделов админки. ([d67a2d85](https://gitlab.com/3252a8/remnawave-minishop/-/commit/d67a2d855ca5d983d853d6c4a500fe8347c5d3d4))
-- Локальный Linux-прогон backend-тестов на Windows использует копию исходников в QA-образе
-  вместо медленного bind mount; зависимости устанавливаются при сборке образа и кешируются. ([de94f444](https://gitlab.com/3252a8/remnawave-minishop/-/commit/de94f444c3abc43251b6f49c27fbcd8c7fd01ac6))
+<a id="исправлено-1"></a>
 
-### Документация
+### 修复
 
-- Добавлен единый список изменений с разделом dev на сайте документации, ссылкой в шапке
-  и отдельным пунктом внизу сайдбара. Демо поддерживает
-  прямые адреса всех административных разделов и загрузку плагинов. ([859a248e](https://gitlab.com/3252a8/remnawave-minishop/-/commit/859a248e73564affe2989a0797d84fa408888fe8), [93c7ad93](https://gitlab.com/3252a8/remnawave-minishop/-/commit/93c7ad939d50dd04f4ed08d77bd86e4442dd8810), [c0bc1a06](https://gitlab.com/3252a8/remnawave-minishop/-/commit/c0bc1a06b518010dd46c507ddc68b728142ef400), [f5594777](https://gitlab.com/3252a8/remnawave-minishop/-/commit/f559477746e080df5363a40824b74529261c79fd))
+- **个人中心首页。** 标志尺寸受可用区域限制，使底部订阅与操作区保持贴底，不产生多余滚动。 ([a2282f31](https://gitlab.com/3252a8/remnawave-minishop/-/commit/a2282f31da304564186aa1636caff60281521242))
+- **面板同步。** 有 Telegram ID 或邮箱的面板新用户及其订阅可进入商店，无需回退稳定版。面板邮箱在验证码登录前保持未验证；与其他本地账号冲突时须人工核查。 ([3e47e2b6](https://gitlab.com/3252a8/remnawave-minishop/-/commit/3e47e2b64f04836699897dfb8408230f2c5605f6))
+- **合作伙伴链接。** Google、Yandex、Discord 注册跳转时保留网页邀请代码，创建账号时应用。Telegram、邮箱及外部登录的新注册通知包含邀请伙伴。 ([1e329cf8](https://gitlab.com/3252a8/remnawave-minishop/-/commit/1e329cf88037912427005a5d11a049e5ecf3ff05))
+- **事件日志。** 群通知中的用户卡片按钮先打开机器人私聊，再定向到用户卡片；机器人名未知时使用网页链接。 ([14eebebd](https://gitlab.com/3252a8/remnawave-minishop/-/commit/14eebebda66c186465a47adbe31937983901c00b))
+- **账号合并。** Telegram 已绑定其他账号时，确认身份后打开邮箱验证码合并流程。浏览器与 Telegram Mini App 均支持；仅双方确认后合并订阅。 ([21d83ab7](https://gitlab.com/3252a8/remnawave-minishop/-/commit/21d83ab71c805f039742eb2513d9d8de24b3f4a0))
+- **付款与循环订阅。** 支持固定付款周期；充值隐藏循环方式，余额付款选择兼容方法。取消 Tribute Creator 时引导到机器人。管理员可在 Tribute 自动续期开启时更换套餐：Shop Order 通过 API 取消；Creator 经管理员在 Tribute 取消后关闭本地续期。用户也可在 Mini App 对话框确认 Creator 取消，立即关闭本地续期而不影响已付有效期。 ([523e3646](https://gitlab.com/3252a8/remnawave-minishop/-/commit/523e36467478a56a04bdc32097009a3b2e215ff2), [0ac2488a](https://gitlab.com/3252a8/remnawave-minishop/-/commit/0ac2488a1911fd68095fb03eae7d5f1703f8c5e8), [0de2db99](https://gitlab.com/3252a8/remnawave-minishop/-/commit/0de2db9922c2054e3fe69185adb7b9d10075c34e), [1d9e6ff0](https://gitlab.com/3252a8/remnawave-minishop/-/commit/1d9e6ff00dbcaab3885ffe31f1cfd84b767df499), [62bf0f41](https://gitlab.com/3252a8/remnawave-minishop/-/commit/62bf0f4193b708b3abf7ed3dc73289faf5093b55))
+- **手机 Mini App。** 对话框、下拉菜单等浮层限制在 Telegram 安全区域；修复支持与编辑器布局、Telegram 链接和后台预览。 ([81e7a765](https://gitlab.com/3252a8/remnawave-minishop/-/commit/81e7a765748a9b92a8f83f7a9fd3c1f8516073b4), [317b72c7](https://gitlab.com/3252a8/remnawave-minishop/-/commit/317b72c78f8b520c54caad12e135ebba06531170), [29790339](https://gitlab.com/3252a8/remnawave-minishop/-/commit/297903391ad9211fce59945904cfbcd690dd76fa), [e027c982](https://gitlab.com/3252a8/remnawave-minishop/-/commit/e027c982913d804b27ebbbc4878402d540a45af6))
+- **连接教程。** Happ、INCY 应用按钮获得正确加密链接；二维码与复制始终使用 HTTP 订阅链接，不受所选应用影响，无连接按钮也可使用。页面加载失败可恢复；初始配置使用面板公开地址。 ([44054551](https://gitlab.com/3252a8/remnawave-minishop/-/commit/44054551a986449fddc7b7061067626e4534358d), [01d6661b](https://gitlab.com/3252a8/remnawave-minishop/-/commit/01d6661b61365f148cf2f42af8070037d0f6148a), [f11955cc](https://gitlab.com/3252a8/remnawave-minishop/-/commit/f11955cc8c7c3db34943b238ae96cb0e4ca99009), [04841434](https://gitlab.com/3252a8/remnawave-minishop/-/commit/0484143477b6f4ccb1da6f96fa93014658ca1ea7))
+- **身份与套餐。** 保留旧账号尚未解析的面板关联，以及 Torrent Blocker webhook 的数字用户标识。套餐界面不再承诺面板不会执行的流量重置。 ([f9fbb93c](https://gitlab.com/3252a8/remnawave-minishop/-/commit/f9fbb93cbc3dc91f7aa1e10357deafd543b65914), [9192b420](https://gitlab.com/3252a8/remnawave-minishop/-/commit/9192b420ff836b5b6342a9f3407297d37bb5430f), [be3cab79](https://gitlab.com/3252a8/remnawave-minishop/-/commit/be3cab79e615686fbda81b69fa63dec617bb7802))
+- **邮件群发。** 投递是否可用取决于 SMTP 就绪状态，与邮箱登录开关无关。 ([bb53fb70](https://gitlab.com/3252a8/remnawave-minishop/-/commit/bb53fb700b0f9130d23af7f827a5fb4d90c19b48))
 
-### При обновлении
+<a id="производительность-1"></a>
 
-- Добавлены миграции `0088`–`0093` для ссылок инструкций, данных расширений и независимой
-  идентичности аккаунтов, включая последовательность ID и происхождение связи с панелью. ([0c046b2c](https://gitlab.com/3252a8/remnawave-minishop/-/commit/0c046b2c60bf85cc7cdb316ef8f1356bc531fb2f), [33121363](https://gitlab.com/3252a8/remnawave-minishop/-/commit/331213638460da024df4186fc60141d4cb9607cf), [e060e2e9](https://gitlab.com/3252a8/remnawave-minishop/-/commit/e060e2e98577bd5f3191a0a6b18e1a302698cc38))
-- Для автономной работы используется `TELEGRAM_ENABLED=False`; требуются настроенные
-  email-вход, SMTP и публичный адрес приложения. Первый владелец назначается доверенной
-  командой `bootstrap_owner.py`, затем роли управляются в общих настройках админки.
-  См. [работу без Telegram](docs/features/telegram-optional.md). ([e060e2e9](https://gitlab.com/3252a8/remnawave-minishop/-/commit/e060e2e98577bd5f3191a0a6b18e1a302698cc38))
-- Перед установкой расширений проверьте требования пакета к версии и возможностям Core.
-  Дождитесь подтверждения состояния после перезапуска; см. [контракт плагинов](docs/development/plugin-contract.md). ([ea82a92f](https://gitlab.com/3252a8/remnawave-minishop/-/commit/ea82a92f1cc548fcc2882be30a60f180624fa53a), [a498317b](https://gitlab.com/3252a8/remnawave-minishop/-/commit/a498317bcb42ad26a956677ca1e101727e28d8d4))
-- JavaScript-эффекты тем по умолчанию выключены и требуют отдельного разрешения администратора.
-  Это доверенный код страницы; разрешение не переносится при экспорте и сбрасывается при
-  восстановлении резервной копии. См. [модель доверия эффектов](docs/features/theme-effects.md). ([8c311f9a](https://gitlab.com/3252a8/remnawave-minishop/-/commit/8c311f9ab3fef0cec6823b0026a36fd0d439d7d1))
+### 性能
+
+- 加快后台首次登录、翻译与插件视图加载及滑块操作。网页应用等待初始化数据，API 启动中会重试；后台在翻译就绪后显示。大型翻译组分批展开，未更改的翻译文件不再每次请求都与数据库核对。 ([0b2c5f00](https://gitlab.com/3252a8/remnawave-minishop/-/commit/0b2c5f003df18e3ea0fc9b756580f5f282a1d844), [e2b60313](https://gitlab.com/3252a8/remnawave-minishop/-/commit/e2b603139c12f8908bf5c8cabc57581ab4592946), [0d16c02a](https://gitlab.com/3252a8/remnawave-minishop/-/commit/0d16c02a89e09408adcf2c1acbfcc39e12322dc8), [e85b6812](https://gitlab.com/3252a8/remnawave-minishop/-/commit/e85b68122a04e62361cb9b0bf0f9190d48c668f9))
+- 备份列表只读取文件元数据，不检查所有 ZIP 内容；选定归档单独检查。列表加载不再阻塞其他后台区域请求。 ([d67a2d85](https://gitlab.com/3252a8/remnawave-minishop/-/commit/d67a2d855ca5d983d853d6c4a500fe8347c5d3d4))
+- Windows 本地 Linux 后端测试把源码复制进 QA 镜像，替代较慢的绑定挂载；构建时安装并缓存依赖。 ([de94f444](https://gitlab.com/3252a8/remnawave-minishop/-/commit/de94f444c3abc43251b6f49c27fbcd8c7fd01ac6))
+
+<a id="документация"></a>
+
+### 文档
+
+- 文档站新增含 dev 章节的统一更新历史，提供页头链接及侧栏底部入口。演示支持所有后台区域的直达地址和插件加载。 ([859a248e](https://gitlab.com/3252a8/remnawave-minishop/-/commit/859a248e73564affe2989a0797d84fa408888fe8), [93c7ad93](https://gitlab.com/3252a8/remnawave-minishop/-/commit/93c7ad939d50dd04f4ed08d77bd86e4442dd8810), [c0bc1a06](https://gitlab.com/3252a8/remnawave-minishop/-/commit/c0bc1a06b518010dd46c507ddc68b728142ef400), [f5594777](https://gitlab.com/3252a8/remnawave-minishop/-/commit/f559477746e080df5363a40824b74529261c79fd))
+
+<a id="при-обновлении-2"></a>
+
+### 升级注意
+
+- 新增迁移 `0088`–`0093`，处理教程链接、扩展数据和独立账号身份，包括 ID 序列及面板关联来源。 ([0c046b2c](https://gitlab.com/3252a8/remnawave-minishop/-/commit/0c046b2c60bf85cc7cdb316ef8f1356bc531fb2f), [33121363](https://gitlab.com/3252a8/remnawave-minishop/-/commit/331213638460da024df4186fc60141d4cb9607cf), [e060e2e9](https://gitlab.com/3252a8/remnawave-minishop/-/commit/e060e2e98577bd5f3191a0a6b18e1a302698cc38))
+- 独立运行使用 `TELEGRAM_ENABLED=False`，须配置邮箱登录、SMTP 和应用公开地址。通过可信命令 `bootstrap_owner.py` 指定首位所有者，之后在后台通用设置管理角色。见[不使用 Telegram](docs/features/telegram-optional.md)。 ([e060e2e9](https://gitlab.com/3252a8/remnawave-minishop/-/commit/e060e2e98577bd5f3191a0a6b18e1a302698cc38))
+- 安装扩展前检查所需核心版本与能力，重启后等待状态确认。见[插件契约](docs/development/plugin-contract.md)。 ([ea82a92f](https://gitlab.com/3252a8/remnawave-minishop/-/commit/ea82a92f1cc548fcc2882be30a60f180624fa53a), [a498317b](https://gitlab.com/3252a8/remnawave-minishop/-/commit/a498317bcb42ad26a956677ca1e101727e28d8d4))
+- JavaScript 主题特效默认关闭，需要管理员单独授权。这是页面内的可信代码；授权不会随导出传递，恢复备份时重置。见[特效信任模型](docs/features/theme-effects.md)。 ([8c311f9a](https://gitlab.com/3252a8/remnawave-minishop/-/commit/8c311f9ab3fef0cec6823b0026a36fd0d439d7d1))
 
 ## v3.7.2 — 2026-09-21
 
 [GitLab](https://gitlab.com/3252a8/remnawave-minishop/-/releases/v3.7.2) · [GitHub](https://github.com/3252a8/remnawave-minishop/releases/tag/v3.7.2)
 
-### Обзор
+<a id="обзор-2"></a>
 
-Добавлены рекуррентные платежи Wata, расширены темы и настройки интерфейса, управление входом и уведомлениями. Ускорены Web App и админка, исправлены сценарии платежей, миграции и доставки архивов.
+### 概览
 
-### Изменения
+新增由 Wata 提供商排期的循环付款，扩展主题、界面、登录和通知设置。提升应用和后台速度，修复支付、迁移及归档投递。
 
-* Добавлены рекуррентные платежи Wata с расписанием на стороне провайдера: отдельный способ оплаты, фиксация условий подписки, обработка повторных списаний, замены и завершения подписки. ([05ae2e3f](https://github.com/3252a8/remnawave-minishop/commit/05ae2e3f426800d33f6c57ff4f70e9cb5533812c))
-* Расширена система тем: управление видимостью восьми элементов главной страницы, настраиваемый разделитель метаданных, режимы списка начислений за приглашения и безопасный импорт SVG. Запись дескрипторов темы защищена от конкурентных изменений. ([8f555750](https://github.com/3252a8/remnawave-minishop/commit/8f5557506de881fe34f90ca9d802cc9945431ba6), [8793057b](https://github.com/3252a8/remnawave-minishop/commit/8793057bdbe4efdd3cd89effdddceb771000b367), [834d63d5](https://github.com/3252a8/remnawave-minishop/commit/834d63d5030913d19789f3ae082b0cfc297655bb), [c7c03157](https://github.com/3252a8/remnawave-minishop/commit/c7c0315773913a4d0b12e05982802a37eb6b96a3), [408171a9](https://github.com/3252a8/remnawave-minishop/commit/408171a901f87a63188549fcc1f0ceeeece4d30a))
-* Расширены настройки входа и пробного периода: для каждого провайдера можно отдельно включить рекомендацию привязки, а активацию пробного периода — ограничить наличием Telegram или внешней OAuth-идентичности (теперь любой провайдер подходит, а не только телеграм). ([08110e21](https://github.com/3252a8/remnawave-minishop/commit/08110e219335b1ea50e9ecfff1894088388869f5), [73be790c](https://github.com/3252a8/remnawave-minishop/commit/73be790cc368079acaf857f789fd3fe2fcdd0ff2))
-* Добавлены настройки UX параметров тарифа в checkout: анимацию числовых значений можно отключить, а редактор параметров — открывать сразу при входе. ([5d5d6a71](https://github.com/3252a8/remnawave-minishop/commit/5d5d6a711b29747dd3752bd706efc0ca817f974f))
-* Расширены пользовательские кнопки и рассылки: видимость кнопок отдельно задаётся для меню Telegram-бота, Telegram Mini App и браузера, а URL кнопок рассылки поддерживают персонализацию для каждого получателя. ([51e2200d](https://github.com/3252a8/remnawave-minishop/commit/51e2200d8d2734a5df701f8ddbfda6c2b1357736), [7ab91e92](https://github.com/3252a8/remnawave-minishop/commit/7ab91e924513b15143ae8301d86d9aae6bb763bc))
-* Добавлено управление доступом к пользовательским настройкам уведомлений и отдельный переключатель Telegram/log-уведомлений администраторам о новых тикетах поддержки и ответах. ([d059cb4c](https://github.com/3252a8/remnawave-minishop/commit/d059cb4ca60442f48bd5ecd53fc67cc7940cabae), [87b72e8f](https://github.com/3252a8/remnawave-minishop/commit/87b72e8fd78278c198551be479c091b1561f1905))
-* Ускорены Web App и админка: добавлены пакетное чтение прав и тарифов, ограниченные транзакции фоновой синхронизации, версионированные кеши, объединение параллельных запросов и кеширование переводов и настроек. ([d692f179](https://github.com/3252a8/remnawave-minishop/commit/d692f17966037655d1ba58a606fff8f8bd61c529), [82c757e9](https://github.com/3252a8/remnawave-minishop/commit/82c757e984732d7823bcf5d9198059cccf6d3465), [82c17b17](https://github.com/3252a8/remnawave-minishop/commit/82c17b1769d33ddafa0943063cf7c210225f55a1))
-* Добавлена доставка крупных архивов через собственный Telegram Local Bot API с общей настройкой для backend и worker. ([13c0118f](https://github.com/3252a8/remnawave-minishop/commit/13c0118f810a51db55ff6e8b257b6442041ab66c))
-* Исправлены платежные сценарии: RollyPay принимает платежи без метаданных трафика и использует укороченные callback-идентификаторы, сохраняется flow приватных тарифов через Telegram invoice, а возврат платежа корректно откатывает связанные пополнения трафика. ([c00b4bbf](https://github.com/3252a8/remnawave-minishop/commit/c00b4bbffdb20273e2584960a8dd8927c42a7eac), [065e302e](https://github.com/3252a8/remnawave-minishop/commit/065e302e825ee9828ceaff023236b3c5b7f28aff), [8e376168](https://github.com/3252a8/remnawave-minishop/commit/8e3761689cc45667b52071a7b3feba757e67a62e), [c201881a](https://github.com/3252a8/remnawave-minishop/commit/c201881aef43eb18341f9b59caf35656a5ba7e8c))
-* Исправлены Mini App и админка: история ping не учитывает кешированные проверки, компактная карточка показывает дату сброса трафика, checkout не оставляет устаревший баннер подарка, email-only аккаунтам не показываются недоступные действия, а сброс пользователя завершает активный пробный период. Обновление аватаров и переходы к связанным клиентам теперь работают сразу. ([9aa04ef9](https://github.com/3252a8/remnawave-minishop/commit/9aa04ef9eb8d5e0812f7c41c6958728f4d74883e), [b31602c7](https://github.com/3252a8/remnawave-minishop/commit/b31602c7b9a5fe0834398a149b7b04fdcdf58ce1), [9dbadf53](https://github.com/3252a8/remnawave-minishop/commit/9dbadf533f30a459c94a837a1cf33a9832b36581), [0e2dbf5a](https://github.com/3252a8/remnawave-minishop/commit/0e2dbf5a7d0d4ee6a8cd3ad81d1a8849f786aa1b), [36912875](https://github.com/3252a8/remnawave-minishop/commit/3691287568ff227cdc84dc564ae34e83623aab6f), [5d88dd32](https://github.com/3252a8/remnawave-minishop/commit/5d88dd321d1e7ac718329c1adfc87a177505b3a2), [35fd9ad5](https://github.com/3252a8/remnawave-minishop/commit/35fd9ad546cde195b48434847fdb86113f245328))
-* Усилены установщик и legacy-миграция: ввод мастера изолирован от Compose, preflight и cutover стали безопаснее, URL панели Bedolaga нормализуется, а ссылки подписок сохраняются и проверяются после переноса. ([faf06604](https://github.com/3252a8/remnawave-minishop/commit/faf06604c35c1d5fec46fb25cc9a770dab92341b), [227399d2](https://github.com/3252a8/remnawave-minishop/commit/227399d2e135d577a38113b84eec0aea8bc03739), [f7f437e5](https://github.com/3252a8/remnawave-minishop/commit/f7f437e5bafccff48e90133e93f12616aea9b604), [39c4c11a](https://github.com/3252a8/remnawave-minishop/commit/39c4c11acf67fca7fe2a66908cba05926c43b5f8))
-* Обновлена публикация Core: добавлены каналы образов в GHCR, повторные попытки для временных сбоев публикации и dev-стенда, усилены dependency/security workflows и обновлены web/docs-зависимости. ([7784bf60](https://github.com/3252a8/remnawave-minishop/commit/7784bf60848cdfad4866d91629ba55ac8dfa38a6), [cb2ecdec](https://github.com/3252a8/remnawave-minishop/commit/cb2ecdec742deb13f297ce0f13e92e581cdd25f3), [74739e1b](https://github.com/3252a8/remnawave-minishop/commit/74739e1be249ce21026a148d89b614e03a01cded), [4a9f6606](https://github.com/3252a8/remnawave-minishop/commit/4a9f6606cf5c9eb44713fe8848564d8561c9d109))
+<a id="изменения-1"></a>
 
-### При обновлении
+### 变更
 
-* Добавлена миграция `0087_add_wata_subscriptions`, создающая таблицу состояния рекуррентных подписок Wata.
-* Для рекуррентных платежей Wata требуется подключить подписки на стороне терминала и включить `WATA_SUBSCRIPTION_ENABLED`.
-* Для крупных Telegram-архивов можно настроить `TELEGRAM_BOT_API_BASE_URL`; собственный Bot API должен быть отдельно запущен и доступен из backend и worker.
-* Добавлены настройки `*_LOGIN_RECOMMENDED`, `USER_NOTIFICATION_PREFERENCES_ENABLED`, `SUPPORT_ADMIN_TELEGRAM_NOTIFICATIONS_ENABLED` и параметры отображения checkout. Старое имя `TRIAL_WITHOUT_TELEGRAM_ENABLED` сохранено как deprecated-алиас для `TRIAL_WITHOUT_OAUTH_ENABLED`.
-* Обновления зависимостей подготовлены `dependabot[bot]`: [dfc8642c](https://github.com/3252a8/remnawave-minishop/commit/dfc8642ce9038a123fdfb8a93b07b3ca7b7e9fc5), [b98b6096](https://github.com/3252a8/remnawave-minishop/commit/b98b6096741c8988e698b6ec018003f2e43693ad), [98f80543](https://github.com/3252a8/remnawave-minishop/commit/98f8054327779664fb5549b448b626a63f09fdbb).
+* 新增 Wata 循环支付，由提供商排期；包含独立付款方式、订阅条款快照、重复扣款、替换和终止处理。 ([05ae2e3f](https://github.com/3252a8/remnawave-minishop/commit/05ae2e3f426800d33f6c57ff4f70e9cb5533812c))
+* 扩展主题系统：控制首页八个元素可见性、自定义元数据分隔符、邀请奖励列表模式及安全 SVG 导入。主题描述文件写入防止并发冲突。 ([8f555750](https://github.com/3252a8/remnawave-minishop/commit/8f5557506de881fe34f90ca9d802cc9945431ba6), [8793057b](https://github.com/3252a8/remnawave-minishop/commit/8793057bdbe4efdd3cd89effdddceb771000b367), [834d63d5](https://github.com/3252a8/remnawave-minishop/commit/834d63d5030913d19789f3ae082b0cfc297655bb), [c7c03157](https://github.com/3252a8/remnawave-minishop/commit/c7c0315773913a4d0b12e05982802a37eb6b96a3), [408171a9](https://github.com/3252a8/remnawave-minishop/commit/408171a901f87a63188549fcc1f0ceeeece4d30a))
+* 扩展登录与试用设置：可为每个提供商单独建议绑定；试用激活可要求绑定 Telegram 或外部 OAuth 身份，现在任一提供商均可满足，不再只限 Telegram。 ([08110e21](https://github.com/3252a8/remnawave-minishop/commit/08110e219335b1ea50e9ecfff1894088388869f5), [73be790c](https://github.com/3252a8/remnawave-minishop/commit/73be790cc368079acaf857f789fd3fe2fcdd0ff2))
+* 新增结算套餐参数体验设置：可关闭数字动画，可进入结算时直接打开参数编辑器。 ([5d5d6a71](https://github.com/3252a8/remnawave-minishop/commit/5d5d6a711b29747dd3752bd706efc0ca817f974f))
+* 扩展自定义按钮和群发：分别控制 Telegram 机器人菜单、Mini App 和浏览器可见性，群发按钮链接支持按收件人个性化。 ([51e2200d](https://github.com/3252a8/remnawave-minishop/commit/51e2200d8d2734a5df701f8ddbfda6c2b1357736), [7ab91e92](https://github.com/3252a8/remnawave-minishop/commit/7ab91e924513b15143ae8301d86d9aae6bb763bc))
+* 新增用户通知偏好访问控制，及管理员新工单／回复 Telegram 与日志通知独立开关。 ([d059cb4c](https://github.com/3252a8/remnawave-minishop/commit/d059cb4ca60442f48bd5ecd53fc67cc7940cabae), [87b72e8f](https://github.com/3252a8/remnawave-minishop/commit/87b72e8fd78278c198551be479c091b1561f1905))
+* 加速应用与后台：批量读取权益和套餐、限制后台同步事务范围、版本化缓存、合并并行请求及缓存翻译与设置。 ([d692f179](https://github.com/3252a8/remnawave-minishop/commit/d692f17966037655d1ba58a606fff8f8bd61c529), [82c757e9](https://github.com/3252a8/remnawave-minishop/commit/82c757e984732d7823bcf5d9198059cccf6d3465), [82c17b17](https://github.com/3252a8/remnawave-minishop/commit/82c17b1769d33ddafa0943063cf7c210225f55a1))
+* 支持通过自建 Telegram Local Bot API 投递大型归档，后端和 worker 共用配置。 ([13c0118f](https://github.com/3252a8/remnawave-minishop/commit/13c0118f810a51db55ff6e8b257b6442041ab66c))
+* 修复支付：RollyPay 接受没有流量元数据的付款，使用缩短回调标识；Telegram 发票保留私有套餐流程；退款正确撤销关联流量充值。 ([c00b4bbf](https://github.com/3252a8/remnawave-minishop/commit/c00b4bbffdb20273e2584960a8dd8927c42a7eac), [065e302e](https://github.com/3252a8/remnawave-minishop/commit/065e302e825ee9828ceaff023236b3c5b7f28aff), [8e376168](https://github.com/3252a8/remnawave-minishop/commit/8e3761689cc45667b52071a7b3feba757e67a62e), [c201881a](https://github.com/3252a8/remnawave-minishop/commit/c201881aef43eb18341f9b59caf35656a5ba7e8c))
+* 修复 Mini App 和后台：ping 历史不计缓存检查；紧凑卡片显示流量重置日期；结算不残留旧礼品横幅；纯邮箱账号隐藏不可用操作；重置用户会结束当前试用。头像刷新及关联客户跳转即时生效。 ([9aa04ef9](https://github.com/3252a8/remnawave-minishop/commit/9aa04ef9eb8d5e0812f7c41c6958728f4d74883e), [b31602c7](https://github.com/3252a8/remnawave-minishop/commit/b31602c7b9a5fe0834398a149b7b04fdcdf58ce1), [9dbadf53](https://github.com/3252a8/remnawave-minishop/commit/9dbadf533f30a459c94a837a1cf33a9832b36581), [0e2dbf5a](https://github.com/3252a8/remnawave-minishop/commit/0e2dbf5a7d0d4ee6a8cd3ad81d1a8849f786aa1b), [36912875](https://github.com/3252a8/remnawave-minishop/commit/3691287568ff227cdc84dc564ae34e83623aab6f), [5d88dd32](https://github.com/3252a8/remnawave-minishop/commit/5d88dd321d1e7ac718329c1adfc87a177505b3a2), [35fd9ad5](https://github.com/3252a8/remnawave-minishop/commit/35fd9ad546cde195b48434847fdb86113f245328))
+* 加固安装器和旧数据迁移：向导输入与 Compose 隔离，预检和切换更安全；规范化 Bedolaga 面板 URL，迁移后保留并验证订阅链接。 ([faf06604](https://github.com/3252a8/remnawave-minishop/commit/faf06604c35c1d5fec46fb25cc9a770dab92341b), [227399d2](https://github.com/3252a8/remnawave-minishop/commit/227399d2e135d577a38113b84eec0aea8bc03739), [f7f437e5](https://github.com/3252a8/remnawave-minishop/commit/f7f437e5bafccff48e90133e93f12616aea9b604), [39c4c11a](https://github.com/3252a8/remnawave-minishop/commit/39c4c11acf67fca7fe2a66908cba05926c43b5f8))
+* 更新核心发布：新增 GHCR 镜像渠道，临时发布／开发环境故障支持重试；加强依赖与安全流程，更新网页／文档依赖。 ([7784bf60](https://github.com/3252a8/remnawave-minishop/commit/7784bf60848cdfad4866d91629ba55ac8dfa38a6), [cb2ecdec](https://github.com/3252a8/remnawave-minishop/commit/cb2ecdec742deb13f297ce0f13e92e581cdd25f3), [74739e1b](https://github.com/3252a8/remnawave-minishop/commit/74739e1be249ce21026a148d89b614e03a01cded), [4a9f6606](https://github.com/3252a8/remnawave-minishop/commit/4a9f6606cf5c9eb44713fe8848564d8561c9d109))
+
+<a id="при-обновлении-3"></a>
+
+### 升级注意
+
+* 新增迁移 `0087_add_wata_subscriptions`，创建 Wata 循环订阅状态表。
+* Wata 循环付款要求终端侧开通订阅并启用 `WATA_SUBSCRIPTION_ENABLED`。
+* 大型 Telegram 归档可配置 `TELEGRAM_BOT_API_BASE_URL`；自建 Bot API 须独立运行，并可从后端和 worker 访问。
+* 新增 `*_LOGIN_RECOMMENDED`、`USER_NOTIFICATION_PREFERENCES_ENABLED`、`SUPPORT_ADMIN_TELEGRAM_NOTIFICATIONS_ENABLED` 和结算展示参数。旧 `TRIAL_WITHOUT_TELEGRAM_ENABLED` 保留为 `TRIAL_WITHOUT_OAUTH_ENABLED` 的废弃别名。
+* 依赖更新由 `dependabot[bot]` 提供：[dfc8642c](https://github.com/3252a8/remnawave-minishop/commit/dfc8642ce9038a123fdfb8a93b07b3ca7b7e9fc5)、[b98b6096](https://github.com/3252a8/remnawave-minishop/commit/b98b6096741c8988e698b6ec018003f2e43693ad)、[98f80543](https://github.com/3252a8/remnawave-minishop/commit/98f8054327779664fb5549b448b626a63f09fdbb)。
 
 ## v3.7.1 — 2026-09-14
 
 [GitLab](https://gitlab.com/3252a8/remnawave-minishop/-/releases/v3.7.1) · [GitHub](https://github.com/3252a8/remnawave-minishop/releases/tag/v3.7.1)
 
-### Обзор
+<a id="обзор-3"></a>
 
-Расширены меню настройки темы WebApp, добавлена миграция из Bedolaga, ссылка для покупки скрытого тарифа, логин через Discord. Сертифицирована Remnawave Panel 3.4.4, улучшены административные сценарии и стабильность платежей.
+### 概览
 
-### Изменения
+扩展 WebApp 主题设置菜单，新增 Bedolaga 迁移、隐藏套餐购买链接和 Discord 登录。认证 Remnawave Panel 3.4.4，改进后台操作及支付稳定性。
 
-* Расширены библиотека оформления и runtime тем WebApp: выбор активной темы, произвольные CSS-переменные и настройки вариантов, прозрачность, общий редактор цвета, экспорт пакетов, сохранение превью и подробная диагностика импорта. ([f84f658](https://gitlab.com/3252a8/remnawave-minishop/-/commit/f84f658b9b0836476c4e4e484d11162f1425d492), [245e80a](https://gitlab.com/3252a8/remnawave-minishop/-/commit/245e80a203d1da104c561f80f1314fac4a2346cb))
-* Добавлен безопасный импорт из Bedolaga: переносятся учётные записи, тарифы и подписки, финансовая история, подарки, обращения поддержки, рекламные и партнёрские данные; предусмотрены dry-run, сверка результатов, резервная копия и управляемое переключение стеков. ([9c4e5f4](https://gitlab.com/3252a8/remnawave-minishop/-/commit/9c4e5f48402980daf8adb834fae01466c8c0ed38))
-* Расширен импорт из Remnashop: добавлены email-only аккаунты и OAuth identities, пользовательские балансы, squads и индивидуальные overrides, коды активации трафика, рекламные ссылки и дополнительная проверка финансовых данных. ([d16bf91](https://gitlab.com/3252a8/remnawave-minishop/-/commit/d16bf912bf53bf23c7346c29a7c99aa54ba3c6bc))
-* Добавлен доступ к скрытым тарифам по приватным ссылкам: администратор может создать, отозвать или пересоздать уникальную ссылку, не публикуя тариф на общей витрине. ([5367bb4](https://gitlab.com/3252a8/remnawave-minishop/-/commit/5367bb4b290b3d5d2694c6cad455e2ffed9dad3e))
-* Добавлена синхронизация тарифных тегов пользователей с Remnawave Panel при активации, продлении и смене подписки, а также фоновая сверка существующих пользователей с сохранением вручную назначенных тегов. ([31f8735](https://gitlab.com/3252a8/remnawave-minishop/-/commit/31f87357787aadb528cc35c0379289ce5ad11318))
-* Добавлен вход и привязка аккаунта через Discord OAuth2; полностью введённый email-код теперь проверяется автоматически. ([89d0289](https://gitlab.com/3252a8/remnawave-minishop/-/commit/89d028944a10d6c7df8ca92e2614ca57e4b97c0b), [08b179c](https://gitlab.com/3252a8/remnawave-minishop/-/commit/08b179c4e162309b410eb5b7ea9c24c824f78ff7))
-* Добавлен переход из карточки пользователя Minishop непосредственно в соответствующий профиль Remnawave Panel. ([9481486](https://gitlab.com/3252a8/remnawave-minishop/-/commit/94814866d2fdfb7edfb34dd08df52d435361d3ee))
-* Сертифицирована совместимость с Remnawave Panel 3.4.4, включая поддержку пользовательских тегов и сценарий обновления с поколения 2.8.1. ([203d6ea](https://gitlab.com/3252a8/remnawave-minishop/-/commit/203d6ea26c751a9bb3d65e41d8140f4df2ea35f5))
-* Исправлены административные сценарии: сохраняется выбранный статус обращений поддержки, из деталей платежа открывается нужная карточка пользователя, а неактивные периоды больше не возвращаются в редактор тарифа. ([e0c8c42](https://gitlab.com/3252a8/remnawave-minishop/-/commit/e0c8c422320f2c7eb77b3e407f57f9853d1e2096), [b42b377](https://gitlab.com/3252a8/remnawave-minishop/-/commit/b42b3776b9df2d571d3ee41ea98f65e0f961010c), [e726d56](https://gitlab.com/3252a8/remnawave-minishop/-/commit/e726d562eb52daeed5ca4cdc72b832b6719dd7eb))
-* Исправлена загрузка метаданных RollyPay до инициализации локальной конфигурации; из диалогов подтверждения убрана дублирующая кнопка закрытия при наличии явного действия отмены. ([0641d2f](https://gitlab.com/3252a8/remnawave-minishop/-/commit/0641d2fcd351645ce94e79187d1336501374a67b), [595fd5d](https://gitlab.com/3252a8/remnawave-minishop/-/commit/595fd5dcce6f2f07e7fcdcae47ba46324d11024a))
+<a id="изменения-2"></a>
 
-### При обновлении
+### 变更
 
-* Добавлены переменные окружения `DISCORD_OIDC_ENABLED`, `DISCORD_OIDC_CLIENT_ID` и `DISCORD_OIDC_CLIENT_SECRET`.
-* Добавлена append-only миграция БД `0086_panel_tariff_tag`; существующие миграции не изменялись.
-* Минимальная версия Node.js повышена до 24. ([7dd95fb](https://gitlab.com/3252a8/remnawave-minishop/-/commit/7dd95fbfea89af0965f1465ad44be5a4d11017d0))
-* GitLab назначен основным хостом исходного кода; после публикации dev-образов pipeline может запускать сборку downstream-потребителя. ([93c82c4](https://gitlab.com/3252a8/remnawave-minishop/-/commit/93c82c41ac51f161bce38262387a2e8377cb99ec), [3c53718](https://gitlab.com/3252a8/remnawave-minishop/-/commit/3c5371898e1e69237c4087f83c718e84b2e5842b))
-* Обновлены OpenAPI, типы API, каталог событий и манифест настроек.
-* Вклад в библиотеку оформления и переход на Node.js 24: [BADtochka](https://gitlab.com/BADtochka)
+* 扩展 WebApp 外观库和主题运行时：主题选择、自定义 CSS 变量及变体设置、透明度、通用颜色编辑器、包导出、预览保存和详细导入诊断。 ([f84f658](https://gitlab.com/3252a8/remnawave-minishop/-/commit/f84f658b9b0836476c4e4e484d11162f1425d492), [245e80a](https://gitlab.com/3252a8/remnawave-minishop/-/commit/245e80a203d1da104c561f80f1314fac4a2346cb))
+* 新增安全 Bedolaga 导入：账号、套餐、订阅、财务历史、礼品、支持工单、广告及伙伴数据；支持演练、结果核对、备份及受控环境切换。 ([9c4e5f4](https://gitlab.com/3252a8/remnawave-minishop/-/commit/9c4e5f48402980daf8adb834fae01466c8c0ed38))
+* 扩展 Remnashop 导入：纯邮箱账号、OAuth 身份、用户余额、分组与个人覆盖设置、流量激活码、广告链接及额外财务核查。 ([d16bf91](https://gitlab.com/3252a8/remnawave-minishop/-/commit/d16bf912bf53bf23c7346c29a7c99aa54ba3c6bc))
+* 隐藏套餐支持私有链接；管理员可创建、撤销或重建唯一链接，无需在公共目录发布套餐。 ([5367bb4](https://gitlab.com/3252a8/remnawave-minishop/-/commit/5367bb4b290b3d5d2694c6cad455e2ffed9dad3e))
+* 激活、续期和更换订阅时同步用户套餐标签到 Remnawave Panel；后台核对已有用户，保留手动分配标签。 ([31f8735](https://gitlab.com/3252a8/remnawave-minishop/-/commit/31f87357787aadb528cc35c0379289ce5ad11318))
+* 新增 Discord OAuth2 登录与绑定；邮箱验证码完整输入后自动验证。 ([89d0289](https://gitlab.com/3252a8/remnawave-minishop/-/commit/89d028944a10d6c7df8ca92e2614ca57e4b97c0b), [08b179c](https://gitlab.com/3252a8/remnawave-minishop/-/commit/08b179c4e162309b410eb5b7ea9c24c824f78ff7))
+* Minishop 用户卡片可直接打开对应 Remnawave Panel 用户。 ([9481486](https://gitlab.com/3252a8/remnawave-minishop/-/commit/94814866d2fdfb7edfb34dd08df52d435361d3ee))
+* 认证 Remnawave Panel 3.4.4 兼容性，包含用户标签和从 2.8.1 升级场景。 ([203d6ea](https://gitlab.com/3252a8/remnawave-minishop/-/commit/203d6ea26c751a9bb3d65e41d8140f4df2ea35f5))
+* 修复后台：保留所选工单状态，付款详情打开正确用户卡片，停用周期不再回到套餐编辑器。 ([e0c8c42](https://gitlab.com/3252a8/remnawave-minishop/-/commit/e0c8c422320f2c7eb77b3e407f57f9853d1e2096), [b42b377](https://gitlab.com/3252a8/remnawave-minishop/-/commit/b42b3776b9df2d571d3ee41ea98f65e0f961010c), [e726d56](https://gitlab.com/3252a8/remnawave-minishop/-/commit/e726d562eb52daeed5ca4cdc72b832b6719dd7eb))
+* 修复本地配置初始化前的 RollyPay 元数据加载；确认对话框已有取消操作时，去除重复关闭按钮。 ([0641d2f](https://gitlab.com/3252a8/remnawave-minishop/-/commit/0641d2fcd351645ce94e79187d1336501374a67b), [595fd5d](https://gitlab.com/3252a8/remnawave-minishop/-/commit/595fd5dcce6f2f07e7fcdcae47ba46324d11024a))
+
+<a id="при-обновлении-4"></a>
+
+### 升级注意
+
+* 新增环境变量 `DISCORD_OIDC_ENABLED`、`DISCORD_OIDC_CLIENT_ID` 和 `DISCORD_OIDC_CLIENT_SECRET`。
+* 追加数据库迁移 `0086_panel_tariff_tag`，不修改已有迁移。
+* Node.js 最低版本提高至 24。 ([7dd95fb](https://gitlab.com/3252a8/remnawave-minishop/-/commit/7dd95fbfea89af0965f1465ad44be5a4d11017d0))
+* GitLab 成为主要源码托管；发布 dev 镜像后，流水线可触发下游使用方构建。 ([93c82c4](https://gitlab.com/3252a8/remnawave-minishop/-/commit/93c82c41ac51f161bce38262387a2e8377cb99ec), [3c53718](https://gitlab.com/3252a8/remnawave-minishop/-/commit/3c5371898e1e69237c4087f83c718e84b2e5842b))
+* 更新 OpenAPI、API 类型、事件目录和设置清单。
+* 外观库及 Node.js 24 迁移贡献者：[BADtochka](https://gitlab.com/BADtochka)。
 
 ## v3.7.0 — 2026-09-09
 
 [GitLab](https://gitlab.com/3252a8/remnawave-minishop/-/releases/v3.7.0) · [GitHub](https://github.com/3252a8/remnawave-minishop/releases/tag/v3.7.0)
 
-### Обзор
+<a id="обзор-4"></a>
 
-Добавлены личный баланс, подарочные подписки, вход через Google, Яндекс и passkey, улучшение флоу установки кастомных тем для веб апп из админки. Расширены тарифы, способы оплаты, уведомления и инструменты управления пользователями.
+### 概览
 
-### Изменения
+新增用户余额、礼品订阅、Google／Yandex／通行密钥登录，改进后台自定义应用主题安装。扩展套餐、支付、通知和用户管理工具。
 
-- **Добавлен личный баланс пользователя:** пополнение через платёжных провайдеров, полная или частичная оплата подписки, продления, трафика и устройств с доплатой остатка внешним способом. В админке доступны остатки, журнал операций, корректировка сумм и перевод между личным и партнёрским балансами с сохранением ограничений на вывод. [d27a105d](https://gitlab.com/3252a8/remnawave-minishop/-/commit/d27a105d85dc30e168b945177816ac8ebc662dca), [b5593216](https://gitlab.com/3252a8/remnawave-minishop/-/commit/b5593216dff2e2234beca6ade0e20d36a6b568f5).
-- **Добавлены подарочные подписки:** покупка для другого пользователя, передача по ссылке, доставка на email и начало срока при активации. Оплаченные тариф, срок и лимиты сохраняются независимо от последующих изменений каталога. Администратор может создавать подарки без оплаты, просматривать их историю и отзывать неактивированные оплаченные подарки с возвратом фактически оплаченной стоимости на личный баланс покупателя. [0a0d9ce4](https://gitlab.com/3252a8/remnawave-minishop/-/commit/0a0d9ce4401f9b7283d3308c0e75bf1ed19738cd), [2634d527](https://gitlab.com/3252a8/remnawave-minishop/-/commit/2634d52743e519de040838e4798fd945f9dd4438), [8a605b4f](https://gitlab.com/3252a8/remnawave-minishop/-/commit/8a605b4febd3bd848ef8286d2eb6cff1e6f2a9d1).
-- **Расширены вход и безопасность аккаунта:** Google, Яндекс ID и passkey, привязка нескольких способов входа, выбор подтверждённой почты для уведомлений и смена основного email с подтверждением старого и нового адресов. Перевыпуск ссылки подписки доступен без привязанной почты: новая ссылка остаётся в приложении и при возможности отправляется по email или в Telegram. [3c626bc4](https://gitlab.com/3252a8/remnawave-minishop/-/commit/3c626bc42b52efdac620b9c5de917e0687823024), [6072ee38](https://gitlab.com/3252a8/remnawave-minishop/-/commit/6072ee384e98a25420c97dbaa77e955445debdab), [3b1067b9](https://gitlab.com/3252a8/remnawave-minishop/-/commit/3b1067b9c694b2632a8be6b90ddb618b920f3597).
-- **Расширена настройка тарифов и пробного периода:** новые покупки поддерживают точное количество дней, а скрытый тариф можно назначить из админки и оставить доступным для продления его владельцу. Добавлены платная активация пробного периода и настройка перехода на оплаченный срок: сохранить оставшиеся дни trial либо начать срок с момента оплаты. [aad14cb4](https://gitlab.com/3252a8/remnawave-minishop/-/commit/aad14cb42652d8f2ef79fe973e2fcf6c6f83c69d), [a666d271](https://gitlab.com/3252a8/remnawave-minishop/-/commit/a666d271cdd970a40accc8dd9fcc6769bc2ed100), [91de1b61](https://gitlab.com/3252a8/remnawave-minishop/-/commit/91de1b612b79c6b32e0942c442d5be5cea8ff89f), [aded3a6a](https://gitlab.com/3252a8/remnawave-minishop/-/commit/aded3a6a520420e252cb32dab4c7bf5c84095150).
-- **Добавлены RollyPay, OxaPay и новые сценарии оформления покупки:** публичные ссылки на покупку тарифа с продолжением после входа, отмена поддерживаемых незавершённых платежей с освобождением кода активации, настройка порядка кнопок оплаты. В админке доступны ручное проведение платежа и отмена зафиксированных начислений с журналом действий и проверкой возможности безопасного отката. [b3a0b61a](https://gitlab.com/3252a8/remnawave-minishop/-/commit/b3a0b61a5ac29165ad54ff9f6fe9ee5ea90184be), [2ba558dd](https://gitlab.com/3252a8/remnawave-minishop/-/commit/2ba558dd21fe2bea10ed44e6eb33dd474e0f9969), [957a1255](https://gitlab.com/3252a8/remnawave-minishop/-/commit/957a1255f13f2fb38392709f0bc5d63e106ef7ba), [ea20ed68](https://gitlab.com/3252a8/remnawave-minishop/-/commit/ea20ed686b1438308f97c9235ce7ffa6592444d9), [51f34dcb](https://gitlab.com/3252a8/remnawave-minishop/-/commit/51f34dcb8f88b5ee1cb0ea11cc28bd8efcc7e358), [abd93f8f](https://gitlab.com/3252a8/remnawave-minishop/-/commit/abd93f8f19f4d80f61579bd751c5dc340a70586d).
-- **Добавлена библиотека тем и расширена настройка интерфейса:** установка тем из ZIP и публичных GitHub/GitLab-репозиториев, предпросмотр, обновление с сохранением настроек, откат и экспорт собственных копий. Доступны настройки светлого и тёмного режимов. 
-- Для меню бота и Web App добавлены настраиваемые локализованные пользовательские кнопки (можно засунуть ссылку на канал и т.п.) с выбором иконки, ссылки, порядка и места отображения. [ea2d84dc](https://gitlab.com/3252a8/remnawave-minishop/-/commit/ea2d84dcea5f30c8fc82ad9bb55f882670e0ed29), [fc62f743](https://gitlab.com/3252a8/remnawave-minishop/-/commit/fc62f7435f2415bf40893d568f1f3a11fc59e821), [7ebdb48a](https://gitlab.com/3252a8/remnawave-minishop/-/commit/7ebdb48a0adb74692fbfd99aaab7dd292f5d6646), [bd16c908](https://gitlab.com/3252a8/remnawave-minishop/-/commit/bd16c90876f8808e1777f12c1d132f203fa97415), [1e276ca9](https://gitlab.com/3252a8/remnawave-minishop/-/commit/1e276ca9b606c57942b77aabf8e6fb31c30b3a9c).
-- **Обновлён личный кабинет:** опциональная компактная (удобно если включили кучу фичей ЛК превратился в бутерброд) сводка подписки, трафика и баланса с датами сброса лимитов; раздел статуса серверов через Uptime Kuma, xray-checker или внешнюю страницу с отдельной настройкой карточки на главной. В списке устройств показываются название клиента и последняя активность. [5b5be71c](https://gitlab.com/3252a8/remnawave-minishop/-/commit/5b5be71c90fb25f7edeae10ed3ea2372e7929fe5), [f5a010d5](https://gitlab.com/3252a8/remnawave-minishop/-/commit/f5a010d53a4a3612528f7c22ac570abfa3b7e10b), [d99101aa](https://gitlab.com/3252a8/remnawave-minishop/-/commit/d99101aa1f4fed71206897e7d3fc5f0f42d58902), [98cf37be](https://gitlab.com/3252a8/remnawave-minishop/-/commit/98cf37beaeb11c31e36f5a70e1fe5967e59f4813), [b9326281](https://gitlab.com/3252a8/remnawave-minishop/-/commit/b93262816643957836130c197ed246a375bf8e4b), [360337b6](https://gitlab.com/3252a8/remnawave-minishop/-/commit/360337b6e1b71391dda531e9d097de2232dac7ae).
-- **Добавлено управление уведомлениями:** администратор выбирает каналы Telegram/email по категориям, пользователь отдельно включает системные и рекламные сообщения для каждого канала. В письмах доступна ссылка управления email-уведомлениями без входа (можно отписаться от рассылок). Добавлены уведомления о подключении нового устройства и достижении лимита устройств, а также учёт пользователей, заблокировавших бота, при рассылках. [a02c9bc9](https://gitlab.com/3252a8/remnawave-minishop/-/commit/a02c9bc9b8f26901ce3c2aaece2db01d83d35195), [7c932561](https://gitlab.com/3252a8/remnawave-minishop/-/commit/7c932561f07189d56f4d6ed7468d0063d1347089), [6fac76da](https://gitlab.com/3252a8/remnawave-minishop/-/commit/6fac76da4a3c2e514602ab8b08a036ec90ca07f5), [72bf7663](https://gitlab.com/3252a8/remnawave-minishop/-/commit/72bf76637f19e7414c3dc97714962d8112912895).
-- **Расширены сообщения, рассылки и поддержка:** изображения в тикетах, ответах, внутренних заметках и личных сообщениях администратора; обновлены представление переписки, статусы тикетов и подробная история рассылок. Личные сообщения доступны пользователям без Telegram через email, а история отправки сохраняется в карточке пользователя. [0ca7680d](https://gitlab.com/3252a8/remnawave-minishop/-/commit/0ca7680de4005e3dfccdf04aaac019f093238101), [3df7d9ae](https://gitlab.com/3252a8/remnawave-minishop/-/commit/3df7d9aeb4801e3ecd1b9cc2353ff120e432159e), [a4c4c0e0](https://gitlab.com/3252a8/remnawave-minishop/-/commit/a4c4c0e06c2e3df29ee36339e5c498ec6b779b40), [995ab888](https://gitlab.com/3252a8/remnawave-minishop/-/commit/995ab8889eec21a7475bc0d67c65cfda140a4f32), [3592c727](https://gitlab.com/3252a8/remnawave-minishop/-/commit/3592c72753c89042a6956594f198d5ac331bf06a).
-- **Улучшена админ-панель:** единые таблицы и мобильные карточки, поиск платежей по пользователю, подробный состав покупки и копирование идентификаторов одним нажатием. В карточке пользователя видны занятые места устройств; срок подписки можно увеличить, сократить или задать датой. Расширен журнал действий пользователя и платежных операций, сохранена история аудита. [03b2a770](https://gitlab.com/3252a8/remnawave-minishop/-/commit/03b2a7708b07cbdf9a50f7275d852deeadae3bfb), [cc7c06b8](https://gitlab.com/3252a8/remnawave-minishop/-/commit/cc7c06b8cdf7ed0a803ac6580b91c04c1e602f25), [ccb5f109](https://gitlab.com/3252a8/remnawave-minishop/-/commit/ccb5f109a235fa1ddbb50f9defef7c978dd728d3), [766ec398](https://gitlab.com/3252a8/remnawave-minishop/-/commit/766ec3980852f05d0cca17052b55df31eea26c2b), [95ef32c5](https://gitlab.com/3252a8/remnawave-minishop/-/commit/95ef32c5d22c54d1254d68c2ad0b213036de93d6), [bd17f2d5](https://gitlab.com/3252a8/remnawave-minishop/-/commit/bd17f2d5964d999c8b290bd93e6f34a58af0bd0e), [a8f09d17](https://gitlab.com/3252a8/remnawave-minishop/-/commit/a8f09d175abd12ee5490dd79f620437c18c4414e).
-- **Исправлены существующие сценарии оплаты и синхронизации:** обработка callback FreeKassa, проверка суммы и валюты платежей Platega/Pally, сброс вводимого кода активации при оформлении покупки. Изменения сквадов и лимитов тарифа применяются к действующим подпискам; синхронизация пользователей с панелью сохраняет целостность транзакций. [e7d4d02a](https://gitlab.com/3252a8/remnawave-minishop/-/commit/e7d4d02a81c2f64c67e0346a28852a30d3b49ce5), [e95f269a](https://gitlab.com/3252a8/remnawave-minishop/-/commit/e95f269ac515daa6e42ca1553ad8c5c858bddfc5), [1c20764a](https://gitlab.com/3252a8/remnawave-minishop/-/commit/1c20764a6ea50d5c4fe90a1d527ead1f72701f96), [595ffb34](https://gitlab.com/3252a8/remnawave-minishop/-/commit/595ffb342b5fdf510ac4dd27f8084f58208e04d8), [5475e944](https://gitlab.com/3252a8/remnawave-minishop/-/commit/5475e9443642a917bd98c350332140053bc20c01), [18a3fad7](https://gitlab.com/3252a8/remnawave-minishop/-/commit/18a3fad72e6910fb6038c8d96ef4fc3a0c33114d), [c8841771](https://gitlab.com/3252a8/remnawave-minishop/-/commit/c88417713563a0b6ffb428a1d4062e0231a98674).
-- **Обновлено восстановление резервных копий:** архив содержит версию приложения и историю миграций, а восстановление БД выполняется в отдельную пустую базу с применением недостающих миграций и последующим переключением. Прежняя база сохраняется. Пользовательские темы и настройки библиотеки включаются в резервные копии. [bb15f564](https://gitlab.com/3252a8/remnawave-minishop/-/commit/bb15f56408748ac07c9dd15c9e1238e7fce884aa), [ea2d84dc](https://gitlab.com/3252a8/remnawave-minishop/-/commit/ea2d84dcea5f30c8fc82ad9bb55f882670e0ed29).
+<a id="изменения-3"></a>
 
-### При обновлении
+### 变更
 
-- **Обновление тарифов и БД.** Добавлены миграции для новых способов входа, баланса, подарков, дневных периодов, уведомлений и аудита; существующие миграции не изменены. Перед переходом сохраните БД и каталог тарифов, приостановите создание новых оплат и обновите backend, worker и frontend согласованно. Старые счета и внешние регулярные подписки сохраняют календарные условия. Новые дневные заказы не оформляются через текущие адаптеры внешних подписок Tribute, Platega СБП и RollyPay; для них используются доступные разовые способы оплаты. После появления дневных заказов откат требует версии, понимающей новые поля и снимки покупок. [aad14cb4](https://gitlab.com/3252a8/remnawave-minishop/-/commit/aad14cb42652d8f2ef79fe973e2fcf6c6f83c69d).
-- **Новые настройки.** Личный баланс (`USER_BALANCE_ENABLED`), Google/Яндекс/passkey и статус серверов (`SERVER_STATUS_ENABLED`) включаются отдельно; по умолчанию они выключены. Для платного trial предусмотрены `TRIAL_PAYMENT_ENABLED`, `TRIAL_PAYMENT_PRICE`, `TRIAL_PAYMENT_STARS_PRICE`, для перехода на оплаченный срок — `TRIAL_DAYS_STRATEGY`. Покупка подарков управляется `GIFTS_ENABLED` и по умолчанию включена. Четыре пользовательских переключателя уведомлений при миграции включены; глобальные ограничения администратора продолжают действовать.
-- **Темы.** `WEBAPP_THEMES_DIR` должен находиться на постоянном томе с правами записи для backend. Уже установленные вручную темы продолжают поддерживаться; перевод под управление библиотеки выполняется отдельно при импорте. [ea2d84dc](https://gitlab.com/3252a8/remnawave-minishop/-/commit/ea2d84dcea5f30c8fc82ad9bb55f882670e0ed29), [bf362688](https://gitlab.com/3252a8/remnawave-minishop/-/commit/bf3626887cf4f65a9bc952d14cc626a29bbf3beb).
-- **Восстановление БД.** Восстановление через работающий HTTP-запрос заменено командой обслуживания `bash scripts/restore-backup.sh <архив.zip>` из целевой версии. Команда останавливает backend/worker; требуются права `CREATEDB` и место для двух БД. В админке остаются создание, загрузка и скачивание архивов, а также отдельное восстановление compose-папки. [bb15f564](https://gitlab.com/3252a8/remnawave-minishop/-/commit/bb15f56408748ac07c9dd15c9e1238e7fce884aa).
-- **Поставка и документация.** Публикация образов перенесена в GitLab CI, основным реестром стал Docker Hub; установщик предпочитает GitLab и поддерживает альтернативные источники. Документация получила переключение стабильной/dev-версии и объединённые руководства по входу, оплате и новым функциям. [13e49987](https://gitlab.com/3252a8/remnawave-minishop/-/commit/13e499872134b7c2dd9191f3073bceaed7343ef4), [2f2a10d0](https://gitlab.com/3252a8/remnawave-minishop/-/commit/2f2a10d0236dc8c0abcc66647cfc8255a501dfaf), [e8566271](https://gitlab.com/3252a8/remnawave-minishop/-/commit/e8566271d022233c62f80731195944f7c3cd8b0d), [246f8780](https://gitlab.com/3252a8/remnawave-minishop/-/commit/246f8780d467f5fbbac83f9345934d23589353a8), [d88e3215](https://gitlab.com/3252a8/remnawave-minishop/-/commit/d88e32154e0cbf40b6ec594aa905f7246231ad50), [8ea3b18f](https://gitlab.com/3252a8/remnawave-minishop/-/commit/8ea3b18fb4b62823ce8767a8a2290526ce5b230b).
-- **Контрибьюторы:** спасибо **BADtochka** за интеграцию статуса серверов, поддержку альтернативных источников установщика и возврат стоимости подарков: [d99101aa](https://gitlab.com/3252a8/remnawave-minishop/-/commit/d99101aa1f4fed71206897e7d3fc5f0f42d58902), [246f8780](https://gitlab.com/3252a8/remnawave-minishop/-/commit/246f8780d467f5fbbac83f9345934d23589353a8), [8a605b4f](https://gitlab.com/3252a8/remnawave-minishop/-/commit/8a605b4febd3bd848ef8286d2eb6cff1e6f2a9d1); автору **BAD.** — за участие в реализации подарочных подписок: [2fc89ecb](https://gitlab.com/3252a8/remnawave-minishop/-/commit/2fc89ecb1e0641fa7b7532ddd39cf9c1e3c7a8fc), [f2f1c0c7](https://gitlab.com/3252a8/remnawave-minishop/-/commit/f2f1c0c795c5e7f286d1e855aaed4ed083575532).
+- **用户个人余额：** 支持提供商充值，全部或部分支付订阅、续期、流量和设备，差额使用外部方式支付。后台提供余额、流水、金额调整及个人／伙伴余额互转，同时保留提现限制。 ([d27a105d](https://gitlab.com/3252a8/remnawave-minishop/-/commit/d27a105d85dc30e168b945177816ac8ebc662dca), [b5593216](https://gitlab.com/3252a8/remnawave-minishop/-/commit/b5593216dff2e2234beca6ade0e20d36a6b568f5))
+- **礼品订阅：** 为他人购买，通过链接转赠或邮件交付，激活时起算有效期。已付套餐、时长和上限不受后续目录变化影响。管理员可免费创建、查看历史，撤销未激活的已付礼品，并将实付金额退至购买者个人余额。 ([0a0d9ce4](https://gitlab.com/3252a8/remnawave-minishop/-/commit/0a0d9ce4401f9b7283d3308c0e75bf1ed19738cd), [2634d527](https://gitlab.com/3252a8/remnawave-minishop/-/commit/2634d52743e519de040838e4798fd945f9dd4438), [8a605b4f](https://gitlab.com/3252a8/remnawave-minishop/-/commit/8a605b4febd3bd848ef8286d2eb6cff1e6f2a9d1))
+- **扩展登录与安全：** Google、Yandex ID、通行密钥、多种登录方式绑定、通知已验证邮箱选择，以及同时确认新旧邮箱的主邮箱变更。没有绑定邮箱也可重发订阅链接，新链接保留在应用，并尽可能通过邮件或 Telegram 发送。 ([3c626bc4](https://gitlab.com/3252a8/remnawave-minishop/-/commit/3c626bc42b52efdac620b9c5de917e0687823024), [6072ee38](https://gitlab.com/3252a8/remnawave-minishop/-/commit/6072ee384e98a25420c97dbaa77e955445debdab), [3b1067b9](https://gitlab.com/3252a8/remnawave-minishop/-/commit/3b1067b9c694b2632a8be6b90ddb618b920f3597))
+- **扩展套餐与试用配置：** 新购买支持精确天数；可由后台分配隐藏套餐，并允许所有者续期。新增付费试用及转付费策略：保留剩余试用天数，或从付款时重新起算。 ([aad14cb4](https://gitlab.com/3252a8/remnawave-minishop/-/commit/aad14cb42652d8f2ef79fe973e2fcf6c6f83c69d), [a666d271](https://gitlab.com/3252a8/remnawave-minishop/-/commit/a666d271cdd970a40accc8dd9fcc6769bc2ed100), [91de1b61](https://gitlab.com/3252a8/remnawave-minishop/-/commit/91de1b612b79c6b32e0942c442d5be5cea8ff89f), [aded3a6a](https://gitlab.com/3252a8/remnawave-minishop/-/commit/aded3a6a520420e252cb32dab4c7bf5c84095150))
+- **RollyPay、OxaPay 及新购买流程：** 公开套餐购买链接可在登录后继续；支持取消未完成付款并释放激活码，可配置支付按钮顺序。后台可手工确认付款或撤销已记录权益，保存操作日志并检查安全回滚条件。 ([b3a0b61a](https://gitlab.com/3252a8/remnawave-minishop/-/commit/b3a0b61a5ac29165ad54ff9f6fe9ee5ea90184be), [2ba558dd](https://gitlab.com/3252a8/remnawave-minishop/-/commit/2ba558dd21fe2bea10ed44e6eb33dd474e0f9969), [957a1255](https://gitlab.com/3252a8/remnawave-minishop/-/commit/957a1255f13f2fb38392709f0bc5d63e106ef7ba), [ea20ed68](https://gitlab.com/3252a8/remnawave-minishop/-/commit/ea20ed686b1438308f97c9235ce7ffa6592444d9), [51f34dcb](https://gitlab.com/3252a8/remnawave-minishop/-/commit/51f34dcb8f88b5ee1cb0ea11cc28bd8efcc7e358), [abd93f8f](https://gitlab.com/3252a8/remnawave-minishop/-/commit/abd93f8f19f4d80f61579bd751c5dc340a70586d))
+- **主题库及界面配置扩展：** 从 ZIP 或公开 GitHub／GitLab 仓库安装主题，支持预览、保留设置更新、回滚和导出自有副本。提供浅色和深色设置。
+- 机器人菜单与应用支持可本地化自定义按钮，例如频道链接，可选择图标、链接、顺序和显示位置。 ([ea2d84dc](https://gitlab.com/3252a8/remnawave-minishop/-/commit/ea2d84dcea5f30c8fc82ad9bb55f882670e0ed29), [fc62f743](https://gitlab.com/3252a8/remnawave-minishop/-/commit/fc62f7435f2415bf40893d568f1f3a11fc59e821), [7ebdb48a](https://gitlab.com/3252a8/remnawave-minishop/-/commit/7ebdb48a0adb74692fbfd99aaab7dd292f5d6646), [bd16c908](https://gitlab.com/3252a8/remnawave-minishop/-/commit/bd16c90876f8808e1777f12c1d132f203fa97415), [1e276ca9](https://gitlab.com/3252a8/remnawave-minishop/-/commit/1e276ca9b606c57942b77aabf8e6fb31c30b3a9c))
+- **个人中心更新：** 可选紧凑订阅、流量和余额汇总，包含额度重置日期，适合开启较多功能的页面；服务器状态支持 Uptime Kuma、xray-checker 或外部页面，首页卡片可独立配置。设备列表显示客户端名称和最后活跃时间。 ([5b5be71c](https://gitlab.com/3252a8/remnawave-minishop/-/commit/5b5be71c90fb25f7edeae10ed3ea2372e7929fe5), [f5a010d5](https://gitlab.com/3252a8/remnawave-minishop/-/commit/f5a010d53a4a3612528f7c22ac570abfa3b7e10b), [d99101aa](https://gitlab.com/3252a8/remnawave-minishop/-/commit/d99101aa1f4fed71206897e7d3fc5f0f42d58902), [98cf37be](https://gitlab.com/3252a8/remnawave-minishop/-/commit/98cf37beaeb11c31e36f5a70e1fe5967e59f4813), [b9326281](https://gitlab.com/3252a8/remnawave-minishop/-/commit/b93262816643957836130c197ed246a375bf8e4b), [360337b6](https://gitlab.com/3252a8/remnawave-minishop/-/commit/360337b6e1b71391dda531e9d097de2232dac7ae))
+- **通知管理：** 管理员按类别选择 Telegram／邮件渠道，用户按渠道独立控制系统及营销消息。邮件提供无需登录的通知管理链接，可退订群发。新增设备接入、设备上限通知，群发考虑已屏蔽机器人的用户。 ([a02c9bc9](https://gitlab.com/3252a8/remnawave-minishop/-/commit/a02c9bc9b8f26901ce3c2aaece2db01d83d35195), [7c932561](https://gitlab.com/3252a8/remnawave-minishop/-/commit/7c932561f07189d56f4d6ed7468d0063d1347089), [6fac76da](https://gitlab.com/3252a8/remnawave-minishop/-/commit/6fac76da4a3c2e514602ab8b08a036ec90ca07f5), [72bf7663](https://gitlab.com/3252a8/remnawave-minishop/-/commit/72bf76637f19e7414c3dc97714962d8112912895))
+- **扩展消息、群发与支持：** 工单、回复、内部备注及管理员私信支持图片；更新会话展示、工单状态和群发详细历史。没有 Telegram 的用户可接收邮件私信，发送历史保留在用户卡片。 ([0ca7680d](https://gitlab.com/3252a8/remnawave-minishop/-/commit/0ca7680de4005e3dfccdf04aaac019f093238101), [3df7d9ae](https://gitlab.com/3252a8/remnawave-minishop/-/commit/3df7d9aeb4801e3ecd1b9cc2353ff120e432159e), [a4c4c0e0](https://gitlab.com/3252a8/remnawave-minishop/-/commit/a4c4c0e06c2e3df29ee36339e5c498ec6b779b40), [995ab888](https://gitlab.com/3252a8/remnawave-minishop/-/commit/995ab8889eec21a7475bc0d67c65cfda140a4f32), [3592c727](https://gitlab.com/3252a8/remnawave-minishop/-/commit/3592c72753c89042a6956594f198d5ac331bf06a))
+- **后台改进：** 统一表格与移动卡片，按用户搜索付款、展示购买明细、一键复制标识。用户卡片显示设备占用；有效期可增加、减少或指定日期。扩展用户操作和付款日志，保留审计历史。 ([03b2a770](https://gitlab.com/3252a8/remnawave-minishop/-/commit/03b2a7708b07cbdf9a50f7275d852deeadae3bfb), [cc7c06b8](https://gitlab.com/3252a8/remnawave-minishop/-/commit/cc7c06b8cdf7ed0a803ac6580b91c04c1e602f25), [ccb5f109](https://gitlab.com/3252a8/remnawave-minishop/-/commit/ccb5f109a235fa1ddbb50f9defef7c978dd728d3), [766ec398](https://gitlab.com/3252a8/remnawave-minishop/-/commit/766ec3980852f05d0cca17052b55df31eea26c2b), [95ef32c5](https://gitlab.com/3252a8/remnawave-minishop/-/commit/95ef32c5d22c54d1254d68c2ad0b213036de93d6), [bd17f2d5](https://gitlab.com/3252a8/remnawave-minishop/-/commit/bd17f2d5964d999c8b290bd93e6f34a58af0bd0e), [a8f09d17](https://gitlab.com/3252a8/remnawave-minishop/-/commit/a8f09d175abd12ee5490dd79f620437c18c4414e))
+- **修复支付与同步：** FreeKassa 回调、Platega／Pally 金额币种校验和购买时激活码输入重置。套餐分组及上限变化应用到有效订阅，面板用户同步保持事务完整。 ([e7d4d02a](https://gitlab.com/3252a8/remnawave-minishop/-/commit/e7d4d02a81c2f64c67e0346a28852a30d3b49ce5), [e95f269a](https://gitlab.com/3252a8/remnawave-minishop/-/commit/e95f269ac515daa6e42ca1553ad8c5c858bddfc5), [1c20764a](https://gitlab.com/3252a8/remnawave-minishop/-/commit/1c20764a6ea50d5c4fe90a1d527ead1f72701f96), [595ffb34](https://gitlab.com/3252a8/remnawave-minishop/-/commit/595ffb342b5fdf510ac4dd27f8084f58208e04d8), [5475e944](https://gitlab.com/3252a8/remnawave-minishop/-/commit/5475e9443642a917bd98c350332140053bc20c01), [18a3fad7](https://gitlab.com/3252a8/remnawave-minishop/-/commit/18a3fad72e6910fb6038c8d96ef4fc3a0c33114d), [c8841771](https://gitlab.com/3252a8/remnawave-minishop/-/commit/c88417713563a0b6ffb428a1d4062e0231a98674))
+- **备份恢复更新：** 归档包含应用版本及迁移历史；恢复到独立空库，补齐迁移后切换，保留原库。自定义主题与主题库设置纳入备份。 ([bb15f564](https://gitlab.com/3252a8/remnawave-minishop/-/commit/bb15f56408748ac07c9dd15c9e1238e7fce884aa), [ea2d84dc](https://gitlab.com/3252a8/remnawave-minishop/-/commit/ea2d84dcea5f30c8fc82ad9bb55f882670e0ed29))
+
+<a id="при-обновлении-5"></a>
+
+### 升级注意
+
+- **套餐与数据库升级。** 为新登录方式、余额、礼品、按天周期、通知和审计追加迁移，不修改已有迁移。升级前备份数据库和套餐目录，暂停新付款，协调更新后端、worker 和前端。旧账单与外部循环订阅保留日历条款。新按天订单不使用当前 Tribute、Platega 快速支付系统和 RollyPay 外部订阅适配器，改用可用单次付款。产生按天订单后，回滚版本必须理解新字段与购买快照。 ([aad14cb4](https://gitlab.com/3252a8/remnawave-minishop/-/commit/aad14cb42652d8f2ef79fe973e2fcf6c6f83c69d))
+- **新增设置。** 个人余额（`USER_BALANCE_ENABLED`）、Google／Yandex／通行密钥和服务器状态（`SERVER_STATUS_ENABLED`）须单独启用，默认关闭。付费试用使用 `TRIAL_PAYMENT_ENABLED`、`TRIAL_PAYMENT_PRICE`、`TRIAL_PAYMENT_STARS_PRICE`；转付费有效期策略使用 `TRIAL_DAYS_STRATEGY`。礼品购买由 `GIFTS_ENABLED` 控制，默认开启。迁移启用四个用户通知开关，管理员全局限制仍生效。
+- **主题。** `WEBAPP_THEMES_DIR` 应位于持久卷，后端须有写权限。已手工安装主题继续支持；导入时单独转入主题库管理。 ([ea2d84dc](https://gitlab.com/3252a8/remnawave-minishop/-/commit/ea2d84dcea5f30c8fc82ad9bb55f882670e0ed29), [bf362688](https://gitlab.com/3252a8/remnawave-minishop/-/commit/bf3626887cf4f65a9bc952d14cc626a29bbf3beb))
+- **数据库恢复。** 用目标版本维护命令 `bash scripts/restore-backup.sh <归档.zip>` 替代运行中的 HTTP 恢复。命令停止后端／worker，需要 `CREATEDB` 权限及两份数据库空间。后台保留归档创建、上传、下载及 Compose 目录单独恢复。 ([bb15f564](https://gitlab.com/3252a8/remnawave-minishop/-/commit/bb15f56408748ac07c9dd15c9e1238e7fce884aa))
+- **交付与文档。** 镜像发布移到 GitLab CI，主要仓库为 Docker Hub；安装器优先 GitLab，并支持替代来源。文档增加稳定版／dev 切换，以及统一的登录、支付和新功能指南。 ([13e49987](https://gitlab.com/3252a8/remnawave-minishop/-/commit/13e499872134b7c2dd9191f3073bceaed7343ef4), [2f2a10d0](https://gitlab.com/3252a8/remnawave-minishop/-/commit/2f2a10d0236dc8c0abcc66647cfc8255a501dfaf), [e8566271](https://gitlab.com/3252a8/remnawave-minishop/-/commit/e8566271d022233c62f80731195944f7c3cd8b0d), [246f8780](https://gitlab.com/3252a8/remnawave-minishop/-/commit/246f8780d467f5fbbac83f9345934d23589353a8), [d88e3215](https://gitlab.com/3252a8/remnawave-minishop/-/commit/d88e32154e0cbf40b6ec594aa905f7246231ad50), [8ea3b18f](https://gitlab.com/3252a8/remnawave-minishop/-/commit/8ea3b18fb4b62823ce8767a8a2290526ce5b230b))
+- **贡献者：** 感谢 **BADtochka** 实现服务器状态、安装器替代来源及礼品退款；感谢 **BAD.** 参与礼品订阅实现。 ([d99101aa](https://gitlab.com/3252a8/remnawave-minishop/-/commit/d99101aa1f4fed71206897e7d3fc5f0f42d58902), [246f8780](https://gitlab.com/3252a8/remnawave-minishop/-/commit/246f8780d467f5fbbac83f9345934d23589353a8), [8a605b4f](https://gitlab.com/3252a8/remnawave-minishop/-/commit/8a605b4febd3bd848ef8286d2eb6cff1e6f2a9d1), [2fc89ecb](https://gitlab.com/3252a8/remnawave-minishop/-/commit/2fc89ecb1e0641fa7b7532ddd39cf9c1e3c7a8fc), [f2f1c0c7](https://gitlab.com/3252a8/remnawave-minishop/-/commit/f2f1c0c795c5e7f286d1e855aaed4ed083575532))
 
 ## v3.6.1 — 2026-08-18
 
 [GitLab](https://gitlab.com/3252a8/remnawave-minishop/-/releases/v3.6.1) · [GitHub](https://github.com/3252a8/remnawave-minishop/releases/tag/v3.6.1)
 
-### Обзор
+<a id="обзор-5"></a>
 
-Добавлены гибкий checkout подписок, новый вариант выбора способов оплаты и история рассылок. Улучшены восстановление платежей, улучшение UI/UX.
+### 概览
 
-### Изменения
+新增订阅灵活结算、新支付方式选择和群发历史。改进付款恢复及界面体验。
 
-- Добавлены гибкие лимиты в checkout периодных тарифов перед оплатой: выбор итоговых лимитов обычного и premium-трафика, дополнительных устройств, локальный предпросмотр цены и серверная котировка всей корзины.
-- Переработан интерфейс редактора тарифов, добавлена поддержка настройки гибких лимитов.
-- Добавлена возможность изменить внешний вид меню выбора способа оплаты: компактный выпадающий список по умолчанию или отдельные кнопки (как было раньше), сохранение порядка и иконок, отображение минимальной суммы для недоступных методов (если настроено). 
-- Для провайдера Platega добавлена возможность настройки отдельной кнопки для оплаты картой.
-- Усилено восстановление платежей и автопродлений: цикл и намерение отправки сохраняются до вызова провайдера, повторный запуск продолжает существующий платёж, а статусы внешних счетов сверяются перед активацией или освобождением checkout.
-- Добавлена история рассылок: содержимое, аудитория, каналы, расписание, текущий статус и прогресс доставки; запланированную отправку можно перенести или отменить.
-- Улучшен Mini App UX: учтены safe-area и оверлеи полноэкранного Telegram, добавлена возможность прислать кнопку входа в партнёрский раздел, плашка активации кодов размещена в самом верху раздела, кнопка открытия партнерского раздела перемещена в экран настроек при условии если другая программа активна.
-- Улучшена админ-панель: исправлены показатели регистраций и плательщиков в рекламных кампаниях, добавлены анимации для графиков и улучшена легенда для графиков.
-- Исправлена связь подписок с Remnawave: при нескольких совпадениях (один tg id привязан к нескольким профилям в панели) используется уже сохранённая локальная связь, синтетические маркеры пользователей не принимаются за реальную идентичность.
-- Повышена устойчивость runtime-настроек: некорректная конфигурация одного провайдера больше не блокирует применение остальных значений.
-- Обновлены документация и сборочные процессы: добавлен обзор отдельно подключаемого PRO-расширения, автоматизирован снимок интерфейса для README и введена проверка согласованности npm lock-файлов.
+<a id="изменения-4"></a>
 
-### При обновлении
+### 变更
 
-- Добавлены миграции `0062`–`0065` для истории рассылок, сверки legacy-данных пользовательских кодов, снимков checkout и гибких лимитов. Существующие миграции не редактировались и не переупорядочивались.
-- Mini App теперь по умолчанию использует выпадающий список способов оплаты. Предыдущее представление возвращается через `PAYMENT_METHODS_DISPLAY_MODE=buttons`.
-- Добавлены необязательные настройки `PAYMENT_METHODS_DISPLAY_MODE`, `PLATEGA_CARD_ENABLED` и `PLATEGA_CARD_METHOD`; обязательных новых env-значений нет.
+- 按周期套餐结算前可选择普通／高级流量最终上限和额外设备；本地预览价格，服务端为整个购物车报价。
+- 重做套餐编辑器界面，支持配置灵活上限。
+- 可选择支付菜单外观：默认紧凑下拉列表，或原来的独立按钮；保留顺序与图标，为不可用方法展示已配置最低金额。
+- Platega 支持配置独立银行卡付款按钮。
+- 加强付款与自动续期恢复：调用提供商前保存周期和发送意图，重启继续已有付款；激活或释放结算前核查外部账单状态。
+- 新增群发历史：内容、受众、渠道、排期、状态和进度；计划任务可改期或取消。
+- 改进 Mini App：考虑 Telegram 全屏安全区和浮层；可发送伙伴页面入口按钮；激活码区域置顶；其他计划启用时将伙伴入口移到设置。
+- 改进后台：修复广告活动注册与付款人数指标，图表增加动画并改进图例。
+- 修复 Remnawave 订阅关联：同一 Telegram ID 对应多个面板用户时使用已保存本地关系，不把合成标记当作真实身份。
+- 提高运行时设置韧性：单个提供商配置错误不再阻止其他设置应用。
+- 更新文档与构建：增加可独立安装的 PRO 扩展概览，自动生成 README 界面截图，并检查 npm lock 一致性。
+
+<a id="при-обновлении-6"></a>
+
+### 升级注意
+
+- 追加迁移 `0062`–`0065`：群发历史、旧用户代码核对、结算快照及灵活上限。已有迁移不修改、不重排。
+- Mini App 默认采用支付方式下拉列表，使用 `PAYMENT_METHODS_DISPLAY_MODE=buttons` 可恢复原按钮布局。
+- 新增可选设置 `PAYMENT_METHODS_DISPLAY_MODE`、`PLATEGA_CARD_ENABLED` 和 `PLATEGA_CARD_METHOD`，没有新增必填环境变量。
 
 <details>
-<summary>Ссылки на изменения и участники</summary>
+<summary>变更来源与贡献者</summary>
 
 * feat: flexible checkout, payment recovery and broadcast history by @3252a8 in https://github.com/3252a8/remnawave-minishop/pull/82
 
@@ -693,36 +432,42 @@
 
 [GitLab](https://gitlab.com/3252a8/remnawave-minishop/-/releases/v3.6.0) · [GitHub](https://github.com/3252a8/remnawave-minishop/releases/tag/v3.6.0)
 
-### Обзор
+<a id="обзор-6"></a>
 
-Добавлена функция партнёрской программы, сертифицирована совместимость с Remnawave 3.x, расширены платежные сценарии и усилена надёжность установки, авторизации и восстановления данных.
+### 概览
 
-### Изменения
+新增合作伙伴计划，认证 Remnawave 3.x 兼容性，扩展付款流程并加强安装、鉴权和数据恢复可靠性。
 
-- Добавлена настраиваемая партнёрская программа: заявки и модерация, отдельные ссылки, атрибуция клиентов, комиссии с периодом удержания, балансы по валютам, ручные выплаты и пользовательский раздел.
-- Добавлена полная и смешанная оплата партнёрским балансом; реализованы резервирование средств, компенсация отменённых операций, повторная обработка и корректный учёт внешней выручки.
-- Добавлена поддержка Remnawave API 3.0–3.2.3 с числовыми идентификаторами пользователей, безопасным обновлением с 2.8.1, адаптивными API-возможностями, пакетными операциями и индикатором совместимости в админке.
-- Расширена Platega: дополнительные способы оплаты и рекуррентные СБП-подписки с отдельным учётом мандатов, продлений, отмен и повторных callback-запросов.
-- Улучшена обработка платежей: повторное использование ожидающих checkout, соблюдение минимумов провайдеров, безопасная отмена старых счетов, устойчивые повторы hosted checkout и проверка готовности FreeKassa к созданию платежей.
-- Расширены тарифы и premium-трафик: независимые стратегии сброса, корректные rolling-периоды от даты начала подписки, перенос докупленного остатка и явное различие нулевого и неограниченного лимита.
-- Расширены коды активации и система приглашений: применение персональных кодов при продлении через бота, начисление обычного и premium-трафика, выбор тарифа для нового пользователя, управление видимостью ссылок и поиск кодов в рассылках.
-- Улучшены Web App и админка: сортировка таблиц, новые диапазоны и состояния графиков выручки, адаптивные карточки устройств, улучшенные empty/loading-состояния, мобильная раскладка, контраст и покрытие дополнительных тем.
-- Улучшены авторизация и работа с Telegram: SOCKS5-прокси для Bot API и OAuth, ограниченные сетевые ожидания, кеширование JWKS и корректный перенос истории поддержки при объединении учётных записей.
-- Усилена эксплуатационная безопасность: атомарное восстановление БД с предварительным архивом, автоматическими миграциями и выравниванием sequence, диагностика разных `/app/data` mount и отдельные блокировки restore и синхронизации.
-- Обновлён install wizard: проверка минимальных версий Docker, безопасное обновление Compose plugin, валидация конфигурации до запуска и поддержка удалённой Remnawave Panel за eGames с проверкой TLS-сертификатов.
-- Улучшены некоторые разделы и элементы UI.
+<a id="изменения-5"></a>
 
-### При обновлении
+### 变更
 
-- Добавлены append-only миграции `0057`–`0061`: подписки Platega, данные партнёрской программы, клиентские начисления трафика и оплата партнёрским балансом. Существующая миграция `0056` не изменена и не переупорядочена.
-- Для партнёрской программы нужны `PARTNER_REQUISITES_ENCRYPTION_KEY` и `PARTNER_REQUISITES_KEY_ID`; функция по умолчанию выключена.
-- Добавлены `TELEGRAM_BOT_PROXY_URL` и `TELEGRAM_OAUTH_USE_BOT_PROXY`.
-- Минимальные требования установщика: Docker Engine 25.0+ и Docker Compose plugin 2.20.2+; отдельная команда `docker-compose` больше не считается поддерживаемым runtime.
-- Обновлены OpenAPI, типы frontend, каталог событий и манифест настроек.
-- Контрибьюторы: `wormy09` (`5eb78c87`) — перенос истории поддержки при объединении учётных записей; `dependabot[bot]` (`632603f9`) — обновление frontend-зависимостей.
+- 新增可配置合作伙伴计划：申请审核、独立链接、客户归因、冻结期佣金、按币种余额、人工提现及用户页面。
+- 支持伙伴余额全额或混合付款，包含资金预留、取消补偿、重试处理及正确外部收入核算。
+- 支持 Remnawave API 3.0–3.2.3：数字用户 ID、从 2.8.1 安全升级、自适应 API 能力、批量操作及后台兼容性指示。
+- 扩展 Platega：更多付款方式和快速支付系统循环订阅，单独记录授权、续期、取消与重复回调。
+- 改进付款：复用待结算、遵守提供商最低金额、安全取消旧账单、托管结算可靠重试及创建前检查 FreeKassa 就绪。
+- 扩展套餐和高级流量：独立重置策略、按订阅起点正确计算滚动周期、结转加购余量，明确区分零额度与不限量。
+- 扩展激活码和邀请：机器人续期可用个人码，增加普通／高级流量，新用户可选套餐，控制链接可见性并在群发中搜索代码。
+- 改进应用与后台：表格排序、收入图表新范围及状态、自适应设备卡片、更好的空／加载状态、手机布局、对比度和附加主题覆盖。
+- 改进鉴权与 Telegram：Bot API／OAuth 支持 SOCKS5 代理、限制网络等待、缓存 JWKS，账号合并正确迁移支持历史。
+- 加强运维安全：恢复前归档、原子数据库恢复、自动迁移及序列校正，诊断 `/app/data` 挂载不一致，恢复和同步使用独立锁。
+- 安装向导增加 Docker 最低版本检查、安全更新 Compose 插件、启动前配置验证，以及验证 TLS 证书的 eGames 后远程面板支持。
+- 改进部分界面区域和元素。
+
+<a id="при-обновлении-7"></a>
+
+### 升级注意
+
+- 追加迁移 `0057`–`0061`：Platega 订阅、伙伴计划、客户流量奖励及伙伴余额付款。不修改或重排已有 `0056`。
+- 伙伴计划需要 `PARTNER_REQUISITES_ENCRYPTION_KEY` 和 `PARTNER_REQUISITES_KEY_ID`，默认关闭。
+- 新增 `TELEGRAM_BOT_PROXY_URL` 和 `TELEGRAM_OAUTH_USE_BOT_PROXY`。
+- 安装器最低要求：Docker Engine 25.0+、Docker Compose 插件 2.20.2+；不再支持独立 `docker-compose` 命令作为运行时。
+- 更新 OpenAPI、前端类型、事件目录及设置清单。
+- 贡献者：`wormy09`（`5eb78c87`）实现合并账号时迁移支持历史；`dependabot[bot]`（`632603f9`）更新前端依赖。
 
 <details>
-<summary>Ссылки на изменения и участники</summary>
+<summary>变更来源与贡献者</summary>
 
 * fix: reassign support history when merging accounts by @wormy09 in https://github.com/3252a8/remnawave-minishop/pull/75
 * build(deps): bump the npm_and_yarn group across 2 directories with 1 update by @dependabot[bot] in https://github.com/3252a8/remnawave-minishop/pull/78
@@ -737,54 +482,60 @@
 
 [GitLab](https://gitlab.com/3252a8/remnawave-minishop/-/releases/v3.5.8) · [GitHub](https://github.com/3252a8/remnawave-minishop/releases/tag/v3.5.8)
 
-### Обзор
+<a id="обзор-7"></a>
 
-Новый платёжный провайдер Tribute, безопасные повторы автопродления YooKassa, сверка и возобновление незавершённых оплат, ежемесячное начисление трафика за HWID-пакеты, быстрое применение premium-лимита с разрывом сессий, улучшения интерфейса: редактор сообщений с кнопками в рассылках/поддержке/карточке пользователя и расширяемая навигация админки.
+### 概览
 
-### Изменения
+新增 Tribute 支付、安全 YooKassa 自动续期重试、未完成付款核查与恢复、HWID 包月度流量奖励、高级额度快速执行及断开会话。界面增加群发／支持／用户卡片的带按钮消息编辑器，后台导航可扩展。
 
-- Добавлен платёжный провайдер **Tribute**: основной режим Shop API с динамическим заказом на локальную сумму (разовые и рекуррентные заказы, трафик, premium-трафик, HWID-устройства, доплата за смену тарифа), резервный режим Creator subscriptions и Digital Products, единый webhook `/webhook/tribute` с проверкой HMAC-SHA256, кнопка «Подтянуть из Tribute» в редакторе тарифа со сверкой цен и валют, логотип и раздел настроек провайдера.
-- Добавлены безопасные повторы автопродления YooKassa: очередь циклов с неизменяемыми суммой, картой и телом запроса, технические повторы только с тем же `Idempotence-Key` в 30-минутном окне, не более одной финансовой попытки после подтверждённого `canceled`, dry-run по умолчанию, резервный планировщик без panel webhook, событие `subscription.auto_renew_failed` и уведомление пользователю о запланированном повторе; исправлены поля чека рекуррентного платежа.
-- Добавлены сверка и возобновление оплат: карточка незавершённой оплаты в Mini App с продолжением по сохранённой ссылке, приоритет незавершённого платежа в выдаче, подстановка ранее введённого кода в checkout, воркеры сверки истёкших заказов у Wata, CryptoPay, Stripe, LAVA, Pally, PayKilla и SeverPay, включая заказы без сохранённой ссылки.
-- Добавлено ежемесячное начисление трафика для HWID-пакетов (`traffic_bonus_gb` на пакет): начисление фиксируется в платеже и записи докупки, складывается по активным докупкам, живёт по `valid_from`/`valid_until` и переживает месячный сброс панели; добавлен одноразовый скрипт пересчёта основных лимитов трафика по всему парку подписок.
-- Восстановлена tariff-aware докупка устройств: единый сервис доступности для бота и Web App с точной причиной блокировки (раздел выключен, нет активной подписки, тариф отсутствует/выключен/сменился, безлимит, нет пакетов), повторная проверка перед выставлением счёта и диагностика причины, по которой оплаченная докупка трафика не была зачислена.
-- Улучшено применение premium-лимита: быстрая перепроверка подписок с расходом от `TARIFF_PREMIUM_FAST_WATCH_PERCENT` между полными тиками воркера, разрыв уже установленных сессий на premium-нодах через `POST /api/ip-control/drop-connections` с cooldown, защита от неполной статистики нод и предупреждение в диагностике админки о нодах без `CAP_NET_ADMIN`.
-- Добавлена диагностика конфликтов с панелью: при перезаписи лимитов устройств или трафика сторонним писателем синхронизация подписки приостанавливается и попадает в health-панель; добавлен снимок payload панельных webhook-ов, дедупликация повторяемых событий по содержимому, отклонение некорректных ответов API панели и корректная трактовка статуса `LIMITED` как активной подписки.
-- Расширена работа с сообщениями: общий контракт составления сообщения для рассылки, поддержки и плагинов; текст и подписи кнопок задаются на каждом языке; до четырёх кнопок — ссылка, код активации в боте, код в Mini App, произвольная цель Mini App и именованный экран приложения; добавлен маршрут checkout, открывающий выбор тарифа и периода; аудитория рассылки сгруппирована, снабжена иконками и дополнена выбором конкретного тарифа, включая аудитории от расширений; сообщение одному пользователю отправляется прямо из карточки.
-- Переведены поддержка и рассылки на визуальный редактор: форматирование в подмножестве HTML, понятном Telegram, кликабельные ссылки в старых сообщениях, счётчик по видимому тексту, у администратора — переключатель исходного HTML, шорткоды персонализации, меню «Вставить» с персональными ссылками пользователя и кнопки под ответом; ожидающие тикеты видны в боковой панели.
-- Расширена админ-панель и улучшен интерфейс: расширения добавляют группы навигации, вкладки в существующие разделы и вкладки карточки пользователя, изменено расположение некоторых разделов админки, отображение источника значения настройки (БД или `.env`), раздел сверки привязки подписок к тарифам с безопасным восстановлением, предпросмотр результата смены тарифа и сброс ссылки подписки из карточки; списки перерисованы карточками на узких экранах, за открытым оверлеем остаётся один живой скроллер.
-- Добавлен перевыпуск ссылки подписки: маршрут Web App с отправкой новой ссылки и инструкции на email, диалог подтверждения и кнопка в настройках, а также сброс ссылки администратором из карточки пользователя.
-- Разделены персональные и общие коды активации: у кода появился необязательный владелец, список группирует общие коды и помечает одноразовые, выпадающий список кнопок сообщения разделяет оба вида, а история показывает клиенту, для кого код был выпущен.
-- Улучшены Mini App и API: код экрана загружается при открытии (сборка модулем с code splitting), все ответы `/api/` помечаются `no-store`, чтобы WebView Telegram не отдавал устаревшие данные, сохраняется навигация при первичной загрузке и deep-link в админке.
-- Исправлены биллинг и подписки: заморозка расчёта доплаты за смену тарифа на момент оплаты, проверка фактически сохранённых прав в панели, сохранение состояния dry-run активации, сохранение даты начала подписки при продлении, снятие trial-сквадов при платной активации, синхронизация лимита устройств при смене тарифа, оплата Stars только из Telegram Mini App, корректный формат цены при вводе кода для выбранного провайдера и обновление настроек воркера torrent-блокировки.
-- Обновлены установщик и эксплуатация: отдельный шаг проверки интеграции с Remnawave Panel (безопасный запрос `/system/stats`, проверка формата `PANEL_API_COOKIE`, пропуск шага вместо `change_me`), ожидание готовности upstream прокси, фильтр webhook-секрета в логах Caddy, сохранение каталога тарифов в архиве бэкапа и его восстановление; один некорректный env провайдера больше не отключает применение всех сохранённых настроек, а панель показывает список `not_applied`.
-- Добавлена настройка лимита устройств для пробного периода; обновлены зависимости (astro, js-yaml, brace-expansion), ruff зафиксирован во всех quality-gate, CI уведомляет настроенных потребителей образов.
-- Исправлена выдача premium-сквадов существующим владельцам тарифа, если premium_squad_uuids настроены без premium_monthly_gb и пакетов дополнительного трафика.
+<a id="изменения-6"></a>
 
-### При обновлении
+### 变更
 
-- **Миграции БД 0046–0056** (аддитивные, существующие не менялись): атрибуция рекуррентных платежей, снимки начисления трафика HWID, владелец кода активации, rich-body сообщений поддержки, состояние webhook Tribute, снимки расчёта смены тарифа, снимки прав панели, восстановление дат начала активных подписок, жизненный цикл checkout, состояние повторов автопродления, аудит привязки тарифов.
-- **Новые переменные окружения** в `.env.example`: `AUTO_RENEW_RETRY_ENABLED`, `AUTO_RENEW_RETRY_DRY_RUN`, `AUTO_RENEW_SCHEDULER_ENABLED`, `AUTO_RENEW_MAX_FINANCIAL_ATTEMPTS`, `AUTO_RENEW_MAX_TRANSPORT_REPLAYS`, `AUTO_RENEW_WORKER_TICK_SECONDS`, `AUTO_RENEW_WORKER_BATCH_SIZE`, `AUTO_RENEW_RETRY_GRACE_HOURS`, `AUTO_RENEW_SCHEDULER_LEAD_HOURS`. Включать поэтапно: сначала `AUTO_RENEW_RETRY_ENABLED=True` при `AUTO_RENEW_RETRY_DRY_RUN=True`, проверить логи воркера, затем снять dry-run.
-- Задокументированы, но не добавлены в `.env.example`: `TRIBUTE_*` (настраиваются в админке), `TARIFF_PREMIUM_FAST_*`, `TARIFF_PREMIUM_DROP_CONNECTIONS*`, `HWID_DEVICE_TRAFFIC_BONUS_GB` (устаревший fallback, новые начисления — в `tariffs[].hwid_device_packages`).
-- Для разрыва сессий при исчерпании premium-лимита ноды Remnawave должны быть запущены с `CAP_NET_ADMIN` (`cap_add: NET_ADMIN`), иначе уже установленные соединения продолжат работать.
-- Рекуррентный Shop Order Tribute фиксирует цену на стороне Tribute: не отключайте, не удаляйте и не переименовывайте тариф и не меняйте `TRIBUTE_SHOP_ID`, пока к ним привязаны активные заказы.
-- Включение начисления трафика HWID на существующем парке требует одноразового прогона `backend/scripts/resync_traffic_limits.py`.
-- Контрибьюторы: @wormy09 — перевыпуск ссылки подписки (`fc73adbf`, `04f029c9`, `66c06731`), ежемесячное начисление трафика HWID и скрипт пересчёта (`fab09cb8`, `24735eee`), трактовка статуса `LIMITED` (`1ef4751b`), диагностика незачисленной докупки (`112c4b2c`), перевод подсказок оверрайдов (`c5d0d287`), приведение к текущему ruff (`240709e8`, `0439829f`). Обновления зависимостей — @dependabot (`3a94667e`, `e619c83f`).
+- 新增 **Tribute**：主要使用 Shop API，按本地金额动态创建订单（单次、循环、普通／高级流量、HWID 设备、套餐升级差价）；备用 Creator 订阅与 Digital Products；共用 `/webhook/tribute` 并验证 HMAC-SHA256；套餐编辑器可“从 Tribute 获取”并核对价格币种；提供标志及设置页。
+- YooKassa 自动续期安全重试：周期队列固定金额、银行卡和请求体；技术重放仅在 30 分钟内使用同一 `Idempotence-Key`，确认 `canceled` 后最多一次资金尝试，默认演练；备用排期器无需面板 webhook，新增 `subscription.auto_renew_failed` 和重试通知；修复循环付款收据字段。
+- 新增付款核查与恢复：Mini App 展示未完成付款并沿已保存链接继续；优先交付未完成付款，结算填入之前代码；worker 核查 Wata、CryptoPay、Stripe、LAVA、Pally、PayKilla 和 SeverPay 过期订单，含没有已保存链接的订单。
+- HWID 包新增月度流量奖励（每包 `traffic_bonus_gb`），保存于付款和加购记录，按有效加购叠加，按 `valid_from`／`valid_until` 生效，跨面板月度重置保留；新增全量订阅基础流量上限一次性重算脚本。
+- 恢复按套餐判断的设备加购：机器人和网页共用可用性服务，精确说明阻止原因（功能关闭、无有效订阅、套餐缺失／停用／变化、不限量、没有包），创建账单前再次检查，并诊断已付流量加购未到账原因。
+- 改进高级额度执行：在完整 worker 周期间，快速复查用量达到 `TARIFF_PREMIUM_FAST_WATCH_PERCENT` 的订阅；通过 `POST /api/ip-control/drop-connections` 断开高级节点既有会话并设冷却；防范不完整节点统计，后台提示缺少 `CAP_NET_ADMIN` 的节点。
+- 新增面板冲突诊断：第三方覆盖设备／流量上限时暂停订阅同步并显示健康面板；保存面板 webhook 载荷快照、按内容去重事件、拒绝无效 API 响应，正确将 `LIMITED` 视为有效订阅。
+- 扩展消息：群发、支持、插件共用消息契约；各语言分别定义正文与按钮，最多四个按钮，支持链接、机器人激活码、Mini App 激活码、任意 Mini App 目标和命名页面。新增选择套餐／周期的结算路由；群发受众分组并配图标，可选具体套餐及扩展受众；用户卡片可直接发送私信。
+- 支持和群发改用可视化编辑器：Telegram 支持的 HTML 子集格式，旧消息可点击链接，按可见文本计数；管理员可切换 HTML 源码、插入个性化短代码和用户专属链接，并为回复添加按钮；侧栏显示等待工单。
+- 扩展并改进后台：扩展可添加导航组、现有区域标签页及用户卡片标签页；调整部分区域位置，显示设置值来源（数据库或 `.env`），新增安全恢复的订阅／套餐关联核对、套餐变更结果预览及卡片重置订阅链接。窄屏列表使用卡片，浮层后方只保留一个活动滚动区。
+- 新增订阅链接重发：应用路由发送新链接和教程到邮箱，设置提供确认对话框与按钮，管理员也可在用户卡片重置。
+- 区分个人和通用激活码：可选所有者，列表分组通用代码并标记一次性代码；消息按钮下拉区分两类，历史向客户显示代码最初为谁签发。
+- 改进 Mini App 和 API：页面按需加载，模块构建拆包；所有 `/api/` 响应标记 `no-store`，避免 Telegram WebView 使用旧数据；首次加载和后台深链接保留导航。
+- 修复计费与订阅：付款时冻结升级差价计算，核对面板实际权益，保留演练激活状态及续期起始日期，付费激活移除试用分组，变更套餐同步设备上限；Stars 仅在 Telegram Mini App 使用；激活码价格按所选提供商格式显示，更新 torrent 限制 worker 设置。
+- 更新安装器与运维：单独验证 Remnawave 集成（安全请求 `/system/stats`、检查 `PANEL_API_COOKIE` 格式、跳过而非使用 `change_me`）；等待上游代理就绪，Caddy 日志过滤 webhook 密钥；备份保存并恢复套餐目录。单个提供商环境变量错误不再阻止全部已保存设置，面板列出 `not_applied`。
+- 新增试用设备上限配置；更新 astro、js-yaml、brace-expansion，所有质量门禁固定 ruff，CI 通知已配置镜像使用方。
+- 修复已有套餐用户的高级分组发放：仅配置 `premium_squad_uuids`，未配置 `premium_monthly_gb` 或额外流量包时也正确处理。
+
+<a id="при-обновлении-8"></a>
+
+### 升级注意
+
+- **数据库迁移 0046–0056**（只追加，不改已有迁移）：循环付款归因、HWID 流量奖励快照、激活码所有者、工单富文本、Tribute webhook 状态、套餐升级报价快照、面板权益快照、有效订阅起点恢复、结算生命周期、自动续期重试状态和套餐关联审计。
+- **新增环境变量**（`.env.example`）：`AUTO_RENEW_RETRY_ENABLED`、`AUTO_RENEW_RETRY_DRY_RUN`、`AUTO_RENEW_SCHEDULER_ENABLED`、`AUTO_RENEW_MAX_FINANCIAL_ATTEMPTS`、`AUTO_RENEW_MAX_TRANSPORT_REPLAYS`、`AUTO_RENEW_WORKER_TICK_SECONDS`、`AUTO_RENEW_WORKER_BATCH_SIZE`、`AUTO_RENEW_RETRY_GRACE_HOURS`、`AUTO_RENEW_SCHEDULER_LEAD_HOURS`。分阶段启用：先设 `AUTO_RENEW_RETRY_ENABLED=True`，保留 `AUTO_RENEW_RETRY_DRY_RUN=True`；核查 worker 日志后再关闭演练。
+- 已记录但未加入 `.env.example`：`TRIBUTE_*`（后台配置）、`TARIFF_PREMIUM_FAST_*`、`TARIFF_PREMIUM_DROP_CONNECTIONS*`、`HWID_DEVICE_TRAFFIC_BONUS_GB`（废弃回退，新奖励配置在 `tariffs[].hwid_device_packages`）。
+- 要在高级额度耗尽后断开会话，Remnawave 节点须拥有 `CAP_NET_ADMIN`（`cap_add: NET_ADMIN`），否则已有连接继续工作。
+- Tribute 循环 Shop Order 在提供商侧固定价格。有有效订单关联时，不得停用、删除或重命名套餐，也不得修改 `TRIBUTE_SHOP_ID`。
+- 为已有全量订阅启用 HWID 流量奖励时，须一次性运行 `backend/scripts/resync_traffic_limits.py`。
+- 贡献者：@wormy09——订阅链接重发（`fc73adbf`、`04f029c9`、`66c06731`）、HWID 月度流量及重算脚本（`fab09cb8`、`24735eee`）、`LIMITED` 处理（`1ef4751b`）、加购未到账诊断（`112c4b2c`）、覆盖设置提示翻译（`c5d0d287`）、当前 ruff 适配（`240709e8`、`0439829f`）。依赖更新：@dependabot（`3a94667e`、`e619c83f`）。
 
 <details>
-<summary>Ссылки на изменения и участники</summary>
+<summary>变更来源与贡献者</summary>
 
-* feat(webapp): перевыпуск ссылки подписки из Mini App с доставкой на email by @wormy09 in https://github.com/3252a8/remnawave-minishop/pull/63
-* fix(i18n): заполнить пустые admin-подсказки оверрайдов трафика by @wormy09 in https://github.com/3252a8/remnawave-minishop/pull/65
+* feat(webapp)：从 Mini App 重发订阅链接并发送邮件，作者 @wormy09：https://github.com/3252a8/remnawave-minishop/pull/63
+* fix(i18n)：补齐后台流量覆盖设置的空提示，作者 @wormy09：https://github.com/3252a8/remnawave-minishop/pull/65
 * build(deps): bump astro from 7.0.9 to 7.1.3 in /docs-site in the npm_and_yarn group across 1 directory by @dependabot[bot] in https://github.com/3252a8/remnawave-minishop/pull/66
-* feat(devices): ежемесячное начисление трафика за активные докупленные HWID-устройства by @wormy09 in https://github.com/3252a8/remnawave-minishop/pull/64
+* feat(devices)：为有效 HWID 设备加购每月增加流量，作者 @wormy09：https://github.com/3252a8/remnawave-minishop/pull/64
 * chore(lint): satisfy current ruff on dev by @wormy09 in https://github.com/3252a8/remnawave-minishop/pull/69
 * fix(sync): treat LIMITED panel status as an active subscription by @wormy09 in https://github.com/3252a8/remnawave-minishop/pull/68
 * build(deps): bump astro from 7.0.9 to 7.1.4 in /docs-site in the npm_and_yarn group across 1 directory by @dependabot[bot] in https://github.com/3252a8/remnawave-minishop/pull/67
 * Tribute payments, safe auto-renew recovery, checkout resume and admin messaging by @3252a8 in https://github.com/3252a8/remnawave-minishop/pull/70
 * fix(tariffs): sync unrestricted squad access by @3252a8 in https://github.com/3252a8/remnawave-minishop/pull/71
 
-**Участники**
+**贡献者**
 * @wormy09 made their first contribution in https://github.com/3252a8/remnawave-minishop/pull/63
 
 **Full Changelog**: https://github.com/3252a8/remnawave-minishop/compare/v3.5.7...v3.5.8
@@ -795,31 +546,35 @@
 
 [GitLab](https://gitlab.com/3252a8/remnawave-minishop/-/releases/v3.5.7) · [GitHub](https://github.com/3252a8/remnawave-minishop/releases/tag/v3.5.7)
 
-### Изменения
+<a id="изменения-7"></a>
 
-- Добавлены opt-in уведомления по отчётам Torrent Blocker через Telegram и email: раздельное управление каналами, cooldown, опциональный вывод IP, локализованные шаблоны и настройки в админке. Webhook проверяется по типизированной схеме; устаревшие и повторные события подавляются, а сбой одного канала не повторяет успешную доставку другого (спасибо @rez-code, `6d559679`).
-- Расширены фильтры пользователей в админке: зарегистрированные сегодня, приглашённые, с активной, неактивной, истёкшей, оплаченной, пробной или выданной без платежа подпиской. Счётчики дашборда открывают соответствующий список, а фильтры сохраняются в URL.
-- Улучшены интерфейсы дашборда, логов и списков: унифицированы карточки и скелетоны загрузки, добавлены счётчик логов и очистка фильтра, скорректированы мобильные таблицы и высота строк.
-- Исправлен опрос статусов Wata: поиск переведён на `/v2/transactions`, финальные статусы объединены в один запрос, параллельные GET-запросы группируются и кэшируются на объект, задержка из `Retry-After` соблюдается.
-- Добавлены `legacy_keys` для тарифов: сохранённые платежи и подписки продолжают обрабатываться после переименования ключа. Алиасы проверяются на уникальность, редактируются в админке и включены в API-контракт.
-- Нормализованы ссылки поддержки в Telegram-меню: `@username` и `t.me/username` автоматически преобразуются в полные HTTPS-ссылки.
-- Исправлены фоновые интеграции: блокирующее чтение очереди Redis больше не конфликтует с таймаутом клиента, а синхронизация подписок отличает обновление `last_connected_at` от изменения основных полей.
-- Обновлены документация, граф знаний и точечные тесты для новых настроек, фильтров, тарифных алиасов, Wata, Redis и доставки уведомлений.
+### 变更
 
-### При обновлении
+- 新增可选 Torrent Blocker 报告通知，通过 Telegram 和邮件独立控制渠道，支持冷却、可选 IP 展示、本地化模板及后台设置。webhook 按类型化结构验证，忽略过期／重复事件；单渠道失败不会重复另一渠道已成功投递（感谢 @rez-code，`6d559679`）。
+- 扩展后台用户筛选：今日注册、受邀请、有效／停用／到期／已付／试用／无付款订阅。仪表盘计数可打开对应列表，筛选保存在 URL。
+- 改进仪表盘、日志及列表：统一卡片和骨架屏，新增日志计数及筛选清除，调整手机表格和行高。
+- 修复 Wata 状态轮询：搜索改用 `/v2/transactions`，合并最终状态查询，同对象并行 GET 合并并缓存，遵循 `Retry-After`。
+- 套餐新增 `legacy_keys`，重命名后已有付款和订阅仍可处理。别名唯一性验证、后台编辑及 API 契约均覆盖。
+- 规范化 Telegram 菜单支持链接，自动将 `@username` 和 `t.me/username` 转为完整 HTTPS 地址。
+- 修复后台集成：Redis 阻塞队列读取不再与客户端超时冲突；订阅同步区分 `last_connected_at` 更新和主要字段变化。
+- 更新文档、知识图谱及新设置、筛选、套餐别名、Wata、Redis、通知投递的定向测试。
 
-- Добавлены переменные `TORRENT_BLOCKER_NOTIFICATIONS_ENABLED`, `TORRENT_BLOCKER_TELEGRAM_NOTIFICATIONS_ENABLED`, `TORRENT_BLOCKER_EMAIL_NOTIFICATIONS_ENABLED`, `TORRENT_BLOCKER_NOTIFICATION_COOLDOWN_SECONDS` и `TORRENT_BLOCKER_NOTIFICATION_INCLUDE_IP`. Общий переключатель по умолчанию выключен.
-- Для получения событий нужны Remnawave Panel/Node 2.7+, Xray-Core 26.3.27+, настроенный Node Plugin, `NET_ADMIN`, nftables и совпадающий `PANEL_WEBHOOK_SECRET`.
-- API-контракт расширен полем `legacy_keys`; OpenAPI, frontend-типы и манифест настроек обновлены. Миграции БД не затронуты.
-- Контрибьютор: @rez-code (`6d559679`) — уведомления Torrent Blocker.
+<a id="при-обновлении-9"></a>
+
+### 升级注意
+
+- 新增 `TORRENT_BLOCKER_NOTIFICATIONS_ENABLED`、`TORRENT_BLOCKER_TELEGRAM_NOTIFICATIONS_ENABLED`、`TORRENT_BLOCKER_EMAIL_NOTIFICATIONS_ENABLED`、`TORRENT_BLOCKER_NOTIFICATION_COOLDOWN_SECONDS` 和 `TORRENT_BLOCKER_NOTIFICATION_INCLUDE_IP`。总开关默认关闭。
+- 接收事件要求 Remnawave Panel／Node 2.7+、Xray-Core 26.3.27+、已配置 Node Plugin、`NET_ADMIN`、nftables 和匹配的 `PANEL_WEBHOOK_SECRET`。
+- API 契约增加 `legacy_keys`，更新 OpenAPI、前端类型和设置清单；不涉及数据库迁移。
+- 贡献者：@rez-code（`6d559679`）——Torrent Blocker 通知。
 
 <details>
-<summary>Ссылки на изменения и участники</summary>
+<summary>变更来源与贡献者</summary>
 
 * feat(notifications): add torrent blocker alerts by @rez-code in https://github.com/3252a8/remnawave-minishop/pull/60
 * Dev by @3252a8 in https://github.com/3252a8/remnawave-minishop/pull/62
 
-**Участники**
+**贡献者**
 * @rez-code made their first contribution in https://github.com/3252a8/remnawave-minishop/pull/60
 
 **Full Changelog**: https://github.com/3252a8/remnawave-minishop/compare/v3.5.6...v3.5.7
@@ -830,40 +585,46 @@
 
 [GitLab](https://gitlab.com/3252a8/remnawave-minishop/-/releases/v3.5.6) · [GitHub](https://github.com/3252a8/remnawave-minishop/releases/tag/v3.5.6)
 
-### Обзор
+<a id="обзор-8"></a>
 
-Расширено управление тарифами, улучшены поддержка и согласованность подписок, усилена обработка платежей и webhook-очередей.
+### 概览
 
-### Изменения
+扩展套餐管理，改进支持和订阅一致性，加固支付处理与 webhook 队列。
 
-- Расширено управление тарифами: добавлена сортировка тарифов перетаскиванием, определяющая порядок на витрине, переработана секция тарифов в админке.
-- Добавлена отдельная стратегия сброса трафика для каждого тарифа. Она применяется при создании пользователя панели, активации, продлении и смене тарифа; старые каталоги продолжают использовать глобальную настройку.
-- Улучшена поддержка: добавлены индикатор набора текста и статусы прочтения, предотвращена повторная отправка ответа, исправлена прокрутка диалога на мобильных устройствах.
-- Исправлена согласованность подписок с Remnawave: корректно выдаётся пробный доступ, проверяются сохранённые права в панели, заменяются управляемые squads при смене тарифа и пересчитывается перенос трафика после перепривязки пользователя.
-- Повышена устойчивость YooKassa: worker восстанавливает платежи при задержанных или потерянных webhook-событиях, поддерживает старый сценарий автопродления, сохраняет данные платёжного метода и не допускает блокировки очереди неразрешимыми записями.
-- Исправлена идентификация платежей: внешние ID теперь уникальны в пределах провайдера, а поиск выполняется с учётом провайдера; унифицированы локализованные описания.
-- Усилена webhook-очередь: дедупликация постановки стала атомарной, подтверждение выполняется после обработки, а временные ошибки повторяются до помещения события в dead-letter очередь.
-- Перенесено шифрование ссылок Happ Crypt4 в core: ссылки формируются локально через совместимую RSA-реализацию без зависимости от API панели.
-- Восстановлены русские значения по умолчанию через locale-файлы для названий способов оплаты, описания подписки и Premium-секции; исходный код и runtime fallback оставлены на английском.
-- Добавлен готовый Angie reverse-proxy профиль с автоматическим ACME/TLS, поддержкой install wizard и документацией; разделены внешний и внутренний webhook-порты. Спасибо @alldevic (`590cce65`).
-- Усилена цепочка выпуска Docker-образов: проверяются источник и состояние релиза, создаётся provenance-attestation, проверяются digest и метаданные, а promotion формирует неизменяемый манифест образов.
-- Обновлены Remnawave dev preset до 2.8.1, backend/frontend/docs-зависимости и архитектурные проверки; расширены точечные тесты платежей, очередей, подписок, поддержки и тарифов.
+<a id="изменения-8"></a>
 
-### При обновлении
+### 变更
 
-- Добавлена append-only миграция `0045_scope_provider_payment_ids`, меняющая уникальность `provider_payment_id` на пару `(provider, provider_payment_id)`.
-- Добавлен `WEB_SERVER_INTERNAL_PORT`. В нестандартных Compose-конфигурациях нужно проверить соответствие host-порта `WEB_SERVER_PORT` внутреннему listener-порту.
-- Очередь получила параметры `WEBHOOK_QUEUE_MAX_ATTEMPTS`, `WEBHOOK_QUEUE_RETRY_BASE_SECONDS` и `WEBHOOK_QUEUE_RETRY_MAX_SECONDS`; значения по умолчанию — `5`, `1.0` и `30.0`.
+- 扩展套餐管理：拖动排序决定目录顺序，重做后台套餐区域。
+- 每个套餐可设置独立流量重置策略，应用于面板用户创建、激活、续期和套餐变更；旧目录继续使用全局设置。
+- 改进支持：输入指示和已读状态、防止重复回复，修复手机会话滚动。
+- 修复 Remnawave 订阅一致性：正确发放试用、核查已保存面板权益、变更套餐替换受管理分组、重新关联用户后重算结转流量。
+- 提高 YooKassa 可靠性：worker 在 webhook 延迟／丢失时恢复付款，兼容旧自动续期，保存支付方法，避免无法解决的记录堵塞队列。
+- 修复付款身份：外部 ID 按提供商限定唯一，查询包含提供商；统一本地化描述。
+- 加固 webhook 队列：原子去重入队，处理后确认，临时错误重试后才转死信队列。
+- Happ Crypt4 链接加密进入核心，使用兼容 RSA 本地生成，不依赖面板 API。
+- 通过语言文件恢复支付方法名、订阅描述和高级流量区的俄语默认值；源码与运行时回退仍为英语。
+- 新增现成 Angie 反向代理配置，自动 ACME／TLS，支持安装向导并提供文档；分离内外 webhook 端口。感谢 @alldevic（`590cce65`）。
+- 加固 Docker 发布链：核查发布来源及状态，创建来源证明、检查摘要与元数据，版本晋升生成不可变镜像清单。
+- Remnawave 开发预设更新到 2.8.1，更新后端／前端／文档依赖及架构检查；扩展付款、队列、订阅、支持和套餐定向测试。
+
+<a id="при-обновлении-10"></a>
+
+### 升级注意
+
+- 追加迁移 `0045_scope_provider_payment_ids`，把 `provider_payment_id` 唯一性改为 `(provider, provider_payment_id)` 组合。
+- 新增 `WEB_SERVER_INTERNAL_PORT`；自定义 Compose 须检查主机 `WEB_SERVER_PORT` 与内部监听端口匹配。
+- 队列新增 `WEBHOOK_QUEUE_MAX_ATTEMPTS`、`WEBHOOK_QUEUE_RETRY_BASE_SECONDS`、`WEBHOOK_QUEUE_RETRY_MAX_SECONDS`，默认 `5`、`1.0`、`30.0`。
 
 <details>
-<summary>Ссылки на изменения и участники</summary>
+<summary>变更来源与贡献者</summary>
 
 * ci: harden release image provenance by @3252a8 in https://github.com/3252a8/remnawave-minishop/pull/55
 * fix(ci): publish release manifests from promotion jobs by @3252a8 in https://github.com/3252a8/remnawave-minishop/pull/56
 * feat(deploy): add Angie reverse proxy profile with native ACME auto-TLS by @alldevic in https://github.com/3252a8/remnawave-minishop/pull/57
 * tariff controls, support presence and resilient payments by @3252a8 in https://github.com/3252a8/remnawave-minishop/pull/58
 
-**Участники**
+**贡献者**
 * @alldevic made their first contribution in https://github.com/3252a8/remnawave-minishop/pull/57
 
 **Full Changelog**: https://github.com/3252a8/remnawave-minishop/compare/v3.5.4...v3.5.6
@@ -874,29 +635,35 @@
 
 [GitLab](https://gitlab.com/3252a8/remnawave-minishop/-/releases/v3.5.4) · [GitHub](https://github.com/3252a8/remnawave-minishop/releases/tag/v3.5.4)
 
-### Обзор
+<a id="обзор-9"></a>
 
-Усилены платёжные сценарии, конкурентная обработка аккаунтов и установщик; улучшены админские превью и переходы из support-уведомлений.
+### 概览
 
-### Изменения
+加固付款流程、账号并发处理和安装器；改进后台预览和支持通知跳转。
 
-- Усилено подтверждение платежей: перед активацией сверяются подтверждённые провайдером сумма, валюта и финальный статус; недоплата и другая валюта отклоняются, а переплата активирует только исходный заказ. Для криптоактивов сохранена точная десятичная величина, для fiat применяется корректное округление.
-- Сериализовано успешное завершение платежей: блокировки и условные обновления предотвращают повторную активацию заказа и повторные уведомления при конкурентных webhook-запросах и обновлениях статуса.
-- Перепроверяются актуальные расчёты и разрешённые режимы смены тарифа перед Telegram-платежом; состав заказа берётся из сохранённой записи, а не из callback-метаданных. В комбинированных платежах стоимость устройств отделена от стоимости подписки.
-- Усилены операции с аккаунтами и одноразовыми действиями: слияния выполняются под стабильными блокировками, повторное применение одного пользовательского кода между аккаунтами отклоняется, оплаченные периоды сохраняются, а периоды без оплаты не суммируются. Email-коды и magic links потребляются однократно.
-- Улучшен install wizard: обязательные TLS-вводы теперь прерывают сценарий при ошибке, Caddy/Nginx проверяются на публикацию портов и доступность upstream-сервисов, повреждённое сетевое подключение proxy восстанавливается. После успешного импорта исходная БД отключается от целевой сети, права на данные восстанавливаются, а старый Remnashop предлагается остановить без удаления данных.
-- Расширен Plugin API: добавлена версия API v1 с проверкой диапазона совместимости до запуска hook-ов, стабильный UUID установки и строгий выбор единственного entitlement provider. Админские extension-секции могут оставаться видимыми в заблокированном состоянии.
-- Улучшены админка и support-сценарии: Telegram-превью рассылки для админа теперь включает настроенные кнопки, а ссылки на тикет и карточку пользователя из групповых support/log-уведомлений открывают нужный маршрут в Mini App.
-- Усилена защита web-сценариев: заблокированные пользователи больше не могут продолжать админскую сессию; за Cloudflare реальный IP webhook-клиента принимается только после проверки ближайшего proxy-hop по официальным сетям Cloudflare.
-- Усилен выпуск Docker-образов: базовые образы закреплены по digest, runtime переведён на Ubuntu 24.04 с Python 3.12, добавлены SBOM/provenance и полное Trivy-сканирование. Релизные теги публикуются продвижением уже проверенного digest в GHCR и Docker Hub.
+<a id="изменения-9"></a>
 
-### При обновлении
+### 变更
 
-- Loader теперь завершает запуск при нескольких entitlement provider или несовместимом объявленном диапазоне Plugin API. Внешним плагинам рекомендуется явно указывать диапазон, включающий v1.
-- Производным Docker-образам, зависящим от деталей `python:3.12-slim`, нужно учесть переход backend/worker runtime на Ubuntu 24.04.
+- 加强付款确认：激活前核对提供商确认金额、币种及最终状态；拒绝少付或错误币种，多付也只激活原订单。加密资产保留精确十进制金额，法币正确舍入。
+- 成功付款串行完成：锁和条件更新防止并发 webhook／状态刷新造成重复激活与通知。
+- Telegram 付款前重新验证当前报价及允许的套餐变更方式；订单内容取自持久记录，不使用回调元数据。组合付款将设备费与订阅费分开。
+- 加固账号与一次性操作：合并使用稳定锁，拒绝跨账号重复使用同一用户代码，保留已付有效期但不叠加免费时长。邮箱验证码和魔法链接仅可消费一次。
+- 安装向导必填 TLS 输入失败时终止；检查 Caddy／Nginx 端口发布和上游可用性，修复代理网络连接。成功导入后源库断开目标网络，恢复数据权限，建议停止旧 Remnashop 而不删除数据。
+- 扩展插件 API：新增 v1，在运行钩子前核对兼容范围，提供稳定安装 UUID，严格限制唯一权益提供器。后台扩展区域可在受限状态保持可见。
+- 改进后台与支持：管理员 Telegram 群发预览包含配置按钮；群支持／日志通知中的工单和用户卡片链接打开正确 Mini App 路由。
+- 加强网页安全：封禁用户不能继续后台会话；位于 Cloudflare 后时，仅在最近代理跳点属于官方网络后接受 webhook 真实客户端 IP。
+- 加固 Docker 发布：基础镜像固定摘要，运行时转为 Ubuntu 24.04 + Python 3.12，新增 SBOM／来源证明及完整 Trivy 扫描。发布标签通过晋升已验证摘要发布到 GHCR 与 Docker Hub。
+
+<a id="при-обновлении-11"></a>
+
+### 升级注意
+
+- 加载器在多个权益提供器或声明的插件 API 范围不兼容时终止启动；外部插件应显式声明包含 v1 的范围。
+- 依赖 `python:3.12-slim` 细节的派生镜像须适配后端／worker 转为 Ubuntu 24.04。
 
 <details>
-<summary>Ссылки на изменения и участники</summary>
+<summary>变更来源与贡献者</summary>
 
 * harden payments, accounts and install flow by @3252a8 in https://github.com/3252a8/remnawave-minishop/pull/54
 
@@ -909,37 +676,43 @@
 
 [GitLab](https://gitlab.com/3252a8/remnawave-minishop/-/releases/v3.5.3) · [GitHub](https://github.com/3252a8/remnawave-minishop/releases/tag/v3.5.3)
 
-### Обзор
+<a id="обзор-10"></a>
 
-Главные темы: переработка админских рассылок (редактор, персонализация, inline-кнопки, email-канал), новый платёжный провайдер Overpay и ссылки/логотипы провайдеров в разделе настроек, поддержка раздельного (frontend/backend) деплоя с защищённым upstream, ручные squad-override'ы на пользователя, настраиваемая стратегия сброса трафика и серия фиксов переходов тарифов/квот.
+### 概览
 
-### Изменения
+本版重点：重做后台群发（编辑器、个性化、行内按钮、邮件渠道），新增 Overpay 及设置中的提供商链接／标志，支持前后端分离与受保护上游，手动用户分组覆盖、可配置流量重置策略，以及套餐切换／额度修复。
 
-- Переработаны админские рассылки: rich-text редактор с персонализацией через шорткоды, до 4 inline-кнопок (ссылка / применение кода активации в боте или Web App) с сортировкой, тест-аудитория «администраторы».
-- Добавлены настройки email-канала в веб админке.
-- Добавлен платёжный провайдер Overpay; 
-- В админке и Web App показываются ссылки на сайты платежных провайдеров и их логотипы для удобства; интеграция CryptoPay переведена на собственный HTTP-клиент вместо уязвимой SDK-зависимости (снят потолок `certifi<2024`);  локализованы настройки провайдеров.
-- Добавлена защита от дублирования сообщений о платежах в админских логах.
-- Добавлена поддержка раздельного деплоя frontend/backend: browser-visible API base, защищённые upstream'ы через edge-токен (инъекция доверенным прокси, не браузером), новые примеры окружений `rathole` и `split-protected-upstream`, унифицированное именование docker-сетей в compose-примерах (спасибо @BADtochka, `a238319`, `c563543`).
-- Добавлены ручные panel-squad-override'ы на пользователя: назначенные вручную сквады сохраняются при синхронизации с панелью, с отдельными контролами и раскладкой в карточке пользователя.
-- Добавлена настраиваемая стратегия сброса трафика на пользователя с выравниванием периодов сброса; в сводке трафика Web App отображается текущая стратегия и её якоря.
-- Добавлен поиск по настройкам в админке; карточка пользователя и манифест настроек разбиты на секции (danger-действия всегда последними, invite-only вынесено в общие настройки).
-- Добавлены базовые сигналы активности ядра: доменные события `bot.started` и `plans.viewed` и отслеживание последнего подключения на панели (`subscription.last_connected_at`).
-- Исправлены переходы тарифов и учёт квот: правила квот при смене тарифа, защита от сбоев синхронизации entitlement'ов, сохранение ручных HWID-лимитов и premium top-up баланса под override, раздельный учёт trial-квоты и трафика на панели, конверсия при переключении HWID-тарифа.
-- Улучшен Web App: активация кодов, начисляющих дополнительный период, по deeplink без лишнего подтверждения (и пояснение вместо ошибки checkout для таких ссылок), отдача ассетов через Brotli, устранён зависон при загрузке, отполирована сводка трафика; восстановлены локальные напоминания об истечении подписки.
-- Обновлён установщик и деплой: подключение к существующему Nginx/Caddy и переключатель Pangolin, миграция баз tgshop через дампы, защита от рассинхрона пароля БД и усиленная диагностика старта миграций.
-- Обновлена документация и dev-тулинг: refresh API reference и plugin contract, воркфлоу и артефакты graphify (граф кодовой базы), CI-гард синхронизации OpenAPI.
+<a id="изменения-10"></a>
 
-### При обновлении
+### 变更
 
-- Схема БД: добавлены append-only миграции `0042_release_archived_promo_codes`, `0043_add_user_panel_squad_overrides`, `0044_add_subscription_last_connected_at`. Существующие миграции не менялись.
-- Новые переменные окружения (см. `.env.example`): `WEBAPP_API_BASE_URL`, `WEBAPP_BACKEND_UPSTREAM`, `WEBAPP_BACKEND_UPSTREAM_HOST`, `MINISHOP_EDGE_TOKEN`, `MINISHOP_EDGE_TOKEN_HEADER` — для раздельного деплоя и защищённого upstream.
-- Зависимости: удалены `aiocryptopay` и пин `certifi<2024`, `certifi` поднят до `>=2024.7.4`; CryptoPay работает через собственный клиент. Обновлён frontend `package-lock.json` (tiptap-редактор).
-- Docker: обновлён frontend nginx (edge-токен, split upstream) и Dockerfile; изменены compose-файлы и добавлены примеры деплоя.
-- Контрибьюторы: @BADtochka — раздельный API base и именование docker-сетей (`a238319`, `85a9160`, `a122c73`, `0be145b`, `c563543`, `e9dbb18`).
+- 重做后台群发：富文本编辑器、个性化短代码、最多四个可排序行内按钮（链接／机器人或应用激活码），提供“管理员”测试受众。
+- 网页后台新增邮件渠道设置。
+- 新增 Overpay 支付提供商。
+- 后台和应用展示支付提供商官网及标志；CryptoPay 改用自有 HTTP 客户端，去除有漏洞 SDK 及 `certifi<2024` 限制；提供商设置本地化。
+- 防止后台日志重复显示付款消息。
+- 支持前后端分离部署：浏览器可见 API 基址、由可信代理而非浏览器注入 edge 令牌的受保护上游；新增 `rathole`、`split-protected-upstream` 示例，统一 Compose 网络命名（感谢 @BADtochka，`a238319`、`c563543`）。
+- 新增用户手动面板分组覆盖，同步时保留，用户卡片提供独立控件与布局。
+- 新增按用户配置流量重置策略及对齐重置周期；应用流量汇总展示当前策略和锚点。
+- 后台设置可搜索，用户卡片与设置清单拆分区域；危险操作始终最后，仅限邀请移到通用设置。
+- 新增核心活动信号：`bot.started`、`plans.viewed` 领域事件及面板最后连接时间 `subscription.last_connected_at`。
+- 修复套餐切换与额度：切换规则、权益同步失败保护、手动 HWID 上限与覆盖下高级加购余额保留、试用与面板流量分别核算，以及 HWID 套餐切换换算。
+- 改进应用：深链接直接应用增加时长的激活码，相关链接给出解释而非结算错误；Brotli 资源压缩、修复加载卡住、完善流量汇总，恢复本地到期提醒。
+- 更新安装部署：接入已有 Nginx／Caddy 和 Pangolin 开关，tgshop 通过数据库导出迁移，防止数据库密码不同步，并加强迁移启动诊断。
+- 更新文档和开发工具：刷新 API 参考及插件契约，新增 graphify 代码图谱流程与产物，CI 检查 OpenAPI 同步。
+
+<a id="при-обновлении-12"></a>
+
+### 升级注意
+
+- 追加迁移 `0042_release_archived_promo_codes`、`0043_add_user_panel_squad_overrides`、`0044_add_subscription_last_connected_at`，不修改已有迁移。
+- 新增环境变量（见 `.env.example`）：`WEBAPP_API_BASE_URL`、`WEBAPP_BACKEND_UPSTREAM`、`WEBAPP_BACKEND_UPSTREAM_HOST`、`MINISHOP_EDGE_TOKEN`、`MINISHOP_EDGE_TOKEN_HEADER`，用于分离部署和受保护上游。
+- 删除 `aiocryptopay` 和 `certifi<2024` 固定限制，`certifi` 提高到 `>=2024.7.4`；CryptoPay 使用自有客户端。更新前端 `package-lock.json`（tiptap 编辑器）。
+- 更新前端 nginx（edge 令牌、分离上游）与 Dockerfile，调整 Compose 并新增部署示例。
+- 贡献者：@BADtochka——独立 API 基址与 Docker 网络命名（`a238319`、`85a9160`、`a122c73`、`0be145b`、`c563543`、`e9dbb18`）。
 
 <details>
-<summary>Ссылки на изменения и участники</summary>
+<summary>变更来源与贡献者</summary>
 
 * feat: support split backend API base by @BADtochka in https://github.com/3252a8/remnawave-minishop/pull/52
 * broadcast overhaul, Overpay provider and split-deploy support, plan changes fixes by @3252a8 in https://github.com/3252a8/remnawave-minishop/pull/53
@@ -953,35 +726,41 @@
 
 [GitLab](https://gitlab.com/3252a8/remnawave-minishop/-/releases/v3.5.2) · [GitHub](https://github.com/3252a8/remnawave-minishop/releases/tag/v3.5.2)
 
-### Обзор
+<a id="обзор-11"></a>
 
-Релиз преимущественно архитектурный: 
-- унификация платёжных провайдеров через общий link-flow, 
-- полный перевод фронтенда на TypeScript + Svelte 5 runes, 
-- типизация и линт всего репозитория — плюс пользовательские фиксы пополнения трафика, инструкций установки и авторизации Web App.
+### 概览
 
-### Изменения
+此版本主要调整架构：
+- 通过共享链接流程统一支付提供商；
+- 前端全面迁移至 TypeScript + Svelte 5 runes；
+- 全仓类型及静态检查，并修复流量充值、安装教程和应用鉴权。
 
-- Исправлено пополнение трафика в боте: восстановлен обработчик кнопки покупки (потерянный при разделении subscription-core), кнопка в меню теперь скрыта, пока не израсходовано ≥80% лимита (как в мини-аппе), а по устаревшей кнопке показывается остаток трафика и меню обновляется вместо тихого отказа. Добавлен общий gate доступности для обычного и premium-трафика; метки и подсказки переключателей вынесены в локализацию.
-- Добавлены ссылки на инструкцию установки в карточке пользователя админки (с копированием); авторизованный роут инструкций повторно запрашивает свежий short UUID панели, если сохранённый устарел после сброса ссылки на стороне панели, — чтобы squad-специфичные конфиги не откатывались к общему дефолту.
-- Исправлены Web App UI и авторизация в некоторых сценариях: скрытие неактивных вкладок и обновление кэша устройств, ограничение зависших auth-запросов, запуск listener'а Web App до стартовых обращений к Telegram, использование дат сброса из панели в предупреждениях о трафике.
-- Отладочные логи действий отправляются в log chat; добавлен сервис доставки уведомлений `message_log_notifier`.
-- Платёжные провайдеры переведены на общий link-flow: CloudPayments, Pally и Platega ходят через единый флоу оплаты, callback-флоу YooKassa разделены на отдельные модули, добавлены variant-aware контекст и pre-create хук колбэка, общие helper'ы безопасности вебхуков и per-profile дескрипторы Wata.
-- Фронтенд полностью переведён на TypeScript и Svelte 5 runes: мигрированы оставшиеся webapp/admin/entry-модули и тест-сьюты, типизированы сторы, координаторы и компоненты, добавлен архитектурный гейт «no first-party JS», крупные компоненты разбиты (PaymentDialogs, mockApi, previewMock, AppModeContent).
-- Ужесточены типобезопасность и линт: mypy покрывает весь репозиторий (`scripts`, `backend/scripts` и всё дерево `tests/`), allowlist `type: ignore` сокращён до одной граничной записи; включён полный набор ruff-семейств (UP, W, C4, SIM, PIE, PERF, RUF, LOG, G, PLE, T10); pytest переведён в warnings-as-errors, покрытие — на branch-режим с ратчетом.
-- Декомпозированы крупные модули: `user_dal` разбит на reads/merge/mutations, мигратор — на пакет (chains + engine, порядок id пинится snapshot-тестом), `import_legacy` — на пакет; разделены webapp guides, каталог тем webapp, редактирование кодов активации в админке; вынесена общая доставка уведомлений о трафике тарифов для воркеров.
-- Типизированы ответы admin-эндпоинтов тарифов, оставшиеся «свободные» схемы дотипизированы или помечены как non-JSON; `openapi.json` и `openapi.generated.ts` регенерированы.
-- Добавлен no-op observability seam — внутренняя точка расширения без изменения поведения.
-- Обновлены dev/deploy: dev-окружение поднимается одной командой, зафиксированы версии Node и инструментов, healthcheck чаще опрашивает контейнер при старте, восстановлена совместимость lockfile с npm 10.
-- Обновлена документация: английские точки входа для контрибьюторов, освежённые architecture-доки, задокументирован gating пополнения трафика и требование локализованного пользовательского текста; удалён `CHANGELOG.md` (история — в коммитах и PR).
+<a id="изменения-11"></a>
 
-### При обновлении
+### 变更
 
-- Изменений схемы БД, миграций и переменных окружения в релизе нет: мигратор только реструктурирован в пакет (41 миграция, id и порядок сохранены, зафиксированы snapshot-тестом). Ручных шагов при обновлении не требуется.
-- Фронтенд теперь TypeScript-only, а версии Node и инструментов закреплены — контрибьюторам нужен соответствующий Node.
+- 修复机器人流量充值：恢复订阅核心拆分时丢失的购买按钮处理器；与 Mini App 一致，使用量达到 80% 才显示菜单按钮；旧按钮展示剩余流量并刷新菜单，不再静默失败。普通与高级流量共用可用性检查，开关标签和提示本地化。
+- 后台用户卡片新增可复制安装教程链接；鉴权教程路由发现面板重置链接导致短 UUID 过期时重新获取，避免分组专属配置回退全局默认。
+- 修复应用界面和鉴权：隐藏停用标签页、刷新设备缓存、限制挂起鉴权请求、启动时先监听应用再请求 Telegram、流量提醒使用面板重置日期。
+- 调试操作日志发送到日志聊天，新增 `message_log_notifier` 投递服务。
+- 支付提供商改为共享链接流程：CloudPayments、Pally、Platega 统一；YooKassa 回调拆模块，新增按变体区分上下文与创建前回调钩子、共享 webhook 安全工具及 Wata 按配置描述器。
+- 前端全面转为 TypeScript 和 Svelte 5 runes：迁移剩余应用／后台／入口模块及测试，为存储、协调器、组件补类型，新增禁止自有 JS 架构门禁，拆分 PaymentDialogs、mockApi、previewMock、AppModeContent。
+- 收紧类型与静态检查：mypy 覆盖全仓（`scripts`、`backend/scripts`、完整 `tests/`），`type: ignore` 仅保留一个边界例外；启用完整 ruff 组（UP、W、C4、SIM、PIE、PERF、RUF、LOG、G、PLE、T10）；pytest 将警告视为错误，覆盖率使用分支模式且下限只能提高。
+- 拆分大型模块：`user_dal` 按读取／合并／写入拆分，迁移器改包（迁移链与引擎，快照固定 ID 顺序），`import_legacy` 改包；拆分应用教程、主题目录及后台激活码编辑，抽出 worker 共用套餐流量通知投递。
+- 为后台套餐响应及剩余自由结构补类型，或标为非 JSON；重新生成 `openapi.json`、`openapi.generated.ts`。
+- 新增空操作可观测性扩展点，不改变行为。
+- 更新开发部署：一条命令启动开发环境，固定 Node 与工具版本，启动时更频繁健康检查，恢复 npm 10 lock 兼容性。
+- 更新文档：英文贡献入口、架构说明、流量充值可用条件及用户文案本地化要求；当时删除 `CHANGELOG.md`，改由提交和 PR 记录历史。
+
+<a id="при-обновлении-13"></a>
+
+### 升级注意
+
+- 本版本没有数据库结构、迁移或环境变量变化；仅将迁移器重构为包，41 个迁移 ID 与顺序不变，由快照测试固定。升级无需手动步骤。
+- 前端仅使用 TypeScript，Node 和工具版本已固定，贡献者须使用对应 Node。
 
 <details>
-<summary>Ссылки на изменения и участники</summary>
+<summary>变更来源与贡献者</summary>
 
 * link-flow payments, all-TypeScript frontend, repo-wide typing & fixes by @3252a8 in https://github.com/3252a8/remnawave-minishop/pull/50
 
@@ -994,28 +773,32 @@
 
 [GitLab](https://gitlab.com/3252a8/remnawave-minishop/-/releases/v3.5.1) · [GitHub](https://github.com/3252a8/remnawave-minishop/releases/tag/v3.5.1)
 
-### Изменения
+<a id="изменения-12"></a>
 
-- Расширена система кодов активации: процентная корректировка стоимости тарифа, множители срока и трафика, начисление дополнительного периода, режим применения только при оплате, условия применимости (минимальный срок/трафик, область применения — весь заказ или оформление) и архивирование кодов.
-- Добавлена фиксация эффектов и оформления: при активации кода и при оформлении заказа сохраняются снапшоты применённых эффектов, базовая сумма, корректировка, оплачиваемый срок и объём трафика — для истории и корректных расчётов.
-- Добавлены аудит активаций кодов и генерация ссылок для применения кода (для бота и webapp) в админке.
-- Добавлена совместимость с Remnawave 2.8: переработан обработчик вебхуков панели, добавлены хелперы node- и HWID-API, версионированные пресеты dev-стенда (2.7.4 и 2.8.0).
-- Реализован учёт настроек сброса трафика в тарифных воркерах и уведомлениях: детали сброса в предупреждениях, защита уведомлений о сбросе.
-- Ускорен и стабилизирован админ-раздел: оптимизированы загрузка и отзывчивость панели, списки пользователей без лишних преобразований, модернизированы паттерны реактивности Svelte (runes).
-- Улучшены редакторы тарифов и кодов: вкладки редактора тарифов, компактный редактор кодов, режим начисления периода, сохранение изменений каталога тарифов и загруженных ассетов оформления, отображение безлимитных лимитов.
-- Улучшена авторизация: fallback bearer-токена сессии, требование session-токенов в контрактах.
-- Исправлены UI-баги админки и webapp.
-- Исправлена совместимость импорта с remnashop: безопасный разбор trial-флагов, сохранение назначения тарифа для trial-подписок, сохранение приватных полей admin-бандла, разбор ответа HWID-устройств.
-- Обновлён стек тулинга и зависимостей: postgres зафиксирован на 17.6, redis-клиент 7.4.1, обновления prettier-plugin-svelte, tailwind и typescript-eslint; расширены unit/contract/integration тесты.
+### 变更
 
-### При обновлении
+- 扩展激活码：按比例调整套餐价格、时长与流量倍数、额外有效期、仅付款时应用、最低时长／流量及整单或结算范围条件，并支持归档。
+- 保存激活码效果与结算快照：应用效果、基础金额、价格调整、已付时长和流量，供历史与正确计算使用。
+- 后台新增激活码使用审计，以及机器人／网页应用的使用链接生成。
+- 兼容 Remnawave 2.8：重做面板 webhook，增加节点与 HWID API 工具及版本化开发预设（2.7.4、2.8.0）。
+- 套餐 worker 与通知考虑流量重置设置；预警包含重置详情，并保护重置通知。
+- 加速并稳定后台：优化加载与响应，用户列表减少转换，改用更现代的 Svelte runes 响应模式。
+- 改进套餐及激活码编辑器：套餐标签页、紧凑代码编辑、有效期奖励模式、目录与已上传外观资源保存，以及不限量显示。
+- 改进鉴权：会话 bearer 令牌回退，契约要求会话令牌。
+- 修复后台和网页应用界面问题。
+- 修复 Remnashop 导入：安全解析试用标记、保留试用套餐分配与后台包私有字段，正确解析 HWID 设备响应。
+- 更新工具及依赖：Postgres 固定 17.6、Redis 客户端 7.4.1，更新 prettier-plugin-svelte、Tailwind、typescript-eslint，扩展单元／契约／集成测试。
 
-- Изменения схемы БД: миграции `0038`–`0041` (расширение эффектов кодов, снапшоты активаций и оформления заказа, флаг режима начисления с оплатой). Append-only, применяются идемпотентным мигратором автоматически.
-- Образ postgres зафиксирован на `17.6` — обновите тег, если пиннингуете образ в своём compose вручную.
-- Совместимость с Remnawave 2.8; для dev-стенда добавлены пресеты 2.7.4/2.8.0. Новых обязательных production-переменных окружения нет.
+<a id="при-обновлении-14"></a>
+
+### 升级注意
+
+- 追加迁移 `0038`–`0041`：扩展代码效果、激活与结算快照、付款奖励模式标记；幂等迁移器自动应用。
+- Postgres 镜像固定 `17.6`；自行固定 Compose 标签时请同步更新。
+- 兼容 Remnawave 2.8，开发环境新增 2.7.4／2.8.0 预设；无新增生产必填变量。
 
 <details>
-<summary>Ссылки на изменения и участники</summary>
+<summary>变更来源与贡献者</summary>
 
 * Feature/bonus extension by @3252a8 in https://github.com/3252a8/remnawave-minishop/pull/47
 * Feature/remnawave 2.8.0 by @3252a8 in https://github.com/3252a8/remnawave-minishop/pull/48
@@ -1030,47 +813,57 @@
 
 [GitLab](https://gitlab.com/3252a8/remnawave-minishop/-/releases/v3.5.0) · [GitHub](https://github.com/3252a8/remnawave-minishop/releases/tag/v3.5.0)
 
-### Обзор
+<a id="обзор-12"></a>
 
-Помимо нескольких пользовательских функций (контроль доступа к регистрации, premium-правила пробного периода, доступ к меню бота, уведомления о сбросе квоты трафика) релиз содержит очень крупный внутренний рефакторинг — типизация контрактов, миграция фронтенда на Svelte 5 runes, декомпозиция god-файлов и пакетирование платёжных провайдеров.
+### 概览
 
-### Изменения
+除注册访问控制、试用高级流量规则、机器人菜单开关及流量重置通知外，本版包含大规模内部重构：契约类型化、Svelte 5 runes 迁移、巨型文件拆分及支付提供商包化。
 
-- Добавлен контроль доступа к регистрации (`REGISTRATION_INVITE_ONLY_ENABLED`): при включении новые публичные регистрации допускаются только по валидной пригласительной ссылке; существующие пользователи продолжают входить через Telegram, Web App, email-код, magic-link и пароль.
-- Добавлены правила premium-доступа в пробном периоде: отдельный лимит premium-трафика (`TRIAL_PREMIUM_TRAFFIC_LIMIT_GB`) и список premium Internal Squads для trial (`TRIAL_PREMIUM_SQUAD_UUIDS`), с применением квоты к premium-сквадам.
-- Добавлена возможность выключения меню Telegram-бота (оставляет минимальное количество кнопок и побуждает использовать веб апп).
-- Добавлены уведомления о сбросе квоты трафика для regular- и premium-тарифов — для пользователей, которые потратили (или почти потратили) трафик в предыдущем периоде.
-- Исправления платежей: сохранение статуса успешного платежа, детали неуспешных попыток, отображение единиц entitlement в логах, подавление устаревших уведомлений о сбое оплаты, предотвращение циклов импорта при старте провайдеров.
-- Исправления Admin/Mini App: рендер строк datatable после первой загрузки, корректные surface-токены светлой темы, центрирование спиннера логотипа, уточнены подписи настроек, защита от no-op обновлений стора.
-- Улучшена диагностика install-wizard.
+<a id="изменения-13"></a>
 
-### Рефакторинг и инфраструктура
+### 变更
 
-- **Типизированные HTTP-контракты и OpenAPI:** pydantic request/response-модели для admin- и webapp-роутов (вместо «свободных» схем), генерация `docs/openapi.json` и `frontend/.../openapi.generated.ts`, типизированные path-builders API-клиента, реестр route-contracts и проверки контрактов в CI.
-- **Контракты доменных событий:** одна pydantic-модель на событие (`extra="forbid"`), публикация через `emit_model`, регенерируемый каталог событий.
-- **Миграция фронтенда на Svelte 5 runes:** все компоненты и сторы переведены на runes, удалён legacy-синтаксис (`export let`, `$:`, слоты и динамические компоненты → snippets), runes-only режим закреплён сборкой и линтом, убран datatable runes-bridge.
-- **Декомпозиция `App.svelte`:** shell-state стор на runes и вынос десятков runtime/action/helper/view-модулей (boot, resume, auth, activation, telegram, navigation, billing-deeplink и др.), оболочка приложения переведена на TypeScript.
-- **Типизация бэкенда (mypy ratchet):** handlers, services, payment providers, db, middlewares, config, keyboards и web-плагины; mypy зелёный по всему enforced-скоупу, скоуп расширен в CI.
-- **Пакетирование платёжных провайдеров:** каждый провайдер — отдельный пакет (yookassa, stripe, wata, paykilla, heleket, platega, lava, severpay, freekassa, pally, cryptopay, cloudpayments, stars), общий link-flow engine + provider descriptor, общая обработка webhook'ов, import-only фасады и conformance-контракты.
-- **Декомпозиция god-файлов:** разбиты admin-секции, email-шаблоны, tariff-traffic worker, panel API service, subscription lifecycle, admin sync workflow, user start flow, subscription core и billing/auth/asset-роуты.
-- **Границы архитектуры:** проверки import-границ фасадов и runtime-хабов, отвязка фасадов от runtime-импортов, типизированные settings-views в `config`, гейты согласованности web-ответов, заморозка публичных поверхностей фасадов тестами.
-- **Тесты и QA:** реорганизация набора по ответственности, Vitest-coverage, Playwright mock-smoke e2e-гейт, единый dev/QA compose-стенд, контракты webhook/link-flow провайдеров.
-- **Инфраструктура и тулинг:** нормализация LF-окончаний через `.gitattributes`, агрегирующие команды качества, выравнивание root-check-скрипта с гейтами CI, contract-checks в CI.
-- **Документация:** интерактивный API reference на docs-site, how-to рецепты (провайдер/событие/эндпоинт), гайды контрибьютора и агента, обзор архитектуры, security scaffolding.
+- 新增注册访问控制 `REGISTRATION_INVITE_ONLY_ENABLED`，开启后新公开注册必须有有效邀请链接；已有用户仍可通过 Telegram、应用、邮箱验证码、魔法链接和密码登录。
+- 新增试用高级访问规则：独立高级流量上限 `TRIAL_PREMIUM_TRAFFIC_LIMIT_GB` 和高级 Internal Squads `TRIAL_PREMIUM_SQUAD_UUIDS`，对高级分组应用额度。
+- 可关闭 Telegram 机器人菜单，仅保留少量按钮并引导使用网页应用。
+- 普通与高级套餐新增流量额度重置通知，面向上一周期已耗尽或接近耗尽的用户。
+- 修复支付：保存成功状态、失败尝试详情、日志权益单位、抑制过时失败通知，防止提供商启动循环导入。
+- 修复后台／Mini App：首次加载后表格行渲染、浅色主题表面变量、标志加载指示居中、明确设置标签、防止无变化存储更新。
+- 改进安装向导诊断。
 
-### Зависимости и безопасность
+<a id="рефакторинг-и-инфраструктура"></a>
 
-- **Security-фикс (high):** `@playwright/test` поднят с `^1.50.1` до `^1.55.1` (lockfile резолвится в 1.61.1) — закрывает GHSA-7mvr-c777-76hp (Playwright скачивал и устанавливал браузеры без проверки подлинности SSL-сертификата). Открытых Dependabot-алертов: 0.
-- **Backend:** `sqlalchemy[asyncio]` 2.0.49 → 2.0.51 (patch), YooKassa SDK 3.10.1 → 3.11.0 (minor); ранее в диапазоне — `pydantic-settings` 2.14.1 → 2.14.2.
-- **Frontend dev-тулинг до актуальных версий:** eslint 10.6.0, svelte 5.56.4, vite 8.1.0, svelte-check 4.7.1, typescript-eslint 8.62.0, prettier 3.9.0, eslint-plugin-svelte 3.20.0, svelte-eslint-parser 1.8.0, @tanstack/svelte-query 6.1.35, @internationalized/date 3.12.2, tailwindcss / @tailwindcss/cli / @tailwindcss/vite 4.3.1; применено форматирование prettier 3.9.0.
-- **Гигиена lockfile:** перегенерирован консистентный `frontend/package-lock.json`, чтобы `npm ci` проходил во всех фронтенд-джобах CI.
+### 重构与基础设施
 
-### При обновлении
+- **HTTP 类型化契约与 OpenAPI：** 后台与应用路由使用 pydantic 请求／响应模型替代自由结构，生成 `docs/openapi.json` 和 `frontend/.../openapi.generated.ts`，提供类型化路径构造、路由契约注册及 CI 检查。
+- **领域事件契约：** 每事件一个 pydantic 模型（`extra="forbid"`），通过 `emit_model` 发布，可重新生成事件目录。
+- **Svelte 5 runes 迁移：** 所有组件与存储转为 runes，删除旧 `export let`、`$:`、插槽和动态组件（改为 snippets），构建与静态检查固定仅 runes 模式，删除表格 runes 桥接。
+- **拆分 `App.svelte`：** runes 外壳状态存储，抽出数十个运行时／操作／辅助／视图模块（启动、恢复、鉴权、激活、Telegram、导航、计费深链接等），应用外壳转为 TypeScript。
+- **后端类型：** 覆盖处理器、服务、支付提供商、数据库、中间件、配置、键盘和网页插件；mypy 在全部强制范围通过，CI 扩大范围。
+- **支付提供商包化：** yookassa、stripe、wata、paykilla、heleket、platega、lava、severpay、freekassa、pally、cryptopay、cloudpayments、stars 各自独立包；共享链接流程引擎与提供商描述、webhook 处理、仅导入兼容门面及一致性契约。
+- **巨型文件拆分：** 后台区域、邮件模板、套餐流量 worker、面板 API、订阅生命周期、后台同步、用户启动、订阅核心及计费／鉴权／资源路由。
+- **架构边界：** 检查门面与运行时模块导入边界，解除门面运行时依赖，`config` 提供类型化设置视图，网页响应一致性门禁，测试固定公开门面接口。
+- **测试与 QA：** 按职责重组测试，Vitest 覆盖率、Playwright 模拟端到端冒烟门禁、统一开发／QA Compose 环境及提供商 webhook／链接流程契约。
+- **基础设施与工具：** `.gitattributes` 统一 LF，聚合质量命令、根检查脚本对齐 CI、CI 契约检查。
+- **文档：** 文档站交互式 API 参考、提供商／事件／端点操作指南、贡献者及智能体指南、架构概览和安全基础说明。
 
-- Новые переменные окружения: `REGISTRATION_INVITE_ONLY_ENABLED`, `TRIAL_PREMIUM_TRAFFIC_LIMIT_GB`, `TRIAL_PREMIUM_SQUAD_UUIDS`; dev/QA-стенд добавляет `DEV_POSTGRES_PORT` и `QA_*` переменные. **Новых миграций БД нет.**
+<a id="зависимости-и-безопасность"></a>
+
+### 依赖与安全
+
+- **高危安全修复：** `@playwright/test` 从 `^1.50.1` 升到 `^1.55.1`（lock 解析为 1.61.1），修复 GHSA-7mvr-c777-76hp：Playwright 下载、安装浏览器时未验证 SSL 证书。未解决 Dependabot 告警为 0。
+- **后端：** `sqlalchemy[asyncio]` 2.0.49 → 2.0.51，YooKassa SDK 3.10.1 → 3.11.0；此前同范围更新 `pydantic-settings` 2.14.1 → 2.14.2。
+- **前端开发工具更新：** eslint 10.6.0、svelte 5.56.4、vite 8.1.0、svelte-check 4.7.1、typescript-eslint 8.62.0、prettier 3.9.0、eslint-plugin-svelte 3.20.0、svelte-eslint-parser 1.8.0、@tanstack/svelte-query 6.1.35、@internationalized/date 3.12.2、tailwindcss／@tailwindcss/cli／@tailwindcss/vite 4.3.1；按 prettier 3.9.0 格式化。
+- **lock 整理：** 重新生成一致的 `frontend/package-lock.json`，使所有前端 CI 任务可运行 `npm ci`。
+
+<a id="при-обновлении-15"></a>
+
+### 升级注意
+
+- 新增 `REGISTRATION_INVITE_ONLY_ENABLED`、`TRIAL_PREMIUM_TRAFFIC_LIMIT_GB`、`TRIAL_PREMIUM_SQUAD_UUIDS`；开发／QA 新增 `DEV_POSTGRES_PORT` 和 `QA_*`。**无新数据库迁移。**
 
 <details>
-<summary>Ссылки на изменения и участники</summary>
+<summary>变更来源与贡献者</summary>
 
 * chore(deps): bump the pip group across 2 directories with 1 update by @dependabot[bot] in https://github.com/3252a8/remnawave-minishop/pull/40
 * Feature/api refactor by @3252a8 in https://github.com/3252a8/remnawave-minishop/pull/41
@@ -1089,30 +882,36 @@
 
 [GitLab](https://gitlab.com/3252a8/remnawave-minishop/-/releases/v3.4.10) · [GitHub](https://github.com/3252a8/remnawave-minishop/releases/tag/v3.4.10)
 
-### Обзор
+<a id="обзор-13"></a>
 
-Крупная переработка скрипта установщика и миграции с Remnashop, новый платёжный провайдер Pally и расширение Wata Crypto, ускорение и кэширование гайдов по подписке, небольшие исправления гайдов, перевод админских таблиц на datatables и другие фиксы.
+### 概览
 
-### Изменения
+大幅改进安装器和 Remnashop 迁移，新增 Pally、扩展 Wata Crypto，加速并缓存订阅教程，修复教程细节，后台表格转为数据表并修复其他问题。
 
-- Расширен установщик (`scripts/install.sh`): настройка DNS и TLS-сертификатов, профиль обратного прокси eGames, автоопределение учётных данных панели, предзаполнение и локализация шагов миграции, маскирование кредов БД в логах, устойчивость к EOF и сохранение путей загрузки.
-- Переработан импорт из Remnashop (`import_legacy.py`): перенос настроек тарифов, снимков пользовательских кодов активации, поддержка внешних ключей пользователей и токенов ссылок на подписку, опциональный сброс целевой БД перед импортом, сохранение состояния Telegram, чтение root-owned env, отчёт о завершении и о сопоставленных платёжных провайдерах.
-- Добавлен платёжный провайдер Pally .
-- Расширен платежный провайдер Wata — возможность добавить кнопку оплаты wata crypto.
-- Улучшены гайды по подписке: кэширование конфигурации и разрешённых гайдов, компактный payload, ускорение загрузки, разрешение гайдов для внешних squad’ов, кастомный subpage-конфиг панели и fallback на дефолтный гайд панели.
-- Переведены админские таблицы (бэкапы, платежи, локальные секции) на datatables с реактивной пагинацией; добавлены actionable-подсказки и описания к ошибкам, кэш health-checks и логов, улучшены жесты drag-and-drop сортировки.
-- Добавлена поддержка Cookie-заголовка для запросов к API панели (доступ через eGamesAPI/remnawave-reverse-proxy) и нормализация traffic-стратегий Remnawave.
-- Исправлены платежи и биллинг: сохранение device-метаданных YooKassa и счётчиков устройств для invoice-платежей, использование валюты платежа для провайдеров в меню бота, интеграция HWID top-up.
-- Исправлены уведомления: подавление уведомлений об истечении для замещённых подписок, постановка web-app уведомлений в очередь.
-- Обновлены deploy-примеры (caddy/newt/nginx/no-proxy) и привязки nginx для eGames; синхронизация конфига nginx в работающий контейнер.
+<a id="изменения-14"></a>
 
-### При обновлении
+### 变更
 
-- Новая переменная окружения `PANEL_API_COOKIE` (опциональный Cookie-заголовок для API панели).
-- Добавлены настройки TTL кэша гайдов: `SUBSCRIPTION_GUIDES_CONFIG_CACHE_TTL_SECONDS`, `SUBSCRIPTION_GUIDES_RESOLVED_CACHE_TTL_SECONDS`, `SUBSCRIPTION_GUIDES_PUBLIC_CACHE_TTL_SECONDS` (по умолчанию 300с).
+- 扩展 `scripts/install.sh`：DNS／TLS 配置、eGames 反向代理、面板凭据自动发现、迁移步骤预填与本地化、日志遮蔽数据库凭据、处理 EOF 及保留下载路径。
+- 重做 Remnashop 导入 `import_legacy.py`：套餐配置、用户激活码快照、用户外键及订阅链接令牌、可选清空目标库、保留 Telegram 状态、读取 root 所有环境文件、完成报告及支付提供商映射。
+- 新增 Pally 支付提供商。
+- Wata 可增加 Wata Crypto 付款按钮。
+- 改进订阅教程：缓存配置与可用教程、精简载荷并加快加载，支持外部分组、面板自定义子页面配置及默认教程回退。
+- 后台备份／付款／本地区域使用带响应式分页的数据表，增加可操作错误提示及描述，缓存健康检查与日志，改进拖动排序手势。
+- 面板 API 支持 Cookie 头（经 eGamesAPI／remnawave-reverse-proxy 访问），规范化 Remnawave 流量策略。
+- 修复支付计费：保存 YooKassa 设备元数据及发票设备数，机器人提供商菜单使用付款币种，接入 HWID 加购。
+- 修复通知：抑制已被替代订阅的到期消息，网页应用通知入队。
+- 更新 caddy／newt／nginx／no-proxy 部署示例和 eGames nginx 关联，将 nginx 配置同步到运行中容器。
+
+<a id="при-обновлении-16"></a>
+
+### 升级注意
+
+- 新增可选 `PANEL_API_COOKIE`，用于面板 API Cookie 请求头。
+- 新增教程缓存 TTL：`SUBSCRIPTION_GUIDES_CONFIG_CACHE_TTL_SECONDS`、`SUBSCRIPTION_GUIDES_RESOLVED_CACHE_TTL_SECONDS`、`SUBSCRIPTION_GUIDES_PUBLIC_CACHE_TTL_SECONDS`，默认 300 秒。
 
 <details>
-<summary>Ссылки на изменения и участники</summary>
+<summary>变更来源与贡献者</summary>
 
 * feat: add Pally payment provider by @3252a8 in https://github.com/3252a8/remnawave-minishop/pull/38
 * feat: installer DNS/cert & migration overhaul, Pally/Wata payments, guide caching by @3252a8 in https://github.com/3252a8/remnawave-minishop/pull/39
@@ -1126,32 +925,38 @@
 
 [GitLab](https://gitlab.com/3252a8/remnawave-minishop/-/releases/v3.4.9) · [GitHub](https://github.com/3252a8/remnawave-minishop/releases/tag/v3.4.9)
 
-### Обзор
+<a id="обзор-14"></a>
 
-Добавлены платёжные провайдеры Stripe, CloudPayments и LAVA Business, внутренняя plugin/extension API с реестром фич, шина доменных событий с маршрутизацией side-effects через реакции, кастомизация темы webapp и набор улучшений админ-панели, webapp и платёжного финализирования.
+### 概览
 
-### Изменения
+新增 Stripe、CloudPayments、LAVA Business、带功能注册表的内部插件／扩展 API、经反应器处理副作用的进程内事件总线、应用主题自定义，并改进后台、应用和付款完成处理。
 
-- Добавлены платёжные провайдеры Stripe, CloudPayments и LAVA Business, включая поддержку рекуррентных списаний (Stripe/CloudPayments) и общий модуль recurring; провайдеры подключаются через реестр и настраиваются из админ-UI.
-- Усилены продления YooKassa: hardening контролов автопродления, рекуррентный провайдер и общий механизм recurring/success для всех провайдеров.
-- Добавлена внутренняя plugin/extension API: загрузчик и спецификация плагинов, hook-points (worker, queue, migration, locale), встроенные плагины (lknpd, telemetry), реестр feature-entitlement и документация по расширениям.
-- Добавлена in-process шина доменных событий: side-effects маршрутизируются через event reactions, покрыты сценарии жизненного цикла аккаунта и пути начисления периода.
-- Добавлен сервис entitlements и переработана финализация платежей: уведомления откладываются до commit, подтверждение истечения entitlement перед локальным успехом, валидация обновлений expiry в панели, логирование ошибок создания провайдера.
-- Добавлена кастомизация дефолтной темы webapp, мердж темной и светлой темы.
-- Улучшена админ-панель: секции управляются из реестра, диплинки в разделе настройки, назначение тарифов в админском окне пользователя, сохранение черновиков действий по пользователю, группировка контролов продления подписки, ускорение открытия админ панели, загрузка feature-flags при монтировании.
-- Улучшен webapp UX: подбор install-гайдов под конкретную подписку, скрытие карточек квоты для безлимитного трафика, ссылки и подписи статуса сервера.
-- Улучшены email-уведомления: безопасные inline-PNG логотипы, метаданные и favicon, локализация писем.
-- Исправлен учёт приглашений: продление срока действия подписки за приглашение начисляется только один раз (добавлено поле `referral_welcome_bonus_claimed_at`); рефералы и обработка пользовательских кодов переведены на событийную модель.
-- Обновлены CI/Docker/deploy: actions на Node 24, починка pip-audit, healthcheck без zombie-процессов, `curl` в runtime-образе, возврат dev-публикации в GitHub Actions, конфигурируемая задержка между страницами при полном сканировании панели, удалён `.gitlab-ci.yml`.
-- Расширены тесты: Stripe/CloudPayments/LAVA провайдеры, доменные события и event reactions, плагины, entitlements, webhooks платежей, автопродление и темы webapp.
+<a id="изменения-15"></a>
 
-### При обновлении
+### 变更
 
-- Изменение схемы БД: добавлен столбец `users.referral_welcome_bonus_claimed_at`, миграции включены.
-- Dockerfile обновлён: force-upgrade `certifi` после установки (pip-audit игнорирует PYSEC-2024-230 из-за пина `aiocryptopay==0.4.8`), `curl` оставлен в runtime-образе для healthcheck.8
+- 新增 Stripe、CloudPayments、LAVA Business，支持 Stripe／CloudPayments 循环扣款及共享循环模块；经注册表接入并在后台配置。
+- 加强 YooKassa 续期：自动续期控件、循环提供商及全提供商共享循环／成功机制。
+- 新增内部插件／扩展 API：加载器、规格、worker／队列／迁移／语言钩子、内置 lknpd／telemetry、功能权益注册及扩展文档。
+- 新增进程内领域事件总线，副作用经事件反应器路由，覆盖账号生命周期和有效期奖励。
+- 新增权益服务并重做付款完成：通知延迟到事务提交，先确认权益到期再本地成功，验证面板到期更新，记录提供商创建错误。
+- 支持默认应用主题自定义，合并深色和浅色主题。
+- 改进后台：区域注册管理、设置深链接、用户窗口分配套餐、保存操作草稿、续期控件分组、加快打开、挂载时加载功能标记。
+- 改进应用：按订阅匹配教程，不限量时隐藏额度卡片，提供服务器状态链接和标签。
+- 改进邮件：安全内嵌 PNG 标志、元数据、站点图标与本地化。
+- 修复邀请计量，邀请有效期只发放一次（新增 `referral_welcome_bonus_claimed_at`）；邀请与用户代码处理转事件模型。
+- 更新 CI／Docker／部署：Node 24 actions、修复 pip-audit、健康检查不产生僵尸进程、运行时包含 `curl`、恢复 GitHub Actions dev 发布、全量扫描面板分页间隔可配置，删除 `.gitlab-ci.yml`。
+- 扩展 Stripe／CloudPayments／LAVA、领域事件与反应器、插件、权益、支付 webhook、自动续期和主题测试。
+
+<a id="при-обновлении-17"></a>
+
+### 升级注意
+
+- 数据库新增 `users.referral_welcome_bonus_claimed_at`，包含迁移。
+- Dockerfile 安装后强制升级 `certifi`（受 `aiocryptopay==0.4.8` 固定限制，pip-audit 忽略 PYSEC-2024-230），运行时保留 `curl` 供健康检查。
 
 <details>
-<summary>Ссылки на изменения и участники</summary>
+<summary>变更来源与贡献者</summary>
 
 * provider: lava by @3252a8 in https://github.com/3252a8/remnawave-minishop/pull/30
 * chore(deps-dev): bump esbuild from 0.28.0 to 0.28.1 in /frontend in the npm_and_yarn group across 1 directory by @dependabot[bot] in https://github.com/3252a8/remnawave-minishop/pull/31
@@ -1170,45 +975,51 @@
 
 [GitLab](https://gitlab.com/3252a8/remnawave-minishop/-/releases/v3.4.8) · [GitHub](https://github.com/3252a8/remnawave-minishop/releases/tag/v3.4.8)
 
-### Обзор
+<a id="обзор-15"></a>
 
-Изменения после релиза v3.4.7 (`v3.4.7..HEAD`): новый платёжный провайдер PayKilla, защита бота от флуда обновлений Telegram, shell-мастер установки с миграцией с legacy tg-shop и Remnashop, диагностика конфигурации в админке и большой блок улучшений платежей, тарифов и Mini App.
+### 概览
 
-### Изменения
+v3.4.7 之后（`v3.4.7..HEAD`）：新增 PayKilla、Telegram 更新防刷、支持旧 tg-shop／Remnashop 迁移的 shell 向导及后台配置诊断，改进支付、套餐和 Mini App。
 
-- Добавлен платёжный провайдер PayKilla: конвертация в поддерживаемые валюты, проверка минимальной суммы платежа, санитизация текста инвойсов, корректная передача валюты тарифа.
-- Улучшена работа платёжных провайдеров: переиспользование незавершённых счетов и ссылок по идентичности провайдера, глобальный таймаут запросов к провайдерам с применением без рестарта, повтор и восстановление соединений провайдеров, статус «pending» в транзакциях (спасибо @BADtochka, `234fc695`, `3170b966`, `766f2a57`, `e3f35a46`).
-- Добавлена защита Telegram-бота от флуда: ранний guard и лимиты по типам обновлений (сообщения, callback, inline, /start), cooldown для платёжных и trial-callback, отбрасывание не-приватных обновлений, настройки доступны в админке.
-- Добавлен shell-мастер установки (`scripts/install.sh`) с переносом данных с legacy remnawave-tg-shop, а также импорт с Remnashop: пользователи, коды, настройки платежей, совместимость legacy-кодов приглашений. (! Функционал миграции с remnashop находится в стадии разработки и еще не был тщательно протестирован, делайте бэкапы !)
-- Добавлена диагностика конфигурации в админ-панели: сервис проверки настроек, баннер с проблемами, актуализация алертов Telegram-webhook.
-- Улучшена админ-панель: аудитории рассылок «никогда не подписывался» и «не подключался к VPN» с кешированием счётчиков, отображение активности VPN-подключений и истории trial у пользователя, переопределение лимита HWID-устройств per-user, улучшенная пагинация; исправлен жизненный цикл модального окна пользователя (спасибо @BADtochka, `9adcbf10`).
-- Расширен редактор тарифов: настраиваемый порядок периодов и пакетов при покупке, унифицированные строки цен, drag-and-drop сортировка, улучшенная мобильная вёрстка.
-- Улучшен Mini App: счётчик до истечения подписки, стабильная мобильная навигация, хешированные immutable-ассеты со сбросом устаревшего кеша, экран активации trial, применение акцента темы в письмах и deeplink, масштаб логотипа по viewport.
-- Добавлена поддержка пользователей без Telegram (email-only): активация trial и приветственные начисления периода по приглашению, поправлены аватары по email, скрытие форм привязки и логина по email при выключенной авторизации; для начислений по кодам и приглашениям назначается тариф по умолчанию.
-- Улучшены письма: встраивание загруженного логотипа, обновлённые брендированные шаблоны; 
-- Добавлен пример docker-compose для локального SMTP на docker-mailserver (спасибо @austnv, `bd7361e9`).
-- Повышена безопасность: корректное разрешение клиентского IP за цепочкой прокси для webhook-ов и allowlist-ов провайдеров (спасибо @BADtochka, `f07031f3`, `cc74ddec`), обновлены зависимости по security-advisories (pyjwt, certifi, aiohttp).
-- Обновлены сборка и деплой: уменьшение churn слоёв Docker-образа, выкладка хешированных ассетов webapp в backend-образ, GitLab CI для dev-образов, фикс regex маршрутов в nginx; 
-- Телеметрия дополнена признаком официальной/кастомной сборки образа (для анонимной статистики).
+<a id="изменения-16"></a>
 
-### При обновлении
+### 变更
 
-- Есть изменения схемы БД — миграции включены и применяются автоматически.
-- Новые настройки окружения: блок `TELEGRAM_ANTIFLOOD_*` и cooldown-настройки, `PAYMENT_REQUEST_TIMEOUT_SECONDS`, таймауты `PANEL_API_*`, настройки импорта `MIGRATION_REMNASHOP_*`, `TRIAL_WITHOUT_TELEGRAM_ENABLED`, `DISPOSABLE_EMAIL_DOMAINS`.
-- Значение по умолчанию `TRUSTED_PROXIES` расширено приватными диапазонами (Docker/LAN/Kubernetes) — проверьте, что это соответствует вашей топологии.
-- Контрибьюторы: @BADtochka (платежи, безопасность прокси, фиксы админки — 24 коммита), @austnv (пример docker-mailserver — `bd7361e9`, `c733d830`).
+- 新增 PayKilla：支持币种兑换、最低付款检查、发票文本清理及正确传递套餐币种。
+- 改进支付提供商：按提供商身份复用未完成账单／链接，无需重启应用全局请求超时，连接重试与恢复，交易支持“待处理”（感谢 @BADtochka，`234fc695`、`3170b966`、`766f2a57`、`e3f35a46`）。
+- Telegram 机器人防刷：前置检查，按消息／回调／行内／`/start` 限频，付款和试用回调冷却，丢弃非私聊更新，后台可配置。
+- 新增 `scripts/install.sh` shell 向导，支持旧 remnawave-tg-shop 及 Remnashop 导入：用户、代码、支付设置、旧邀请代码兼容。**该版本 Remnashop 迁移仍在开发，未充分测试，务必备份。**
+- 后台新增配置诊断服务、问题横幅及 Telegram webhook 告警刷新。
+- 改进后台：缓存“从未订阅”“未连接 VPN”群发受众计数，显示用户 VPN 活跃与试用历史、单用户 HWID 上限覆盖、改进分页并修复用户弹窗生命周期（感谢 @BADtochka，`9adcbf10`）。
+- 套餐编辑器支持购买周期与流量包顺序、统一价格行、拖动排序及更好手机布局。
+- 改进 Mini App：到期倒计时、稳定手机导航、哈希不可变资源及旧缓存清除、试用激活页、邮件与深链接主题强调色、按视口缩放标志。
+- 纯邮箱用户支持试用及邀请欢迎时长，修复邮箱头像，关闭邮箱鉴权时隐藏登录／绑定表单；代码与邀请奖励分配默认套餐。
+- 改进邮件：内嵌上传标志及新版品牌模板。
+- 新增基于 docker-mailserver 的本地 SMTP Compose 示例（感谢 @austnv，`bd7361e9`）。
+- 加强安全：正确解析代理链后 webhook 与提供商允许清单的客户端 IP（感谢 @BADtochka，`f07031f3`、`cc74ddec`），按安全公告更新 pyjwt、certifi、aiohttp。
+- 改进构建部署：减少 Docker 层变动，将哈希应用资源放入后端镜像，新增 GitLab CI dev 镜像，修复 nginx 路由正则。
+- 遥测新增官方／自定义镜像标记，用于匿名统计。
+
+<a id="при-обновлении-18"></a>
+
+### 升级注意
+
+- 数据库结构有变化，所含迁移自动执行。
+- 新增 `TELEGRAM_ANTIFLOOD_*` 及冷却设置、`PAYMENT_REQUEST_TIMEOUT_SECONDS`、`PANEL_API_*` 超时、`MIGRATION_REMNASHOP_*`、`TRIAL_WITHOUT_TELEGRAM_ENABLED`、`DISPOSABLE_EMAIL_DOMAINS`。
+- 当时 `TRUSTED_PROXIES` 默认扩展到 Docker／局域网／Kubernetes 私网范围，升级须核对是否适合拓扑。
+- 贡献者：@BADtochka（支付、代理安全、后台修复，共 24 次提交），@austnv（docker-mailserver 示例，`bd7361e9`、`c733d830`）。
 
 <details>
-<summary>Ссылки на изменения и участники</summary>
+<summary>变更来源与贡献者</summary>
 
 * remnashop migration feature, install wizard by @3252a8 in https://github.com/3252a8/remnawave-minishop/pull/23
 * chore(deps): bump the pip group across 2 directories with 1 update by @dependabot[bot] in https://github.com/3252a8/remnawave-minishop/pull/25
-* Добавлена поддержка локального SMTP-сервера на базе Docker Mailserver by @austnv in https://github.com/3252a8/remnawave-minishop/pull/26
-* Документация платёжек и замена домена Freekassa by @BADtochka in https://github.com/3252a8/remnawave-minishop/pull/27
+* 新增 Docker Mailserver 本地 SMTP 支持，作者 @austnv：https://github.com/3252a8/remnawave-minishop/pull/26
+* 支付文档及 FreeKassa 域名替换，作者 @BADtochka：https://github.com/3252a8/remnawave-minishop/pull/27
 * feat: harden Telegram bot anti-flood handling by @3252a8 in https://github.com/3252a8/remnawave-minishop/pull/28
 * PayKilla provider, Telegram anti-flood, install wizard and Remnashop migration (test) by @3252a8 in https://github.com/3252a8/remnawave-minishop/pull/29
 
-**Участники**
+**贡献者**
 * @austnv made their first contribution in https://github.com/3252a8/remnawave-minishop/pull/26
 * @BADtochka made their first contribution in https://github.com/3252a8/remnawave-minishop/pull/27
 
@@ -1220,35 +1031,41 @@
 
 [GitLab](https://gitlab.com/3252a8/remnawave-minishop/-/releases/v3.4.7) · [GitHub](https://github.com/3252a8/remnawave-minishop/releases/tag/v3.4.7)
 
-### Обзор
+<a id="обзор-16"></a>
 
-Мультивалютные тарифы с фильтрацией провайдеров по валюте (если хотите принимать оплату не в рублях), безопасный dry-run режим записи в Remnawave Panel (дле dev и тестов перед миграцией), анонимная opt-out телеметрия установок, улучшение интерфейса управления пользователями в админке, а также набор фиксов каналов, deeplink-шлюза, top-up трафика и локализации писем.
+### 概览
 
-### Изменения
+新增多币种套餐及按币种筛选提供商、安全面板写入演练（开发及迁移前测试）、可退出匿名安装遥测，改进后台用户管理，修复频道、深链接网关、流量加购和邮件本地化。
 
-- Добавлены мультивалютные тарифы: JSON-каталог поддерживает `default_currency` (`usd`, `eur`, `usdt` и др.) с generic-полями цен и пакетов, legacy `*_rub`-поля остаются алиасами. Платёжные методы фильтруются по поддерживаемым провайдером валютам, а раздел **Система → Тарифы** показывает матрицу «метод/сервис/доступность» для текущей валюты.
-- Добавлен dry-run режим записи в Remnawave Panel: `PANEL_WRITE_MODE=dry_run`/`auto` и `APP_RUNTIME_MODE` позволяют читать живую панель, но только валидировать и логировать мутации пользователей (`[PANEL DRY-RUN OK] would PATCH ...`); секреты и ID редактируются из логов dry-run.
-- Добавлена анонимная opt-out телеметрия установок: раз в сутки worker шлёт обезличенный heartbeat (версия, OS/arch, Python, язык, включённые провайдеры, диапазон числа пользователей) в формате PostHog; выключается через `TELEMETRY_ENABLED` или тоггл **Admin → System** без перезапуска.
-- Расширено управление пользователями в админке: фильтры, сортируемые колонки, метрики списка пользователей, отображение реферальных связей в карточках и модальное окно деталей пользователя (`UserDetailModal`).
-- Добавлен сброс права на триал из веб-админки без удаления истории пользователя (новая отметка `trial_eligibility_reset_at`, миграция 0033).
-- Добавлена цель рассылки «истёкшие подписки» (expired subscription broadcast target).
-- Добавлен выбор языка на экране входа и восстановлен селектор языка в мобильной админке.
-- Добавлен аудит исходящих уведомлений пользователям (`message_audit`) — фиксация фактических отправок ботом.
-- Обновлены письма: локализация support-шаблонов, рендер email-превью из шаблонов, demo-секция превью в документации и отвязка генерации превью от зависимостей бота.
-- Исправлены платежи и трафик: согласованы потоки top-up трафика и unlimited-оверрайды; запуск миграций после восстановления БД; восстановлены экраны ввода email-кода (pending email code).
-- Исправлены проверки обязательного канала: нормализация `REQUIRED_CHANNEL_ID` (приведение к `-100…`) и устойчивое распознавание ошибок доступа к каналу.
-- Исправлен UX мобильного клиента: deeplink-шлюз остаётся открытым во время prompt запуска приложения; увеличена кнопка продления.
-- Обновлён CI: dev-образы тегируются только как `dev` (убраны per-commit теги `dev-<sha>`).
-- Расширены тесты: мультивалютные тарифы, телеметрия, dry-run панели, метрики/гранты/сброс триала в админке, аудит сообщений, нормализация канала, реестр платёжных провайдеров.
+<a id="изменения-17"></a>
 
-### При обновлении
+### 变更
 
-- Есть изменение схемы БД: миграция `0033_add_trial_eligibility_reset_marker` (колонка `users.trial_eligibility_reset_at`), применяется автоматически.
-- Новые переменные окружения: `TELEMETRY_ENABLED`, `TELEMETRY_ENDPOINT`, `TELEMETRY_API_KEY`, `TELEMETRY_INTERVAL_HOURS`; `APP_RUNTIME_MODE`, `PANEL_WRITE_MODE`, `PANEL_DRY_RUN_VALIDATE_REMOTE`, `PANEL_DRY_RUN_SYNTHETIC_CREATE`. Для кастомных валют у Heleket/Platega/SeverPay держите в актуальном состоянии `*_SUPPORTED_CURRENCIES`.
-- Телеметрия включена по умолчанию (opt-out): отключается `TELEMETRY_ENABLED=False`, пустым endpoint/ключом или тогглом в админке. Персональные данные и секреты не отправляются.
+- 多币种 JSON 套餐支持 `default_currency`（`usd`、`eur`、`usdt` 等）、通用价格和流量包字段，旧 `*_rub` 为别名。支付方法按币种筛选，**系统 → 套餐**显示当前币种的方法／服务／可用性矩阵。
+- 面板写入演练：`PANEL_WRITE_MODE=dry_run`／`auto` 与 `APP_RUNTIME_MODE` 可读取真实面板，仅验证和记录用户写操作（`[PANEL DRY-RUN OK] would PATCH ...`），日志遮蔽密钥与 ID。
+- 新增可退出匿名遥测：worker 每日以 PostHog 格式发送版本、系统／架构、Python、语言、已启用提供商和用户量区间；通过 `TELEMETRY_ENABLED` 或**后台 → 系统**开关关闭，无需重启。
+- 扩展后台用户管理：筛选、列排序、列表指标、卡片邀请关系及用户详情弹窗 `UserDetailModal`。
+- 后台可重置试用资格而不删除历史，新增 `trial_eligibility_reset_at` 和迁移 0033。
+- 新增“订阅已到期”群发受众。
+- 登录页可选择语言，恢复手机后台语言选择器。
+- 新增 `message_audit`，审计机器人实际对外消息投递。
+- 邮件更新：支持模板本地化、从模板渲染预览、文档演示预览区域，生成预览不再依赖机器人运行环境。
+- 修复付款流量：统一加购流程和不限量覆盖，恢复数据库后执行迁移，恢复等待邮箱验证码页面。
+- 修复必需频道检查：`REQUIRED_CHANNEL_ID` 规范为 `-100…`，可靠识别频道访问错误。
+- 修复手机体验：应用启动提示期间深链接网关保持打开，增大续期按钮。
+- CI dev 镜像仅标记 `dev`，不再生成 `dev-<sha>`。
+- 扩展多币种、遥测、面板演练、后台指标／权益／试用重置、消息审计、频道规范化与支付提供商注册测试。
+
+<a id="при-обновлении-19"></a>
+
+### 升级注意
+
+- 数据库迁移 `0033_add_trial_eligibility_reset_marker` 新增 `users.trial_eligibility_reset_at`，自动应用。
+- 新增 `TELEMETRY_ENABLED`、`TELEMETRY_ENDPOINT`、`TELEMETRY_API_KEY`、`TELEMETRY_INTERVAL_HOURS`，以及 `APP_RUNTIME_MODE`、`PANEL_WRITE_MODE`、`PANEL_DRY_RUN_VALIDATE_REMOTE`、`PANEL_DRY_RUN_SYNTHETIC_CREATE`。Heleket／Platega／SeverPay 使用自定义币种时维护 `*_SUPPORTED_CURRENCIES`。
+- 遥测默认开启，可通过 `TELEMETRY_ENABLED=False`、清空端点／密钥或后台开关退出。不发送个人数据或密钥。
 
 <details>
-<summary>Ссылки на изменения и участники</summary>
+<summary>变更来源与贡献者</summary>
 
 * Feature/multicurrency by @3252a8 in https://github.com/3252a8/remnawave-minishop/pull/18
 * Feature/telemetry by @3252a8 in https://github.com/3252a8/remnawave-minishop/pull/19
@@ -1265,34 +1082,40 @@
 
 [GitLab](https://gitlab.com/3252a8/remnawave-minishop/-/releases/v3.4.6) · [GitHub](https://github.com/3252a8/remnawave-minishop/releases/tag/v3.4.6)
 
-### Обзор
+<a id="обзор-17"></a>
 
-Статистика подписок разбита по типу доступа (активные / платные / пробные / бесплатные), добавлены GitHub Actions для сборки образов, PR-проверок и сканирования безопасности, исправлены probe-уведомления Telegram и маршрутизация demo-страницы документации.
+### 概览
 
-### Изменения
+订阅统计按有效／付费／试用／免费拆分，新增镜像构建、PR 检查和安全扫描 GitHub Actions，修复 Telegram 探测通知和文档演示路由。
 
-- Разбита статистика подписок по типу доступа: добавлены отдельные счётчики «с активной подпиской», «с платной», «с пробной» и «с бесплатной подпиской»; неактивные считаются как пользователи без активной подписки. Логика классификации (provider + статус панели) реализована в `user_dal` через подзапрос с агрегацией по пользователю.
-- Обновлены админская и inline-статистика под новую разбивку: новые строки и иконки в текстовом отчёте, передача `active`/`free` в inline-режим, описание inline-карточки теперь показывает число пользователей с подпиской.
-- Переработана карточка статистики в Admin Panel: основной показатель — активные пользователи с долей от общего числа в бейдже, в подвале раздельно платные · бесплатные · пробные; обновлены подписи карточек.
-- Исправлены probe-уведомления Telegram: проверка доступности чата теперь делается через `get_chat` вместо отправки служебного сообщения, поэтому пользователи больше не получают пробные сообщения; удалён код кнопки и текста probe.
-- Исправлена маршрутизация demo-runtime в документации: runtime собирается в `app/index.html` вместо `app.html`, обновлены Cloudflare Pages rewrites и материализация маршрутов — устранён цикл редиректов между extensionless и `.html`.
-- Добавлены GitHub Actions: переиспользуемый workflow сборки и публикации Docker-образов, dev- и release-сборки образов, PR-проверки (CI), security-сканирование (Trivy) и dependency review.
-- Обновлены EN/RU локали под новую разбивку статистики и обновлён mock API demo (полный набор полей статистики пользователей).
-- Расширены тесты для `user_dal` (разбивка подписок) и Telegram-уведомлений; обновлён dev-зависимость svelte.
+<a id="изменения-18"></a>
 
-### При обновлении
+### 变更
 
-- Схема БД не меняется; новые env-переменные не добавлены.
-- Для CI/CD появились новые GitHub Actions workflow — потребуются стандартные права на пакеты/registry в репозитории.
+- 按访问类型分别统计有效、付费、试用和免费订阅；无有效订阅用户计为非活跃。`user_dal` 按提供商及面板状态分类，使用按用户聚合子查询。
+- 后台与行内统计适配新分类：文本报告增加行和图标，行内模式传递 `active`／`free`，卡片说明展示有订阅用户数。
+- 后台统计卡片以活跃用户为主指标，标签显示总用户占比，底部分列付费、免费、试用；更新卡片标签。
+- Telegram 聊天可达性改用 `get_chat`，不发送探测消息，用户不再收到测试通知；删除相关按钮和文案。
+- 修复文档演示：运行时输出 `app/index.html` 而非 `app.html`，更新 Cloudflare Pages 重写及路由生成，消除无扩展名与 `.html` 重定向循环。
+- 新增可复用 Docker 构建发布、dev／正式镜像、PR CI、安全 Trivy 扫描和依赖审查 GitHub Actions。
+- 更新英语／俄语统计条目及演示模拟 API，提供完整用户统计字段。
+- 扩展 `user_dal` 订阅分类和 Telegram 通知测试，更新 Svelte 开发依赖。
+
+<a id="при-обновлении-20"></a>
+
+### 升级注意
+
+- 无数据库结构或环境变量变化。
+- 新 CI／CD GitHub Actions 需要仓库标准包／镜像仓库权限。
 
 <details>
-<summary>Ссылки на изменения и участники</summary>
+<summary>变更来源与贡献者</summary>
 
 * ci: add GitHub Actions for image builds, PR checks and security scans by @3252a8 in https://github.com/3252a8/remnawave-minishop/pull/13
 * chore(deps-dev): bump svelte from 5.55.5 to 5.56.0 in /frontend in the npm_and_yarn group across 1 directory by @dependabot[bot] in https://github.com/3252a8/remnawave-minishop/pull/14
 * Split subscription stats by access type, CI/CD pipelines and notification/docs-demo fixesDev by @3252a8 in https://github.com/3252a8/remnawave-minishop/pull/15
 
-**Участники**
+**贡献者**
 * @dependabot[bot] made their first contribution in https://github.com/3252a8/remnawave-minishop/pull/14
 
 **Full Changelog**: https://github.com/3252a8/remnawave-minishop/compare/v3.4.5...v3.4.6
@@ -1303,34 +1126,40 @@
 
 [GitLab](https://gitlab.com/3252a8/remnawave-minishop/-/releases/v3.4.5) · [GitHub](https://github.com/3252a8/remnawave-minishop/releases/tag/v3.4.5)
 
-### Обзор
+<a id="обзор-18"></a>
 
-Изменения после релиза **v3.4.4**. Ключевые темы: отслеживание доставки Telegram-уведомлений и приглашение пользователей запустить бота, зеркалирование жизненного цикла подписки через panel webhook с email-дублированием, реферальные начисления по периодам тарифа, настройки Remnawave panel webhook в админке, блокировка краулеров и заметные улучшения Mini App/Admin UI.
+### 概览
 
-### Изменения
+**v3.4.4** 之后：跟踪 Telegram 投递并提醒启动机器人，面板 webhook 镜像订阅生命周期及邮件副本，按套餐周期发放邀请时长，后台面板 webhook 设置、爬虫屏蔽及明显界面改进。
 
-- Добавлено отслеживание статуса Telegram-уведомлений: новые поля статуса/времени проверки в `users` (миграция 0032), сервис `telegram_notifications` с состояниями `enabled/needs_start/blocked/unknown` и баннер в Mini App, предлагающий пользователю запустить бота для получения уведомлений.
-- Добавлено зеркалирование жизненного цикла подписки: новый сервис `subscription_lifecycle_notifications` дублирует напоминания об истечении/просрочке через panel webhook и параллельно по email; добавлена синхронизация email-уведомлений пользователя (`user_email_notifications`).
-- Улучшен email-flow продления подписки, расширены email-шаблоны (`email_templates`), добавлен флаг `SUBSCRIPTION_EMAIL_NOTIFICATIONS_ENABLED`.
-- Реализованы реферальные начисления по периодам тарифа: поля `referral_bonus_days_inviter` / `referral_bonus_days_referee` в конфиге тарифов с валидацией, расчёт начислений по периоду и группировка отображения начислений по тарифам в боте.
-- Вынесены настройки Remnawave panel webhook в Admin → System → Settings и в манифест админ-настроек; уточнены логи panel webhook и подписки, обновлена документация по настройке `WEBHOOK_URL` (`/webhook/panel`).
-- Исправлена обработка panel webhook: подписки сохраняются при сбое lookup в панели, устранены deadlock'и в subscription worker, расширено логирование `panel_api_service`.
-- Добавлена блокировка краулеров и AI-ботов: `robots.txt` (GPTBot, ClaudeBot, PerplexityBot и др.), заголовки `X-Robots-Tag: noindex` во всех location nginx, копирование `robots.txt` в образ frontend.
-- Улучшен Mini App UX: новые UI-контролы (range/color/file input), переработанные scroll-area, обновлённые экраны Devices/Invite/Support/Auth, скрытие сводки трафика для неактивных устройств, показ Telegram-логина без email-авторизации.
-- Улучшена Admin Panel: переработаны карточки пользователей в логах, стандартизированы веб-контролы и редактор тарифов.
-- Исправлены платежи: форматирование лимитов premium-трафика из байтов, доработки YooKassa и shared success/webhooks.
-- Обновлены docs/demo: runtime demo в dev, таблица уведомлений, примеры деплоя и compose.
-- Прочее: заданы дефолтные цены `RUB_PRICE_*` (200/600/1200/2400), reload locale-overrides по содержимому файла, нормализация line endings фронтенда (`.gitattributes`).
+<a id="изменения-19"></a>
 
-### При обновлении
+### 变更
 
-- Изменение схемы БД: миграция `0032_add_telegram_notification_status` добавляет 4 столбца в `users` (включается автоматически).
-- Новые настройки: `SUBSCRIPTION_EMAIL_NOTIFICATIONS_ENABLED`; в конфиге тарифов — `referral_bonus_days_inviter` / `referral_bonus_days_referee`. Дефолты `RUB_PRICE_1/3/6/12_MONTH(S)` теперь 200/600/1200/2400 (ранее не заданы).
-- Для работы panel webhook нужно задать `PANEL_WEBHOOK_SECRET` и указать в Remnawave Panel `WEBHOOK_URL = WEBHOOK_BASE_URL + /webhook/panel`.
-- Dockerfile frontend обновлён: в образ копируется `robots.txt`.
+- 新增 Telegram 通知状态：`users` 增加状态／检查时间（迁移 0032），`telegram_notifications` 提供 `enabled/needs_start/blocked/unknown`，Mini App 横幅提醒启动机器人接收通知。
+- 新增 `subscription_lifecycle_notifications`，通过面板 webhook 和邮件同步到期／逾期提醒；`user_email_notifications` 同步用户邮件通知。
+- 改进邮件续期流程，扩展 `email_templates`，新增 `SUBSCRIPTION_EMAIL_NOTIFICATIONS_ENABLED`。
+- 邀请奖励按套餐周期配置 `referral_bonus_days_inviter`／`referral_bonus_days_referee` 并验证，按周期计算，机器人按套餐分组显示。
+- 面板 webhook 设置进入**后台 → 系统 → 设置**及设置清单；明确面板 webhook／订阅日志，更新 `WEBHOOK_URL`（`/webhook/panel`）配置文档。
+- 修复面板 webhook：查询失败时保留订阅，消除订阅 worker 死锁，扩展 `panel_api_service` 日志。
+- 屏蔽爬虫与 AI 机器人：`robots.txt` 包含 GPTBot、ClaudeBot、PerplexityBot 等，nginx 所有 location 增加 `X-Robots-Tag: noindex`，前端镜像包含 `robots.txt`。
+- 改进应用：范围／颜色／文件控件、重做滚动区，更新设备／邀请／支持／鉴权页面；不活跃设备隐藏流量汇总，关闭邮箱鉴权仍显示 Telegram 登录。
+- 改进后台日志用户卡片，标准化网页控件和套餐编辑器。
+- 修复高级流量字节格式、YooKassa 及共享成功／webhook 处理。
+- 更新文档与演示：dev 演示运行时、通知表、部署示例及 Compose。
+- 其他：`RUB_PRICE_*` 默认 200／600／1200／2400，语言覆盖按文件内容重载，`.gitattributes` 规范前端行尾。
+
+<a id="при-обновлении-21"></a>
+
+### 升级注意
+
+- 迁移 `0032_add_telegram_notification_status` 为 `users` 增加四列，自动应用。
+- 新增 `SUBSCRIPTION_EMAIL_NOTIFICATIONS_ENABLED`，套餐新增 `referral_bonus_days_inviter`／`referral_bonus_days_referee`。`RUB_PRICE_1/3/6/12_MONTH(S)` 默认值从未设置改为 200／600／1200／2400。
+- 面板 webhook 需要 `PANEL_WEBHOOK_SECRET`，Remnawave Panel 设置 `WEBHOOK_URL = WEBHOOK_BASE_URL + /webhook/panel`。
+- 前端 Dockerfile 将 `robots.txt` 复制进镜像。
 
 <details>
-<summary>Ссылки на изменения и участники</summary>
+<summary>变更来源与贡献者</summary>
 
 * Telegram delivery tracking, subscription lifecycle mirroring and per-tariff referral bonuses by @3252a8 in https://github.com/3252a8/remnawave-minishop/pull/12
 
@@ -1343,26 +1172,30 @@
 
 [GitLab](https://gitlab.com/3252a8/remnawave-minishop/-/releases/v3.4.4) · [GitHub](https://github.com/3252a8/remnawave-minishop/releases/tag/v3.4.4)
 
-### Обзор
+<a id="обзор-19"></a>
 
-Добавлены бэкапы, интерактивная demo-страница в документации, улучшения Mini App/Admin Panel, фиксы платежей/HWID и локальные уведомления по подпискам.
+### 概览
 
-### Изменения
+新增备份、文档交互式演示，改进应用和后台，修复支付／HWID，新增本地订阅通知。
 
-- Добавлена система бэкапов: ручное создание из админки, worker для архивов, отправка в backup/log chat, восстановление из архива, проверки безопасности ZIP и документация по настройке.
-- Чтобы работал бэкап docker compose папки, нужно смонтировать в backend и worker контейнеры volume: `${COMPOSE_BACKUP_SOURCE:-.}:/app/compose-source:${COMPOSE_RESTORE_MODE:-rw}`
-- Обновлены документация и demo-страница приложения: добавлен отдельный demo runtime, fullscreen demo routes, мобильная навигация, mock-сценарии Mini App/Admin Panel/Auth/Devices/Backups и актуализированные страницы docs.
-- Улучшен Mini App UX: компактные карточки трафика и статуса, корректные действия по тарифам, depleted-состояния, activation dialog для forced actions, обновление устройств после billing actions.
-- Улучшены авторизация и локализация: общий экран подтверждения email-кода, Telegram auth в demo flow, сохранение языка аккаунта, сохранение admin view при смене языка, обновление EN/RU переводов.
-- Добавлены default brand assets и fallback favicon/logo для webapp/admin appearance.
-- Улучшена поддержка: сохранение черновиков тикетов, корректные отступы/ширина сообщений и более быстрое завершение ответов.
-- Исправлены платежи и HWID top-up: сериализация дат, idempotency webhook-ов, расчет paid period, edge cases провайдеров и интеграция HWID-платежей через YooKassa.
-- Добавлен локальный worker уведомлений по подпискам: напоминания об истечении, expired-сценарии и уведомления о depleted trial traffic.
-- Обновлены deploy/Docker настройки: оптимизация layer caching, зависимости для backup/restore и compose mounts для бэкапов.
-- Расширены тесты для backup/restore, backup worker, subscription notifications, payment webhooks, HWID top-up, account language и webapp assets.
+<a id="изменения-20"></a>
+
+### 变更
+
+- 新增备份系统：后台手动创建、归档 worker、投递备份／日志聊天、恢复归档、ZIP 安全检查及配置文档。
+- 备份 Compose 目录需要在后端和 worker 挂载 `${COMPOSE_BACKUP_SOURCE:-.}:/app/compose-source:${COMPOSE_RESTORE_MODE:-rw}`。
+- 更新文档和演示：独立演示运行时、全屏路由、手机导航、应用／后台／鉴权／设备／备份模拟场景及最新文档。
+- 改进应用：紧凑流量与状态卡片、正确套餐操作、耗尽状态、强制操作激活对话框，以及计费操作后设备刷新。
+- 改进鉴权和本地化：共用邮箱验证码确认页、演示 Telegram 登录、保存账号语言及切换语言后的后台视图，更新英语／俄语翻译。
+- 新增默认品牌资源及应用／后台外观的备用图标和标志。
+- 支持工单保留草稿，修正消息间距与宽度，加快回复完成。
+- 修复付款及 HWID 加购：日期序列化、webhook 幂等、已付周期、提供商边界情况，以及 YooKassa HWID 付款集成。
+- 新增本地订阅通知 worker：到期前提醒、到期处理及试用流量耗尽通知。
+- 更新部署／Docker：优化层缓存，加入备份恢复依赖及 Compose 备份挂载。
+- 扩展备份恢复、备份 worker、订阅通知、支付 webhook、HWID 加购、账号语言和应用资源测试。
 
 <details>
-<summary>Ссылки на изменения и участники</summary>
+<summary>变更来源与贡献者</summary>
 
 * Update and structurize docs by @3252a8 in https://github.com/3252a8/remnawave-minishop/pull/5
 * Backups, docs demo, and Mini App improvements by @3252a8 in https://github.com/3252a8/remnawave-minishop/pull/7
@@ -1375,63 +1208,79 @@
 
 [GitLab](https://gitlab.com/3252a8/remnawave-minishop/-/releases/v3.4.3) · [GitHub](https://github.com/3252a8/remnawave-minishop/releases/tag/v3.4.3)
 
-### Mini App и инструкции подключения
+<a id="mini-app-и-инструкции-подключения"></a>
 
-- Добавлены встроенные install guides в Mini App: экран `/install`, публичные ссылки `/s/<token>`, QR-код, deeplink-кнопки и fallback на обычную ссылку подключения.
-- Добавлена загрузка Subscription Page config из Remnawave Panel, с опциональным JSON override из админки.
-- Обновлены кнопки бота после оплаты/trial/кода активации: теперь можно вести пользователя сразу в инструкции подключения.
-- Добавлены webapp preview metadata, title в настройках админки и iOS home screen icons.
+### Mini App 与连接教程
 
-### Runtime-переводы
+- Mini App 内置安装教程：`/install`、公开 `/s/<token>`、二维码、深链接按钮及普通连接链接回退。
+- 从 Remnawave Panel 加载 Subscription Page 配置，后台可用 JSON 覆盖。
+- 付款／试用／激活码后的机器人按钮可直接引导连接教程。
+- 新增应用预览元数据、后台标题设置及 iOS 主屏幕图标。
 
-- Добавлен runtime-редактор переводов в админке.
-- Переводы можно переопределять без правки `locales/*.json`; overrides хранятся в БД и зеркалируются в `data/locales-overrides.json`.
-- Добавлена группировка ключей переводов по аудитории и разделам.
+<a id="runtime-переводы"></a>
 
-### Платежи
+### 运行时翻译
 
-- Стабилизирован Wata provider: payment links, prepayment webhooks, retry/reuse pending links, refresh статуса, обработка истекших ссылок и корректное сохранение provider transaction id.
-- TTL ссылок Wata переведен на минуты через `WATA_LINK_TTL_MINUTES`.
-- Исправлены YooKassa webapp payments и HWID device top-ups.
-- Исправлено открытие Telegram Stars invoice внутри Mini App.
-- Добавлен режим admin-only для платежных провайдеров.
-- Из success-сообщений убраны прямые ссылки подключения; вместо этого используются кнопки/инструкции.
+- 后台新增运行时翻译编辑器。
+- 无需修改 `locales/*.json` 即可覆盖翻译，存入数据库并镜像到 `data/locales-overrides.json`。
+- 翻译键按受众和区域分组。
 
-### Тарифы, trial и HWID
+<a id="платежи"></a>
 
-- Добавлен экран активации trial в Mini App.
-- Улучшены настройки trial и тарифов в админке.
-- Legacy-настройки тарифов отделены от JSON-каталога и помечены предупреждением.
-- HWID top-ups теперь привязаны к сроку активной подписки, поддерживают prorated price и renewal-сценарии.
-- Исправлено сохранение premium squad access и лишняя синхронизация premium squad state.
+### 支付
 
-### Админка
+- 稳定 Wata：付款链接、预付款 webhook、待付款链接重试／复用、状态刷新、过期链接及正确保存提供商交易 ID。
+- Wata 链接 TTL 改用分钟，配置为 `WATA_LINK_TTL_MINUTES`。
+- 修复 YooKassa 网页付款和 HWID 设备加购。
+- 修复 Mini App 内打开 Telegram Stars 发票。
+- 支付提供商新增仅管理员模式。
+- 成功消息去掉直接连接链接，改用按钮和教程。
 
-- Добавлен detail view для платежей.
-- Улучшены настройки платежных провайдеров, webhook URL и группировка provider settings.
-- Улучшены настройки тарифов, trial и legacy-параметров.
-- Добавлено удаление Remnawave user вместе с bot account.
-- Обновлены стили админки, webapp layout, custom themes и preview.
+<a id="тарифы-trial-и-hwid"></a>
 
-### Panel sync и профили
+### 套餐、试用与 HWID
 
-- Убрана inline-синхронизация панели на старте бота; ручной sync теперь ставится в очередь.
-- Добавлены компактные diagnostics для panel sync.
-- Исправлены лишние PATCH-запросы к панели из-за description churn.
-- Исправлена очистка legacy email из panel description и восстановление linked panel email.
-- Добавлен auto-merge duplicate panel identities.
-- Профиль Web App обновляется после activation/payment status.
+- Mini App 新增试用激活页。
+- 改进后台试用与套餐设置。
+- 旧套餐设置与 JSON 目录分开，并标记警告。
+- HWID 加购绑定当前订阅有效期，支持按比例计价及续期。
+- 修复高级分组访问保留及多余状态同步。
 
-### Deploy и документация
+<a id="админка"></a>
 
-- Обновлены deploy examples: Caddy, Nginx, Newt/Pangolin и no-proxy.
-- Обновлены README и docs по Web App, install guides, env vars, deployment, tariffs и migration notes.
+### 管理后台
 
-### При обновлении
+- 新增付款详情页。
+- 改进支付提供商、webhook 地址和设置分组。
+- 改进套餐、试用及旧参数设置。
+- 删除机器人账号时可同时删除 Remnawave 用户。
+- 更新后台样式、应用布局、自定义主题和预览。
 
-- Добавлены миграции БД для runtime locale overrides, install share tokens и HWID validity/payment fields.
-- Для Wata старый `WATA_PAYMENT_LINK_TTL_DAYS` заменен на `WATA_LINK_TTL_MINUTES`; дефолт — 15 минут.
-- Install guides включены по умолчанию и пытаются читать Subscription Page config из Remnawave Panel; при ошибке есть fallback на обычную ссылку подключения.
+<a id="panel-sync-и-профили"></a>
+
+### 面板同步与资料
+
+- 移除机器人启动时同步面板的行内操作，手动同步改为入队。
+- 新增紧凑面板同步诊断。
+- 修复描述字段反复变化导致的多余面板 PATCH。
+- 修复面板描述旧邮箱清理及已关联面板邮箱恢复。
+- 自动合并重复面板身份。
+- 激活／付款状态变化后刷新应用资料。
+
+<a id="deploy-и-документация"></a>
+
+### 部署与文档
+
+- 更新 Caddy、Nginx、Newt／Pangolin 和无代理部署示例。
+- 更新 README 及应用、教程、环境变量、部署、套餐和迁移文档。
+
+<a id="при-обновлении-22"></a>
+
+### 升级注意
+
+- 新增运行时语言覆盖、安装分享令牌及 HWID 有效期／付款字段数据库迁移。
+- Wata 旧 `WATA_PAYMENT_LINK_TTL_DAYS` 改为 `WATA_LINK_TTL_MINUTES`，默认 15 分钟。
+- 安装教程默认启用，尝试读取面板 Subscription Page 配置；出错时回退普通连接链接。
 
 **Full Changelog**: https://github.com/3252a8/remnawave-minishop/compare/v3.4.2...v3.4.3
 
@@ -1439,27 +1288,35 @@
 
 [GitLab](https://gitlab.com/3252a8/remnawave-minishop/-/releases/v3.4.2) · [GitHub](https://github.com/3252a8/remnawave-minishop/releases/tag/v3.4.2)
 
-### Вход, связывание аккаунтов и настройки админки
+<a id="вход-связывание-аккаунтов-и-настройки-админки"></a>
 
-[Исходный PR](https://github.com/3252a8/remnawave-minishop/pull/1) · @3252a8
-#### Auth / связка аккаунтов
-- Починен вход и привязка Telegram в Mini App и через Telegram OAuth.
-- Исправлены сценарии объединения email-аккаунта и Telegram-аккаунта, включая случай, когда у email-аккаунта активная подписка, а у Telegram-аккаунта подписка уже истекла.
-- При merge аккаунтов теперь корректно синхронизируется identity в Remnawave panel: сначала удаляется лишний panel user, затем обновляется оставшийся.
-- Добавлено лог-уведомление об объединении аккаунтов.
-- Исправлена логика logout в Telegram Mini App: ручной logout больше не ломает повторную авторизацию через initData.
+### 登录、账号关联与后台设置
 
-#### Админка и настройки
-- В настройках платежных провайдеров добавлен вывод webhook URL с возможностью копирования.
-- Улучшена загрузка admin assets через стабильные пути и fallback, чтобы lazy-loaded админка не падала из-за stale hashed assets.
-- Исправлен формат отображения версии приложения в sidebar админки: dev-сборки теперь различимы по branch/sha.
-- Подправлены стили мобильной кнопки админки.
+[原始 PR](https://github.com/3252a8/remnawave-minishop/pull/1) · @3252a8
+<a id="auth--связка-аккаунтов"></a>
 
-#### Платежи / panel sync / тарифный worker
-- Исправлено появление pay button при включенном payment provider.
-- Улучшена синхронизация panel identity, чтобы избежать повторных лишних обновлений.
-- Добавлено восстановление missing panel user reference для подписок, если у пользователя уже есть актуальный panel UUID.
-- Если bulk-prefetch подтверждает отсутствие panel user, подписка деактивируется без пользовательских уведомлений.
+#### 鉴权与账号关联
+- 修复 Mini App 和 Telegram OAuth 的登录与绑定。
+- 修复邮箱和 Telegram 账号合并，包括邮箱订阅有效而 Telegram 订阅已到期的情况。
+- 合并账号时正确同步面板身份：先删除多余用户，再更新保留用户。
+- 新增账号合并日志通知。
+- 修复 Telegram Mini App 退出，手动退出不再破坏通过 `initData` 重新登录。
+
+<a id="админка-и-настройки"></a>
+
+#### 后台与设置
+- 提供商设置展示可复制 webhook 地址。
+- 后台资源使用稳定路径和回退，避免延迟加载因旧哈希资源失败。
+- 后台侧栏版本显示修复，dev 构建可按分支／SHA 区分。
+- 调整手机后台按钮样式。
+
+<a id="платежи--panel-sync--тарифный-worker"></a>
+
+#### 支付、面板同步与套餐 worker
+- 修复提供商启用后的付款按钮显示。
+- 改进面板身份同步，避免重复多余更新。
+- 用户已有有效面板 UUID 时，为订阅恢复缺失面板引用。
+- 批量预取确认面板用户不存在时，停用订阅且不发送用户通知。
 
 **Full Changelog**: https://github.com/3252a8/remnawave-minishop/compare/v3.4.1...v3.4.2
 
@@ -1467,14 +1324,14 @@
 
 [GitLab](https://gitlab.com/3252a8/remnawave-minishop/-/releases/v3.4.1) · [GitHub](https://github.com/3252a8/remnawave-minishop/releases/tag/v3.4.1)
 
-- Раздел с созданием тикетов поддержки в веб апп
-- Информация об оплачиваемом сервисе перед оплатой в веб апп и в боте
-- Логин с помощью email и пароля
-- Рефакторинг платежных провайдеров
-- Платежный провайдер Wata
-- Платежный провайдер Heleket
-- Большая оптимизация производительности
-- Исправление мелких багов
+- 网页应用新增支持工单创建区域。
+- 应用和机器人在付款前展示所购服务信息。
+- 邮箱和密码登录。
+- 重构支付提供商。
+- Wata 支付提供商。
+- Heleket 支付提供商。
+- 大幅性能优化。
+- 修复小问题。
 
 **Full Changelog**: https://github.com/3252a8/remnawave-minishop/compare/v3.4.0...v3.4.1
 
@@ -1482,14 +1339,14 @@
 
 [GitLab](https://gitlab.com/3252a8/remnawave-minishop/-/releases/v3.4.0) · [GitHub](https://github.com/3252a8/remnawave-minishop/releases/tag/v3.4.0)
 
-- Возможность создавать кастомные [темы ](docs/features/webapp-themes.md)
-- Загрузка лого и favicon через веб админку
-- Разделение сервиса на отдельные контейнеры и повышение стабильности, задел на будущее
-- Фикс активации триала 
-- Фикс YooKassa
-- Фикс показа кнопки докупки устройств когда не определены цены для докупки
-- Фикс дублирования элементов покупки подписки при использовании legacy тарифов
-- Другие мелкие фиксы и улучшения
+- 可创建自定义[主题](docs/features/webapp-themes.md)。
+- 后台可上传标志与站点图标。
+- 服务拆分独立容器，提高稳定性并为后续扩展奠定基础。
+- 修复试用激活。
+- 修复 YooKassa。
+- 修复未配置设备加购价格时仍显示加购按钮。
+- 修复旧套餐导致订阅购买元素重复。
+- 其他小修复与改进。
 
 **Full Changelog**: https://github.com/3252a8/remnawave-minishop/compare/v3.3.0...v3.4.0
 
@@ -1497,14 +1354,14 @@
 
 [GitLab](https://gitlab.com/3252a8/remnawave-minishop/-/releases/v3.3.0) · [GitHub](https://github.com/3252a8/remnawave-minishop/releases/tag/v3.3.0)
 
-- Веб апп админка
-- Возможность создания нескольких тарифов (по месяцам и по трафику, с разными сквадами и т.п.)
-- Докупка трафика и устройств
-- Возможность создания премиум-сквадов внутри тарифа с отдельным трекингом трафика (и его докупкой)
-- Десктоп верстка веб апп
-- Возможность выключить логирование действий администраторов
-- Исправлена смена сквадов пользователя при начислении периода за приглашения.
-- Фикс багов и другие мелкие улучшения
+- 网页应用管理后台。
+- 可创建多个套餐，支持按月／流量及不同分组。
+- 流量和设备加购。
+- 套餐内可建立高级分组，独立统计并加购流量。
+- 应用桌面布局。
+- 可关闭管理员操作日志。
+- 修复发放邀请有效期时用户分组变化。
+- 修复问题及其他细节改进。
 
 **Full Changelog**: https://github.com/3252a8/remnawave-minishop/compare/v3.2.4...v3.3.0
 
@@ -1512,7 +1369,7 @@
 
 [GitLab](https://gitlab.com/3252a8/remnawave-minishop/-/releases/v3.2.4) · [GitHub](https://github.com/3252a8/remnawave-minishop/releases/tag/v3.2.4)
 
-- Исправление доступа к веб апп, когда недоступен telegram со стороны пользователя, отображение статуса на кнопке telegram oauth, показ аватара из telegram, даже если он недоступен [8783129c](https://github.com/3252a8/remnawave-minishop/commit/8783129c16b57f31ef237fc07bda903ed80a83ea)
+- 修复用户无法访问 Telegram 时的应用访问；Telegram OAuth 按钮显示状态，Telegram 不可用时仍显示头像。 ([8783129c](https://github.com/3252a8/remnawave-minishop/commit/8783129c16b57f31ef237fc07bda903ed80a83ea))
 
 **Full Changelog**: https://github.com/3252a8/remnawave-minishop/compare/v3.2.3...v3.2.4
 
@@ -1520,7 +1377,7 @@
 
 [GitLab](https://gitlab.com/3252a8/remnawave-minishop/-/releases/v3.2.3) · [GitHub](https://github.com/3252a8/remnawave-minishop/releases/tag/v3.2.3)
 
-- Исправление кнопки выбора языка в веб апп на Android [50857d52](https://github.com/3252a8/remnawave-minishop/commit/50857d52835ee99003b21b1a8a7b8f893e4b7d23)
+- 修复 Android 应用语言选择按钮。 ([50857d52](https://github.com/3252a8/remnawave-minishop/commit/50857d52835ee99003b21b1a8a7b8f893e4b7d23))
 
 **Full Changelog**: https://github.com/3252a8/remnawave-minishop/compare/v3.2.2...v3.2.3
 
@@ -1530,7 +1387,7 @@
 
 **Full Changelog**: https://github.com/3252a8/remnawave-minishop/compare/v3.2.1...v3.2.2
 
-- Исправление: кнопка открытия страницы-подписки пропала из веб апп [e1223f8c](https://github.com/3252a8/remnawave-minishop/commit/e1223f8c57a0eb816c9e9d9f277af4dc0c969b87)
+- 修复应用订阅页面入口按钮消失。 ([e1223f8c](https://github.com/3252a8/remnawave-minishop/commit/e1223f8c57a0eb816c9e9d9f277af4dc0c969b87))
 
 ## v3.2.1 — 2026-05-01
 
@@ -1538,12 +1395,12 @@
 
 **Full Changelog**: https://github.com/3252a8/remnawave-minishop/compare/v3.2.0...v3.2.1
 
-- Переход на новый механизм Telegram OAuth [4de730bf](https://github.com/3252a8/remnawave-minishop/commit/4de730bf5a88d5a355ed614ea362fe1223680a4f)
-- Улучшение меню телеграм бота [81f51687](https://github.com/3252a8/remnawave-minishop/commit/81f516872671472ea8811accd81c2cf0c5e0c390)
-- Исправление кнопки выбора языка в веб апп [d15b1be3](https://github.com/3252a8/remnawave-minishop/commit/d15b1be3b9468e4dbaedcd10dc30888970749929)
-- Небольшое исправление дизайна писем — убран фон под логотипом [4d0241a0](https://github.com/3252a8/remnawave-minishop/commit/4d0241a0ea8790e7584e6d7261471350c80306f8)
+- 改用新 Telegram OAuth 机制。 ([4de730bf](https://github.com/3252a8/remnawave-minishop/commit/4de730bf5a88d5a355ed614ea362fe1223680a4f))
+- 改进 Telegram 机器人菜单。 ([81f51687](https://github.com/3252a8/remnawave-minishop/commit/81f516872671472ea8811accd81c2cf0c5e0c390))
+- 修复应用语言选择按钮。 ([d15b1be3](https://github.com/3252a8/remnawave-minishop/commit/d15b1be3b9468e4dbaedcd10dc30888970749929))
+- 调整邮件设计，移除标志下方背景。 ([4d0241a0](https://github.com/3252a8/remnawave-minishop/commit/4d0241a0ea8790e7584e6d7261471350c80306f8))
 
-**Требуется настройка бота и .env для перехода на новый Telegram OAuth**
+**迁移到新 Telegram OAuth 需要配置机器人和 `.env`。**
 
 ## v3.2.0 — 2026-04-30
 
@@ -1551,13 +1408,13 @@
 
 **Full Changelog**: https://github.com/3252a8/remnawave-minishop/compare/v3.1.0...v3.2.0
 
-- Web App теперь использует svelte, улучшен интерфейс
-- Добавлена поддержка тарифов за ГБ в Web App
-- Добавлена поддержка управлением HWID в Web App
-- Добавлена поддержка триал периода в Web App
-- Добавлено оформление для email с кодами т.п.
-- Логирование регистрации пользователей через почту, слиянике аккаунтов и т.п.
-- Прочие улучшения и исправления
+- 应用改用 Svelte，并改进界面。
+- 应用支持按 GB 套餐。
+- 应用支持 HWID 管理。
+- 应用支持试用。
+- 为验证码等邮件增加样式。
+- 记录邮箱注册、账号合并等日志。
+- 其他改进与修复。
 
 ## v3.1.0 — 2026-04-27
 
@@ -1565,11 +1422,11 @@
 
 **Full Changelog**: https://github.com/3252a8/remnawave-minishop/compare/v3.0.0...v3.1.0
 
-- Реализован Web App / Mini App: единый экран подписки с ссылкой подключения, остатком времени, трафиком и оплатой.
-- Добавлены новые способы входа: Telegram Mini Apps `initData`, Telegram Login Widget и вход по одноразовому коду на email.
-- Улучшены платежи: доработаны сценарии оплаты в Web App, добавлены несколько кнопок Platega,.
-- Обновлено меню бота: по умолчанию доступны только кнопки Web App и поддержки, остальные действия вынесены в отдельную команду.
-- Усилены безопасность и стабильность: доработаны Mini App auth, CSRF, CSP и проверка webhook-подписей.
-- Подготовлена миграция на новый нейминг `remnawave-minishop` вместо `remnawave-tg-shop`.
+- 实现网页应用／Mini App：统一订阅页面包含连接链接、剩余时间、流量和付款。
+- 新增 Telegram Mini Apps `initData`、Telegram Login Widget 及一次性邮箱验证码登录。
+- 改进网页付款，新增多个 Platega 按钮。
+- 机器人默认仅保留应用和支持按钮，其余操作移到独立命令。
+- 加强 Mini App 鉴权、CSRF、CSP 和 webhook 签名验证。
+- 准备从 `remnawave-tg-shop` 迁移到新名称 `remnawave-minishop`。
 
-**Важно при обновлении:** контейнеры, тома и GHCR-образ переименованы, поэтому для существующих установок нужна миграция.
+**升级注意：** 容器、卷和 GHCR 镜像已更名，已有部署需要迁移。

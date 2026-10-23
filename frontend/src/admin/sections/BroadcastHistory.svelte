@@ -246,7 +246,12 @@
   }
 
   function messagePreview(item: BroadcastHistoryItem): string {
-    return Object.values(item.texts).find((text) => text.trim()) || "—";
+    return (
+      item.texts[currentLang]?.trim() ||
+      item.texts[currentLang.split("-")[0]]?.trim() ||
+      Object.values(item.texts).find((text) => text.trim()) ||
+      "—"
+    );
   }
 
   function setHistorySort(sort: string): void {

@@ -200,7 +200,7 @@ export default defineConfig({
             { label: 'Runes QA', slug: 'development/runes-migration-qa' },
           ],
         },
-        { label: 'Awesome Minishop', link: '/awesome-minishop/' },
+        { label: 'Minishop 社区作品', link: '/awesome-minishop/' },
         { label: '更新日志', slug: 'changelog' },
       ],
     }),

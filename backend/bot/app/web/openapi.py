@@ -13,7 +13,7 @@ import json
 import re
 from pathlib import Path
 from types import SimpleNamespace
-from typing import Any
+from typing import Any, cast
 
 from aiohttp import web
 from pydantic import BaseModel
@@ -31,6 +31,10 @@ from bot.plugins import WEB_SCOPE_WEBAPP, PluginContext, setup_web_plugins
 
 REPO_ROOT = Path(__file__).resolve().parents[4]
 DEFAULT_OUTPUT_PATH = REPO_ROOT / "docs" / "openapi.json"
+_CHINESE = cast(
+    dict[str, dict[str, str]],
+    json.loads(Path(__file__).with_name("openapi.zh-hans.json").read_text(encoding="utf-8")),
+)
 
 _PATH_PARAM_RE = re.compile(r"{(?P<name>[^}:]+)(?::(?P<pattern>[^}]+))?}")
 _GENERIC_JSON_RESPONSE = ok_envelope({}, [])
@@ -96,17 +100,14 @@ def _path_parameters(path: str, route: web.AbstractRoute) -> list[dict[str, Any]
 def _tag_for_path(path: str) -> str:
     parts = [part for part in path.split("/") if part]
     if len(parts) >= 2 and parts[0] == "api" and parts[1] == "admin":
-        return "admin"
+        return _CHINESE["tags"]["admin"]
     if len(parts) >= 2 and parts[0] == "api":
-        return parts[1]
-    return "api"
+        return _CHINESE["tags"][parts[1]]
+    return _CHINESE["tags"]["api"]
 
 
-def _operation_summary(handler_name: str) -> str:
-    summary = handler_name
-    if summary.endswith("_route"):
-        summary = summary[: -len("_route")]
-    return summary.replace("_", " ").title()
+def _operation_summary(method: str, handler_name: str) -> str:
+    return _CHINESE["operations"][_operation_id(method, handler_name)]
 
 
 def _operation_id(method: str, handler_name: str) -> str:
@@ -116,7 +117,7 @@ def _operation_id(method: str, handler_name: str) -> str:
 def _json_response(contract: RouteContract | None) -> dict[str, Any]:
     if contract is not None and contract.response_content_type != "application/json":
         return {
-            "description": "Response",
+            "description": "响应",
             "content": {
                 contract.response_content_type: {
                     "schema": contract.response_schema or {"type": "string"}
@@ -129,7 +130,7 @@ def _json_response(contract: RouteContract | None) -> dict[str, Any]:
         else _GENERIC_JSON_RESPONSE
     )
     return {
-        "description": "JSON response",
+        "description": "JSON 响应",
         "content": {"application/json": {"schema": schema}},
     }
 
@@ -144,19 +145,18 @@ def _operation_for_route(
     contract = contracts.get(handler_name)
     operation: dict[str, Any] = {
         "operationId": _operation_id(method, handler_name),
-        "summary": _operation_summary(handler_name),
+        "summary": _operation_summary(method, handler_name),
         "tags": [_tag_for_path(path)],
         "responses": {"200": _json_response(contract)},
     }
     if retired_single_subscription_route(method, path):
         operation["deprecated"] = True
         operation["description"] = (
-            "Retired in the independent-service deployment. Authorized requests return 410. "
-            "The historical 200 schema is retained for upstream compatibility tooling only."
+            "独立服务部署已停用此接口，鉴权成功后返回 410。历史 200 结构仅为上游兼容工具保留。"
         )
-        operation["responses"]["200"]["description"] = "Historical response (not served)"
+        operation["responses"]["200"]["description"] = "历史响应（不再提供）"
         operation["responses"]["410"] = {
-            "description": "Single-subscription business is retired",
+            "description": "旧单订阅业务已停用",
             "content": {
                 "application/json": {
                     "schema": {
@@ -250,23 +250,23 @@ def _components(contracts: dict[str, RouteContract]) -> dict[str, Any]:
                 "type": "apiKey",
                 "in": "cookie",
                 "name": "rw_webapp_session",
-                "description": "Authenticated admin webapp session cookie.",
+                "description": "已鉴权的后台网页会话 Cookie。",
             },
             "AdminBearer": {
                 "type": "http",
                 "scheme": "bearer",
-                "description": "Authenticated admin bearer token.",
+                "description": "已鉴权的管理员 bearer 令牌。",
             },
             "UserSession": {
                 "type": "apiKey",
                 "in": "cookie",
                 "name": "rw_webapp_session",
-                "description": "Authenticated Mini App user session cookie.",
+                "description": "已鉴权的 Mini App 用户会话 Cookie。",
             },
             "UserBearer": {
                 "type": "http",
                 "scheme": "bearer",
-                "description": "Authenticated Mini App user bearer token.",
+                "description": "已鉴权的 Mini App 用户 bearer 令牌。",
             },
         },
     }
@@ -290,9 +290,7 @@ def generate_openapi() -> dict[str, Any]:
         "info": {
             "title": "Remnawave Minishop HTTP API",
             "version": "0.1.0",
-            "description": (
-                "Core and built-in Mini App HTTP API generated from the live aiohttp router."
-            ),
+            "description": ("从实际 aiohttp 路由生成的核心与内置 Mini App HTTP API。"),
         },
         "x-generated-from": {
             "router": "bot.app.web.webapp.routes.setup_subscription_webapp_routes",

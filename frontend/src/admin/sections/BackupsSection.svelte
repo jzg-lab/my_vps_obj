@@ -490,7 +490,7 @@
         value={selectedName}
         onValueChange={selectArchive}
         class="backups-archive-radio-group"
-        aria-label="Backup archive"
+        aria-label={at("backups_select_archive", {}, "Select an archive")}
       >
         <AdminTable class="backups-table">
           <thead>

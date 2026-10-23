@@ -14,7 +14,7 @@ from bot.infra import event_payloads, events
 
 REPO_ROOT = Path(__file__).resolve().parents[3]
 DEFAULT_OUTPUT_PATH = REPO_ROOT / "docs" / "architecture" / "events.md"
-TRANSLATIONS_PATH = Path(__file__).with_name("event_catalog.ru.json")
+TRANSLATIONS_PATH = Path(__file__).with_name("event_catalog.zh-hans.json")
 _CANONICAL_EMITTER_PATHS = {
     "backend/bot/app/web/webapp/auth_referral.py": "backend/bot/app/web/webapp/auth.py",
     "backend/bot/app/web/webapp/billing_status.py": "backend/bot/app/web/webapp/billing.py",

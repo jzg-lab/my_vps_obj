@@ -1,16 +1,15 @@
-# TLS certificates
+# TLS 证书
 
-Каноничная инструкция по Nginx: [docs/getting-started/deployment.md](../../../../docs/getting-started/deployment.md#nginx).
+完整 Nginx 说明见[部署指南](../../../../docs/getting-started/deployment.md#nginx)。
 
-Installer может помочь получить сертификаты для Nginx:
+安装器可帮助准备 Nginx 证书：
 
-- проверить DNS A-records для `WEBHOOK_HOST` и `MINIAPP_HOST`;
-- выпустить wildcard-сертификат через Certbot Cloudflare DNS-01;
-- выпустить отдельные сертификаты через Certbot standalone HTTP-01;
-- использовать уже подготовленные файлы из этой папки.
+- 检查 `WEBHOOK_HOST` 和 `MINIAPP_HOST` 的 DNS A 记录；
+- 通过 Certbot Cloudflare DNS-01 签发通配符证书；
+- 通过 Certbot 独立 HTTP-01 签发各域名证书；
+- 使用本目录已准备的文件。
 
-Если сертификаты готовятся вручную, кладите их в подпапки, совпадающие с
-`WEBHOOK_HOST` и `MINIAPP_HOST`:
+手动准备时，证书放入与 `WEBHOOK_HOST` 和 `MINIAPP_HOST` 对应的子目录：
 
 ```text
 ssl/

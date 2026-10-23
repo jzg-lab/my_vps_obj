@@ -1,6 +1,6 @@
 /* global document, window, FileReader */
 import { chromium } from "@playwright/test";
-import { mkdir, writeFile } from "node:fs/promises";
+import { copyFile, mkdir, writeFile } from "node:fs/promises";
 import { spawnSync } from "node:child_process";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
@@ -14,8 +14,12 @@ try {
     const page = await browser.newPage({
       viewport: { width: 1280, height: 800 },
       deviceScaleFactor: 1,
+      locale: "zh-CN",
     });
-    await page.goto(base + "/demo/runtime/app/?theme_preview=" + key, { waitUntil: "networkidle" });
+    await page.addInitScript(() => localStorage.setItem("rw_minishop_demo_language", "zh-hans"));
+    await page.goto(base + "/demo/runtime/app/?mock=services&theme_preview=" + key, {
+      waitUntil: "networkidle",
+    });
     await page.waitForFunction(
       (theme) => document.documentElement.classList.contains("theme-key-" + theme),
       key
@@ -116,9 +120,40 @@ try {
           .join("\n") + "\n"
       );
     }
+    for (const name of ["preview.webp", "preview-mobile.webp"]) {
+      await copyFile(
+        path.join(themeRoot, key, name),
+        path.join(root, "docs-site/public/demo/runtime/themes", key, name)
+      );
+    }
     console.log("Captured " + key);
     await page.close();
   }
+  const settings = await browser.newPage({
+    viewport: { width: 1280, height: 960 },
+    locale: "zh-CN",
+  });
+  await settings.addInitScript(() => localStorage.setItem("rw_minishop_demo_language", "zh-hans"));
+  await settings.goto(
+    base + "/demo/runtime/app/?mock=services&path=/admin/appearance&theme_preview=light",
+    {
+      waitUntil: "networkidle",
+    }
+  );
+  await settings.getByRole("heading", { name: "主题库", exact: true }).waitFor();
+  const png = path.join(root, "docs/features/webapp-themes.png");
+  await settings.screenshot({ path: png, animations: "disabled" });
+  const result = spawnSync(
+    "python",
+    [
+      "-c",
+      "from PIL import Image; from pathlib import Path; import sys; p=Path(sys.argv[1]); Image.open(p).save(p.with_suffix('.webp'),quality=90,method=6); p.unlink()",
+      png,
+    ],
+    { encoding: "utf8" }
+  );
+  if (result.status) throw new Error(result.stderr);
+  await settings.close();
 } finally {
   await browser.close();
 }

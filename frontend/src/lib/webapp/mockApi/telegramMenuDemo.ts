@@ -1,5 +1,6 @@
 import en from "../../../../../locales/en.json";
 import ru from "../../../../../locales/ru.json";
+import zhHans from "../../../../../locales/zh-hans.json";
 import { parseMenuButtonDrafts } from "../../admin/menuButtons";
 import type {
   ButtonStyle,
@@ -17,7 +18,8 @@ import { DEV_MOCK } from "../previewMock";
 import { DATASET } from "./dataset";
 import { demoSettingsChanges } from "./state";
 
-const locale = (language: string): Record<string, string> => (language === "ru" ? ru : en);
+const locales: Record<string, Record<string, string>> = { ru, en, "zh-hans": zhHans };
+const locale = (language: string): Record<string, string> => locales[language] || en;
 const translate = (language: string, key: string): string => locale(language)[key] || key;
 const glyphs = ["🚀", "💎", "🔥", "⭐", "💙", "🎉", "✅", "🛡️", "⚡", "🎁", "🔑", "🌐"];
 let appearance: MenuAppearance = { schema_version: 1, buttons: {} };
@@ -90,6 +92,7 @@ function configuration(language = "ru"): MenuConfiguration {
     languages: [
       { code: "ru", name: "Русский" },
       { code: "en", name: "English" },
+      { code: "zh-hans", name: "简体中文" },
     ],
     buttons: [
       ...registry.map(([id, label_key, emoji_fallback, screens]) => ({
@@ -226,7 +229,11 @@ function readAppearance(value: unknown): MenuAppearance | null {
   return { schema_version: 1, buttons };
 }
 
-export function telegramMenuDemoResponse(path: string, options: RequestInit): unknown | undefined {
+export function telegramMenuDemoResponse(
+  path: string,
+  options: RequestInit,
+  language = "ru"
+): unknown | undefined {
   const url = new URL(path, "https://demo.invalid");
   const route = url.pathname.replace(/^\/api/, "");
   const method = String(options.method || "GET").toUpperCase();
@@ -245,7 +252,7 @@ export function telegramMenuDemoResponse(path: string, options: RequestInit): un
       appearance = updated;
       menuRevision += 1;
     }
-    return { ok: true, ...configuration() };
+    return { ok: true, ...configuration(language) };
   }
   if (route === "/admin/telegram-menu/preview" || route === "/admin/telegram-menu/test") {
     const draft = readAppearance(payload.appearance);
@@ -264,7 +271,7 @@ export function telegramMenuDemoResponse(path: string, options: RequestInit): un
       payload.scenario === "active" || payload.scenario === "trial_unavailable"
         ? payload.scenario
         : "new";
-    return { ok: true, ...preview(draft, screen, String(payload.language || "ru"), scenario) };
+    return { ok: true, ...preview(draft, screen, String(payload.language || language), scenario) };
   }
   if (
     route === "/admin/telegram-emoji/library" ||

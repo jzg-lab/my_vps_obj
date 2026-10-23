@@ -32,10 +32,13 @@ const editUrl =
     </a>
   </div>
 
-  <section class="api-reference-shell" aria-label="Swagger UI">
+  <section class="api-reference-shell" aria-label={copy.docs_api_title}>
     <div id="swagger-ui" data-openapi-url="/openapi.json"></div>
   </section>
 
+  <script>
+    import "../../scripts/swaggerChinese";
+  </script>
   <script is:inline src={swaggerUiBundleUrl}></script>
   <script is:inline>
     window.addEventListener('DOMContentLoaded', () => {

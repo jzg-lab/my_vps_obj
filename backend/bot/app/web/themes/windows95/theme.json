@@ -2,7 +2,8 @@
   "key": "windows95",
   "names": {
     "ru": "Windows 95",
-    "en": "Windows 95"
+    "en": "Windows 95",
+    "zh-hans": "Windows 95"
   },
   "enabled": true,
   "default": false,

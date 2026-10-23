@@ -72,11 +72,7 @@ export function webappFallbackResponse(
   context: MockApiContext,
   fixtures: AdminDemoFixtures
 ): unknown {
-  const {
-    clone = defaultClone,
-    currentLang = "ru",
-    normalizeLangCode = (value: unknown) => String(value || "ru"),
-  } = context;
+  const { clone = defaultClone, currentLang = "ru" } = context;
   const method = String(options.method || "GET").toUpperCase();
   const { supportTickets, supportMessages, supportCounts, filterSupportTickets } = fixtures;
 
@@ -466,21 +462,6 @@ export function webappFallbackResponse(
     };
   }
   if (path === "/auth/logout") return { ok: true };
-  if (path === "/account/language" && String(options.method || "").toUpperCase() === "POST") {
-    let payload: DemoRecord = {};
-    try {
-      payload = options?.body ? (JSON.parse(String(options.body)) as DemoRecord) : {};
-    } catch (_error) {
-      void _error;
-    }
-    const language = normalizeLangCode(payload?.language || currentLang);
-    DEV_MOCK.data.user.language_code = language;
-    DEV_MOCK.data.settings.subscription_purchase_description =
-      language === "en"
-        ? "By buying or renewing a subscription, you get access to a VPN/proxy service that helps protect your connection and keep your access stable."
-        : "Покупая или продлевая подписку, вы получаете доступ к VPN/прокси-сервису, который помогает защищать ваше соединение и поддерживать стабильный доступ к сети.";
-    return { ok: true, language };
-  }
   if (path === "/account/email/request" && String(options.method || "").toUpperCase() === "POST") {
     const authDemo = demoAuthConfig();
     return { ok: true, email_code: authDemo.code };

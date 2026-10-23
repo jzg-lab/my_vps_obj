@@ -100,7 +100,7 @@ class ServicePlanOut(HttpResponseModel):
 
 
 class ServiceCatalogPlanOut(HttpResponseModel):
-    """Customer-visible terms; panel groups and resource inventory stay private."""
+    """用户可见的服务条款；不公开面板节点组和资源库存。"""
 
     id: str
     name: str

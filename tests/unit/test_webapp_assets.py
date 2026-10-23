@@ -17,6 +17,7 @@ from bot.app.web import subscription_webapp
 from bot.app.web.admin_api_impl import themes as admin_themes
 from bot.app.web.webapp import assets as webapp_assets
 from bot.app.web.webapp import assets_branding, assets_static, cache_helpers
+from bot.app.web.webapp.language import WEBAPP_LANGUAGE_COOKIE
 from bot.app.web.webapp.serializers_billing_options import _serialize_tariff_change_target
 from bot.services import legal_document_links
 from config.settings import Settings
@@ -629,7 +630,7 @@ class WebAppAssetTests(unittest.IsolatedAsyncioTestCase):
             payload["i18n"]["ru"]["wa_promo_requires_checkout"],
             "Примените этот промокод при оплате.",
         )
-        request.cookies = {webapp_assets.WEBAPP_LANGUAGE_COOKIE: "en"}
+        request.cookies = {WEBAPP_LANGUAGE_COOKIE: "en"}
         english_payload = subscription_webapp._build_webapp_bootstrap_payload(request)
         self.assertEqual(english_payload["config"]["language"], "en")
         self.assertEqual(set(english_payload["i18n"]), {"en"})

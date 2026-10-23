@@ -242,7 +242,7 @@ async function installGuidesConfigPayload() {
 async function appHtml() {
   const i18n = await demoI18nPayload();
   return `<!doctype html>
-<html lang="ru">
+<html lang="zh-CN">
   <head>
     <meta charset="utf-8" />
     <meta
@@ -251,7 +251,7 @@ async function appHtml() {
     />
     <meta name="robots" content="noindex, nofollow" />
     <meta name="theme-color" content="#03070b" />
-    <title>remnawave-minishop demo</title>
+    <title>remnawave-minishop 演示</title>
     <link
       id="app-favicon"
       rel="icon"
@@ -262,7 +262,7 @@ async function appHtml() {
   </head>
   <body>
     <main id="app">
-      <div class="app-boot-fallback" role="status" aria-label="Loading demo"></div>
+      <div class="app-boot-fallback" role="status" aria-label="正在加载演示"></div>
     </main>
     <script id="i18n" type="application/json">${i18n}</script>
     <script type="module" src="${runtimeBase}/subscription_webapp_docs_demo.js"></script>

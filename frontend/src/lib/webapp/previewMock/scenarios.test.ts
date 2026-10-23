@@ -1,9 +1,41 @@
-import { beforeEach, describe, expect, it } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 import { DEV_MOCK } from "./devMock.js";
 import { applyDemoDataset, applyPreviewMock } from "./scenarios.js";
 
 describe("preview mock scenarios", () => {
+  afterEach(() => vi.unstubAllGlobals());
+
+  it("starts the documentation demo in Chinese without saved preferences", () => {
+    vi.stubGlobal("window", {
+      location: { search: "?default_language=zh-hans" },
+      localStorage: { getItem: () => null },
+    });
+    applyDemoDataset();
+    expect(DEV_MOCK.config.language).toBe("zh-hans");
+    expect(DEV_MOCK.data.user.language_code).toBe("zh-hans");
+  });
+
+  it.each(["ru", "en"])("preserves saved %s over the documentation default", (language) => {
+    vi.stubGlobal("window", {
+      location: { search: "?default_language=zh-hans" },
+      localStorage: { getItem: () => language },
+    });
+    applyDemoDataset();
+    expect(DEV_MOCK.config.language).toBe(language);
+  });
+
+  it("uses the Chinese documentation default when storage is unavailable", () => {
+    vi.stubGlobal("window", {
+      location: { search: "?default_language=zh-hans" },
+      get localStorage() {
+        throw new Error("Storage unavailable");
+      },
+    });
+    applyDemoDataset();
+    expect(DEV_MOCK.config.language).toBe("zh-hans");
+  });
+
   beforeEach(() => {
     DEV_MOCK.data.settings.user_balance_enabled = false;
     DEV_MOCK.data.balance.enabled = false;

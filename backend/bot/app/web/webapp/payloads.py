@@ -208,7 +208,7 @@ class WebAppAutoRenewPayload(BaseModel):
 
 
 class WebAppSubscriptionReissuePayload(BaseModel):
-    """Empty body for the subscription reissue action (extra keys ignored)."""
+    """重发订阅操作使用的空请求体，多余字段会被忽略。"""
 
     model_config = ConfigDict(extra="ignore")
 

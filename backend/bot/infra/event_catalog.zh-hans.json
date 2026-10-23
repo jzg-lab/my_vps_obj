@@ -1,0 +1,13 @@
+{
+  "title": "# 域事件目录",
+  "generated": "本文件由 `bot.infra.event_payloads` 生成，请勿手动编辑。",
+  "regenerate": "更新命令：`PYTHONPATH=backend python -m bot.infra.event_catalog`。",
+  "intro": "订阅者继续接收 `(event_name, dict)`。以下模型描述 Core 发布的扁平、JSON 兼容字典。",
+  "required": "必填",
+  "field_header": "| 字段 | 类型 | 默认值 |",
+  "payload_model": "事件载荷模型：`{model}`",
+  "emitters": "发布位置：",
+  "emitters_none": "未发现",
+  "reactions": "Core 响应：",
+  "reactions_none": "无"
+}

@@ -15,7 +15,7 @@ from bot.services.panel_api_contracts import (
 
 REPO_ROOT = Path(__file__).resolve().parents[3]
 DEFAULT_OUTPUT_PATH = REPO_ROOT / "docs" / "architecture" / "remnawave-api-compatibility.md"
-TRANSLATIONS_PATH = Path(__file__).with_name("panel_api_catalog.ru.json")
+TRANSLATIONS_PATH = Path(__file__).with_name("panel_api_catalog.zh-hans.json")
 
 
 def _load_text() -> dict[str, Any]:
@@ -54,7 +54,7 @@ def _localized(mapping: dict[str, str], value: object, context: str) -> str:
     try:
         return mapping[source]
     except KeyError as exc:
-        raise RuntimeError(f"Missing Russian translation for {context}: {source}") from exc
+        raise RuntimeError(f"Missing Chinese translation for {context}: {source}") from exc
 
 
 def _cell(value: object) -> str:
@@ -186,7 +186,7 @@ def generate_remnawave_api_markdown() -> str:
         if not isinstance(localized, dict) or not all(
             isinstance(localized.get(key), str) for key in ("event", "identity", "behavior")
         ):
-            raise RuntimeError(f"Missing Russian webhook translation for {contract.event}")
+            raise RuntimeError(f"Missing Chinese webhook translation for {contract.event}")
         lines.append(
             "| "
             + " | ".join(

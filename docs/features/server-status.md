@@ -1,8 +1,8 @@
-# Статус серверов
+<a id="статус-серверов"></a>
 
-Minishop показывает статус серверов в Mini App. Функция выключена по умолчанию и использует один
-источник: внешнюю страницу (`url`), Uptime Kuma или xray-checker. Для встроенных провайдеров данные
-отображаются внутри Mini App; для `url` пользователь переходит на указанную страницу.
+# 服务器状态
+
+Minishop 可在网页应用中展示服务器状态。该功能默认关闭，每次使用一个来源：外部网页（`url`）、Uptime Kuma 或 xray-checker。内置适配器的数据直接显示在网页应用内；选择 `url` 时，用户跳转到指定页面。
 
 ```env
 SERVER_STATUS_ENABLED=False
@@ -16,37 +16,35 @@ SERVER_STATUS_STALE_TTL_SECONDS=300
 SERVER_STATUS_TIMEOUT_SECONDS=5
 ```
 
-Установите `SERVER_STATUS_ENABLED=True` и выберите один из вариантов. Карточка на главном экране
-включается отдельно через `SERVER_STATUS_SHOW_ON_HOME=True`.
+设置 `SERVER_STATUS_ENABLED=True` 并选择以下一种来源。首页状态卡片需另行设置 `SERVER_STATUS_SHOW_ON_HOME=True`。
 
-## Источники
+<a id="источники"></a>
 
-### Внешняя страница
+## 状态来源
+
+<a id="внешняя-страница"></a>
+
+### 外部网页
 
 ```env
 SERVER_STATUS_PROVIDER=url
 SERVER_STATUS_URL=https://status.example.com
 ```
 
-Minishop не загружает и не кеширует состояние в этом режиме.
+此模式下，Minishop 不读取或缓存服务器状态。
 
 ### Uptime Kuma
 
-Создайте и опубликуйте страницу статуса в Uptime Kuma. Укажите её полный публичный URL:
+在 Uptime Kuma 创建并发布状态页，填写完整公开 URL：
 
 ```env
 SERVER_STATUS_PROVIDER=uptime-kuma
 SERVER_STATUS_KUMA_URL=https://status.example.com/status/services
 ```
 
-Допустим URL с префиксом reverse-proxy: `https://status.example.com/kuma/status/services`.
-Minishop выделяет этот префикс и запрашивает публичные endpoints Uptime Kuma через него. Адрес должен
-быть HTTP(S), содержать путь `/status/<slug>` и не содержать query, fragment или учётные данные.
-Администраторская учётная запись и API-токен Uptime Kuma не нужны.
+允许带反向代理前缀，例如 `https://status.example.com/kuma/status/services`。Minishop 会提取前缀，通过相同路径访问 Uptime Kuma 的公开接口。地址必须使用 HTTP(S)，路径包含 `/status/<slug>`，且不能包含查询参数、片段或登录凭据。不需要 Uptime Kuma 管理员账号或 API 令牌。
 
-Существующая конфигурация с отдельным legacy slug продолжает работать как **deprecated-совместимость**,
-но больше не отображается и не сохраняется через админку. При следующем изменении замените базовый
-адрес полным URL страницы.
+旧配置中单独填写 slug 的方式仍保留兼容，但已弃用，后台不再显示或保存该字段。下次修改时，请改用完整状态页 URL。
 
 ### xray-checker
 
@@ -55,36 +53,27 @@ SERVER_STATUS_PROVIDER=xray-checker
 SERVER_STATUS_XRAY_CHECKER_URL=https://checker.example.com
 ```
 
-Укажите базовый URL экземпляра xray-checker, доступного из контейнера `backend`.
-Для экземпляра в общей Docker-сети можно сохранить в админке, например,
-`http://remnawave-xray-checker:2112`. Для внутренней Uptime Kuma укажите полный URL
-страницы статуса, например `http://uptime-kuma:3001/status/services`.
-Настроенный администратором хост и порт разрешаются автоматически, в том числе
-после смены или сброса URL. Изменения в админке применяются без перезапуска стека.
+填写 backend 容器能够访问的 xray-checker 基础 URL。同一 Docker 网络内的实例可在后台填写为 `http://remnawave-xray-checker:2112`。内部 Uptime Kuma 则需完整状态页地址，例如 `http://uptime-kuma:3001/status/services`。
 
-## Кэш и диагностика
+管理员配置的主机和端口会获得访问许可，修改或清空 URL 后会同步更新许可。后台修改立即生效，无需重启整个服务栈。
 
-Успешный ответ встроенного провайдера кешируется на `SERVER_STATUS_CACHE_TTL_SECONDS`. При ошибке
-или тайм-ауте последний успешный ответ может показываться как устаревший до
-`SERVER_STATUS_STALE_TTL_SECONDS`. Если кэша нет, Mini App показывает ошибку, а не предполагаемое
-состояние серверов.
+<a id="кэш-и-диагностика"></a>
 
-После изменения `.env` пересоздайте backend и посмотрите журналы:
+## 缓存与排障
+
+内置适配器的成功响应缓存 `SERVER_STATUS_CACHE_TTL_SECONDS` 秒。请求出错或超时时，最近一次成功响应可以作为旧数据继续显示，最长保留 `SERVER_STATUS_STALE_TTL_SECONDS` 秒。没有缓存时，网页应用会显示错误，不猜测服务器状态。
+
+修改 `.env` 后，重建 backend 容器并检查日志：
 
 ```bash
 docker compose up -d --force-recreate backend
 docker compose logs --tail=100 backend
 ```
 
-Если Uptime Kuma не загружается, убедитесь, что опубликованный URL имеет общий вид
-`https://example.com/status/slug` или `https://example.com/proxy-prefix/status/slug`, а DNS, TLS и
-reverse proxy корректно обрабатывают этот адрес.
-Внутренний сервис мониторинга допустим, если он доступен из `backend` по настроенному
-имени и порту. Metadata endpoints и секреты в URL запрещены. Backend проверяет
-фактические DNS-адреса и перенаправления; другие внутренние хосты и порты не получают
-разрешение автоматически. При `error_type=ValueError` и `status=-` проверьте корректность
-URL, DNS-ответ и адрес перенаправления по [правилам исходящих соединений](../configuration/security.md#дополнительно).
-Названия проверок и состояния видны пользователям, поэтому не
-публикуйте там внутренние IP-адреса или служебные данные.
+Uptime Kuma 无法加载时，检查发布 URL 是否符合 `https://example.com/status/slug` 或 `https://example.com/proxy-prefix/status/slug`，并检查 DNS、TLS 和反向代理。
 
-Полный справочник: [переменные окружения](../configuration/env-vars.md#статус-серверов).
+内部监控服务必须能从 backend 按配置的主机名和端口访问。禁止使用云实例元数据接口或在 URL 中包含密钥。后端会核对实际 DNS 地址及重定向目标；其他内部主机和端口不会自动获得访问许可。日志出现 `error_type=ValueError`、`status=-` 时，请按[出站连接规则](../configuration/security.md#其他安全要求)检查 URL、DNS 结果及重定向地址。
+
+检查名称和状态会展示给用户，请勿在其中填写内部 IP 或运维机密。
+
+完整参考：[环境变量](../configuration/env-vars.md#服务器状态)。

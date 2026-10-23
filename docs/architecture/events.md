@@ -1,40 +1,40 @@
-# Каталог доменных событий
+# 域事件目录
 
-Файл сгенерирован из `bot.infra.event_payloads`; не редактируйте его вручную.
-Для обновления выполните `PYTHONPATH=backend python -m bot.infra.event_catalog`.
+本文件由 `bot.infra.event_payloads` 生成，请勿手动编辑。
+更新命令：`PYTHONPATH=backend python -m bot.infra.event_catalog`。
 
-Подписчики по-прежнему получают данные в формате `(event_name, dict)`. Модели ниже описывают плоский, совместимый с JSON словарь, который публикует код Core.
+订阅者继续接收 `(event_name, dict)`。以下模型描述 Core 发布的扁平、JSON 兼容字典。
 
 ## `account.email_linked`
 
-Модель данных события: `AccountEmailLinkedPayload`
+事件载荷模型：`AccountEmailLinkedPayload`
 
-Источники события: `backend/bot/app/web/webapp/account.py`
+发布位置：`backend/bot/app/web/webapp/account.py`
 
-Реакции Core: `CoreEventReactions.on_account_email_linked`
+Core 响应：`CoreEventReactions.on_account_email_linked`
 
-| Поле | Тип | Значение по умолчанию |
+| 字段 | 类型 | 默认值 |
 | --- | --- | --- |
-| `user_id` | `int` | обязательно |
-| `email` | `str` | обязательно |
-| `first_link` | `bool` | обязательно |
+| `user_id` | `int` | 必填 |
+| `email` | `str` | 必填 |
+| `first_link` | `bool` | 必填 |
 | `telegram_id` | `int | None` | `None` |
 | `username` | `str | None` | `None` |
 | `first_name` | `str | None` | `None` |
 
 ## `account.external_identity_linked`
 
-Модель данных события: `AccountExternalIdentityLinkedPayload`
+事件载荷模型：`AccountExternalIdentityLinkedPayload`
 
-Источники события: `backend/bot/app/web/webapp/external_oauth.py`
+发布位置：`backend/bot/app/web/webapp/external_oauth.py`
 
-Реакции Core: `CoreEventReactions.on_account_external_identity_linked`
+Core 响应：`CoreEventReactions.on_account_external_identity_linked`
 
-| Поле | Тип | Значение по умолчанию |
+| 字段 | 类型 | 默认值 |
 | --- | --- | --- |
-| `user_id` | `int` | обязательно |
-| `provider` | `'discord' | 'google' | 'yandex'` | обязательно |
-| `link_source` | `'settings' | 'email_confirmation' | 'provider_verified_email'` | обязательно |
+| `user_id` | `int` | 必填 |
+| `provider` | `'discord' | 'google' | 'yandex'` | 必填 |
+| `link_source` | `'settings' | 'email_confirmation' | 'provider_verified_email'` | 必填 |
 | `email` | `str | None` | `None` |
 | `telegram_id` | `int | None` | `None` |
 | `username` | `str | None` | `None` |
@@ -42,20 +42,20 @@
 
 ## `account.merged`
 
-Модель данных события: `AccountMergedPayload`
+事件载荷模型：`AccountMergedPayload`
 
-Источники события: `backend/db/dal/user_merge_dal.py`
+发布位置：`backend/db/dal/user_merge_dal.py`
 
-Реакции Core: `CoreEventReactions.on_account_merged`
+Core 响应：`CoreEventReactions.on_account_merged`
 
-| Поле | Тип | Значение по умолчанию |
+| 字段 | 类型 | 默认值 |
 | --- | --- | --- |
-| `source_user_id` | `int` | обязательно |
-| `target_user_id` | `int` | обязательно |
+| `source_user_id` | `int` | 必填 |
+| `target_user_id` | `int` | 必填 |
 | `source_minishop_id` | `str | None` | `None` |
 | `target_minishop_id` | `str | None` | `None` |
-| `reason` | `str` | обязательно |
-| `send_user_email` | `bool` | обязательно |
+| `reason` | `str` | 必填 |
+| `send_user_email` | `bool` | 必填 |
 | `source_panel_user_uuid` | `str | None` | `None` |
 | `target_panel_user_uuid` | `str | None` | `None` |
 | `email` | `str | None` | `None` |
@@ -67,288 +67,288 @@
 
 ## `account.telegram_linked`
 
-Модель данных события: `AccountTelegramLinkedPayload`
+事件载荷模型：`AccountTelegramLinkedPayload`
 
-Источники события: `backend/bot/app/web/webapp/account.py`, `backend/bot/app/web/webapp/account_merge.py`
+发布位置：`backend/bot/app/web/webapp/account.py`, `backend/bot/app/web/webapp/account_merge.py`
 
-Реакции Core: `CoreEventReactions.on_account_telegram_linked`
+Core 响应：`CoreEventReactions.on_account_telegram_linked`
 
-| Поле | Тип | Значение по умолчанию |
+| 字段 | 类型 | 默认值 |
 | --- | --- | --- |
-| `user_id` | `int` | обязательно |
+| `user_id` | `int` | 必填 |
 | `telegram_id` | `int | None` | `None` |
-| `first_link` | `bool` | обязательно |
+| `first_link` | `bool` | 必填 |
 | `email` | `str | None` | `None` |
 | `username` | `str | None` | `None` |
 | `first_name` | `str | None` | `None` |
 
 ## `bot.started`
 
-Модель данных события: `BotStartedPayload`
+事件载荷模型：`BotStartedPayload`
 
-Источники события: `backend/bot/services/behavior_events.py`
+发布位置：`backend/bot/services/behavior_events.py`
 
-Реакции Core: нет
+Core 响应：无
 
-| Поле | Тип | Значение по умолчанию |
+| 字段 | 类型 | 默认值 |
 | --- | --- | --- |
-| `user_id` | `int` | обязательно |
-| `returning` | `bool` | обязательно |
-| `source` | `'direct' | 'referral' | 'promo' | 'ad' | 'ticket' | 'notifications'` | обязательно |
+| `user_id` | `int` | 必填 |
+| `returning` | `bool` | 必填 |
+| `source` | `'direct' | 'referral' | 'promo' | 'ad' | 'ticket' | 'notifications'` | 必填 |
 | `start_param` | `str | None` | `None` |
 
 ## `device.connected`
 
-Модель данных события: `DeviceConnectedPayload`
+事件载荷模型：`DeviceConnectedPayload`
 
-Источники события: `backend/bot/services/hwid_device_notifications.py`
+发布位置：`backend/bot/services/hwid_device_notifications.py`
 
-Реакции Core: нет
+Core 响应：无
 
-| Поле | Тип | Значение по умолчанию |
+| 字段 | 类型 | 默认值 |
 | --- | --- | --- |
-| `user_id` | `int` | обязательно |
-| `subscription_id` | `int` | обязательно |
+| `user_id` | `int` | 必填 |
+| `subscription_id` | `int` | 必填 |
 | `panel_user_uuid` | `str | None` | `None` |
-| `device_label` | `str` | обязательно |
+| `device_label` | `str` | 必填 |
 | `platform` | `str | None` | `None` |
 | `os_version` | `str | None` | `None` |
 | `current_devices` | `int | None` | `None` |
 | `device_limit` | `int | None` | `None` |
-| `occurred_at` | `datetime` | обязательно |
+| `occurred_at` | `datetime` | 必填 |
 
 ## `device.limit_reached`
 
-Модель данных события: `DeviceLimitReachedPayload`
+事件载荷模型：`DeviceLimitReachedPayload`
 
-Источники события: `backend/bot/services/hwid_device_notifications.py`
+发布位置：`backend/bot/services/hwid_device_notifications.py`
 
-Реакции Core: нет
+Core 响应：无
 
-| Поле | Тип | Значение по умолчанию |
+| 字段 | 类型 | 默认值 |
 | --- | --- | --- |
-| `user_id` | `int` | обязательно |
-| `subscription_id` | `int` | обязательно |
+| `user_id` | `int` | 必填 |
+| `subscription_id` | `int` | 必填 |
 | `tariff_key` | `str | None` | `None` |
-| `current_devices` | `int` | обязательно |
-| `device_limit` | `int` | обязательно |
-| `device_topup_available` | `bool` | обязательно |
-| `occurred_at` | `datetime` | обязательно |
+| `current_devices` | `int` | 必填 |
+| `device_limit` | `int` | 必填 |
+| `device_topup_available` | `bool` | 必填 |
+| `occurred_at` | `datetime` | 必填 |
 
 ## `panel.webhook_received`
 
-Модель данных события: `PanelWebhookReceivedPayload`
+事件载荷模型：`PanelWebhookReceivedPayload`
 
-Источники события: `backend/bot/services/panel_webhook_service.py`
+发布位置：`backend/bot/services/panel_webhook_service.py`
 
-Реакции Core: нет
+Core 响应：无
 
-| Поле | Тип | Значение по умолчанию |
+| 字段 | 类型 | 默认值 |
 | --- | --- | --- |
-| `event` | `str` | обязательно |
+| `event` | `str` | 必填 |
 | `panel_user_uuid` | `str | None` | `None` |
 | `telegram_id` | `int | str | None` | `None` |
 
 ## `partner.application_decided`
 
-Модель данных события: `PartnerApplicationDecidedPayload`
+事件载荷模型：`PartnerApplicationDecidedPayload`
 
-Источники события: `backend/bot/services/partner_program_service.py`
+发布位置：`backend/bot/services/partner_program_service.py`
 
-Реакции Core: `CoreEventReactions.on_partner_application_decided`
+Core 响应：`CoreEventReactions.on_partner_application_decided`
 
-| Поле | Тип | Значение по умолчанию |
+| 字段 | 类型 | 默认值 |
 | --- | --- | --- |
-| `application_id` | `int` | обязательно |
+| `application_id` | `int` | 必填 |
 | `partner_id` | `int | None` | `None` |
 | `user_id` | `int | None` | `None` |
-| `status` | `str` | обязательно |
-| `decided_at` | `datetime` | обязательно |
+| `status` | `str` | 必填 |
+| `decided_at` | `datetime` | 必填 |
 
 ## `partner.application_submitted`
 
-Модель данных события: `PartnerApplicationSubmittedPayload`
+事件载荷模型：`PartnerApplicationSubmittedPayload`
 
-Источники события: `backend/bot/services/partner_program_service.py`
+发布位置：`backend/bot/services/partner_program_service.py`
 
-Реакции Core: `CoreEventReactions.on_partner_application_submitted`
+Core 响应：`CoreEventReactions.on_partner_application_submitted`
 
-| Поле | Тип | Значение по умолчанию |
+| 字段 | 类型 | 默认值 |
 | --- | --- | --- |
-| `application_id` | `int` | обязательно |
-| `user_id` | `int` | обязательно |
-| `status` | `str` | обязательно |
-| `submitted_at` | `datetime` | обязательно |
+| `application_id` | `int` | 必填 |
+| `user_id` | `int` | 必填 |
+| `status` | `str` | 必填 |
+| `submitted_at` | `datetime` | 必填 |
 
 ## `partner.balance_adjusted`
 
-Модель данных события: `PartnerBalanceAdjustedPayload`
+事件载荷模型：`PartnerBalanceAdjustedPayload`
 
-Источники события: `backend/bot/services/partner_commission_service.py`
+发布位置：`backend/bot/services/partner_commission_service.py`
 
-Реакции Core: нет
+Core 响应：无
 
-| Поле | Тип | Значение по умолчанию |
+| 字段 | 类型 | 默认值 |
 | --- | --- | --- |
-| `partner_id` | `int` | обязательно |
-| `currency` | `str` | обязательно |
-| `amount_minor` | `int` | обязательно |
-| `balance_minor` | `int` | обязательно |
-| `adjusted_at` | `datetime` | обязательно |
+| `partner_id` | `int` | 必填 |
+| `currency` | `str` | 必填 |
+| `amount_minor` | `int` | 必填 |
+| `balance_minor` | `int` | 必填 |
+| `adjusted_at` | `datetime` | 必填 |
 
 ## `partner.balance_spent`
 
-Модель данных события: `PartnerBalanceSpentPayload`
+事件载荷模型：`PartnerBalanceSpentPayload`
 
-Источники события: `backend/bot/services/partner_checkout_balance.py`, `backend/bot/services/partner_commission_service.py`
+发布位置：`backend/bot/services/partner_checkout_balance.py`, `backend/bot/services/partner_commission_service.py`
 
-Реакции Core: нет
+Core 响应：无
 
-| Поле | Тип | Значение по умолчанию |
+| 字段 | 类型 | 默认值 |
 | --- | --- | --- |
-| `partner_id` | `int` | обязательно |
-| `payment_db_id` | `int` | обязательно |
-| `currency` | `str` | обязательно |
-| `amount_minor` | `int` | обязательно |
-| `spent_at` | `datetime` | обязательно |
+| `partner_id` | `int` | 必填 |
+| `payment_db_id` | `int` | 必填 |
+| `currency` | `str` | 必填 |
+| `amount_minor` | `int` | 必填 |
+| `spent_at` | `datetime` | 必填 |
 
 ## `partner.client_attributed`
 
-Модель данных события: `PartnerClientAttributedPayload`
+事件载荷模型：`PartnerClientAttributedPayload`
 
-Источники события: `backend/bot/services/partner_program_service.py`
+发布位置：`backend/bot/services/partner_program_service.py`
 
-Реакции Core: нет
+Core 响应：无
 
-| Поле | Тип | Значение по умолчанию |
+| 字段 | 类型 | 默认值 |
 | --- | --- | --- |
-| `partner_id` | `int` | обязательно |
-| `partner_client_id` | `int` | обязательно |
-| `client_user_id` | `int` | обязательно |
-| `source` | `str` | обязательно |
-| `attributed_at` | `datetime` | обязательно |
+| `partner_id` | `int` | 必填 |
+| `partner_client_id` | `int` | 必填 |
+| `client_user_id` | `int` | 必填 |
+| `source` | `str` | 必填 |
+| `attributed_at` | `datetime` | 必填 |
 
 ## `partner.commission_available`
 
-Модель данных события: `PartnerCommissionAvailablePayload`
+事件载荷模型：`PartnerCommissionAvailablePayload`
 
-Источники события: `backend/bot/services/partner_commission_service.py`
+发布位置：`backend/bot/services/partner_commission_service.py`
 
-Реакции Core: нет
+Core 响应：无
 
-| Поле | Тип | Значение по умолчанию |
+| 字段 | 类型 | 默认值 |
 | --- | --- | --- |
-| `partner_id` | `int` | обязательно |
-| `commission_id` | `int` | обязательно |
-| `currency` | `str` | обязательно |
-| `commission_amount_minor` | `int` | обязательно |
-| `available_at` | `datetime` | обязательно |
+| `partner_id` | `int` | 必填 |
+| `commission_id` | `int` | 必填 |
+| `currency` | `str` | 必填 |
+| `commission_amount_minor` | `int` | 必填 |
+| `available_at` | `datetime` | 必填 |
 
 ## `partner.commission_recorded`
 
-Модель данных события: `PartnerCommissionRecordedPayload`
+事件载荷模型：`PartnerCommissionRecordedPayload`
 
-Источники события: `backend/bot/services/partner_commission_service.py`
+发布位置：`backend/bot/services/partner_commission_service.py`
 
-Реакции Core: нет
+Core 响应：无
 
-| Поле | Тип | Значение по умолчанию |
+| 字段 | 类型 | 默认值 |
 | --- | --- | --- |
-| `partner_id` | `int` | обязательно |
-| `commission_id` | `int` | обязательно |
-| `payment_db_id` | `int` | обязательно |
-| `status` | `str` | обязательно |
-| `currency` | `str` | обязательно |
-| `gross_amount_minor` | `int` | обязательно |
-| `commission_amount_minor` | `int` | обязательно |
-| `available_at` | `datetime` | обязательно |
+| `partner_id` | `int` | 必填 |
+| `commission_id` | `int` | 必填 |
+| `payment_db_id` | `int` | 必填 |
+| `status` | `str` | 必填 |
+| `currency` | `str` | 必填 |
+| `gross_amount_minor` | `int` | 必填 |
+| `commission_amount_minor` | `int` | 必填 |
+| `available_at` | `datetime` | 必填 |
 
 ## `partner.commission_reversed`
 
-Модель данных события: `PartnerCommissionReversedPayload`
+事件载荷模型：`PartnerCommissionReversedPayload`
 
-Источники события: `backend/bot/services/partner_commission_service.py`
+发布位置：`backend/bot/services/partner_commission_service.py`
 
-Реакции Core: нет
+Core 响应：无
 
-| Поле | Тип | Значение по умолчанию |
+| 字段 | 类型 | 默认值 |
 | --- | --- | --- |
-| `partner_id` | `int` | обязательно |
-| `commission_id` | `int` | обязательно |
+| `partner_id` | `int` | 必填 |
+| `commission_id` | `int` | 必填 |
 | `payment_db_id` | `int | None` | `None` |
-| `currency` | `str` | обязательно |
-| `commission_amount_minor` | `int` | обязательно |
-| `reversed_at` | `datetime` | обязательно |
+| `currency` | `str` | 必填 |
+| `commission_amount_minor` | `int` | 必填 |
+| `reversed_at` | `datetime` | 必填 |
 
 ## `partner.status_changed`
 
-Модель данных события: `PartnerStatusChangedPayload`
+事件载荷模型：`PartnerStatusChangedPayload`
 
-Источники события: `backend/bot/services/partner_program_service.py`
+发布位置：`backend/bot/services/partner_program_service.py`
 
-Реакции Core: `CoreEventReactions.on_partner_status_changed`
+Core 响应：`CoreEventReactions.on_partner_status_changed`
 
-| Поле | Тип | Значение по умолчанию |
+| 字段 | 类型 | 默认值 |
 | --- | --- | --- |
-| `partner_id` | `int` | обязательно |
+| `partner_id` | `int` | 必填 |
 | `user_id` | `int | None` | `None` |
-| `old_status` | `str` | обязательно |
-| `status` | `str` | обязательно |
-| `changed_at` | `datetime` | обязательно |
+| `old_status` | `str` | 必填 |
+| `status` | `str` | 必填 |
+| `changed_at` | `datetime` | 必填 |
 
 ## `partner.withdrawal_requested`
 
-Модель данных события: `PartnerWithdrawalRequestedPayload`
+事件载荷模型：`PartnerWithdrawalRequestedPayload`
 
-Источники события: `backend/bot/services/partner_withdrawal_service.py`
+发布位置：`backend/bot/services/partner_withdrawal_service.py`
 
-Реакции Core: `CoreEventReactions.on_partner_withdrawal_requested`
+Core 响应：`CoreEventReactions.on_partner_withdrawal_requested`
 
-| Поле | Тип | Значение по умолчанию |
+| 字段 | 类型 | 默认值 |
 | --- | --- | --- |
-| `partner_id` | `int` | обязательно |
-| `user_id` | `int` | обязательно |
-| `withdrawal_id` | `int` | обязательно |
-| `status` | `str` | обязательно |
-| `currency` | `str` | обязательно |
-| `currency_scale` | `int` | обязательно |
-| `amount_minor` | `int` | обязательно |
-| `requested_at` | `datetime` | обязательно |
+| `partner_id` | `int` | 必填 |
+| `user_id` | `int` | 必填 |
+| `withdrawal_id` | `int` | 必填 |
+| `status` | `str` | 必填 |
+| `currency` | `str` | 必填 |
+| `currency_scale` | `int` | 必填 |
+| `amount_minor` | `int` | 必填 |
+| `requested_at` | `datetime` | 必填 |
 
 ## `partner.withdrawal_status_changed`
 
-Модель данных события: `PartnerWithdrawalStatusChangedPayload`
+事件载荷模型：`PartnerWithdrawalStatusChangedPayload`
 
-Источники события: `backend/bot/services/partner_withdrawal_service.py`
+发布位置：`backend/bot/services/partner_withdrawal_service.py`
 
-Реакции Core: `CoreEventReactions.on_partner_withdrawal_status_changed`
+Core 响应：`CoreEventReactions.on_partner_withdrawal_status_changed`
 
-| Поле | Тип | Значение по умолчанию |
+| 字段 | 类型 | 默认值 |
 | --- | --- | --- |
-| `partner_id` | `int` | обязательно |
+| `partner_id` | `int` | 必填 |
 | `user_id` | `int | None` | `None` |
-| `withdrawal_id` | `int` | обязательно |
-| `old_status` | `str` | обязательно |
-| `status` | `str` | обязательно |
-| `status_version` | `int` | обязательно |
-| `currency` | `str` | обязательно |
-| `currency_scale` | `int` | обязательно |
-| `amount_minor` | `int` | обязательно |
+| `withdrawal_id` | `int` | 必填 |
+| `old_status` | `str` | 必填 |
+| `status` | `str` | 必填 |
+| `status_version` | `int` | 必填 |
+| `currency` | `str` | 必填 |
+| `currency_scale` | `int` | 必填 |
+| `amount_minor` | `int` | 必填 |
 | `settlement_amount` | `str | None` | `None` |
 | `external_reference` | `str | None` | `None` |
-| `changed_at` | `datetime` | обязательно |
+| `changed_at` | `datetime` | 必填 |
 
 ## `payment.canceled`
 
-Модель данных события: `PaymentCanceledPayload`
+事件载荷模型：`PaymentCanceledPayload`
 
-Источники события: `backend/bot/app/web/webapp/billing.py`, `backend/bot/payment_providers/shared/webhooks.py`, `backend/bot/payment_providers/yookassa.py`, `backend/bot/services/yookassa_reconciliation_worker.py`, `backend/main_worker.py`
+发布位置：`backend/bot/app/web/webapp/billing.py`, `backend/bot/payment_providers/shared/webhooks.py`, `backend/bot/payment_providers/yookassa.py`, `backend/bot/services/yookassa_reconciliation_worker.py`, `backend/main_worker.py`
 
-Реакции Core: `CoreEventReactions.on_payment_canceled`
+Core 响应：`CoreEventReactions.on_payment_canceled`
 
-| Поле | Тип | Значение по умолчанию |
+| 字段 | 类型 | 默认值 |
 | --- | --- | --- |
-| `user_id` | `int` | обязательно |
+| `user_id` | `int` | 必填 |
 | `payment_db_id` | `int | None` | `None` |
 | `provider` | `str | None` | `None` |
 | `provider_payment_id` | `str | None` | `None` |
@@ -362,21 +362,21 @@
 
 ## `payment.succeeded`
 
-Модель данных события: `PaymentSucceededPayload`
+事件载荷模型：`PaymentSucceededPayload`
 
-Источники события: `backend/bot/app/web/admin_api_impl/gift_creation.py`, `backend/bot/infra/payment_events.py`, `backend/bot/payment_providers/shared/gift_success.py`, `backend/bot/payment_providers/shared/success.py`, `backend/bot/payment_providers/yookassa.py`
+发布位置：`backend/bot/app/web/admin_api_impl/gift_creation.py`, `backend/bot/infra/payment_events.py`, `backend/bot/payment_providers/shared/gift_success.py`, `backend/bot/payment_providers/shared/success.py`, `backend/bot/payment_providers/yookassa.py`
 
-Реакции Core: `CoreEventReactions.on_payment_succeeded`
+Core 响应：`CoreEventReactions.on_payment_succeeded`
 
-| Поле | Тип | Значение по умолчанию |
+| 字段 | 类型 | 默认值 |
 | --- | --- | --- |
-| `user_id` | `int` | обязательно |
-| `payment_db_id` | `int` | обязательно |
-| `provider` | `str` | обязательно |
-| `notification_provider` | `str` | обязательно |
-| `amount` | `float` | обязательно |
-| `currency` | `str` | обязательно |
-| `sale_mode` | `str` | обязательно |
+| `user_id` | `int` | 必填 |
+| `payment_db_id` | `int` | 必填 |
+| `provider` | `str` | 必填 |
+| `notification_provider` | `str` | 必填 |
+| `amount` | `float` | 必填 |
+| `currency` | `str` | 必填 |
+| `sale_mode` | `str` | 必填 |
 | `tariff_key` | `str | None` | `None` |
 | `months` | `int | None` | `None` |
 | `duration_days` | `int | None` | `None` |
@@ -386,55 +386,55 @@
 | `base_amount` | `float | None` | `None` |
 | `discount_amount` | `float | None` | `None` |
 | `end_date` | `datetime | None` | `None` |
-| `is_auto_renew` | `bool` | обязательно |
+| `is_auto_renew` | `bool` | 必填 |
 | `renewal_subscription_id` | `int | None` | `None` |
 
 ## `plans.viewed`
 
-Модель данных события: `PlansViewedPayload`
+事件载荷模型：`PlansViewedPayload`
 
-Источники события: `backend/bot/app/web/webapp/billing_contracts.py`, `backend/bot/app/web/webapp/billing_options.py`, `backend/bot/app/web/webapp/payloads.py`, `backend/bot/services/behavior_events.py`
+发布位置：`backend/bot/app/web/webapp/billing_contracts.py`, `backend/bot/app/web/webapp/billing_options.py`, `backend/bot/app/web/webapp/payloads.py`, `backend/bot/services/behavior_events.py`
 
-Реакции Core: нет
+Core 响应：无
 
-| Поле | Тип | Значение по умолчанию |
+| 字段 | 类型 | 默认值 |
 | --- | --- | --- |
-| `user_id` | `int` | обязательно |
-| `source` | `'webapp' | 'bot'` | обязательно |
-| `plans_count` | `int` | обязательно |
+| `user_id` | `int` | 必填 |
+| `source` | `'webapp' | 'bot'` | 必填 |
+| `plans_count` | `int` | 必填 |
 | `tariff_key` | `str | None` | `None` |
 
 ## `promo_code.applied`
 
-Модель данных события: `PromoCodeAppliedPayload`
+事件载荷模型：`PromoCodeAppliedPayload`
 
-Источники события: `backend/bot/services/promo_code_service.py`
+发布位置：`backend/bot/services/promo_code_service.py`
 
-Реакции Core: `CoreEventReactions.on_promo_code_applied`
+Core 响应：`CoreEventReactions.on_promo_code_applied`
 
-| Поле | Тип | Значение по умолчанию |
+| 字段 | 类型 | 默认值 |
 | --- | --- | --- |
-| `user_id` | `int` | обязательно |
-| `code` | `str` | обязательно |
-| `bonus_days` | `int` | обязательно |
+| `user_id` | `int` | 必填 |
+| `code` | `str` | 必填 |
+| `bonus_days` | `int` | 必填 |
 | `regular_traffic_gb` | `float` | `0` |
 | `premium_traffic_gb` | `float` | `0` |
 | `new_end_date` | `datetime | None` | `None` |
 
 ## `referral.bonus_granted`
 
-Модель данных события: `ReferralBonusGrantedPayload`
+事件载荷模型：`ReferralBonusGrantedPayload`
 
-Источники события: `backend/bot/app/web/webapp/auth.py`, `backend/bot/handlers/user/start.py`, `backend/bot/payment_providers/shared/success.py`, `backend/bot/payment_providers/yookassa.py`, `backend/bot/services/referral_accrual_worker.py`, `backend/bot/services/referral_service.py`, `backend/bot/services/subscription_service_impl/trial.py`
+发布位置：`backend/bot/app/web/webapp/auth.py`, `backend/bot/handlers/user/start.py`, `backend/bot/payment_providers/shared/success.py`, `backend/bot/payment_providers/yookassa.py`, `backend/bot/services/referral_accrual_worker.py`, `backend/bot/services/referral_service.py`, `backend/bot/services/subscription_service_impl/trial.py`
 
-Реакции Core: `CoreEventReactions.on_referral_bonus_granted`
+Core 响应：`CoreEventReactions.on_referral_bonus_granted`
 
-| Поле | Тип | Значение по умолчанию |
+| 字段 | 类型 | 默认值 |
 | --- | --- | --- |
-| `referee_user_id` | `int` | обязательно |
+| `referee_user_id` | `int` | 必填 |
 | `referee_bonus_days` | `int | None` | `None` |
 | `referee_new_end_date` | `datetime | None` | `None` |
-| `inviter_bonus_applied` | `bool` | обязательно |
+| `inviter_bonus_applied` | `bool` | 必填 |
 | `inviter_user_id` | `int | None` | `None` |
 | `inviter_bonus_days` | `int | None` | `None` |
 | `inviter_bonus_end_date` | `datetime | None` | `None` |
@@ -446,39 +446,39 @@
 | `tariff_key` | `str | None` | `None` |
 | `one_bonus_per_referee` | `bool | None` | `None` |
 | `gift_id` | `int | None` | `None` |
-| `reason` | `'payment' | 'welcome' | 'gift_activation'` | обязательно |
+| `reason` | `'payment' | 'welcome' | 'gift_activation'` | 必填 |
 
 ## `subscription.auto_renew_failed`
 
-Модель данных события: `SubscriptionAutoRenewFailedPayload`
+事件载荷模型：`SubscriptionAutoRenewFailedPayload`
 
-Источники события: `backend/bot/payment_providers/shared/webhooks.py`, `backend/bot/services/subscription_service_impl/renewal.py`
+发布位置：`backend/bot/payment_providers/shared/webhooks.py`, `backend/bot/services/subscription_service_impl/renewal.py`
 
-Реакции Core: нет
+Core 响应：无
 
-| Поле | Тип | Значение по умолчанию |
+| 字段 | 类型 | 默认值 |
 | --- | --- | --- |
-| `user_id` | `int` | обязательно |
-| `subscription_id` | `int` | обязательно |
-| `provider` | `str` | обязательно |
-| `reason_code` | `'provider_unavailable' | 'saved_payment_method_missing' | 'renewal_quote_unavailable' | 'provider_request_failed' | 'provider_rejected' | 'provider_webhook_failed'` | обязательно |
+| `user_id` | `int` | 必填 |
+| `subscription_id` | `int` | 必填 |
+| `provider` | `str` | 必填 |
+| `reason_code` | `'provider_unavailable' | 'saved_payment_method_missing' | 'renewal_quote_unavailable' | 'provider_request_failed' | 'provider_rejected' | 'provider_webhook_failed'` | 必填 |
 | `payment_db_id` | `int | None` | `None` |
 | `provider_payment_id` | `str | None` | `None` |
 | `renewal_cycle_end` | `datetime | None` | `None` |
-| `retryable` | `bool` | обязательно |
-| `occurred_at` | `datetime` | обязательно |
+| `retryable` | `bool` | 必填 |
+| `occurred_at` | `datetime` | 必填 |
 
 ## `subscription.created`
 
-Модель данных события: `SubscriptionCreatedPayload`
+事件载荷模型：`SubscriptionCreatedPayload`
 
-Источники события: `backend/bot/payment_providers/shared/success.py`, `backend/bot/payment_providers/yookassa.py`
+发布位置：`backend/bot/payment_providers/shared/success.py`, `backend/bot/payment_providers/yookassa.py`
 
-Реакции Core: нет
+Core 响应：无
 
-| Поле | Тип | Значение по умолчанию |
+| 字段 | 类型 | 默认值 |
 | --- | --- | --- |
-| `user_id` | `int` | обязательно |
+| `user_id` | `int` | 必填 |
 | `subscription_id` | `int | None` | `None` |
 | `tariff_key` | `str | None` | `None` |
 | `end_date` | `datetime | None` | `None` |
@@ -489,30 +489,30 @@
 
 ## `subscription.expired`
 
-Модель данных события: `SubscriptionExpiredPayload`
+事件载荷模型：`SubscriptionExpiredPayload`
 
-Источники события: `backend/bot/services/subscription_notification_worker.py`
+发布位置：`backend/bot/services/subscription_notification_worker.py`
 
-Реакции Core: нет
+Core 响应：无
 
-| Поле | Тип | Значение по умолчанию |
+| 字段 | 类型 | 默认值 |
 | --- | --- | --- |
-| `user_id` | `int` | обязательно |
+| `user_id` | `int` | 必填 |
 | `subscription_id` | `int | None` | `None` |
 | `tariff_key` | `str | None` | `None` |
 | `end_date` | `datetime | None` | `None` |
 
 ## `subscription.extended`
 
-Модель данных события: `SubscriptionExtendedPayload`
+事件载荷模型：`SubscriptionExtendedPayload`
 
-Источники события: `backend/bot/payment_providers/shared/success.py`, `backend/bot/payment_providers/yookassa.py`
+发布位置：`backend/bot/payment_providers/shared/success.py`, `backend/bot/payment_providers/yookassa.py`
 
-Реакции Core: нет
+Core 响应：无
 
-| Поле | Тип | Значение по умолчанию |
+| 字段 | 类型 | 默认值 |
 | --- | --- | --- |
-| `user_id` | `int` | обязательно |
+| `user_id` | `int` | 必填 |
 | `subscription_id` | `int | None` | `None` |
 | `tariff_key` | `str | None` | `None` |
 | `end_date` | `datetime | None` | `None` |
@@ -523,96 +523,96 @@
 
 ## `subscription.lapsed`
 
-Модель данных события: `SubscriptionLapsedPayload`
+事件载荷模型：`SubscriptionLapsedPayload`
 
-Источники события: `backend/bot/services/subscription_notification_worker.py`
+发布位置：`backend/bot/services/subscription_notification_worker.py`
 
-Реакции Core: нет
+Core 响应：无
 
-| Поле | Тип | Значение по умолчанию |
+| 字段 | 类型 | 默认值 |
 | --- | --- | --- |
-| `user_id` | `int` | обязательно |
+| `user_id` | `int` | 必填 |
 | `subscription_id` | `int | None` | `None` |
 | `tariff_key` | `str | None` | `None` |
 | `end_date` | `datetime | None` | `None` |
 
 ## `support.message_created`
 
-Модель данных события: `SupportMessageCreatedPayload`
+事件载荷模型：`SupportMessageCreatedPayload`
 
-Источники события: `backend/bot/services/support_service.py`
+发布位置：`backend/bot/services/support_service.py`
 
-Реакции Core: нет
+Core 响应：无
 
-| Поле | Тип | Значение по умолчанию |
+| 字段 | 类型 | 默认值 |
 | --- | --- | --- |
-| `user_id` | `int` | обязательно |
-| `ticket_id` | `int` | обязательно |
-| `message_id` | `int` | обязательно |
-| `author_role` | `str` | обязательно |
-| `is_internal_note` | `bool` | обязательно |
-| `revision` | `int` | обязательно |
-| `change_cursor` | `int` | обязательно |
+| `user_id` | `int` | 必填 |
+| `ticket_id` | `int` | 必填 |
+| `message_id` | `int` | 必填 |
+| `author_role` | `str` | 必填 |
+| `is_internal_note` | `bool` | 必填 |
+| `revision` | `int` | 必填 |
+| `change_cursor` | `int` | 必填 |
 | `source` | `str | None` | `None` |
 
 ## `support.ticket_created`
 
-Модель данных события: `SupportTicketCreatedPayload`
+事件载荷模型：`SupportTicketCreatedPayload`
 
-Источники события: `backend/bot/services/support_service.py`
+发布位置：`backend/bot/services/support_service.py`
 
-Реакции Core: нет
+Core 响应：无
 
-| Поле | Тип | Значение по умолчанию |
+| 字段 | 类型 | 默认值 |
 | --- | --- | --- |
-| `user_id` | `int` | обязательно |
-| `ticket_id` | `int` | обязательно |
-| `category` | `str` | обязательно |
-| `priority` | `str` | обязательно |
+| `user_id` | `int` | 必填 |
+| `ticket_id` | `int` | 必填 |
+| `category` | `str` | 必填 |
+| `priority` | `str` | 必填 |
 
 ## `support.ticket_updated`
 
-Модель данных события: `SupportTicketUpdatedPayload`
+事件载荷模型：`SupportTicketUpdatedPayload`
 
-Источники события: `backend/bot/services/support_service.py`
+发布位置：`backend/bot/services/support_service.py`
 
-Реакции Core: нет
+Core 响应：无
 
-| Поле | Тип | Значение по умолчанию |
+| 字段 | 类型 | 默认值 |
 | --- | --- | --- |
-| `user_id` | `int` | обязательно |
-| `ticket_id` | `int` | обязательно |
-| `status` | `str` | обязательно |
-| `revision` | `int` | обязательно |
-| `change_cursor` | `int` | обязательно |
+| `user_id` | `int` | 必填 |
+| `ticket_id` | `int` | 必填 |
+| `status` | `str` | 必填 |
+| `revision` | `int` | 必填 |
+| `change_cursor` | `int` | 必填 |
 | `assigned_admin_id` | `int | None` | `None` |
 
 ## `trial.activated`
 
-Модель данных события: `TrialActivatedPayload`
+事件载荷模型：`TrialActivatedPayload`
 
-Источники события: `backend/bot/payment_providers/shared/success.py`, `backend/bot/services/subscription_service_impl/trial.py`
+发布位置：`backend/bot/payment_providers/shared/success.py`, `backend/bot/services/subscription_service_impl/trial.py`
 
-Реакции Core: `CoreEventReactions.on_trial_activated`
+Core 响应：`CoreEventReactions.on_trial_activated`
 
-| Поле | Тип | Значение по умолчанию |
+| 字段 | 类型 | 默认值 |
 | --- | --- | --- |
-| `user_id` | `int` | обязательно |
+| `user_id` | `int` | 必填 |
 | `end_date` | `datetime | None` | `None` |
-| `days` | `int` | обязательно |
+| `days` | `int` | 必填 |
 | `traffic_gb` | `float | None` | `None` |
 
 ## `user.registered`
 
-Модель данных события: `UserRegisteredPayload`
+事件载荷模型：`UserRegisteredPayload`
 
-Источники события: `backend/bot/app/web/webapp/external_oauth.py`, `backend/db/dal/user_dal.py`
+发布位置：`backend/bot/app/web/webapp/external_oauth.py`, `backend/db/dal/user_dal.py`
 
-Реакции Core: `CoreEventReactions.on_user_registered`
+Core 响应：`CoreEventReactions.on_user_registered`
 
-| Поле | Тип | Значение по умолчанию |
+| 字段 | 类型 | 默认值 |
 | --- | --- | --- |
-| `user_id` | `int` | обязательно |
+| `user_id` | `int` | 必填 |
 | `account_id` | `str | None` | `None` |
 | `minishop_id` | `str | None` | `None` |
 | `telegram_id` | `int | None` | `None` |
@@ -622,4 +622,4 @@
 | `language` | `str | None` | `None` |
 | `referred_by_id` | `int | None` | `None` |
 | `partner_user_id` | `int | None` | `None` |
-| `registered_via` | `'telegram' | 'email' | 'discord_oauth' | 'google_oauth' | 'yandex_oauth' | 'panel_sync' | 'unknown'` | обязательно |
+| `registered_via` | `'telegram' | 'email' | 'discord_oauth' | 'google_oauth' | 'yandex_oauth' | 'panel_sync' | 'unknown'` | 必填 |

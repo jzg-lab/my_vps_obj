@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="750" viewBox="0 0 1200 750" role="img" aria-labelledby="title desc">
+  <title id="title">Liquid Glass · 主题简介</title>
+  <desc id="desc">Liquid Glass 主题简介封面，非界面截图。玻璃界面 · 两套调色板。实际外观请查看作者仓库。</desc>
+  <rect width="1200" height="750" fill="#162326"/>
+  <g fill="none" stroke="#7be6c0" opacity=".2">
+    <circle cx="1030" cy="150" r="340" stroke-width="80"/>
+    <circle cx="1030" cy="150" r="440" stroke-width="2"/>
+  </g>
+  <path d="M80 130h100" stroke="#7be6c0" stroke-width="8"/>
+  <g font-family="system-ui, sans-serif">
+    <text x="80" y="220" fill="#7be6c0" font-size="30">社区主题</text>
+    <text x="80" y="340" fill="#ffffff" font-size="72" font-weight="700">Liquid Glass</text>
+    <text x="80" y="430" fill="#e1e7ee" font-size="34">玻璃界面 · 两套调色板</text>
+    <text x="80" y="630" fill="#b8c2cd" font-size="26">主题简介 · 实际界面请查看作者仓库</text>
+  </g>
+</svg>

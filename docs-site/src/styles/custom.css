@@ -11,14 +11,14 @@
     --minishop-pro-accent-strong: #5b21b6;
   }
 
-  .sl-markdown-content .starlight-aside[aria-label='Друзья проекта'] {
+  .sl-markdown-content .starlight-aside[aria-label='项目伙伴'] {
     border: 1px solid var(--sl-color-asides-border);
     border-radius: 8px;
     background-color: transparent;
   }
 
   .sl-markdown-content
-    .starlight-aside[aria-label='Друзья проекта']
+    .starlight-aside[aria-label='项目伙伴']
     .starlight-aside__title
     + .starlight-aside__content {
     margin-top: 1.25rem;

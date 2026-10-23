@@ -55,7 +55,7 @@ class PaymentHistoryItemOut(HttpResponseModel):
     status: str | None = None
     history_state: PaymentHistoryState
     checkout_url: str | None = Field(
-        default=None, description="Active checkout link, only for a payment awaiting payment."
+        default=None, description="有效的收款链接，仅适用于等待付款的记录。"
     )
     description: str | None = None
     created_at: datetime | None = None

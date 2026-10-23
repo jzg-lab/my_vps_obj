@@ -387,14 +387,14 @@ class AdminBackupRestoreBody(HttpBodyModel):
 
 
 class AdminBroadcastButtonBody(HttpBodyModel):
-    """One inline button attached to a broadcast.
+    """群发消息附带的一个内联按钮。
 
-    ``kind`` selects how the button URL is produced:
-    - ``url`` — explicit ``url`` field;
-    - ``promo_bot`` — deep link into the bot applying ``promo_code``;
-    - ``promo_webapp`` — link into the Mini App checkout with ``promo_code``;
-    - ``webapp_section`` — link that opens the Mini App screen named by
-      ``section`` (invite, support, devices, …).
+    ``kind`` 决定按钮链接的生成方式：
+    - ``url``：使用明确提供的 ``url`` 字段；
+    - ``promo_bot``：打开机器人并使用 ``promo_code`` 的深链接；
+    - ``promo_webapp``：携带 ``promo_code`` 的小程序结账链接；
+    - ``webapp_section``：打开 ``section`` 指定的小程序页面
+      （invite、support、devices 等）。
     """
 
     kind: str = "url"

@@ -75,7 +75,7 @@ _BACKUP_UPLOAD_BODY_SCHEMA = {
                 BINARY_RESPONSE_SCHEMA,
                 {"type": "array", "items": BINARY_RESPONSE_SCHEMA},
             ],
-            "description": "One ZIP, or a parts manifest and all parts in repeated file fields.",
+            "description": "上传一个 ZIP，或通过重复的文件字段上传分卷清单与全部分卷。",
         }
     },
 }

@@ -1,5 +1,5 @@
-# Без обратного прокси
+# 无反向代理
 
-Каноничная инструкция: [docs/getting-started/deployment.md](../../../docs/getting-started/deployment.md#без-обратного-прокси).
+完整说明： [docs/getting-started/deployment.md](../../../docs/getting-started/deployment.md#без-обратного-прокси).
 
-Файлы этого примера остаются рядом: `docker-compose.yml` и `.env.example`.
+本示例文件保留在同一目录： `docker-compose.yml`、`.env.example`.

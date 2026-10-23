@@ -232,8 +232,8 @@ Telegram 管理后台的批量创建仍保留为快速发放奖励天数的旧�
 
 ```json
 {
-  "ru": {
-    "menu_personal_account_button": "Личный кабинет"
+  "zh-hans": {
+    "menu_personal_account_button": "个人中心"
   },
   "en": {
     "menu_personal_account_button": "Account"

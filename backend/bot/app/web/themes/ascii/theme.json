@@ -2,7 +2,8 @@
   "key": "ascii",
   "names": {
     "ru": "ASCII",
-    "en": "ASCII"
+    "en": "ASCII",
+    "zh-hans": "ASCII"
   },
   "enabled": true,
   "default": false,

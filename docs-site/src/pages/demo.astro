@@ -2,7 +2,7 @@
 import copy from "../../../locales/zh-hans.json";
 import { emailPreviews } from '../lib/emailPreviews.mjs';
 
-const defaultDemoSrc = '/demo/runtime/app/index.html?path=/home&mock=tariffs';
+const defaultDemoSrc = '/demo/runtime/app/index.html?path=/home&mock=services&default_language=zh-hans&delivery=1';
 const docsHref = '/getting-started/demo/';
 ---
 
@@ -464,18 +464,8 @@ const docsHref = '/getting-started/demo/';
         <label class="demo-topbar__state">
           <span class="demo-topbar__state-label">{copy.docs_demo_state}</span>
           <select class="demo-topbar__state-select" aria-label={copy.docs_demo_state_label}>
-            <option value="tariffs">{copy.docs_demo_default}</option>
-            <option value="depleted">{copy.docs_demo_depleted}</option>
-            <option value="no-subscription">{copy.docs_demo_no_subscription}</option>
-            <option value="trial">{copy.docs_demo_trial}</option>
-            <option value="trial-telegram">{copy.docs_demo_trial_telegram}</option>
-            <option value="referral-telegram">{copy.docs_demo_referral_telegram}</option>
-            <option value="devices">{copy.docs_demo_devices}</option>
-            <option value="auto-renew">{copy.docs_demo_auto_renew}</option>
-            <option value="notifications">{copy.docs_demo_notifications}</option>
-            <option value="user-balance">{copy.docs_demo_balance}</option>
-            <option value="compact">{copy.docs_demo_compact}</option>
-            <option value="server-status">{copy.docs_demo_server_status}</option>
+            <option value="services">{copy.docs_demo_services}</option>
+            <option value="services-empty">{copy.docs_demo_services_empty}</option>
             <option value="auth">{copy.docs_demo_auth}</option>
             <option value="emails">{copy.docs_demo_emails}</option>
           </select>
@@ -491,7 +481,7 @@ const docsHref = '/getting-started/demo/';
     <iframe
       id="demo-frame"
       class="demo-frame"
-      title="remnawave-minishop static demo"
+      title={copy.docs_demo_frame_title}
       src={defaultDemoSrc}
       loading="eager"
     ></iframe>

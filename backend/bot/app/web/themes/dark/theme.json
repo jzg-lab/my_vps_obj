@@ -2,7 +2,8 @@
   "key": "dark",
   "names": {
     "ru": "По умолчанию",
-    "en": "Default"
+    "en": "Default",
+    "zh-hans": "默认"
   },
   "enabled": true,
   "default": true,

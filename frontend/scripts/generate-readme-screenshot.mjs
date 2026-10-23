@@ -2,7 +2,7 @@
 
 import { spawn } from "node:child_process";
 import { createReadStream } from "node:fs";
-import { access, mkdir, stat } from "node:fs/promises";
+import { access, mkdir, readFile, stat } from "node:fs/promises";
 import http from "node:http";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
@@ -16,9 +16,6 @@ const appShell = path.join(runtimeRoot, "app", "index.html");
 const outputPath = path.join(repoRoot, "docs", "remnawave-minishop.webp");
 const logoPath = path.join(runtimeRoot, "default-brand", "default-logo.webp");
 
-const logoUrl =
-  process.env.README_SCREENSHOT_LOGO_URL ||
-  "https://fonts.gstatic.com/s/e/notoemoji/latest/1f47e/512.webp";
 const skipBuild = process.argv.includes("--skip-build");
 const isWindows = process.platform === "win32";
 const homeLogoScalePercent = 150;
@@ -26,9 +23,9 @@ const homeLogoScalePercent = 150;
 const canvas = { width: 1920, height: 1080 };
 const panel = { y: 70, height: 940, radius: 16 };
 const placements = {
-  home: { x: -92, width: 402 },
-  settings: { x: 362, width: 402 },
-  admin: { x: 814, width: 1440 },
+  home: { x: 40, width: 360 },
+  settings: { x: 440, width: 360 },
+  admin: { x: 840, width: 1040 },
 };
 
 const contentTypes = new Map([
@@ -116,11 +113,7 @@ async function buildDemoRuntime() {
 }
 
 async function installScreenshotLogo(sharp) {
-  const response = await fetch(logoUrl);
-  if (!response.ok) {
-    throw new Error(`Unable to download README screenshot logo (${response.status}).`);
-  }
-  const source = Buffer.from(await response.arrayBuffer());
+  const source = await readFile(logoPath);
   await sharp(source, { animated: false })
     .resize(512, 512, { fit: "contain" })
     .webp({ quality: 96 })
@@ -185,11 +178,13 @@ async function startServer() {
 function routeUrl(baseUrl, route) {
   const url = new URL(baseUrl);
   url.searchParams.set("path", route);
+  url.searchParams.set("mock", "services");
   url.searchParams.set("theme_preview", "dark");
   return url.href;
 }
 
 async function preparePage(page, url) {
+  await page.addInitScript(() => localStorage.setItem("rw_minishop_demo_language", "zh-hans"));
   await page.goto(url, { waitUntil: "networkidle" });
   await page.addStyleTag({ content: screenshotCss });
   await page.evaluate(async () => {
@@ -205,25 +200,19 @@ async function captureScreens(chromium, baseUrl) {
     const mobileContext = await browser.newContext({
       colorScheme: "dark",
       deviceScaleFactor: 1,
-      locale: "ru-RU",
+      locale: "zh-CN",
       reducedMotion: "reduce",
-      viewport: { width: 430, height: 932 },
+      viewport: { width: placements.home.width, height: panel.height },
     });
     const mobilePage = await mobileContext.newPage();
 
-    await preparePage(mobilePage, routeUrl(baseUrl, "/home"));
-    await mobilePage.getByRole("heading", { name: "/minishop" }).waitFor();
+    await preparePage(mobilePage, routeUrl(baseUrl, "/services"));
+    await mobilePage.getByRole("heading", { name: "我的服务", exact: true }).waitFor();
     // Mirror Appearance → Home and login logo → Mobile logo scale without
     // changing the shared docs-demo catalog used by the other screenshots.
     await mobilePage.locator(".app-shell").evaluate((element, percent) => {
       element.style.setProperty("--home-logo-scale-mobile", String(percent / 100));
     }, homeLogoScalePercent);
-    const premiumServers = mobilePage.getByRole("button", { name: /Premium servers/i });
-    await premiumServers.click();
-    await mobilePage.locator('button[aria-expanded="true"]').waitFor();
-    await mobilePage.evaluate(() => {
-      if (document.activeElement instanceof HTMLElement) document.activeElement.blur();
-    });
     const home = await mobilePage.screenshot({ animations: "disabled", caret: "hide" });
 
     await preparePage(mobilePage, routeUrl(baseUrl, "/settings"));
@@ -234,22 +223,13 @@ async function captureScreens(chromium, baseUrl) {
     const adminContext = await browser.newContext({
       colorScheme: "dark",
       deviceScaleFactor: 1,
-      locale: "ru-RU",
+      locale: "zh-CN",
       reducedMotion: "reduce",
-      viewport: { width: 1440, height: 932 },
+      viewport: { width: placements.admin.width, height: panel.height },
     });
     const adminPage = await adminContext.newPage();
-    await preparePage(adminPage, routeUrl(baseUrl, "/admin/stats"));
-    await adminPage.getByRole("heading", { name: /Дашборд|Dashboard/i }).waitFor();
-    const revenueChart = adminPage.locator(".admin-revenue-chart").last();
-    await revenueChart.waitFor();
-    await revenueChart.evaluate((element) => {
-      element.scrollIntoView({ block: "center", inline: "nearest" });
-    });
-    await adminPage.locator(".admin-revenue-uplot-host").waitFor();
-    await adminPage.evaluate(() => {
-      if (document.activeElement instanceof HTMLElement) document.activeElement.blur();
-    });
+    await preparePage(adminPage, routeUrl(baseUrl, "/admin/service-plans"));
+    await adminPage.getByRole("button", { name: "新建套餐", exact: true }).waitFor();
     const admin = await adminPage.screenshot({ animations: "disabled", caret: "hide" });
     await adminContext.close();
 

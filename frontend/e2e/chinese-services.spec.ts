@@ -142,6 +142,19 @@ for (const width of [1440, 390]) {
     await page.keyboard.press("Escape");
 
     await page.goto(url("admin/appearance"));
+    await page.locator('[data-theme-key="dark"] .theme-card-actions button').last().click();
+    dialog = page.locator(".appearance-settings-dialog");
+    await expect(dialog.locator(".appearance-preset-row")).toContainText("翡翠绿");
+    await expect(dialog.locator(".appearance-preset-row")).toContainText("海洋蓝");
+    await dialog.locator(".appearance-select-grid .admin-select-trigger").first().click();
+    await expect(page.getByRole("option", { name: "系统默认", exact: true })).toBeVisible();
+    await expect(page.getByRole("option", { name: "系统界面字体", exact: true })).toBeInViewport();
+    await page.screenshot({
+      path: info.outputPath(`chinese-font-menu-${width}.png`),
+      animations: "disabled",
+    });
+    await page.keyboard.press("Escape");
+    await dialog.locator(".dialog-head button").click();
     await page
       .locator(".appearance-library")
       .getByRole("button", { name: "添加主题", exact: true })
@@ -155,7 +168,9 @@ for (const width of [1440, 390]) {
     await page.goto(url("admin/backups"));
     const restore = page.locator(".backups-restore-card");
     await expect(restore.getByRole("button", { name: "从备份恢复", exact: true })).toBeDisabled();
-    await expect(page.getByText("选择 ZIP 或备份分卷", { exact: true })).toBeVisible();
+    await expect(
+      page.getByRole("button", { name: "选择 ZIP 或备份分卷", exact: true })
+    ).toBeVisible();
     await expect(restore).toContainText("恢复");
     expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1)).toBe(
       true
@@ -190,6 +205,9 @@ for (const width of [1440, 390]) {
 
     await page.goto(url("admin/broadcast"));
     await expect(page.getByRole("heading", { name: "群发历史", exact: true })).toBeVisible();
+    await expect(page.locator(".broadcast-history-message-preview").first()).toContainText(
+      "夏季更新已上线"
+    );
     await expect(page.getByRole("button", { name: "粗体", exact: true })).toBeVisible();
     await page.getByRole("button", { name: "表情", exact: true }).first().click();
     const picker = page.getByRole("dialog");

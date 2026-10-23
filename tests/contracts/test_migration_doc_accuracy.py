@@ -87,47 +87,54 @@ class MigrationDocumentationFactsTests(unittest.TestCase):
     def test_doc_says_webhook_base_url_is_required(self):
         block = self.doc.lower()
         self.assertIn("webhook_base_url", block)
-        self.assertIn("обязательн", block)
+        self.assertIn("必填", block)
 
     def test_doc_mentions_migrate_one_shot_service(self):
         normalized = self.doc.lower()
         self.assertIn("migrate", normalized)
         self.assertTrue(
-            "one-shot" in normalized or "однораз" in normalized,
+            "只运行一次" in normalized,
             "migration doc must describe `migrate` as a one-shot service",
         )
 
     def test_doc_mentions_postgres_host_compose_override_caveat(self):
         self.assertIn("POSTGRES_HOST", self.doc)
-        text = self.doc.lower()
-        self.assertTrue(
-            "переопредел" in text or "service name" in text,
-            "migration doc must explain that compose overrides POSTGRES_HOST",
-        )
+        self.assertIn("Compose 按服务名覆盖主机", self.doc)
 
     def test_doc_describes_redis_data_and_shop_data_as_fresh(self):
         text = self.doc.lower()
         self.assertIn("redis-data", text)
         self.assertIn("shop-data", text)
-        self.assertTrue(any(marker in text for marker in ("пустым", "создается пуст")))
+        self.assertTrue("创建空卷" in text)
 
     def test_doc_explains_reverse_proxy_no_longer_single_upstream(self):
         self.assertIn("backend:8080", self.doc)
         self.assertIn("frontend:80", self.doc)
 
     def test_doc_describes_safe_tgshop_dsn_restore(self):
-        self.assertIn("не копирует raw PostgreSQL", self.doc)
+        self.assertIn("不复制旧 PostgreSQL 原始数据卷", self.doc)
         self.assertIn("LEGACY_TGSHOP_DB_CONTAINER", self.doc)
         self.assertIn("LEGACY_TGSHOP_SOURCE_DSN", self.doc)
-        self.assertIn("удаляет целевой DB volume", self.doc)
+        self.assertIn("删除 Minishop 目标数据库卷", self.doc)
         self.assertIn("pre-remnawave-tg-shop-source", self.doc)
         self.assertIn("remnawave-tg-shop-db-data", self.doc)
         self.assertIn("pg_dump", self.doc)
 
-    def test_doc_uses_current_russian_wizard_menu_labels(self):
-        self.assertIn("Установить новый remnawave-minishop и мигрировать", self.doc)
-        self.assertIn("Мигрировать данные в уже установленный remnawave-minishop", self.doc)
-        self.assertIn("Старый remnawave-tg-shop", self.doc)
+    def test_doc_explains_current_wizard_menu_labels_in_chinese(self):
+        for original, chinese in (
+            (
+                "Установить новый remnawave-minishop и мигрировать",
+                "安装新的 remnawave-minishop 并从其他机器人迁移数据",
+            ),
+            (
+                "Мигрировать данные в уже установленный remnawave-minishop",
+                "迁移到已安装的 remnawave-minishop",
+            ),
+            ("Старый remnawave-tg-shop", "旧 remnawave-tg-shop"),
+        ):
+            with self.subTest(label=chinese):
+                self.assertIn(original, self.script)
+                self.assertIn(chinese, self.doc)
 
 
 class InstallWizardCoverageTests(unittest.TestCase):
@@ -219,11 +226,11 @@ class RemnashopMigrationDocumentationFactsTests(unittest.TestCase):
             "USER_BALANCE_CURRENCY",
             "--balance-currency",
             "XTR",
-            "email-only",
-            "OAuth identities",
-            "не создает из них\nпартнерские профили",
+            "纯邮箱",
+            "OAuth 身份",
+            "不创建合作伙伴资料或申请",
             "ad_links",
-            "squad overrides",
+            "节点组覆盖",
         ):
             with self.subTest(phrase=phrase):
                 self.assertIn(phrase, self.doc)
@@ -245,17 +252,17 @@ class RemnashopMigrationDocumentationFactsTests(unittest.TestCase):
 
     def test_doc_matches_current_wizard_prompts_and_defaults(self):
         for phrase in (
-            "Установить новый remnawave-minishop и мигрировать данные из другого бота",
-            "Мигрировать данные в уже установленный remnawave-minishop",
-            "Уже установленная Remnawave через eGames",
+            "安装新的 remnawave-minishop 并从其他机器人迁移数据",
+            "迁移到已安装的 remnawave-minishop",
+            "已由 eGames 安装 Remnawave",
             "/opt/remnawave-minishop",
             "MINISHOP_INSTALL_REPO",
             "MINISHOP_INSTALL_REF",
             "REMNASHOP_SOURCE_SCHEMA",
             "backups/pre-remnashop-migration",
-            "backend`, `worker` и `frontend`",
+            "backend／worker／frontend",
             "eGames Nginx",
-            "Дальнейшие шаги",
+            "后续步骤",
         ):
             with self.subTest(phrase=phrase):
                 self.assertIn(phrase, self.doc)

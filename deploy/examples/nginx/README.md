@@ -1,5 +1,5 @@
 # Nginx
 
-Каноничная инструкция: [docs/getting-started/deployment.md](../../../docs/getting-started/deployment.md#nginx).
+完整说明： [docs/getting-started/deployment.md](../../../docs/getting-started/deployment.md#nginx).
 
-Файлы этого примера остаются рядом: `docker-compose.yml`, `.env.example`, `nginx.conf.template` и папка `ssl/` для сертификатов.
+本示例文件保留在同一目录： `docker-compose.yml`, `.env.example`, `nginx.conf.template`，以及存放证书的 `ssl/` 目录。

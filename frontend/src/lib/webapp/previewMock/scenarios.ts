@@ -110,11 +110,19 @@ function applyPaymentPurchasesScenario(): void {
 
 export function applyDemoDataset(): void {
   const storedLanguage = readStoredDemoLanguage();
+  const requestedDefault =
+    typeof window === "undefined"
+      ? ""
+      : new URLSearchParams(window.location.search).get("default_language") || "";
+  const defaultLanguage = ["zh-hans", "en", "ru"].includes(requestedDefault)
+    ? requestedDefault
+    : "";
   const demoUser = withDemoAvatar(
     {
       ...(DATASET.currentUser || {}),
       id: (DATASET.currentUser?.id ?? DATASET.currentUser?.user_id) as number | string | null,
-      language_code: storedLanguage || DATASET.currentUser?.language_code || "ru",
+      language_code:
+        storedLanguage || defaultLanguage || DATASET.currentUser?.language_code || "ru",
       telegram_notifications_status:
         DATASET.currentUser?.telegram_notifications_status || "enabled",
       telegram_notifications_enabled: DATASET.currentUser?.telegram_notifications_enabled ?? true,

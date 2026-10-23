@@ -39,7 +39,9 @@
 
 [打开演示](/demo/home)可以在浏览器中查看模拟用户和后台流程，不需要真实数据库、面板或节点。演示成功只证明界面行为，不代表订阅、计量、限额、停用或专用 IP 在真实连接中通过验收。
 
-常用演示入口：[用户首页](/demo/home)、[连接教程](/demo/install?mock=guides)、[后台用户](/demo/admin/users)、[后台备份](/demo/admin/backups)、[登录与注册](/demo/login?mock=auth)。演示由 `docs-site/scripts/build-demo-runtime.mjs` 随文档站一起构建：`docs-demo` 模式接入模拟数据和 API，构建后将主要 `/demo/*` 路由生成静态页面。演示运行时不进入正式网站构建。
+演示默认使用简体中文和独立服务模式，语言设置中仍可切换英语或俄语；再次打开会保留已保存的语言偏好。连接教程从服务详情中的“导入订阅”展开，所用订阅地址仅为演示占位。
+
+常用演示入口：[用户首页](/demo/home)、[服务与连接教程](/demo/home?delivery=1)、[后台用户](/demo/admin/users)、[后台备份](/demo/admin/backups)、[登录与注册](/demo/login?mock=auth)。演示由 `docs-site/scripts/build-demo-runtime.mjs` 随文档站一起构建：`docs-demo` 模式接入模拟数据和 API，构建后将主要 `/demo/*` 路由生成静态页面。演示运行时不进入正式网站构建。
 
 ## 继续阅读
 

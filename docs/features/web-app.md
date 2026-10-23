@@ -1,54 +1,44 @@
-# Веб-приложение / Mini App
+<a id="веб-приложение--mini-app"></a>
 
-Веб-приложение собирается в отдельный образ `frontend` и отдается через nginx. Статические запросы Mini App идут в `frontend:80`; frontend nginx проксирует `/api/*`, `/auth/*` и ассеты тем/логотипов во внутренний WebApp-сервер backend на `backend:8081`. Telegram, платежные и панельные webhook-маршруты остаются на backend-сервере вебхуков `backend:8080`.
+# 网页应用与 Mini App
 
-## Что показывает веб-приложение
+网页应用构建为独立 `frontend` 镜像，由 nginx 提供。Mini App 静态请求进入 `frontend:80`；frontend nginx 将 `/api/*`、`/auth/*` 和主题／标志资源代理至 `backend:8081` 的内部网页服务器。Telegram、支付和面板 webhook 仍由 `backend:8080` 处理。
 
-- текущую ссылку подключения;
-- статус и дату окончания подписки;
-- использованный и доступный трафик;
-- отдельную карточку premium-трафика, если у активного тарифа настроены premium-сквады и premium-лимит;
-- доступные тарифы, способы оплаты и платежный статус;
-- карточку состава period-тарифа и, если администратор включил соответствующие возможности, слайдеры итогового числа устройств и периодических лимитов обычного/premium-трафика прямо при оформлении;
-- смену тарифа, обычную докупку трафика и докупку premium-трафика при настроенном каталоге тарифов; предложение докупки по умолчанию появляется после 80% расхода соответствующего лимита, если у тарифа не включен переключатель «Докупка доступна всегда» (подробнее: [когда показывается докупка](tariffs.md#когда-показывается-докупка-трафика));
-- встроенную инструкцию установки: подбор платформы, список приложений, deeplink-кнопки, QR и действия со ссылкой подписки;
-- раздел "Мои устройства" при `MY_DEVICES_SECTION_ENABLED=True`;
-- раздел "Поддержка" с тикетами и внешней ссылкой `SUPPORT_LINK` при включенном `SUPPORT_TICKETS_ENABLED`;
-- раздел статуса серверов при `SERVER_STATUS_ENABLED=True`: внешнюю страницу статуса или
-  встроенные данные Uptime Kuma и xray-checker;
-- отдельный подраздел **Настройки → Уведомления** для рекламных и системных уведомлений по email
-  и Telegram; прямой путь `/settings/notifications` и `startapp=notifications` можно использовать
-  в кнопках сообщений и меню;
-- реферальную ссылку и статистику приглашений;
-- раздел **Партнёрство** при включённой партнёрской программе: заявку, отдельные ссылки, клиентов,
-  комиссии, раздельные балансы, выплаты и полную или частичную оплату покупок из баланса;
-- привязку email и Telegram к одному аккаунту.
+> 本页包含上游功能参考。本项目一期以独立多服务、人工开通及中文教程为准，不开放旧支付与营销购买入口。旧教程接口已退役；当前服务教程路径见本页“安装教程”。
 
-Для аккаунтов с ролью `owner` или `admin` веб-приложение также показывает админ-панель: статистику,
-**пользователей** (поиск, фильтры, premium-трафик), партнёров, поддержку, рассылки, промокоды,
-логи, настройки и редактор тарифов. Подробности: [админ-панель](admin-panel.md).
+<a id="что-показывает-веб-приложение"></a>
 
-## Оформление period-подписки
+## 网页应用显示什么
 
-Перед выбором срока Mini App показывает компактную карточку тарифа: название, описание,
-устройства, обычный трафик и premium-трафик. Для безлимитного ресурса выводится «Безлимит» без
-лишнего упоминания периода сброса. Если хотя бы один checkout-слайдер доступен, карточка
-раскрывается по нажатию или кнопке изменения; параметры, для которых слайдер выключен, остаются
-только информационными.
+- 当前连接链接、订阅状态和到期日、已用与可用流量。
+- 当前套餐配置 premium 节点组及限额时，显示独立 premium 流量卡片。
+- 可用套餐、支付方式和付款状态。
+- 按时长套餐的权益卡片；管理员启用后，可在结账时通过滑块选择总设备数和普通／premium 周期限额。
+- 配置套餐目录后，可切换套餐、加购普通与 premium 流量。默认使用对应额度超过 80% 后才推荐加购；套餐开启“始终允许加购”时例外，见[流量加购显示时机](tariffs.md#когда-показывается-докупка-трафика)。
+- 内置安装教程：平台、客户端列表、深层链接按钮、二维码和订阅链接操作。
+- `MY_DEVICES_SECTION_ENABLED=True` 时显示“我的设备”。
+- `SUPPORT_TICKETS_ENABLED` 开启时显示客服工单与外部 `SUPPORT_LINK`。
+- `SERVER_STATUS_ENABLED=True` 时显示外部状态页，或内置 Uptime Kuma／xray-checker 数据。
+- “设置 → 通知”管理邮件、Telegram 营销和系统通知；消息按钮与菜单可使用 `/settings/notifications` 或 `startapp=notifications`。
+- 邀请链接与推荐统计。
+- 合作伙伴计划开启时显示“合作伙伴”，包括申请、专属链接、客户、佣金、独立余额、提现和余额全额／部分付款。
+- 将邮箱与 Telegram 绑定到同一账号。
 
-Выбор устройств и лимитов сохраняется при переключении срока подписки. Цена анимированно
-обновляется в общей кнопке, во всех карточках периодов и в подписи стоимости за месяц. Во время
-непрерывного перетаскивания расчёт выполняется локально, а после отпускания слайдера Mini App
-получает авторитетную котировку `/api/subscription/quote`. Применённая процентная скидка
-пересчитывается от всей корзины, а не только от базового периода.
+具有 `owner` 或 `admin` 角色的账号还可进入管理后台，查看统计、用户搜索／筛选／premium 流量、合作伙伴、客服、群发、激活码、日志、设置和套餐编辑器。见[管理后台](admin-panel.md)。
 
-Способы оплаты по умолчанию собраны в выпадающий список с иконками; администратор может вернуть
-отдельные кнопки через `PAYMENT_METHODS_DISPLAY_MODE=buttons`. Метод ниже минимальной суммы
-остаётся видимым, но заблокированным, а hover/focus/tap показывает подсказку с минимумом.
-Подробности расчёта и ограничений провайдеров: [платежи](payments.md#проверка-расчёта) и
-[докупки при оформлении](tariffs.md#докупки-при-оформлении-подписки).
+<a id="оформление-period-подписки"></a>
 
-## Настройки `.env`
+## 按时长订阅结账
+
+选择时长前，Mini App 展示紧凑套餐卡片，包括名称、说明、设备、普通及 premium 流量。无限资源显示“不限量”，不额外显示重置周期。存在可用结账滑块时，点击卡片或修改按钮可展开；未启用滑块的参数仅显示信息。
+
+切换购买时长会保留所选设备数和限额。总按钮、所有周期卡片和月均价格随选择动态更新。连续拖动时本地计算，松开滑块后调用 `/api/subscription/quote` 获取服务器权威报价。百分比折扣按整个购物车计算。
+
+支付方式默认显示为带图标的下拉列表；`PAYMENT_METHODS_DISPLAY_MODE=buttons` 可恢复独立按钮。低于最低金额的渠道仍显示但禁用，悬停、聚焦或点击时提示最低值。见[价格核查](payments.md#проверка-расчёта)及[结账加购](tariffs.md#докупки-при-оформлении-подписки)。
+
+<a id="настройки-env"></a>
+
+## `.env` 配置
 
 ```env
 WEBAPP_ENABLED=True
@@ -86,57 +76,39 @@ SERVER_STATUS_STALE_TTL_SECONDS=300
 SERVER_STATUS_TIMEOUT_SECONDS=5
 ```
 
-`SUBSCRIPTION_MINI_APP_URL` - это публичный HTTPS URL именно frontend/Mini App, обычно отдельный домен вроде `https://app.domain.com/`. Его указывают в BotFather в Mini Apps, а бот использует его для кнопок личного кабинета, реферальных ссылок и входа по email. Не добавляйте в него `/api`, `/webhook` или путь конкретной страницы.
+`SUBSCRIPTION_MINI_APP_URL` 必须是公开 frontend／Mini App 的 HTTPS URL，通常使用独立域名，如 `https://app.domain.com/`。它填写在 BotFather 的 Mini Apps 中，也用于个人中心按钮、邀请链接及邮箱登录链接。不要添加 `/api`、`/webhook` 或具体页面路径。
 
-`WEBAPP_API_BASE_URL` - это browser-visible base URL для frontend-запросов. Оставляйте `/api` и для обычного compose, и для разнесенных frontend/backend серверов. Разнесение делается server-side настройкой `WEBAPP_BACKEND_UPSTREAM` у frontend nginx, а не публичным backend origin в JavaScript.
+`WEBAPP_API_BASE_URL` 是浏览器请求的基础 URL。常规 Compose 和前后端分离都应保留 `/api`。分离部署由 frontend nginx 的服务器端 `WEBAPP_BACKEND_UPSTREAM` 实现，不在 JavaScript 中公开后端源地址。
 
-`WEBAPP_BACKEND_UPSTREAM` - приватный/protected upstream, куда frontend nginx проксирует `/api`, `/auth`, `/open-app` и ассеты Web App. По умолчанию это `http://backend:8081`. Для split-сервера используйте защищенный backend-домен с `MINISHOP_EDGE_TOKEN`, private IP/VPN или Rathole tunnel.
+`WEBAPP_BACKEND_UPSTREAM` 是 frontend nginx 代理 `/api`、`/auth`、`/open-app` 及网页资源的私有或受保护上游，默认 `http://backend:8081`。分离部署应使用带 `MINISHOP_EDGE_TOKEN` 的受保护后端域名、私有 IP／VPN 或 Rathole 隧道。
 
-`SERVER_STATUS_ENABLED=True` добавляет пользовательский раздел статуса. Источник `url` открывает
-`SERVER_STATUS_URL`, а `uptime-kuma` и `xray-checker` открывают внутренний экран Mini App и не
-используют `SERVER_STATUS_URL`. Настройка опубликованной страницы статуса, кэша, безопасности и
-диагностики: [статус серверов](server-status.md).
+`SERVER_STATUS_ENABLED=True` 显示用户状态页。`url` 打开 `SERVER_STATUS_URL`；`uptime-kuma`、`xray-checker` 打开 Mini App 内部页面，不使用该 URL。状态页发布、缓存、安全与排障见[服务器状态](server-status.md)。
 
-## Документы и Markdown-страницы
+<a id="документы-и-markdown-страницы"></a>
 
-Публичные документы управляются в отдельном разделе **Система → Документы**. Для
-каждого документа задаются название, slug, Markdown-текст, порядок и необязательная
-группа. Публичный URL документа — `/<slug>`; slug может состоять из вложенных lower-case
-сегментов с буквами, цифрами и дефисами, например `/guides/install/ios`. Для уже занятых
-системных корней сохраняется совместимый адрес `/docs/<slug>`. Пустой Markdown можно сохранить
-как черновик, но его URL будет отвечать `404`.
+## 文档与 Markdown 页面
 
-- «Показывать в настройках» постоянно добавляет непустой документ в пользовательский экран
-  «Настройки»;
-- «Показывать в сайдбаре» добавляет его в навигацию на страницах документов;
-- группа объединяет ссылки под общим заголовком;
-- роль `privacy_policy` или `user_agreement` подставляет нативный документ в ссылки регистрации,
-  оплаты и Telegram. Каждая роль может быть назначена только одному документу.
+公开文档在“系统 → 文档”管理，可设置标题、slug、Markdown 正文、排序和可选分组。公开地址为 `/<slug>`，支持由小写字母、数字和短横线组成的多级路径，如 `/guides/install/ios`。系统已占用根路径时，兼容地址为 `/docs/<slug>`。空正文可保存为草稿，但地址返回 `404`。
 
-Метаданные и Markdown хранятся раздельно в persistent-каталоге `data/docs`; запись выполняется
-атомарно. Markdown рендерится без raw HTML, а размер одного документа ограничен `512 KiB`.
+- “在设置中显示”：把非空文档加入用户设置页。
+- “在侧栏显示”：加入文档页面导航。
+- 分组：在公共标题下归类链接。
+- `privacy_policy`、`user_agreement` 角色：用于注册、支付和 Telegram 法律文档链接，每个角色只能分配给一份文档。
 
-Старые `/legal/policy`, `/legal/terms` и произвольные файловые страницы из `data/pages` остаются
-доступными для совместимости. Если в `data/legal` есть непустой старый файл, а документа
-с соответствующей ролью ещё нет, сервис безопасно импортирует его в новый каталог, не удаляя
-исходник. Каждая юридическая роль импортируется один раз: удаление документа, очистка текста
-или смена роли в админке не восстанавливают старую публикацию. Заготовки
-`data/legal/*.example.md` не импортируются и не публикуются.
+元数据和 Markdown 分开保存在持久目录 `data/docs`，原子写入。Markdown 渲染不执行原始 HTML，单文档最大 `512 KiB`。
 
-Визуальный редактор сохраняет таблицы, изображения, списки задач и блоки с указанием языка как
-исходный Markdown. Эти фрагменты можно изменить в режиме «Markdown»; переключение режимов
-и правка соседнего текста не удаляют их.
+旧 `/legal/policy`、`/legal/terms` 和 `data/pages` 中的任意文件页面保留兼容。`data/legal` 存在非空旧文件、且尚无对应角色文档时，服务安全导入新目录，不删除源文件。每种法律角色只导入一次；后台删除文档、清空正文或更改角色不会恢复旧内容。`data/legal/*.example.md` 不导入、不发布。
 
-Для ручной проверки созданного документа:
+可视化编辑器将表格、图片、任务列表和带语言标记的代码块保留为原始 Markdown。可在“Markdown”模式中修改；切换模式或修改相邻正文不会删除它们。
+
+手动检查文档：
 
 ```bash
 curl -fsS https://app.example.com/api/documents/guides/install/ios
 curl -I https://app.example.com/guides/install/ios
 ```
 
-Старые произвольные Markdown-страницы по-прежнему можно добавлять в Telegram-меню через
-**Система → Настройки → Кнопки меню**. Эквивалент в
-`MENU_BUTTONS_JSON`:
+旧的任意 Markdown 页面仍可通过“系统 → 设置 → 菜单按钮”加入 Telegram 菜单。对应 `MENU_BUTTONS_JSON` 示例：
 
 ```json
 [
@@ -146,102 +118,90 @@ curl -I https://app.example.com/guides/install/ios
     "target": "/company/about",
     "webapp_icon": "Info",
     "telegram_emoji": "ℹ️",
-    "labels": { "ru": "О сервисе", "en": "About" },
+    "labels": { "zh-hans": "关于服务", "en": "About" },
     "show_in_bot": true,
     "show_in_webapp": true
   }
 ]
 ```
 
-Стандартный frontend nginx проксирует такие extensionless-пути в backend, поэтому он подтверждает
-наличие файла и отдаёт тот же Mini App shell с темой и CSP. Не добавляйте HTML, JavaScript URLs или
-секреты в Markdown: raw HTML показывается как текст, а небезопасные ссылки и изображения не
-рендерятся.
+标准 frontend nginx 将这些无扩展名路径代理给后端，由后端确认文件存在并返回相同的带主题和 CSP 的 Mini App 页面。不要在 Markdown 中添加 HTML、JavaScript URL 或密钥：原始 HTML 按文字显示，不安全的链接和图片不渲染。
 
-## Инструкции установки
+<a id="инструкции-установки"></a>
 
-Если `SUBSCRIPTION_GUIDES_ENABLED=True`, кнопка **Установить и настроить** в личном кабинете открывает внутренний экран `/install`. Если инструкции выключены, конфиг не загрузился или не прошел валидацию, сохраняется старое поведение: кнопка открывает финальную ссылку подключения из панели.
+## 安装教程
 
-Экран `/install` доступен только авторизованному пользователю Web App. Он получает данные из `/api/subscription-guides`, определяет платформу по Telegram Mini Apps platform, `navigator.userAgentData.platform` и `navigator.userAgent`, а затем показывает приложения и шаги из Remnawave Subscription Page v1 config. Ссылки типа `happ://...` и другие deeplink-кнопки открываются прямо из Mini App; в шаблонах заменяются `{{SUBSCRIPTION_LINK}}`, `{{USERNAME}}`, `{{HAPP_CRYPT3_LINK}}`, `{{HAPP_CRYPT4_LINK}}` и `{{INCY_CRYPT1_LINK}}`. Крипто-шаблоны шифруют исходный HTTP(S) URL подписки для соответствующего клиента.
+**本项目独立服务模式：**在具体服务详情中，只有获取该服务已核验订阅链接后，才显示中文教程。教程配置从 `GET /api/service-guides` 读取，随 backend 镜像打包，源文件为 `deploy/examples/independent-services-guides.json`，无需额外环境变量。链接只来自当前服务，不回退到旧账号订阅。配置失败可重试；订阅刷新失败会清空旧链接并隐藏教程。见[中文客户端教程](../user-guide/clients-zh.md)。旧 `/api/subscription-guides` 仍返回 410，下面的上游流程不适用于独立服务模式。
 
-Если загрузка инструкций завершилась ошибкой, экран предлагает **Загрузить снова**.
-Повторное открытие экрана также заново запрашивает данные: ошибка не кешируется до перезагрузки
-Mini App. Повторная загрузка публичной ссылки `/s/<token>` использует ту же подписку и не требует
-авторизации. Успешно загруженные и явно отключённые инструкции сохраняют обычное кеширование.
+**上游兼容参考：**`SUBSCRIPTION_GUIDES_ENABLED=True` 时，个人中心“安装与配置”打开内部 `/install`。关闭教程、配置加载或校验失败时，旧行为是打开面板最终连接链接。
 
-Конфиг инструкций загружается в таком порядке:
+上游 `/install` 要求网页登录，通过 `/api/subscription-guides` 获取配置，依次根据 Telegram Mini Apps 平台、`navigator.userAgentData.platform`、`navigator.userAgent` 判断设备，展示 Remnawave Subscription Page v1 配置中的客户端和步骤。`happ://...` 等深层链接可在 Mini App 直接打开。模板替换 `{{SUBSCRIPTION_LINK}}`、`{{USERNAME}}`、`{{HAPP_CRYPT3_LINK}}`、`{{HAPP_CRYPT4_LINK}}`、`{{INCY_CRYPT1_LINK}}`；加密模板将原 HTTP(S) 订阅 URL 转换为相应客户端格式。
 
-1. JSON из админки, только если включен `SUBSCRIPTION_PAGE_CONFIG_JSON_OVERRIDE_ENABLED`.
-2. Resolved Subscription Page config конкретной подписки из Remnawave Panel, если включен `SUBSCRIPTION_PAGE_CONFIG_PANEL_ENABLED` и у активной подписки найден `shortUuid`.
-3. Default Subscription Page config из Remnawave Panel.
-4. Локальный файл `SUBSCRIPTION_PAGE_CONFIG_PATH` как fallback.
+加载失败显示“重新加载”；再次打开页面也重新请求，错误不会一直缓存到应用刷新。公开 `/s/<token>` 重新加载使用相同订阅，无需登录。成功加载和明确关闭的配置仍常规缓存。
 
-По умолчанию используются инструкции из Remnawave Panel, чтобы не дублировать настройку страницы подписки в Minishop. Если пользователю в панели назначен External Squad со своим Subpage Config, встроенный экран `/install` и публичная ссылка `/s/<token>` получают уже примененный к этой подписке конфиг. Локальный файл в `data/subpage-config/multiapp.json` не создается автоматически. Общий fallback-конфиг кешируется на backend и обновляется при изменении связанных настроек; ошибки загрузки кешируются кратко, чтобы не дергать панель на каждый пользовательский запрос.
+上游配置加载顺序：
 
-Личный экран показывает QR-код разрешённой ссылки кнопки подключения выбранного приложения, кнопку копирования той же ссылки и кнопку **Поделиться**. Если у приложения нет безопасной кнопки подключения, QR-блок скрывается. Для передачи инструкции генерируется публичная ссылка `/s/<token>`: она открывает тот же интерфейс инструкций без авторизации и нижней навигации, но без QR-блока. Публичный payload отдается через `/api/subscription-guides/public/{share_token}` только для активной локальной подписки с валидным share token.
+1. 开启 `SUBSCRIPTION_PAGE_CONFIG_JSON_OVERRIDE_ENABLED` 时，使用后台 JSON。
+2. 开启 `SUBSCRIPTION_PAGE_CONFIG_PANEL_ENABLED`，且有效订阅有 `shortUuid` 时，读取该订阅已解析的面板页面配置。
+3. 读取面板默认 Subscription Page 配置。
+4. 使用本地 `SUBSCRIPTION_PAGE_CONFIG_PATH` 作为回退。
 
-`SUBSCRIPTION_GUIDES_BOT_MENU_ENABLED=True` включает такое же поведение в Telegram-боте: кнопки подключения открывают Mini App `/install`, а после успешной оплаты, пробного периода или промокода пользователь получает публичную ссылку `/s/<token>`. Если настройку выключить, бот снова отправляет пользователя на финальную Remnawave Subscription Page.
+默认使用面板教程，避免重复配置。面板用户分配了带专属页面配置的 External Squad 时，`/install` 和 `/s/<token>` 使用该订阅已经解析的配置。本地 `data/subpage-config/multiapp.json` 不自动创建。通用回退配置在后端缓存，相关设置变化时刷新；加载错误短暂缓存，避免每次用户请求都访问面板。
 
-Конфиг совместим с Remnawave Subscription Page v1 (`version`, `locales`, `brandingSettings`, `uiConfig`, `baseSettings`, `baseTranslations`, `svgLibrary`, `platforms`). Backend проверяет обязательные locale-строки, допустимые платформы и типы кнопок, ссылки на `svgIconKey`, а SVG из `svgLibrary` санитизирует перед отдачей в UI.
+私人页面显示所选客户端安全连接按钮的二维码、同一链接复制及“分享”。没有安全连接按钮时隐藏二维码。分享生成 `/s/<token>`，无需登录、没有底部导航和二维码区。`/api/subscription-guides/public/{share_token}` 只为有效本地订阅和有效分享令牌返回公开载荷。
 
-Для иконок и SVG-файлов тем действует общая политика статической разметки:
-поддерживаются градиенты, маски, фильтры, паттерны, маркеры, текст, `symbol`/`use`,
-`vector-effect`, `paint-order`, атрибуты шрифтов и доступности и inline `style`
-с разрешёнными свойствами оформления. `href`, `xlink:href` и `url(...)` могут ссылаться
-только на локальные `#id`. Скрипты, обработчики событий, анимация, внешние изображения,
-HTML, таблицы стилей, DTD и сущности запрещены; CSS-экранирование и комментарии
-в значениях отклоняются, чтобы скрытая ссылка не обходила проверку.
-Неподдерживаемая иконка из Remnawave Panel заменяется нейтральной SVG-иконкой,
-не отключая инструкции и остальные иконки. Редактор JSON и локальные файлы по-прежнему
-отклоняют некорректную разметку, чтобы оператор получил ошибку при проверке.
+上游 `SUBSCRIPTION_GUIDES_BOT_MENU_ENABLED=True` 使机器人连接按钮打开 `/install`，付款、试用或激活码成功后发送 `/s/<token>`；关闭则恢复最终 Remnawave 订阅页面。
 
-В `brandingSettings.logoUrl` поддерживаются HTTP(S)-ссылки и встроенные изображения `data:image/…` (PNG, JPEG, GIF, WebP, AVIF, BMP, ICO и SVG), включая base64 и URL-кодированные данные. Поле сохраняется для совместимости с конфигом панели; встроенные инструкции не отображают этот логотип. Иконки приложений и шагов берутся отдельно из `svgLibrary`. Это разрешение относится только к изображениям: `supportUrl` должен оставаться HTTP(S)-ссылкой, а `data:` в ссылках кнопок запрещен.
+配置兼容 v1 字段：`version`、`locales`、`brandingSettings`、`uiConfig`、`baseSettings`、`baseTranslations`、`svgLibrary`、`platforms`。后端校验必需翻译、平台、按钮类型及 `svgIconKey` 引用，并清洗 SVG。
 
-Если `WEBAPP_ENABLED=False`, пользовательское веб-приложение и админ-панель не регистрируются. Чтобы снова попасть в админку, включите `WEBAPP_ENABLED=True` в `.env` и перезапустите backend/frontend контейнеры.
+教程图标和主题 SVG 采用相同静态策略：支持渐变、蒙版、滤镜、图案、标记、文字、`symbol`／`use`、`vector-effect`、`paint-order`、字体／无障碍属性，以及只包含许可样式属性的内联 `style`。`href`、`xlink:href`、`url(...)` 只能引用本地 `#id`。禁止脚本、事件处理、动画、外部图片、HTML、样式表、DTD 和实体；拒绝属性值中的 CSS 转义与注释，防止隐藏链接绕过校验。面板不支持的图标替换为中性 SVG，不停用整个教程或其他图标；JSON 编辑器和本地文件仍拒绝非法标记，便于运营者在验证时发现问题。
 
-Внешний вид настраивается в админке: раздел **Внешний вид** управляет логотипом, favicon, accent-цветом, выбранной темой и отдельным масштабом логотипа для desktop/mobile layout. Кастомные темы читаются из `WEBAPP_THEMES_DIR`, а `WEBAPP_DEFAULT_THEME` может принудительно выбрать тему по ключу. Подробный контракт `theme.json`, CSS/asset-роуты и пайплайн создания темы описаны в [webapp-themes.md](webapp-themes.md).
+`brandingSettings.logoUrl` 支持 HTTP(S) 和 `data:image/…` 内嵌图片（PNG、JPEG、GIF、WebP、AVIF、BMP、ICO、SVG），包括 base64 与 URL 编码。字段为面板配置兼容保留，内置教程不显示该标志；客户端和步骤图标从 `svgLibrary` 单独读取。此许可仅限图片：`supportUrl` 必须是 HTTP(S)，按钮链接禁止 `data:`。
 
-## Авторизация
+`WEBAPP_ENABLED=False` 时不注册用户应用与后台。恢复访问需在 `.env` 设置 `True` 并重启 backend／frontend。
 
-Mini App поддерживает email-код, email/пароль, Telegram Mini Apps `initData`, Telegram OAuth /
-OpenID Connect, Google, Yandex ID и passkey. Настройка всех вариантов собрана в разделе
-[«Способы входа»](login-methods.md).
+后台“外观”管理标志、网站图标、强调色、主题和桌面／手机标志缩放。自定义主题从 `WEBAPP_THEMES_DIR` 读取，`WEBAPP_DEFAULT_THEME` 可按键强制选择。主题契约与制作流程见[主题与外观](webapp-themes.md)。
 
-Если SMTP-настройки не заполнены, вход по email скрывается. Если Telegram OAuth не настроен, вход через Telegram продолжает работать внутри Telegram Mini App через `initData`, но внешняя браузерная авторизация не сможет стартовать.
+<a id="авторизация"></a>
 
-Тикеты поддержки включаются через `SUPPORT_TICKETS_ENABLED`; внешний резервный контакт задается `SUPPORT_LINK`. Полный сценарий пользователя, админа и уведомлений описан в разделе [поддержка пользователей / тикеты](support.md).
+## 身份认证
 
-## Проксирование
+支持邮箱验证码、邮箱密码、Telegram Mini Apps `initData`、Telegram OAuth／OpenID Connect、Google、Yandex ID 和通行密钥。各方式配置见[登录方式](login-methods.md)。
 
-Рекомендуемая продакшен-схема - два публичных домена и две разные backend-плоскости:
+SMTP 未配置时隐藏邮箱登录。未配置 Telegram OAuth 时，Telegram 内仍可通过 `initData` 登录，但外部浏览器不能启动 Telegram 登录。
 
-- `WEBHOOK_BASE_URL`, например `https://webhooks.domain.com`, целиком проксируется в `backend:8080`;
-- `SUBSCRIPTION_MINI_APP_URL`, например `https://app.domain.com/`, целиком проксируется в `frontend:80`.
+工单由 `SUPPORT_TICKETS_ENABLED` 控制，备用外部联系由 `SUPPORT_LINK` 指定。完整流程见[客服与工单](support.md)。
 
-`frontend` уже сам проксирует `/api/*`, `/auth/*`, `/webapp-logo` и ассеты тем/логотипов во внутренний
-WebApp API на `backend:8081`, поэтому внешний обратный прокси обычно не должен отправлять эти пути в
-`backend:8081` напрямую.
+<a id="проксирование"></a>
 
-Для split frontend/backend браузер всё равно обращается только к frontend-домену:
+## 代理部署
+
+推荐生产方案为两个公开域名、两个后端服务入口：
+
+- `WEBHOOK_BASE_URL`，如 `https://webhooks.domain.com`，全部代理到 `backend:8080`。
+- `SUBSCRIPTION_MINI_APP_URL`，如 `https://app.domain.com/`，全部代理到 `frontend:80`。
+
+frontend 已将 `/api/*`、`/auth/*`、`/webapp-logo` 和主题／标志资源代理至 `backend:8081`，外部反向代理通常无需直接转发这些路径。
+
+前后端分离时，浏览器仍只访问 frontend 域名：
 
 ```text
 browser -> https://app.domain.com/api -> frontend nginx -> WEBAPP_BACKEND_UPSTREAM
 ```
 
-Платежные provider webhook, Telegram webhook и Remnawave Panel webhook продолжают идти на `WEBHOOK_BASE_URL` и backend plane `8080`; frontend-домен и `MINISHOP_EDGE_TOKEN` к ним не относятся.
+支付、Telegram 和 Remnawave webhook 继续使用 `WEBHOOK_BASE_URL` 与 `8080`，不涉及 frontend 域名或 `MINISHOP_EDGE_TOKEN`。
 
-Если `WEBAPP_BACKEND_UPSTREAM=https://bot.domain.com`, backend-side reverse proxy должен маршрутизировать `/api/*`, `/auth/*`, `/open-app`, logo/theme/favicon paths в `backend:8081` и требовать `X-Minishop-Edge-Token`, который добавляет только frontend nginx. Webhook routes на этом же домене остаются на `backend:8080` без edge token. Токен нельзя класть в frontend JS: любой browser-visible token виден пользователю в DevTools.
+`WEBAPP_BACKEND_UPSTREAM=https://bot.domain.com` 时，后端反向代理应将 `/api/*`、`/auth/*`、`/open-app`、标志／主题／网站图标路径转发至 `backend:8081`，并要求仅由 frontend nginx 添加的 `X-Minishop-Edge-Token`。同域 webhook 仍进入 `backend:8080`，无需该令牌。不能把令牌放进前端 JavaScript，用户可在开发者工具看到浏览器可见令牌。
 
-Готовые варианты описаны в разделе [Развертывание](../getting-started/deployment.md#готовые-папки-запуска):
+现成方案见[部署](../getting-started/deployment.md#готовые-папки-запуска)：
 
-- [Caddy](../getting-started/deployment.md#caddy-рекомендуемый-вариант) - автоматический HTTPS;
-- [Angie](../getting-started/deployment.md#angie) - автоматический HTTPS в Nginx-синтаксисе;
-- [Nginx](../getting-started/deployment.md#nginx) - сертификаты в соседней папке `ssl/`;
-- [Pangolin/Newt](../getting-started/deployment.md#pangolin--newt) - публикация без входящих портов на сервере приложения;
-- [без обратного прокси](../getting-started/deployment.md#без-обратного-прокси) - прямая публикация портов для проверки или внешней TLS-платформы.
+- [Caddy](../getting-started/deployment.md#caddy-рекомендуемый-вариант)：自动 HTTPS。
+- [Angie](../getting-started/deployment.md#angie)：Nginx 语法的自动 HTTPS。
+- [Nginx](../getting-started/deployment.md#nginx)：证书置于相邻 `ssl/`。
+- [Pangolin／Newt](../getting-started/deployment.md#pangolin--newt)：应用服务器无需开放入站端口。
+- [无反向代理](../getting-started/deployment.md#без-обратного-прокси)：直接发布端口，用于检查或外部 TLS 平台。
 
-В default `docker-compose.yml` наружу публикуются `frontend` и webhook/backend port, а внутри Docker
-network сервисы доступны друг другу по service DNS names:
+默认 `docker-compose.yml` 向外发布 frontend 与 webhook／backend 端口；Docker 网络内部按服务 DNS 名通信：
 
 ```yaml
 services:
@@ -253,33 +213,29 @@ services:
       - "8080"
 ```
 
-## Реферальные ссылки
+<a id="реферальные-ссылки"></a>
 
-Реферальные ссылки доступны в двух форматах:
+## 邀请链接
 
-- Telegram deep-link: `https://t.me/<bot>?start=ref_u<code>`;
-- Web App ссылка: `https://app.domain.com/?ref=u<code>`.
+支持两种格式：
 
-В разделе бонусов Web App показывает приветственный бонус за регистрацию и бонусы за оплату подписки. В legacy-режиме или при одном period-тарифе выводятся подробные строки по периодам. Если в JSON-каталоге включено несколько period-тарифов, Web App показывает, что бонус зависит от тарифа и периода оплаты друга, затем список тарифов с диапазоном "от N до N дней"; подробности по периодам раскрываются по иконке вопроса.
+- Telegram 深层链接：`https://t.me/<bot>?start=ref_u<code>`。
+- 网页应用：`https://app.domain.com/?ref=u<code>`。
 
-Веб-приложение учитывает `ref`, `start`, `start_param` и Telegram Mini Apps `start_param`, сохраняет найденный параметр до авторизации и передает его в Telegram OAuth или вход по email.
+奖励页显示注册欢迎奖励与订阅付款奖励。旧模式或只有一个按时长套餐时，按周期显示详情。JSON 目录启用多个按时长套餐时，说明奖励取决于朋友的套餐和购买周期，并显示各套餐“从 N 到 N 天”的区间；问号图标展开周期详情。
 
-Если включён `REGISTRATION_INVITE_ONLY_ENABLED`, новая регистрация в Web App проходит только через такую ссылку; отдельного ручного поля для ввода кода нет. Существующие пользователи могут входить без реферального параметра.
+应用读取 `ref`、`start`、`start_param` 和 Telegram Mini Apps 的 `start_param`，在登录前保存，随后传入 Telegram OAuth 或邮箱登录。
 
-Для новых email- и Telegram-регистраций основной пользователь Remnawave создаётся с username `minishop_id` вида `ms_` плюс 32 символа UUID. Изменение способов входа не меняет этот username. Фактические старые `em_*` и `tg_*` сохраняются до отдельного подтверждённого переименования.
+启用 `REGISTRATION_INVITE_ONLY_ENABLED` 后，新用户只能通过相应链接注册，没有手动输入邀请代码的字段；已有用户无需推荐参数即可登录。
 
-Свободную Telegram identity можно привязать к текущему аккаунту без смены внутреннего ID, подписки или роли. Если она уже принадлежит другому аккаунту, интерфейс сообщает о конфликте и не объединяет аккаунты автоматически.
+新邮箱／Telegram 注册的 Remnawave 主用户使用 `minishop_id`（`ms_` 加 32 位 UUID）作为用户名。改变登录方式不更名；旧 `em_*`、`tg_*` 保留至单独确认重命名。
 
-## Партнёрские ссылки
+未占用 Telegram 身份可绑定当前账号，不改变内部 ID、订阅或角色。已属于其他账号时，不会自动合并；双账号确认流程见[不使用 Telegram](telegram-optional.md)。
 
-Партнёрские ссылки используют отдельный код и не заменяют обычную реферальную связь. Telegram
-ссылка содержит payload `p_<partner_code>`, Web App ссылка — параметр `partner=<partner_code>`.
-Они закрепляют только нового пользователя и только за active-партнёром; повторное открытие другой
-ссылки не переносит уже созданного клиента. При `REGISTRATION_INVITE_ONLY_ENABLED=True` валидная
-партнёрская ссылка также разрешает регистрацию.
+<a id="партнёрские-ссылки"></a>
 
-Раздел **Партнёрство** и прямой маршрут `/partner` доступны только при включённой программе.
-Сохранение переключателя в админке обновляет данные текущей Mini App без перезапуска приложения;
-другие открытые сессии получают новое состояние при следующей загрузке данных. Полные правила
-атрибуции, бонусов, комиссий и выплат описаны в
-[руководстве по партнёрской программе](partner-program.md).
+## 合作伙伴链接
+
+合作伙伴使用独立代码，不替换普通邀请关系。Telegram 载荷为 `p_<partner_code>`，网页参数为 `partner=<partner_code>`。只将新用户归属于活跃合作伙伴，重复打开其他链接不转移已有客户。`REGISTRATION_INVITE_ONLY_ENABLED=True` 时，有效合作伙伴链接同样允许注册。
+
+“合作伙伴”和 `/partner` 只在计划开启时可用。后台保存开关后，当前 Mini App 无需重启即可更新；其他会话下次加载数据时更新。完整归因、奖励、佣金与提现规则见[合作伙伴计划](partner-program.md)。

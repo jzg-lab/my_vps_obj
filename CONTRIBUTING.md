@@ -1,69 +1,63 @@
-# Контрибьютинг
+<a id="контрибьютинг"></a>
 
-Этот документ фиксирует архитектуру, соглашения и **проверяемые** гейты качества проекта.
-Он написан для любого контрибьютора — человека или AI-агента. Главная идея:
+# 贡献指南
 
-> **Контракты — единственный источник правды, и они держатся на тулинге, а не на договорённости.**
-> Типы, схемы и сгенерированные артефакты валят сборку при расхождении — поэтому ошибка
-> всплывает локально или в CI, а не в проде. Сомневаешься — заставь машину это проверить.
+本文规定项目架构、开发约定和**可自动验证**的质量门禁，适用于开发者和 AI 智能体。核心原则：
 
-Прочитай это один раз перед изменением кода. Большинство правил ниже защищены CI (раздел 1):
-если следуешь гейтам, тебе сообщат, когда ты нарушишь правило.
+> **契约是唯一事实来源，依靠工具强制执行，而不是口头约定。**
+> 类型、结构和生成产物不一致时必须使构建失败，让问题在本地或 CI 暴露，而不是进入生产环境。有疑问时，让工具验证。
+
+修改代码前完整阅读一次。下列大多数规则由 CI 保护（第 1 节）；运行门禁即可发现违规。
 
 ---
 
-## 1. Гейты качества — выбирай по зоне изменений перед пушем
+<a id="1-гейты-качества--выбирай-по-зоне-изменений-перед-пушем"></a>
 
-CI (`.github/workflows/ci.yml`) прогоняет всё перечисленное; ничего не мёржится красным.
+## 1. 质量门禁：推送前按修改范围选择
 
-Локально сначала классифицируй **весь** diff (включая staged и unstaged файлы) и запускай
-минимальный набор, который способен поймать регрессию в затронутой зоне. Полный прогон обязателен
-для product/shared-кода, корневых зависимостей и конфигурации, CI/deploy, нескольких затронутых зон
-или когда изоляцию нельзя уверенно доказать. Явно запрошенную команду всегда запускай дословно.
+CI（`.github/workflows/ci.yml`）运行全部检查；检查失败不得合并。
 
-Удобная агрегирующая команда из корня репозитория:
+本地先分类**全部**差异，包括暂存和未暂存文件，再运行足以发现相关回归的最小检查集。产品或共享代码、根依赖与配置、CI／部署、跨多个区域的修改，或无法证明相互隔离的修改，必须完整检查。用户明确要求的命令须原样执行。
+
+在仓库根目录运行完整检查：
+
 ```bash
 make check
 ```
 
-Та же полная проверка доступна без GNU `make`:
+不依赖 GNU `make` 的等价命令：
+
 ```bash
 npm run check
 ```
 
-Для быстрого локального smoke-прогона без `ruff format --check`, `mypy` и полного frontend `build`
-можно использовать:
+开发期间可快速冒烟检查，跳过 `ruff format --check`、`mypy` 和完整前端构建：
+
 ```bash
 npm run check:quick
 ```
 
-Для документации используется отдельная матрица; полный backend/frontend набор для этих изменений
-не запускается только ради ритуала:
+文档采用独立检查矩阵，无需仅为形式运行全部后端和前端检查：
 
-| Граница изменений | Обязательная локальная проверка |
+| 修改范围 | 必须执行的本地检查 |
 | --- | --- |
-| Только обычный Markdown/policy (`README*`, `AGENTS.md`, `CONTRIBUTING.md`, `docs/**/*.md`) и статические docs-ассеты, кроме generated-файлов | `git diff --check`, проверка изменённых ссылок/путей и визуальная проверка затронутого материала; если он публикуется docs-site — также `npm run check:docs` и `npm run build:docs` |
-| Только `docs-site/**` | `npm run check:docs` и `npm run build:docs`; добавь `npm run check:e2e` только при изменении demo runtime, клиентского поведения или навигации |
-| `docs-site/package-lock.json` или docs-site зависимости | `npm run check:lockfiles`, затем `npm run build:docs` |
-| Generated docs/contracts | соответствующий генератор и drift/contract test из таблицы ниже, затем `npm run check:docs`; изменение кода генератора уже считается code change |
+| 仅普通 Markdown／规则文档（`README*`、`AGENTS.md`、`CONTRIBUTING.md`、`docs/**/*.md`）和静态文档资源，不含生成文件 | `git diff --check`、变动链接／路径检查及相关内容的视觉检查；发布到文档站的内容还须运行 `npm run check:docs` 和 `npm run build:docs` |
+| 仅 `docs-site/**` | `npm run check:docs` 和 `npm run build:docs`；修改演示运行时、客户端行为或导航时，增加 `npm run check:e2e` |
+| `docs-site/package-lock.json` 或文档站依赖 | `npm run check:lockfiles`，然后 `npm run build:docs` |
+| 生成文档／契约 | 运行下表对应生成器和漂移／契约测试，再运行 `npm run check:docs`；修改生成器代码属于代码修改 |
 
-После scoped-прогона перечисли выполненные проверки и явно укажи, что полный `pytest`/`ruff`/
-`mypy`/frontend matrix пропущен из-за доказанного docs-only или docs-site-only diff. CI всё равно
-остаётся окончательным полным гейтом перед merge.
+完成限定范围的检查后，列明已执行检查，并明确说明：由于已证明差异仅涉及文档或文档站，跳过了完整 `pytest`／`ruff`／`mypy`／前端矩阵。CI 仍是合并前的最终完整门禁。
 
-There is no mypy frontier: the whole repository is in scope — all backend packages, both
-script roots (`backend/scripts`, `scripts`), and the whole `tests/` tree. The `type_ignore`
-allowlist holds a single boundary-proven entry (`config/settings.py`: pydantic-settings
-fills required fields from the environment, invisible to static analysis; the inline
-comment at the call site carries the proof).
+mypy 没有范围边界之外的豁免：整个仓库都在检查范围内，包括全部后端包、两个脚本根目录（`backend/scripts`、`scripts`）和完整 `tests/`。`type_ignore` 允许清单仅保留一项经边界证明的例外：`config/settings.py` 的 pydantic-settings 从环境填入必填字段，静态分析不可见；调用处的行内注释记录了原因。
 
-Явные команды ниже остаются источником правды для CI и ручной диагностики.
+以下显式命令仍是 CI 和人工诊断的事实来源。
 
-**Бэкенд** (из корня репозитория; `pytest.ini` задаёт `pythonpath = backend .`):
+**后端**（仓库根目录；`pytest.ini` 设置 `pythonpath = backend .`）：
+
 ```bash
-python -m pytest -q                 # полный прогон (в CI поднимаются Postgres + Redis; warnings-as-errors; branch-coverage ratchet: fail_under=53)
-python -m ruff check .              # линт
-python -m ruff format --check .     # формат
+python -m pytest -q                 # 完整测试；CI 启动 Postgres + Redis；警告视为错误；分支覆盖率下限 fail_under=53
+python -m ruff check .              # 静态检查
+python -m ruff format --check .     # 格式检查
 python -m mypy --explicit-package-bases backend/config backend/db backend/bot/infra \
   backend/bot/middlewares backend/bot/utils \
   backend/bot/plugins backend/bot/keyboards backend/bot/payment_providers backend/bot/services \
@@ -71,381 +65,238 @@ python -m mypy --explicit-package-bases backend/config backend/db backend/bot/in
   backend/main_backend.py backend/main_worker.py backend/scripts scripts tests
 ```
 
-Финальный набор ruff-семейств — `E, W, F, I, UP, B, ASYNC, DTZ, C4, SIM, PIE, PERF, RUF,
-LOG, G, PLE, T10` (задан в `pyproject.toml` `[tool.ruff.lint]`); `per-file-ignores` нет,
-поэтому нового lint-исключения по файлу завести нельзя. `pytest.ini` держит
-`filterwarnings = error`: любой незапланированный warning валит прогон.
+ruff 规则组为 `E, W, F, I, UP, B, ASYNC, DTZ, C4, SIM, PIE, PERF, RUF, LOG, G, PLE, T10`，定义于 `pyproject.toml` 的 `[tool.ruff.lint]`。不使用 `per-file-ignores`，不得新增按文件忽略规则。`pytest.ini` 设置 `filterwarnings = error`，未预期的警告会使测试失败。
 
-### Локальные backend-тесты на Windows
+<a id="локальные-backend-тесты-на-windows"></a>
 
-На Windows вне CI `npm test` запускает свежий снимок текущих Git-исходников
-(включая новые неигнорируемые файлы) в Linux Docker. `.env` и граф знаний не
-попадают в снимок. Target `qa-deps` содержит только Python/Node/Docker CLI и
-зависимости; фронтенд и код продукта при подготовке окружения не собираются.
-Отладочный asyncio, warnings-as-errors и аргументы pytest сохраняются.
+### Windows 本地后端测试
+
+Windows 非 CI 环境下，`npm test` 将当前 Git 源码的新快照（含未忽略的新文件）放到 Linux Docker 中运行。快照不包含 `.env` 或知识图谱。`qa-deps` 目标仅包含 Python／Node／Docker CLI 和依赖，准备环境时不构建前端或产品代码。保留 asyncio 调试、警告视为错误及 pytest 参数。
 
 ```bash
-npm run check:local    # подготовка зависимостей по fingerprint + полный npm run check
-npm run qa:local       # полный изолированный stand, upgrade и zero-skips tests
-npm run test:env        # один раз подготовить Linux-зависимости
-npm run test:env:refresh # обновить ОС/зависимости явно; требуется сеть
-npm run test:env:gc     # освободить старые удерживающие контейнеры
+npm run check:local    # 按指纹准备依赖，再完整执行 npm run check
+npm run qa:local       # 完整隔离环境、升级验证及零跳过测试
+npm run test:env        # 首次准备 Linux 依赖
+npm run test:env:refresh # 显式更新系统和依赖，需要网络
+npm run test:env:gc     # 清理旧的镜像保留容器
 ```
 
-`check:local` требует Node 24, uv и Python 3.12 (uv может скачать Python).
-Native Python и frontend node_modules хранятся вне checkout в
-`%LOCALAPPDATA%/minishop/test-envs` либо `$XDG_CACHE_HOME/minishop/test-envs`
-(по умолчанию `~/.cache/minishop/test-envs`); `MINISHOP_TEST_CACHE_DIR` меняет
-корень. node_modules подключается ссылкой. После очистки checkout ссылка
-восстанавливается, установка по неизменённым manifest/lock не повторяется.
-Пути разных ОС, архитектур и версий Node изолированы.
+`check:local` 需要 Node 24、uv 和 Python 3.12（uv 可下载 Python）。原生 Python 和前端 node_modules 存在检出目录之外：`%LOCALAPPDATA%/minishop/test-envs` 或 `$XDG_CACHE_HOME/minishop/test-envs`（默认 `~/.cache/minishop/test-envs`）。`MINISHOP_TEST_CACHE_DIR` 可更改根目录。node_modules 通过符号链接接入；清理检出目录后会恢复链接，manifest／lock 不变时不会重复安装。不同系统、架构和 Node 版本的路径相互隔离。
 
-Linux-образ закрепляется в `deploy/docker/test-runtime.lock.json` по digest и
-fingerprint зависимостей. GitLab публикует только dependency stage в
-`3252a8/remnawave-minishop-test-runtime`; artifact с новым lock нужно проверить
-и добавить в dev. При смене входных файлов старый lock не используется; при
-недоступности реестра есть локальная сборка. Mutable tag никогда не заменяет
-digest уже проверенного lock. Для обновления: `test:env:refresh`, затем
-`node scripts/test_runtime.mjs publish` с авторизацией Docker Hub как `3252a8`.
-Не переиспользуйте тестовые базы данных между прогонами.
+Linux 镜像以摘要和依赖指纹固定在 `deploy/docker/test-runtime.lock.json`。GitLab 仅把依赖阶段发布到 `3252a8/remnawave-minishop-test-runtime`；包含新 lock 的产物须审查后加入 dev。输入文件变化时不复用旧 lock；镜像仓库不可用时可本地构建。可变标签不得替代已验证 lock 的摘要。更新步骤：执行 `test:env:refresh`，再以 Docker Hub 用户 `3252a8` 登录并运行 `node scripts/test_runtime.mjs publish`。不同测试运行不得共用测试数据库。
 
-Остановленный keeper с `minishop.local.keep=true` удерживает только образ и
-не запускает процессов. Очистка контейнеров обязана исключать эту метку:
-`docker container prune -f --filter "label!=minishop.local.keep=true"`.
-Не используйте неограниченный `docker system prune` для этого engine.
-Пределы активного pytest: 4 CPU / 4 GiB; переопределение —
-`MINISHOP_TEST_CPUS` и `MINISHOP_TEST_MEMORY`. Вне запуска ресурсы не резервируются.
-Подробные правила хранения и обновления: [test-environments.md](docs/test-environments.md).
+带 `minishop.local.keep=true` 标签的已停止保留容器仅保留镜像，不运行进程。清理容器时必须排除此标签：`docker container prune -f --filter "label!=minishop.local.keep=true"`。不得对该引擎执行无范围限制的 `docker system prune`。运行中的 pytest 默认限制为 4 CPU／4 GiB，可通过 `MINISHOP_TEST_CPUS` 和 `MINISHOP_TEST_MEMORY` 覆盖；未运行时不预留资源。详细保留和更新规则见 [test-environments.md](docs/test-environments.md)。
 
-Без Docker используется `.venv/Scripts/python.exe` или pytest из PATH.
-`MINISHOP_LOCAL_TEST_RUNTIME=native` выбирает native явно;
-`MINISHOP_LOCAL_TEST_RUNTIME=container` разрешает контейнер и на Linux/в CI.
-Не сохраняйте рабочие секреты в образ, lock или snapshot.
+没有 Docker 时使用 `.venv/Scripts/python.exe` 或 PATH 中的 pytest。`MINISHOP_LOCAL_TEST_RUNTIME=native` 显式使用原生运行时；`MINISHOP_LOCAL_TEST_RUNTIME=container` 允许在 Linux／CI 中使用容器。不得把工作密钥存入镜像、lock 或快照。
 
-**Фронтенд** (`frontend/`):
+**前端**（`frontend/`）：
+
 ```bash
 npm run check        # eslint + svelte-check + prettier --check
-npm run test         # Vitest unit-тесты helper'ов и store'ов
-npm run build        # vite build должен проходить после type-only изменений
-npm run test:e2e     # Playwright docs-demo smoke: webapp+админка, окна, вкладки, zero console errors
+npm run test         # Vitest：辅助函数和状态存储单元测试
+npm run build        # 仅改类型后也必须通过 vite build
+npm run test:e2e     # Playwright 文档演示冒烟：应用与后台、窗口、标签页、无控制台错误
 ```
 
-**У сгенерированных артефактов есть drift-guard — регенерируй, не правь руками:**
-| Артефакт | Регенерация | Защищён |
+**生成产物都有漂移保护，必须重新生成，不得手改：**
+
+| 产物 | 生成命令 | 保护检查 |
 | --- | --- | --- |
 | `docs/openapi.json` | `PYTHONPATH=backend python -m bot.app.web.openapi` | `tests/contracts/test_openapi_artifact.py` |
-| `docs-site/public/openapi.json` | `npm --prefix docs-site run sync:docs` | `npm run check:docs`, pre-commit, CI |
+| `docs-site/public/openapi.json` | `npm --prefix docs-site run sync:docs` | `npm run check:docs`、提交前检查、CI |
 | `docs/architecture/events.md` | `PYTHONPATH=backend python -m bot.infra.event_catalog` | `tests/contracts/test_contract_docs_accuracy.py` |
 | `docs/architecture/remnawave-api-compatibility.md` | `PYTHONPATH=backend python -m bot.services.panel_api_catalog` | `tests/contracts/test_remnawave_api_contract.py` |
 | `frontend/src/lib/api/openapi.generated.ts` | `npm --prefix frontend run generate:api-types` | CI `git diff --exit-code` |
-| demo settings manifest | `python scripts/export_settings_manifest.py` (+ prettier) | `tests/contracts/test_settings_manifest_demo_sync.py` |
-| `docs/remnawave-minishop.webp` | `npm run generate:readme-screenshot` | визуальная проверка README |
-| `backend/requirements.txt` | `python -m piptools compile --resolver=backtracking --no-emit-index-url --no-emit-trusted-host -o backend/requirements.txt backend/requirements.in` (Python 3.12) | CI install + `pip-audit` |
-| `frontend/package-lock.json`, `docs-site/package-lock.json` | `cd <каталог> && npx --yes npm@10.9.9 install --package-lock-only --ignore-scripts --no-audit --no-fund` | `npm run check:lockfiles`, pre-commit, CI до Docker matrix |
+| 演示设置清单 | `python scripts/export_settings_manifest.py`（加 prettier） | `tests/contracts/test_settings_manifest_demo_sync.py` |
+| `docs/remnawave-minishop.webp` | `npm run generate:readme-screenshot` | README 视觉检查 |
+| `backend/requirements.txt` | `python -m piptools compile --resolver=backtracking --no-emit-index-url --no-emit-trusted-host -o backend/requirements.txt backend/requirements.in`（Python 3.12） | CI 安装 + `pip-audit` |
+| `frontend/package-lock.json`、`docs-site/package-lock.json` | `cd <目录> && npx --yes npm@10.9.9 install --package-lock-only --ignore-scripts --no-audit --no-fund` | `npm run check:lockfiles`、提交前检查、Docker 矩阵前的 CI 检查 |
 
-В `docs-site/package.json` закреплён `postcss-selector-parser 7.1.6` для устранения
-[GHSA-rj75-hqrm-r3gf](https://github.com/advisories/GHSA-rj75-hqrm-r3gf):
-`@expressive-code/core` через `postcss-nested@6` пока требует уязвимую ветку parser 6.x.
-Удаляй этот override, когда upstream-зависимости сами разрешают parser не ниже `7.1.6`,
-а аудит и сборка документации проходят без него.
+`docs-site/package.json` 固定 `postcss-selector-parser 7.1.6`，修复 [GHSA-rj75-hqrm-r3gf](https://github.com/advisories/GHSA-rj75-hqrm-r3gf)：`@expressive-code/core` 经 `postcss-nested@6` 暂时依赖存在漏洞的 parser 6.x。上游依赖可自行解析到不低于 `7.1.6`，且审计和文档构建不再需要覆盖时，才能删除该 override。
 
-Меняешь контракт API — регенерируй `openapi.json` **и** `openapi.generated.ts`.
+API 契约变化时，同时重新生成 `openapi.json` 和 `openapi.generated.ts`。新增接口需在 `backend/bot/app/web/openapi.zh-hans.json` 补充中文标题及分类；路径、字段和 `operationId` 保持协议标识。
 
 ---
 
-## 2. Золотые правила (без исключений)
+<a id="2-золотые-правила-без-исключений"></a>
 
-- **Никогда не правь сгенерированный артефакт руками.** Запусти его генератор (раздел 1).
-- **Никогда не редактируй, не переупорядочивай и не перенумеровывай существующую миграцию БД.**
-  Миграции append-only и идемпотентны (раздел 5).
-- **Никогда не глуши тайпчекер на своём коде.** Не `# type: ignore` / `any` ради компиляции —
-  чини тип. `mypy` по всему бэкенду должен оставаться зелёным.
-- **Никогда не ломай wire-контракты:** HTTP-конверт `{"ok": …}`, flat-dict payload'ы событий,
-  сигнатуру подписчика плагина `(event_name, dict)`.
-- **Фасады (`admin_api`, `subscription_webapp`, `subscription_service`) используем только для
-  совместимости. Новый код имплементирует через конкретные внутренние модули (`*_impl`, domain,
-  service/route modules) и не опирается на фасады как на дефолтный внутренний API; любые
-  исключения фиксируем в контрактных тестах.
-- **Весь first-party код фронтенда — TypeScript** (`.ts` / `<script lang="ts">`). Новые `.js`
-  и `<script>` без `lang="ts"` в `frontend/src` запрещены архитектурными гейтами
-  (`first_party_js`, `svelte_lang_ts` в `scripts/architecture_gates.json`); исключение — только
-  сгенерированные артефакты из allowlist. Глобальный `checkJs` не включаем.
-- **Не хардкодь пользовательский или админский текст.** Любая новая или изменённая видимая строка
-  (бот, Web App, админка, email/уведомления, aria/placeholder/title) должна идти через локализацию
-  и иметь минимум базовые варианты в `locales/ru.json` и `locales/en.json`. Fallback-строка в
-  компоненте или helper'е — только английская страховка для разработки, а не замена ключа в
-  базовых локалях; кириллица живёт только в locale-файлах. Архитектурный gate
-  `cyrillic_fallbacks` не позволяет наращивать унаследованные нарушения этого правила.
-  **В админке ключ обязан лежать под префиксом `admin_`**: `at("foo")` резолвится как
-  `admin_foo`, и без этой записи панель молча покажет английский fallback русскому
-  администратору — ни типы, ни сборка этого не заметят. Проверяется тестом
-  `tests/contracts/test_admin_locale_keys.py`, который сверяет все литеральные `at("...")`
-  с обеими базовыми локалями.
-- **Сначала декомпозиция, потом типизация** — см. раздел 5. Не типизируй god-файл «на месте».
-- **Отличай «совместимость с другими ботами» (фича — оставить) от «остатков рефакторинга»
-  (убрать)** — см. раздел 6.
-- **Сохраняй границу core и отдельно поставляемого minishop PRO.** В публичной документации и
-  навигации core можно упоминать наличие PRO, кратко описывать его публичные возможности и давать
-  ссылку на официальный сайт. Это исключение не разрешает копировать в core код, приватные
-  контракты, ассеты или runtime-зависимости PRO.
+## 2. 不可违反的规则
+
+- **不得手改生成产物。** 运行其生成器（第 1 节）。
+- **不得修改、重排或重新编号已有数据库迁移。** 迁移只能追加，且必须幂等（第 5 节）。
+- **不得压制自有代码的类型检查。** 不得用 `# type: ignore`／`any` 凑合编译，应修正类型。整个后端的 `mypy` 必须通过。
+- **不得破坏线上传输契约：** HTTP `{"ok": …}` 包装、事件的扁平字典载荷、插件订阅签名 `(event_name, dict)`。
+- **门面模块（`admin_api`、`subscription_webapp`、`subscription_service`）仅用于兼容。** 新代码使用具体内部模块（`*_impl`、领域模块、服务／路由模块），不得默认依赖门面作为内部 API；例外须记录在契约测试中。
+- **自有前端代码全部使用 TypeScript**（`.ts`／`<script lang="ts">`）。架构门禁禁止在 `frontend/src` 新增 `.js` 或无 `lang="ts"` 的 `<script>`（`scripts/architecture_gates.json` 的 `first_party_js`、`svelte_lang_ts`）；仅允许清单中的生成产物例外。不得启用全局 `checkJs`。
+- **不得硬编码用户或管理员可见文案。** 新增或修改的可见文本（机器人、应用、后台、邮件／通知、aria／placeholder／title）必须本地化，至少提供 `locales/ru.json` 和 `locales/en.json` 基础条目。中文阅读路径同时提供 `locales/zh-hans.json` 条目。组件或辅助函数的英文回退只用于开发兜底，不能替代基础语言键；西里尔文只放在语言文件中。`cyrillic_fallbacks` 架构门禁禁止增加历史违规。**后台键必须以 `admin_` 开头**：`at("foo")` 查找 `admin_foo`，缺少条目会向俄语管理员静默显示英文回退，类型和构建检查无法发现。`tests/contracts/test_admin_locale_keys.py` 检查所有字面量 `at("...")` 是否存在于两种基础语言中。
+- **先拆分，再完善类型**，见第 5 节。不得直接给巨型文件原地补类型。
+- **区分“兼容其他机器人”（保留的功能）与“重构残留”（应删除）**，见第 6 节。
+- **保持核心与单独交付的 minishop PRO 隔离。** 核心公开文档和导航可以提及 PRO、概述公开能力并链接官网，但不得复制 PRO 代码、私有契约、资源或运行时依赖到核心。
 
 ---
 
-## 3. Соглашения бэкенда
+<a id="3-соглашения-бэкенда"></a>
 
-Бэкенд — рукописный `aiohttp` + `aiogram` + SQLAlchemy (async) + pydantic v2. **FastAPI нет** —
-не вводи его. Обзор архитектуры: [docs/architecture.md](docs/architecture.md).
+## 3. 后端约定
 
-Пошаговые рецепты для типовых задач (добавить платёжного провайдера, доменное событие или
-HTTP-эндпоинт) — [docs/development/how-to.md](docs/development/how-to.md); каждый заканчивается
-прогоном гейтов раздела 1.
+后端使用手写 `aiohttp` + `aiogram` + SQLAlchemy（异步）+ pydantic v2。**没有 FastAPI，不得引入。** 架构见 [docs/architecture.md](docs/architecture.md)。
 
-### 3.1 HTTP API (типизированные контракты)
-- Роуты регистрируются явно в `setup_subscription_webapp_routes`
-  (`bot/app/web/webapp/routes.py`) и `setup_admin_routes`
-  (`bot/app/web/admin_api_impl/routes.py`). Плагины добавляют роуты в рантайме через
-  `Plugin.setup_web`.
-- **Тела запросов:** парси через `parse_body` / `parse_body_or_400`
-  (`bot/app/web/request_parsing.py`) против `HttpBodyModel` — не возвращай сырой `_read_json`
-  для новых эндпоинтов. `parse_body_or_400` чисто сужает тип для mypy.
-- **Ответы:** собирай `HttpResponseModel` через явный classmethod `from_orm_*`, который читает
-  **только уже загруженные скалярные атрибуты** (например `obj.__dict__.get("user")`).
-  **Никогда не включай ORM-автоскан `from_attributes`** — он триггерит lazy-load после
-  закрытия сессии. Оборачивай конвертом `_ok` / `_error`; имена/типы полей не меняй.
-- **Регистрируй контракт каждого роута** в `bot/app/web/route_contracts.py`, чтобы он попал в
-  `openapi.json`. Не-JSON роуты (CSV/бинарь/multipart) объявляют content-type, а не JSON-модель.
-- Справочник HTTP: [docs/architecture/http-api.md](docs/architecture/http-api.md).
+常见任务（添加支付提供商、领域事件或 HTTP 端点）的步骤见[开发操作指南](docs/development/how-to.md)，每项均以第 1 节门禁结束。
 
-### 3.2 Доменные события (типизированные payload'ы)
-- Одна pydantic-модель на событие в `bot/infra/event_payloads.py` (`extra="forbid"`). Публикуй
-  через `events.emit_model(Model(...))`; сама шина остаётся dict-based, а `emit` **никогда не
-  кидает исключений**.
-- Payload'ы — **flat-dict из примитивов + ISO-8601 datetime**, никогда не ORM-объекты.
-  Подписчики перечитывают богатые данные по id. Payload — это уведомление, не гарантия, что
-  строка уже закоммичена.
-- Добавил/изменил событие → обнови модель, регенерируй каталог событий.
-- Каталог: [docs/architecture/events.md](docs/architecture/events.md).
+<a id="31-http-api-типизированные-контракты"></a>
 
-### 3.3 Типобезопасность
-- `mypy` покрывает весь бэкенд и контрактные тесты (`tests/contracts`) и должен оставаться
-  зелёным. Новые backend-модули попадают в скоуп автоматически (по каталогам). Строгость
-  поднимай помодульно через `[[tool.mypy.overrides]]`, а не глобальным `strict`.
+### 3.1 HTTP API（类型化契约）
 
-### 3.4 Миграции
-- Рукописный **идемпотентный** мигратор (пакет `db/migrator/`): интроспекция схемы, затем условный
-  DDL (`IF NOT EXISTS`, проверки колонок). Применённые id трекаются в `schema_migrations`.
-- **Append-only.** Добавляй новую миграцию; никогда не правь/переупорядочивай существующие.
-  Цепочки плагинов неймспейснуты (`<plugin>.0001_*`).
-- Совместимость импорта с других ботов (remnashop / старые сборки) живёт здесь намеренно —
-  см. раздел 6.
+- 在 `setup_subscription_webapp_routes`（`bot/app/web/webapp/routes.py`）及 `setup_admin_routes`（`bot/app/web/admin_api_impl/routes.py`）显式注册路由；插件通过 `Plugin.setup_web` 在运行时添加路由。
+- **请求体：** 用 `parse_body`／`parse_body_or_400`（`bot/app/web/request_parsing.py`）按 `HttpBodyModel` 解析；新端点不得直接返回原始 `_read_json`。`parse_body_or_400` 可正确缩窄 mypy 类型。
+- **响应：** 通过显式类方法 `from_orm_*` 构造 `HttpResponseModel`，**只读取已加载的标量属性**，如 `obj.__dict__.get("user")`。**不得开启 ORM 自动扫描 `from_attributes`**，它会在会话关闭后触发延迟加载。用 `_ok`／`_error` 包装响应，不改字段名和类型。
+- **每条路由都在 `bot/app/web/route_contracts.py` 注册契约**，以生成 `openapi.json`。非 JSON 路由（CSV／二进制／multipart）声明内容类型，而非 JSON 模型。
+- HTTP 参考：[docs/architecture/http-api.md](docs/architecture/http-api.md)。
 
-### 3.5 Плагины
-- Расширение через ABC `Plugin` + `PluginContext` (`bot/plugins/spec.py`), обнаруживаются через
-  entry-point группу `minishop.plugins`. Хуки: `setup`, `setup_bot`, `setup_web`,
-  `worker_tasks`, `queue_handlers`, `migrations`, `locales_dir`, `entitlements_provider`.
-- Plugin API — это публичная поверхность расширения, держи её стабильной. Подписчики получают
-  сырой `(event_name, dict)`; типизированные модели — additive-удобство, не обязательный
-  интерфейс.
-- Контракт: [docs/development/plugin-contract.md](docs/development/plugin-contract.md),
-  [docs/development/plugins.md](docs/development/plugins.md).
+<a id="32-доменные-события-типизированные-payloadы"></a>
+
+### 3.2 领域事件（类型化载荷）
+
+- 每个事件在 `bot/infra/event_payloads.py` 中对应一个 pydantic 模型（`extra="forbid"`）。通过 `events.emit_model(Model(...))` 发布；事件总线仍基于字典，`emit` **绝不抛出异常**。
+- 载荷必须是**基本类型与 ISO-8601 日期时间组成的扁平字典**，不得使用 ORM 对象。订阅者按 ID 重新查询详细数据。载荷只是通知，不保证数据库行已经提交。
+- 添加或修改事件后更新模型，并重新生成事件目录。
+- 目录：[docs/architecture/events.md](docs/architecture/events.md)。
+
+<a id="33-типобезопасность"></a>
+
+### 3.3 类型安全
+
+- `mypy` 覆盖整个后端和契约测试（`tests/contracts`），必须始终通过。新后端模块按目录自动纳入。通过 `[[tool.mypy.overrides]]` 逐模块收紧要求，不启用全局 `strict`。
+
+<a id="34-миграции"></a>
+
+### 3.4 数据库迁移
+
+- 手写的**幂等**迁移器（`db/migrator/` 包）先检查数据库结构，再执行条件 DDL（`IF NOT EXISTS`、列检查）。已应用 ID 记录在 `schema_migrations`。
+- **只追加。** 新增迁移，不得修改或重排已有迁移。插件迁移链使用命名空间（`<plugin>.0001_*`）。
+- 从其他机器人（remnashop／旧版本）导入的兼容逻辑有意保留，见第 6 节。
+
+<a id="35-плагины"></a>
+
+### 3.5 插件
+
+- 通过抽象基类 `Plugin` + `PluginContext`（`bot/plugins/spec.py`）扩展，使用入口点组 `minishop.plugins` 发现插件。钩子：`setup`、`setup_bot`、`setup_web`、`worker_tasks`、`queue_handlers`、`migrations`、`locales_dir`、`entitlements_provider`。
+- 插件 API 是公开扩展接口，必须保持稳定。订阅者接收原始 `(event_name, dict)`；类型化模型是附加便利，不能成为强制接口。
+- 契约：[插件契约](docs/development/plugin-contract.md)、[插件开发](docs/development/plugins.md)。
 
 ---
 
-## 4. Соглашения фронтенда
+<a id="4-соглашения-фронтенда"></a>
 
-Svelte + Vite. API-клиент **типизирован из OpenAPI-спека**.
+## 4. 前端约定
 
-- Зови API через типизированный клиент `lib/webapp/publicApi.ts` (`createApiClient`):
-  `api("/api/...")` выводит ответ из `paths`; `publicApi` выводит тело запроса. **Используй
-  литеральные строки путей** — переменная расширяет тип и теряет инференс. Распаковывай конверт
-  `{ok,…}` через `unwrap(...)`.
-- `openapi.generated.ts` генерируется из `docs/openapi.json` и **защищён drift-guard в CI** —
-  регенерируй при любом изменении контракта на бэке.
-- Весь first-party код — TypeScript: новые модули пиши в `.ts`, компоненты — с
-  `<script lang="ts">`; типизируй сторы (`writable<State>`), чтобы изменение контракта на бэке
-  валило `check:svelte` ровно у потребителя. Архитектурные гейты (`first_party_js`,
-  `svelte_lang_ts`) не пропустят новый нетипизированный файл. **Не** включай глобальный
-  `checkJs` — он не нужен, когда JS-файлов нет.
-- Для UI-текста используй `t(...)`/`at(...)` и добавляй реальные ключи в обе базовые локали:
-  `locales/ru.json` и `locales/en.json`. В админке `at("tariff_title", ...)` ищет
-  `admin_tariff_title`, поэтому проверяй итоговое имя ключа. Если добавляешь новую группу строк,
-  добавь узкий тест или существующий locale guard, чтобы ключи не остались только fallback'ами.
-- Frontend first-party Svelte code is Svelte 5 runes-only. Do not reintroduce `export let`,
-  `$:`, `$$props`, `$$restProps`, `<slot>`, `<svelte:component>`, `createEventDispatcher`, or
-  class API `$set`. `frontend/vite.config.mjs` and `frontend/vitest.config.mjs` enable
-  `runes: true` for `frontend/src`, while `npm run check:runes`, `svelte-check`, builds, and
-  Vitest fail if legacy syntax comes back.
+使用 Svelte + Vite。API 客户端类型**来自 OpenAPI 规范**。
+
+- 通过类型化客户端 `lib/webapp/publicApi.ts`（`createApiClient`）调用 API：`api("/api/...")` 从 `paths` 推导响应，`publicApi` 推导请求体。**使用字面量路径**，变量会拓宽类型并丢失推导。使用 `unwrap(...)` 解包 `{ok,…}`。
+- `openapi.generated.ts` 从 `docs/openapi.json` 生成，**CI 会检查漂移**；后端契约变化后必须重新生成。
+- 所有自有代码均使用 TypeScript：新模块为 `.ts`，组件为 `<script lang="ts">`；状态存储明确类型（`writable<State>`），使后端契约变化时 `check:svelte` 在实际消费者处报错。架构门禁（`first_party_js`、`svelte_lang_ts`）禁止新增无类型文件。没有 JS 文件时不需要全局 `checkJs`，**不得开启**。
+- 界面文案使用 `t(...)`／`at(...)`，并在 `locales/ru.json`、`locales/en.json` 提供真实基础条目；中文路径同时补齐 `locales/zh-hans.json`。后台 `at("tariff_title", ...)` 查找 `admin_tariff_title`，须检查最终键名。添加新文案组时，增加小范围测试或现有语言检查，防止只有回退文案。
+- 自有 Svelte 前端只使用 Svelte 5 runes。不得恢复 `export let`、`$:`、`$$props`、`$$restProps`、`<slot>`、`<svelte:component>`、`createEventDispatcher` 或类 API `$set`。`frontend/vite.config.mjs` 和 `frontend/vitest.config.mjs` 为 `frontend/src` 开启 `runes: true`；旧语法会使 `npm run check:runes`、`svelte-check`、构建及 Vitest 失败。
 
 ---
 
-### 4.1 Переиспользование UI
+<a id="41-переиспользование-ui"></a>
 
-Перед изменением интерфейса найди компонент для этой задачи и изучи **два реальных места его
-использования**. Порядок выбора: компонент сущности/действия → общий составной компонент →
-UI-примитив. Например, для провайдера нужен `PaymentProviderCell`, а не произвольный `AdminBadge`.
-Конфигурация shadcn и доступность Bits UI сами по себе не обеспечивают единый интерфейс.
+### 4.1 界面组件复用
 
-- Если нужного варианта нет, расширь общий компонент. Новый компонент создавай только при
-  отсутствии подходящего; объясни выбор и затронутых потребителей в описании изменения.
-- Не копируй оформление сущности, разметку панели или CSS другого раздела. Не используй
-  глобальные стили одного экрана для управления другим. Размеры общих элементов и мобильное
-  поведение должны принадлежать общему компоненту; различия задаются его параметрами.
-- Компоненты из `patterns` импортируются напрямую либо через их индекс. Примитивы и иконки —
-  через `$components/ui`. Прямые импорты `bits-ui` и библиотек иконок разрешены только внутри
-  слоя `components/ui`.
-- В экранах запрещены обычный `select`, новые нативные `input`/`textarea` и кнопки, вручную
-  оформленные классами `btn`/`admin-btn`. Используй соответствующие компоненты. Семантические
-  контейнеры, ссылки, списки и специализированные кнопки навигации этим не запрещаются.
-- Для выбора даты и времени используй `DateInput` (для времени — `withTime`), для флажков —
-  `Checkbox`, для других специальных полей — соответствующий компонент из карты ниже.
-  `Input` допускает только текстовые и числовые типы: календарь, флажок, загрузку файла и другие
-  специальные элементы запрещают линтер и проверка типов. Линтер учитывает псевдонимы импорта
-  и литералы внутри выражений.
+修改界面前，找到对应组件并查看**两个实际使用位置**。选择顺序：实体／操作组件 → 通用组合组件 → 基础组件。例如支付提供商应使用 `PaymentProviderCell`，而不是随意拼装 `AdminBadge`。配置 shadcn、安装 Bits UI 本身并不保证界面一致。
 
-Карта выбора (пути относительно `frontend/src`; имена файлов — реальные примеры):
+- 缺少所需变体时扩展共享组件；只有没有适用组件时才新建，并在变更说明中解释选择及受影响消费者。
+- 不得复制其他区域的实体样式、面板结构或 CSS；不得用一个页面的全局样式控制另一个页面。通用元素的尺寸与移动端行为由共享组件负责，差异通过参数表达。
+- `patterns` 组件直接导入或经其索引导入。基础组件与图标从 `$components/ui` 导入；仅 `components/ui` 层可直接导入 `bits-ui` 和图标库。
+- 页面中禁止普通 `select`、新增原生 `input`／`textarea`，以及手工用 `btn`／`admin-btn` 类装饰的按钮；使用对应组件。语义容器、链接、列表及专用导航按钮不受此禁令限制。
+- 日期时间使用 `DateInput`（时间用 `withTime`），复选框用 `Checkbox`，其他特殊字段使用下表对应组件。`Input` 仅允许文本和数字类型；日历、复选框、文件上传等由静态检查与类型检查禁止。检查器识别导入别名及表达式中的字面量。
 
-| Задача | Общий компонент | Два примера использования |
+组件选择表（路径相对于 `frontend/src`；文件名均为真实示例）：
+
+| 任务 | 共享组件 | 两处使用示例 |
 |---|---|---|
-| Кнопки администратора | `lib/components/patterns/admin/AdminButton.svelte` | `admin/sections/GiftsSection.svelte`, `admin/sections/PaymentsSection.svelte` |
-| Кнопки приложения | `lib/components/ui/button.svelte` | `webapp/gifts/GiftEntry.svelte`, `webapp/gifts/GiftFeature.svelte` |
-| Поле ввода | `lib/components/ui/input.svelte` | `admin/sections/users/UsersView.svelte`, `admin/sections/GiftCreateDialog.svelte` |
-| Подпись/подсказка поля | `lib/components/patterns/admin/AdminField.svelte` | `admin/sections/AdsSection.svelte`, `admin/sections/promos/PromoCreateDialog.svelte` |
-| Выпадающее меню | `lib/components/patterns/admin/AdminSelect.svelte` | `admin/sections/users/UsersView.svelte`, `admin/sections/GiftCreateDialog.svelte` |
-| Шапка списка | `lib/components/patterns/admin/AdminListToolbar.svelte` | `admin/sections/users/UsersView.svelte`, `admin/sections/GiftsSection.svelte`; также `PaymentsSection.svelte` |
-| Таблица и страницы | `lib/components/patterns/admin/AdminTable.svelte`, `AdminPagination.svelte` | `admin/sections/PaymentTable.svelte`, `admin/sections/GiftsSection.svelte` |
-| Переход к сущности | `lib/components/patterns/admin/AdminEntityLink.svelte` | `admin/sections/partners/PartnerDashboardTables.svelte`, `admin/sections/partners/PartnerDetailActivity.svelte` |
-| Провайдер и его логотип/эмодзи | `lib/components/patterns/admin/PaymentProviderCell.svelte` | `admin/sections/PaymentTable.svelte`, `admin/sections/GiftsSection.svelte` |
-| Значение с копированием в таблице | `lib/components/patterns/admin/AdminCopyableValue.svelte` | `admin/sections/PaymentTable.svelte`, `admin/sections/PaymentDetailModal.svelte` |
-| Поле ссылки с копированием | `lib/components/patterns/CopyLinkField.svelte` | `webapp/screens/InviteScreen.svelte`, `webapp/gifts/GiftCard.svelte`; вариант `admin` в `GiftsSection.svelte` |
-| Диалог | `lib/components/ui/dialog.svelte` | `admin/sections/GiftCreateDialog.svelte`, `webapp/gifts/GiftFeature.svelte` |
+| 后台按钮 | `lib/components/patterns/admin/AdminButton.svelte` | `admin/sections/GiftsSection.svelte`、`admin/sections/PaymentsSection.svelte` |
+| 应用按钮 | `lib/components/ui/button.svelte` | `webapp/gifts/GiftEntry.svelte`、`webapp/gifts/GiftFeature.svelte` |
+| 输入框 | `lib/components/ui/input.svelte` | `admin/sections/users/UsersView.svelte`、`admin/sections/GiftCreateDialog.svelte` |
+| 字段标签／提示 | `lib/components/patterns/admin/AdminField.svelte` | `admin/sections/AdsSection.svelte`、`admin/sections/promos/PromoCreateDialog.svelte` |
+| 下拉菜单 | `lib/components/patterns/admin/AdminSelect.svelte` | `admin/sections/users/UsersView.svelte`、`admin/sections/GiftCreateDialog.svelte` |
+| 列表工具栏 | `lib/components/patterns/admin/AdminListToolbar.svelte` | `admin/sections/users/UsersView.svelte`、`admin/sections/GiftsSection.svelte`；另见 `PaymentsSection.svelte` |
+| 表格与分页 | `lib/components/patterns/admin/AdminTable.svelte`、`AdminPagination.svelte` | `admin/sections/PaymentTable.svelte`、`admin/sections/GiftsSection.svelte` |
+| 实体跳转 | `lib/components/patterns/admin/AdminEntityLink.svelte` | `admin/sections/partners/PartnerDashboardTables.svelte`、`admin/sections/partners/PartnerDetailActivity.svelte` |
+| 支付提供商及其标志／表情 | `lib/components/patterns/admin/PaymentProviderCell.svelte` | `admin/sections/PaymentTable.svelte`、`admin/sections/GiftsSection.svelte` |
+| 表格中可复制值 | `lib/components/patterns/admin/AdminCopyableValue.svelte` | `admin/sections/PaymentTable.svelte`、`admin/sections/PaymentDetailModal.svelte` |
+| 可复制链接字段 | `lib/components/patterns/CopyLinkField.svelte` | `webapp/screens/InviteScreen.svelte`、`webapp/gifts/GiftCard.svelte`；`GiftsSection.svelte` 使用 `admin` 变体 |
+| 对话框 | `lib/components/ui/dialog.svelte` | `admin/sections/GiftCreateDialog.svelte`、`webapp/gifts/GiftFeature.svelte` |
 
-Для поиска конкретных вложенных форм используй `rg` по имени компонента. Если второй потребитель
-ещё не существует, изучи ближайший общий компонент и явно отметь это в описании изменения.
+查找嵌套表单时用 `rg` 搜索组件名。若尚无第二个消费者，查看最接近的共享组件，并在变更说明中明确记录。
 
-Область применения шапки проверена по всем разделам админки:
+列表工具栏在后台各区域的适用范围：
 
-| Списки и панели | Решение |
+| 列表与面板 | 方案 |
 |---|---|
-| Пользователи, платежи, подарки | `AdminListToolbar`: поиск, фильтры, счётчик и действия |
-| Партнёры, заявки на участие, выводы | Тот же компонент во всех трёх вкладках `PartnerProgramTables.svelte` |
-| Логи | Тот же компонент: фильтр пользователя, сброс, счётчик и обновление |
-| Поддержка | Тот же компонент: поиск и фильтры; счётчики статусов остаются во вкладках, неизвестный общий итог не подменяется длиной загруженной страницы |
-| Резервные копии | Тот же компонент без поиска и отдельного счётчика: действия и каталог в слоте `metadata`; на десктопе в одной строке, на мобильном с переносом |
-| Промокоды, реклама, история рассылок | Таблицы без отдельной панели фильтров; общие `AdminTable`/`AdminPagination`, действия страницы остаются в её заголовке |
-| Настройки, переводы, редактор тарифов, графики | Специализированные панели редакторов и диапазонов; это не шапки списков сущностей |
+| 用户、付款、礼品 | `AdminListToolbar`：搜索、筛选、计数与操作 |
+| 合作伙伴、申请、提现 | `PartnerProgramTables.svelte` 三个标签页均使用该组件 |
+| 日志 | 同一组件：用户筛选、重置、计数、刷新 |
+| 支持工单 | 同一组件：搜索和筛选；状态计数留在标签页，不能用当前页条数冒充未知的总数 |
+| 备份 | 同一组件，不提供搜索或独立计数；操作和目录放在 `metadata` 插槽；桌面单行，移动端换行 |
+| 激活码、广告、群发历史 | 不单设筛选工具栏的表格；通用 `AdminTable`／`AdminPagination`，页面操作留在标题处 |
+| 设置、翻译、套餐编辑器、图表 | 专用编辑与范围面板，不属于实体列表工具栏 |
 
-`total` у общей шапки необязателен: передавай реальный итог выборки, а не размер текущей страницы.
-Одна лишь похожая стилизация не считается миграцией. Линтер запрещает возвращать старые классы
-панелей списков (`admin-toolbar`, `admin-toolbar-card`, `partners-filters`, панели поддержки).
+共享工具栏的 `total` 可选；传入真实查询总数，不能用当前页大小替代。仅使样式相似不算完成迁移。静态检查禁止恢复旧列表面板类（`admin-toolbar`、`admin-toolbar-card`、`partners-filters`、支持面板）。
 
-**Автоматическая защита.** `npm --prefix frontend run lint` проверяет UI-ограничения из
-`frontend/eslint.config.mjs` и `frontend/scripts/eslint-ui-reuse.mjs`. Они входят в `npm run check`
-и CI. Для старых полей есть точный перечень `nativeFieldBaseline`: файл, тип, количество и причина.
-Это долг существующих экранов, не разрешение добавлять новые исключения ради прохождения линтера.
-При миграции поля уменьши/удали запись; изменение количества обнаруживается в обе стороны.
-Нативные элементы внутри реализации базовых UI-компонентов разрешены. Исторические исключения:
-анимированная сумма пополнения и собственные поверхности редактора текста.
+**自动保护。** `npm --prefix frontend run lint` 检查 `frontend/eslint.config.mjs` 和 `frontend/scripts/eslint-ui-reuse.mjs` 的界面约束，属于 `npm run check` 和 CI。旧字段有精确的 `nativeFieldBaseline` 清单，包含文件、类型、数量和原因。这是历史页面债务，不能为了通过检查新增豁免。迁移字段后减少或删除记录，数量增减都会被发现。基础组件内部允许原生元素。历史例外包括充值金额动画和文本编辑器自有区域。
 
-**Проверка результата.** Изменение общего компонента требует проверки его затронутых потребителей,
-а не только вспомогательной функции. Для панели списка проверь поиск, сортировку, страницы,
-видимость мобильных фильтров и одинаковую высоту элементов. Для меню — открытие, выбор,
-клавиатуру и Escape без потери родительского диалога. Для провайдера — фактический логотип/эмодзи
-и подпись в таблицах и карточках. Для ссылок — полное значение, копирование и ручное выделение.
-Проверь тёмную тему на мобильном и десктопе, отсутствие обрезания и лишней прокрутки диалогов.
-Сценарии общего UI закреплены в `frontend/e2e/ui-reuse.spec.ts`; защитные правила — в
-`frontend/src/lib/uiReuse.test.ts`. Скриншоты помогают визуальному ревью, но не доказывают
-переиспользование компонента. Если запрошено утверждение интерфейса, сохрани снимки **до** правок
-и покажи сравнение до/после до коммита.
+**结果验证。** 修改共享组件必须验证受影响的消费者，不能只测辅助函数。列表工具栏检查搜索、排序、分页、移动端筛选显示及元素等高；菜单检查打开、选择、键盘和 Escape，避免丢失父对话框；支付提供商检查表格和卡片中的实际标志／表情与名称；链接检查完整值、复制和手动选择。检查桌面和移动端深色主题，避免裁切及对话框多余滚动。共享界面场景在 `frontend/e2e/ui-reuse.spec.ts`，规则测试在 `frontend/src/lib/uiReuse.test.ts`。截图有助视觉审查，但不能证明组件复用。用户要求界面审批时，在修改**前**保存截图，并在提交前展示前后对比。
 
 ---
 
-## 5. Принципы рефакторинга
+<a id="5-принципы-рефакторинга"></a>
 
-- **Сначала декомпозиция, потом типизация.** Для любого крупного/запутанного файла выноси
-  связные срезы в маленькие типизированные модули, а не типизируй на месте — одно усилие, два
-  выигрыша (типы + размер), без двойной работы. Цель — **ни одного модуля > ~900 строк** без
-  задокументированной причины. Единственная принятая причина — сгенерированный артефакт:
-  `module_size.allowlist` в `scripts/architecture_gates.json` держит только выходы генераторов
-  (`templates/*.js`, `openapi.generated.ts`, `demoDataset.js`), и это зафиксировано тестом
-  `tests/contracts/test_architecture_gates.py::test_module_size_allowlist_is_generated_artifacts_only`.
-  Разросшийся рукописный файл — режь, а не вноси в allowlist.
-- **Ловушка monkeypatch / re-export.** Тесты часто делают `monkeypatch.setattr(module, "name", …)`.
-  Перенос `name` в подмодуль с ре-экспортом восстанавливает *импорты*, но **не** семантику
-  monkeypatch — пропатченная и вызываемая копии расходятся, и патч молча не срабатывает
-  (зелёно-но-неверно). Прежде чем резать шов, `grep tests/` на патч-цель; если пропатченный
-  символ и его вызов расходятся по модулям — **сначала обнови тест патчить новый модуль**
-  (test-first), потом переноси. Всегда проверяй, что фейк реально вызывается.
-- **Раскладка провайдеров:** один провайдер = один пакет с единым интерфейсом
-  (`__init__` экспортит `SPEC` + фабричные точки входа; `config` + `service` есть всегда;
-  `webhook`/`callbacks`/`payment_methods`/`router` — только когда существенны, не плоди
-  5-строчный webhook-модуль). Строки `id` / `provider_key` / webhook-path не меняй (они
-  персистятся и настроены в панели).
-- **Гигиена импортов:** после разбиения прогони `ruff check --fix --select F401,F811` — не
-  копипасть исходный блок импортов. Повторять фреймворк-импорты в модулях — нормально; **не**
-  централизуй их за star-import общим модулем (тот самый антипаттерн, который мы убрали).
+## 5. 重构原则
+
+- **先拆分，再完善类型。** 大型或复杂文件先按职责拆成小型类型化模块，而不是原地加类型，一次工作同时改善类型和体积。目标为**没有超过约 900 行且无书面理由的模块**。唯一认可的理由是生成产物：`scripts/architecture_gates.json` 的 `module_size.allowlist` 只包含生成器输出（`templates/*.js`、`openapi.generated.ts`、`demoDataset.js`），由 `tests/contracts/test_architecture_gates.py::test_module_size_allowlist_is_generated_artifacts_only` 保护。手写文件过大必须拆分，不得加入允许清单。
+- **monkeypatch／重新导出的陷阱。** 测试常用 `monkeypatch.setattr(module, "name", …)`。把 `name` 移到子模块再重新导出，只恢复导入兼容，**不能**恢复 monkeypatch 语义；补丁和调用分属不同副本时会静默失效，测试虽然通过却不正确。拆分前在 `tests/` 搜索补丁目标；若被替换符号和调用将跨模块，**先修改测试，让补丁指向新模块**，再迁移。始终确认替身确实被调用。
+- **支付提供商结构：** 每个提供商一个包、统一接口（`__init__` 导出 `SPEC` 与工厂入口，始终包含 `config` + `service`；`webhook`／`callbacks`／`payment_methods`／`router` 仅在有实际内容时拆出，不制造只有五行的 webhook 模块）。不得更改 `id`／`provider_key`／webhook 路径，它们已持久化并配置在面板中。
+- **导入整理：** 拆分后运行 `ruff check --fix --select F401,F811`，不要照搬原导入块。不同模块重复框架导入是正常的；**不得**经通用模块的星号导入集中转发，这是已清除的反模式。
 
 ---
 
-## 6. Что намеренно, а что removable
+<a id="6-что-намеренно-а-что-removable"></a>
 
-**Оставить — это фичи, а не легаси:**
-- Кросс-бот **совместимость миграций** (`MIGRATION_REMNASHOP_*`, `backend/scripts/import_legacy.py`,
-  `legacy_referral_codes` / `legacy_import_mappings`, reconcile-миграции). Это и есть «миграция
-  с другого бота» + install wizard (`scripts/install.sh`). Порядок применяемых миграций
-  (ядро + плагинные, неймспейснутые) пинуется снапшот-тестом
-  `tests/contracts/test_migration_chain_snapshot.py`: любой reorder/renumber падает в CI, а не
-  только на ревью, поэтому append-only-правило теперь машинно-проверяемо.
-- **Deprecated env-алиасы** в `config/settings.py` (`ignore_deprecated_*`) — защищают
-  существующие деплои. Удалять только с окном депрекации.
-- Внутрипакетные общие хабы `_runtime.py` — load-bearing, не мёртвый код.
+## 6. 应保留与可删除的内容
 
-**Убрать (сначала проверь импортёров / патч-цели):** ре-экспорт-шимы рефактора, deprecated-хелперы
-с пометкой «kept for compatibility» без вызовов, сериализаторы, осиротевшие после перехода на
-типизированные контракты.
+**保留：这些是功能，而非废旧代码：**
+
+- 跨机器人**迁移兼容性**（`MIGRATION_REMNASHOP_*`、`backend/scripts/import_legacy.py`、`legacy_referral_codes`／`legacy_import_mappings`、对账迁移）。它们实现其他机器人迁移与安装向导（`scripts/install.sh`）。核心和带命名空间的插件迁移顺序由 `tests/contracts/test_migration_chain_snapshot.py` 固定；重排或重新编号会直接使 CI 失败，因此只追加规则由机器验证。
+- `config/settings.py` 中的**废弃环境变量别名**（`ignore_deprecated_*`）保护现有部署，只能在明确弃用期后删除。
+- 包内部的 `_runtime.py` 共享模块承担实际职责，不是死代码。
+
+**可删除（先查导入者和补丁目标）：** 重构遗留的重新导出兼容层、标注“kept for compatibility”但已无调用的废弃辅助函数，以及转用类型化契约后失去用途的序列化器。
 
 ---
 
-## 7. Ключевые решения («почему»)
+<a id="7-ключевые-решения-почему"></a>
 
-- **Рукописные типизированные контракты вместо смены фреймворка.** Остались на aiohttp и добавили
-  pydantic request/response + модели событий, затем сгенерировали OpenAPI из живого роутера.
-  Резон: enforce-ить контракт там, где код уже работает, без переписывания.
-- **mypy/svelte-check как рачеты.** Покрытие типами только растёт и должно оставаться зелёным;
-  оно вскрыло реальные латентные баги (например aiogram `Message | InaccessibleMessage`).
-- **Сначала декомпозиция, потом типизация.** God-файлы сначала режутся на сфокусированные модули;
-  типизировать маленькие единицы дешевле и безопаснее, чем запутанные большие.
-- **Сгенерированные артефакты + drift-guards** (`openapi.json`, `events.md`, `openapi.generated.ts`)
-  делают контракт фронт↔бэк машинопроверяемым через границу.
+## 7. 关键决策及原因
+
+- **手写类型化契约，而非更换框架。** 保留 aiohttp，加入 pydantic 请求／响应与事件模型，再从实际路由生成 OpenAPI。在已有代码工作的地方强制契约，避免重写。
+- **mypy／svelte-check 要求只能收紧。** 类型覆盖持续增加且必须通过；已发现真实潜在缺陷，例如 aiogram `Message | InaccessibleMessage`。
+- **先拆分，再完善类型。** 巨型文件先拆成聚焦模块；小单元比复杂大文件更容易、安全地补充类型。
+- **生成产物及漂移检查**（`openapi.json`、`events.md`、`openapi.generated.ts`）让前后端边界的契约可以自动验证。
 
 ---
 
-## 8. Рабочий процесс
+<a id="8-рабочий-процесс"></a>
 
-- Ветка от `dev` (или как укажет мейнтейнер); PR'ы целятся в `dev`/`main` и должны проходить все
-  гейты раздела 1.
-- **Сообщения коммитов:** префиксы Conventional Commits (`fix:`, `feat:`, `refactor:`, `chore:`,
-  `docs:`, `ci:`, `build:`, `perf:`, `test:`, `style:`), на английском. Трейлер `Co-Authored-By`
-  **не добавлять**.
-- **[CHANGELOG.md](CHANGELOG.md) — единый источник истории изменений** для репозитория и
-  страницы `/changelog/` на сайте документации. Сайт получает файл через `sync:docs`;
-  сгенерированную копию не редактировать.
-- Перед коммитом значимого изменения Core обновляй раздел **«В разработке · dev»**:
-  `Добавлено`, `Изменено`, `Исправлено`, `Производительность`, `Документация`, `При обновлении` — только нужные
-  категории. Описывай итоговый эффект, а не список коммитов. Сначала прочитай весь dev-раздел
-  и последний релиз: дополняй существующий пункт той же возможности, объединяй повторы,
-  удаляй отменённые обещания. Исправление новой dev-фичи обычно уточняет её пункт; регрессия
-  выпущенной версии заслуживает отдельного пункта. Внутренние тесты, форматирование и
-  повторные CI-прогоны без нового эффекта отдельной записи не требуют.
-- В публичных описаниях используй нейтральные термины: **«коды активации»**, «начисление
-  периода», «корректировка цены», «дополнительный трафик». Это редакционное правило проекта;
-  оно не меняет API, имена настроек и смысл возможностей.
-- При выпуске перенеси только реально вошедшие изменения из dev в `## vX.Y.Z — YYYY-MM-DD`,
-  сохрани невыпущенные пункты наверху и добавь ссылки на релиз. Дата — фактическая дата
-  выпуска в UTC из Release API, не дата тега, коммита или зеркалирования. При различии дат
-  для зеркал используй исходный `released_at` GitLab. Секции релизов идут от новых к старым;
-  опубликованную историю меняй только для проверенных фактических исправлений.
-- Одно связное изменение на коммит; для рефакторов предпочитай move-only диффы для ревью.
-- После любого изменения контракта регенерируй затронутые артефакты (раздел 1) в том же изменении.
-- Compatibility facades (`admin_api`, `subscription_webapp`, `subscription_service`) are compatibility-only layers.
-  Implementation code must import concrete `*_impl`/domain modules first; avoid adding new first-party dependencies on facade modules
-  unless a public compatibility contract requires it.
+## 8. 工作流程
+
+- 从 `dev`（或维护者指定分支）建立分支；PR 指向 `dev`／`main`，必须通过第 1 节所有门禁。
+- **提交说明：** 英文 Conventional Commits 前缀（`fix:`、`feat:`、`refactor:`、`chore:`、`docs:`、`ci:`、`build:`、`perf:`、`test:`、`style:`），**不得**添加 `Co-Authored-By` 尾注。
+- **[CHANGELOG.md](CHANGELOG.md) 是仓库和文档站 `/changelog/` 的唯一更新历史来源。** 文档站经 `sync:docs` 获取，不得修改生成副本。
+- 提交值得记录的核心变更前，更新**“开发中 · dev”**：只使用需要的分类“新增”“变更”“修复”“性能”“文档”“升级注意”。描述最终效果，不罗列提交。先读完整 dev 区和最近发布版本，补充同一功能已有条目、合并重复、删除撤回承诺。修复尚未发布的新功能通常修改原条目；已发布版本的回归可单列。无新增效果的内部测试、格式调整或 CI 重跑无需单列。
+- 公开说明使用中性术语：**“激活码”**、有效期增加、价格调整、额外流量。这是项目编辑规则，不改变 API、设置名或功能含义。
+- 发布时，只将真正发布的变更从 dev 移入 `## vX.Y.Z — YYYY-MM-DD`；未发布项留在顶部，并附发布链接。日期取 Release API 的实际 UTC 发布时间，不使用标签、提交或镜像同步日期；镜像日期不同时使用 GitLab 原始 `released_at`。版本按新到旧排列；已发布历史仅允许有证据的事实修正，以及不改变事实的语言翻译。
+- 每次提交只包含一个连贯变更；重构优先把纯移动独立为便于审查的差异。
+- 契约变化后，在同一变更内重新生成相关产物（第 1 节）。
+- 兼容门面（`admin_api`、`subscription_webapp`、`subscription_service`）仅用于兼容。实现代码优先导入具体 `*_impl`／领域模块，除非公开兼容契约要求，否则不得为自有代码新增对门面的依赖。

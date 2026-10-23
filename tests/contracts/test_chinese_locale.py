@@ -15,6 +15,12 @@ ROOT = Path(__file__).resolve().parents[2]
 SRC = ROOT / "frontend/src"
 # Direct and computed service/status keys; new A/B states must not silently fall back.
 PREFIXES = (
+    "admin_appearance_font_",
+    "admin_appearance_preset_",
+    "log_",
+    "admin_log_",
+    "email_",
+    "menu_",
     "wa_services_",
     "admin_services_",
     "admin_account_access_",
@@ -42,6 +48,15 @@ PREFIXES = (
     "admin_documents_",
 )
 SOURCES = (
+    "admin/AdminHeaderActions.svelte",
+    "admin/AdminPanelLayout.svelte",
+    "admin/AdminSectionTabs.svelte",
+    "admin/AdminPanel.svelte",
+    "admin/AdminLazyModals.svelte",
+    "admin/ConfigAlertsBanner.svelte",
+    "lib/components",
+    "lib/webapp",
+    "lib/admin",
     "webapp/auth",
     "webapp/security",
     "webapp/screens/ServicesScreen.svelte",

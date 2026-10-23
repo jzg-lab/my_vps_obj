@@ -11,7 +11,7 @@ export interface paths {
       path?: never;
       cookie?: never;
     };
-    /** Account Avatar */
+    /** 获取账号头像 */
     get: operations["get_account_avatar_route"];
     put?: never;
     post?: never;
@@ -30,7 +30,7 @@ export interface paths {
     };
     get?: never;
     put?: never;
-    /** Account Email Change Confirm */
+    /** 确认更换登录邮箱 */
     post: operations["post_account_email_change_confirm_route"];
     delete?: never;
     options?: never;
@@ -47,7 +47,7 @@ export interface paths {
     };
     get?: never;
     put?: never;
-    /** Account Email Change Current Request */
+    /** 向原邮箱发送验证请求 */
     post: operations["post_account_email_change_current_request_route"];
     delete?: never;
     options?: never;
@@ -64,7 +64,7 @@ export interface paths {
     };
     get?: never;
     put?: never;
-    /** Account Email Change Current Verify */
+    /** 验证原邮箱 */
     post: operations["post_account_email_change_current_verify_route"];
     delete?: never;
     options?: never;
@@ -81,7 +81,7 @@ export interface paths {
     };
     get?: never;
     put?: never;
-    /** Account Email Change New Request */
+    /** 向新邮箱发送验证请求 */
     post: operations["post_account_email_change_new_request_route"];
     delete?: never;
     options?: never;
@@ -98,7 +98,7 @@ export interface paths {
     };
     get?: never;
     put?: never;
-    /** Account Notification Email */
+    /** 设置通知邮箱 */
     post: operations["post_account_notification_email_route"];
     delete?: never;
     options?: never;
@@ -115,7 +115,7 @@ export interface paths {
     };
     get?: never;
     put?: never;
-    /** Account Email Request */
+    /** 请求绑定邮箱验证码 */
     post: operations["post_account_email_request_route"];
     delete?: never;
     options?: never;
@@ -132,7 +132,7 @@ export interface paths {
     };
     get?: never;
     put?: never;
-    /** Account Email Verify */
+    /** 验证并绑定邮箱 */
     post: operations["post_account_email_verify_route"];
     delete?: never;
     options?: never;
@@ -149,7 +149,7 @@ export interface paths {
     };
     get?: never;
     put?: never;
-    /** External Identity Unlink */
+    /** 解除外部身份绑定 */
     post: operations["post_external_identity_unlink_route"];
     delete?: never;
     options?: never;
@@ -166,7 +166,7 @@ export interface paths {
     };
     get?: never;
     put?: never;
-    /** Account Language */
+    /** 设置账号语言 */
     post: operations["post_account_language_route"];
     delete?: never;
     options?: never;
@@ -183,7 +183,7 @@ export interface paths {
     };
     get?: never;
     put?: never;
-    /** Account Merge Cancel */
+    /** 取消账号合并 */
     post: operations["post_account_merge_cancel_route"];
     delete?: never;
     options?: never;
@@ -200,7 +200,7 @@ export interface paths {
     };
     get?: never;
     put?: never;
-    /** Account Merge Confirm */
+    /** 确认账号合并 */
     post: operations["post_account_merge_confirm_route"];
     delete?: never;
     options?: never;
@@ -217,7 +217,7 @@ export interface paths {
     };
     get?: never;
     put?: never;
-    /** Account Merge Passkey Options */
+    /** 获取账号合并的通行密钥验证参数 */
     post: operations["post_account_merge_passkey_options_route"];
     delete?: never;
     options?: never;
@@ -234,7 +234,7 @@ export interface paths {
     };
     get?: never;
     put?: never;
-    /** Account Merge Passkey Verify */
+    /** 验证账号合并的通行密钥 */
     post: operations["post_account_merge_passkey_verify_route"];
     delete?: never;
     options?: never;
@@ -251,7 +251,7 @@ export interface paths {
     };
     get?: never;
     put?: never;
-    /** Account Merge Request */
+    /** 请求合并账号 */
     post: operations["post_account_merge_request_route"];
     delete?: never;
     options?: never;
@@ -266,7 +266,7 @@ export interface paths {
       path?: never;
       cookie?: never;
     };
-    /** Account Merge Status */
+    /** 获取账号合并状态 */
     get: operations["get_account_merge_status_route"];
     put?: never;
     post?: never;
@@ -285,7 +285,7 @@ export interface paths {
     };
     get?: never;
     put?: never;
-    /** Account Notification Preferences */
+    /** 更新账号通知偏好 */
     post: operations["post_account_notification_preferences_route"];
     delete?: never;
     options?: never;
@@ -302,7 +302,7 @@ export interface paths {
     };
     get?: never;
     put?: never;
-    /** Account Passkey Delete */
+    /** 删除账号通行密钥 */
     post: operations["post_account_passkey_delete_route"];
     delete?: never;
     options?: never;
@@ -319,7 +319,7 @@ export interface paths {
     };
     get?: never;
     put?: never;
-    /** Account Passkey Options */
+    /** 获取通行密钥注册参数 */
     post: operations["post_account_passkey_options_route"];
     delete?: never;
     options?: never;
@@ -336,7 +336,7 @@ export interface paths {
     };
     get?: never;
     put?: never;
-    /** Account Passkey Register */
+    /** 注册账号通行密钥 */
     post: operations["post_account_passkey_register_route"];
     delete?: never;
     options?: never;
@@ -353,7 +353,7 @@ export interface paths {
     };
     get?: never;
     put?: never;
-    /** Account Password Confirm */
+    /** 确认设置账号密码 */
     post: operations["post_account_password_confirm_route"];
     delete?: never;
     options?: never;
@@ -370,7 +370,7 @@ export interface paths {
     };
     get?: never;
     put?: never;
-    /** Account Password Request */
+    /** 请求设置账号密码 */
     post: operations["post_account_password_request_route"];
     delete?: never;
     options?: never;
@@ -387,7 +387,7 @@ export interface paths {
     };
     get?: never;
     put?: never;
-    /** Account Qr Login Approve */
+    /** 批准扫码登录 */
     post: operations["post_account_qr_login_approve_route"];
     delete?: never;
     options?: never;
@@ -404,7 +404,7 @@ export interface paths {
     };
     get?: never;
     put?: never;
-    /** Account Qr Login Claim */
+    /** 认领扫码登录请求 */
     post: operations["post_account_qr_login_claim_route"];
     delete?: never;
     options?: never;
@@ -421,7 +421,7 @@ export interface paths {
     };
     get?: never;
     put?: never;
-    /** Account Qr Login Deny */
+    /** 拒绝扫码登录 */
     post: operations["post_account_qr_login_deny_route"];
     delete?: never;
     options?: never;
@@ -438,7 +438,7 @@ export interface paths {
     };
     get?: never;
     put?: never;
-    /** Account Telegram Link */
+    /** 绑定 Telegram 账号 */
     post: operations["post_account_telegram_link_route"];
     delete?: never;
     options?: never;
@@ -455,7 +455,7 @@ export interface paths {
     };
     get?: never;
     put?: never;
-    /** Account Telegram Merge Confirm */
+    /** 确认合并 Telegram 账号 */
     post: operations["post_account_telegram_merge_confirm_route"];
     delete?: never;
     options?: never;
@@ -472,7 +472,7 @@ export interface paths {
     };
     get?: never;
     put?: never;
-    /** Account Telegram Merge Request */
+    /** 请求合并 Telegram 账号 */
     post: operations["post_account_telegram_merge_request_route"];
     delete?: never;
     options?: never;
@@ -489,7 +489,7 @@ export interface paths {
     };
     get?: never;
     put?: never;
-    /** Account Telegram Notifications Probe */
+    /** 检测 Telegram 通知可用性 */
     post: operations["post_account_telegram_notifications_probe_route"];
     delete?: never;
     options?: never;
@@ -504,10 +504,10 @@ export interface paths {
       path?: never;
       cookie?: never;
     };
-    /** Admin Ads List */
+    /** 列出广告活动 */
     get: operations["get_admin_ads_list_route"];
     put?: never;
-    /** Admin Ad Create */
+    /** 创建广告活动 */
     post: operations["post_admin_ad_create_route"];
     delete?: never;
     options?: never;
@@ -522,7 +522,7 @@ export interface paths {
       path?: never;
       cookie?: never;
     };
-    /** Admin Ad Unassigned */
+    /** 获取未归属广告数据 */
     get: operations["get_admin_ad_unassigned_route"];
     put?: never;
     post?: never;
@@ -541,7 +541,7 @@ export interface paths {
     };
     get?: never;
     put?: never;
-    /** Admin Ad Unassigned Assign */
+    /** 分配未归属广告数据 */
     post: operations["post_admin_ad_unassigned_assign_route"];
     delete?: never;
     options?: never;
@@ -559,7 +559,7 @@ export interface paths {
     get?: never;
     put?: never;
     post?: never;
-    /** Admin Ad Delete */
+    /** 删除广告活动 */
     delete: operations["delete_admin_ad_delete_route"];
     options?: never;
     head?: never;
@@ -575,7 +575,7 @@ export interface paths {
     };
     get?: never;
     put?: never;
-    /** Admin Ad Archive */
+    /** 归档广告活动 */
     post: operations["post_admin_ad_archive_route"];
     delete?: never;
     options?: never;
@@ -592,7 +592,7 @@ export interface paths {
     };
     get?: never;
     put?: never;
-    /** Admin Ad Assign */
+    /** 分配广告归属 */
     post: operations["post_admin_ad_assign_route"];
     delete?: never;
     options?: never;
@@ -609,7 +609,7 @@ export interface paths {
     };
     get?: never;
     put?: never;
-    /** Admin Ad Binding Create */
+    /** 创建广告绑定 */
     post: operations["post_admin_ad_binding_create_route"];
     delete?: never;
     options?: never;
@@ -626,7 +626,7 @@ export interface paths {
     };
     get?: never;
     put?: never;
-    /** Admin Ad Binding End */
+    /** 结束广告绑定 */
     post: operations["post_admin_ad_binding_end_route"];
     delete?: never;
     options?: never;
@@ -643,7 +643,7 @@ export interface paths {
     };
     get?: never;
     put?: never;
-    /** Admin Ad Candidate Decide */
+    /** 处理广告归属候选 */
     post: operations["post_admin_ad_candidate_decide_route"];
     delete?: never;
     options?: never;
@@ -658,7 +658,7 @@ export interface paths {
       path?: never;
       cookie?: never;
     };
-    /** Admin Ad Detail */
+    /** 获取广告活动详情 */
     get: operations["get_admin_ad_detail_route"];
     put?: never;
     post?: never;
@@ -677,7 +677,7 @@ export interface paths {
     };
     get?: never;
     put?: never;
-    /** Admin Ad Edit */
+    /** 编辑广告活动 */
     post: operations["post_admin_ad_edit_route"];
     delete?: never;
     options?: never;
@@ -692,7 +692,7 @@ export interface paths {
       path?: never;
       cookie?: never;
     };
-    /** Admin Ad Export */
+    /** 导出广告活动数据 */
     get: operations["get_admin_ad_export_route"];
     put?: never;
     post?: never;
@@ -711,7 +711,7 @@ export interface paths {
     };
     get?: never;
     put?: never;
-    /** Admin Ad Import Preview */
+    /** 预览广告数据导入 */
     post: operations["post_admin_ad_import_preview_route"];
     delete?: never;
     options?: never;
@@ -728,7 +728,7 @@ export interface paths {
     };
     get?: never;
     put?: never;
-    /** Admin Ad Candidates */
+    /** 获取广告归属候选 */
     post: operations["post_admin_ad_candidates_route"];
     delete?: never;
     options?: never;
@@ -745,7 +745,7 @@ export interface paths {
     };
     get?: never;
     put?: never;
-    /** Admin Ad Import Confirm */
+    /** 确认导入广告数据 */
     post: operations["post_admin_ad_import_confirm_route"];
     delete?: never;
     options?: never;
@@ -762,7 +762,7 @@ export interface paths {
     };
     get?: never;
     put?: never;
-    /** Admin Ad Import Revert */
+    /** 撤回广告数据导入 */
     post: operations["post_admin_ad_import_revert_route"];
     delete?: never;
     options?: never;
@@ -779,7 +779,7 @@ export interface paths {
     };
     get?: never;
     put?: never;
-    /** Admin Ad Link Create */
+    /** 创建广告链接 */
     post: operations["post_admin_ad_link_create_route"];
     delete?: never;
     options?: never;
@@ -796,7 +796,7 @@ export interface paths {
     };
     get?: never;
     put?: never;
-    /** Admin Ad Link Toggle */
+    /** 启用或停用广告链接 */
     post: operations["post_admin_ad_link_toggle_route"];
     delete?: never;
     options?: never;
@@ -811,7 +811,7 @@ export interface paths {
       path?: never;
       cookie?: never;
     };
-    /** Admin Ad Purchases */
+    /** 获取广告关联购买记录 */
     get: operations["get_admin_ad_purchases_route"];
     put?: never;
     post?: never;
@@ -830,7 +830,7 @@ export interface paths {
     };
     get?: never;
     put?: never;
-    /** Admin Ad Reset Stats */
+    /** 重置广告统计 */
     post: operations["post_admin_ad_reset_stats_route"];
     delete?: never;
     options?: never;
@@ -847,7 +847,7 @@ export interface paths {
     };
     get?: never;
     put?: never;
-    /** Admin Ad Spend Create */
+    /** 记录广告支出 */
     post: operations["post_admin_ad_spend_create_route"];
     delete?: never;
     options?: never;
@@ -864,7 +864,7 @@ export interface paths {
     };
     get?: never;
     put?: never;
-    /** Admin Ad Toggle */
+    /** 启用或停用广告活动 */
     post: operations["post_admin_ad_toggle_route"];
     delete?: never;
     options?: never;
@@ -881,7 +881,7 @@ export interface paths {
     };
     get?: never;
     put?: never;
-    /** Admin Appearance Favicon Upload */
+    /** 上传网站图标 */
     post: operations["post_admin_appearance_favicon_upload_route"];
     delete?: never;
     options?: never;
@@ -898,7 +898,7 @@ export interface paths {
     };
     get?: never;
     put?: never;
-    /** Admin Appearance Logo Upload */
+    /** 上传网站标志 */
     post: operations["post_admin_appearance_logo_upload_route"];
     delete?: never;
     options?: never;
@@ -913,7 +913,7 @@ export interface paths {
       path?: never;
       cookie?: never;
     };
-    /** Admin Backup Detail */
+    /** 获取备份详情 */
     get: operations["get_admin_backup_detail_route"];
     put?: never;
     post?: never;
@@ -930,7 +930,7 @@ export interface paths {
       path?: never;
       cookie?: never;
     };
-    /** Admin Backup Download */
+    /** 下载备份 */
     get: operations["get_admin_backup_download_route"];
     put?: never;
     post?: never;
@@ -947,7 +947,7 @@ export interface paths {
       path?: never;
       cookie?: never;
     };
-    /** Admin Backups List */
+    /** 列出备份 */
     get: operations["get_admin_backups_list_route"];
     put?: never;
     post?: never;
@@ -966,7 +966,7 @@ export interface paths {
     };
     get?: never;
     put?: never;
-    /** Admin Backups Create */
+    /** 创建备份 */
     post: operations["post_admin_backups_create_route"];
     delete?: never;
     options?: never;
@@ -983,7 +983,7 @@ export interface paths {
     };
     get?: never;
     put?: never;
-    /** Admin Backups Restore */
+    /** 从备份恢复 */
     post: operations["post_admin_backups_restore_route"];
     delete?: never;
     options?: never;
@@ -1000,7 +1000,7 @@ export interface paths {
     };
     get?: never;
     put?: never;
-    /** Admin Backups Upload */
+    /** 上传备份 */
     post: operations["post_admin_backups_upload_route"];
     delete?: never;
     options?: never;
@@ -1017,7 +1017,7 @@ export interface paths {
     };
     get?: never;
     put?: never;
-    /** Admin Broadcast */
+    /** 创建群发任务 */
     post: operations["post_admin_broadcast_route"];
     delete?: never;
     options?: never;
@@ -1032,7 +1032,7 @@ export interface paths {
       path?: never;
       cookie?: never;
     };
-    /** Admin Broadcast Audience Counts */
+    /** 获取群发受众数量 */
     get: operations["get_admin_broadcast_audience_counts_route"];
     put?: never;
     post?: never;
@@ -1051,7 +1051,7 @@ export interface paths {
     };
     get?: never;
     put?: never;
-    /** Admin Broadcast Preview */
+    /** 预览群发消息 */
     post: operations["post_admin_broadcast_preview_route"];
     delete?: never;
     options?: never;
@@ -1066,7 +1066,7 @@ export interface paths {
       path?: never;
       cookie?: never;
     };
-    /** Admin Broadcast Shortcodes */
+    /** 获取群发占位符 */
     get: operations["get_admin_broadcast_shortcodes_route"];
     put?: never;
     post?: never;
@@ -1083,7 +1083,7 @@ export interface paths {
       path?: never;
       cookie?: never;
     };
-    /** Admin Broadcasts List */
+    /** 列出群发任务 */
     get: operations["get_admin_broadcasts_list_route"];
     put?: never;
     post?: never;
@@ -1103,11 +1103,11 @@ export interface paths {
     get?: never;
     put?: never;
     post?: never;
-    /** Admin Broadcast Delete */
+    /** 删除群发任务 */
     delete: operations["delete_admin_broadcast_delete_route"];
     options?: never;
     head?: never;
-    /** Admin Broadcast Reschedule */
+    /** 调整群发时间 */
     patch: operations["patch_admin_broadcast_reschedule_route"];
     trace?: never;
   };
@@ -1118,7 +1118,7 @@ export interface paths {
       path?: never;
       cookie?: never;
     };
-    /** Admin Broadcast Failures */
+    /** 获取群发失败记录 */
     get: operations["get_admin_broadcast_failures_route"];
     put?: never;
     post?: never;
@@ -1135,10 +1135,10 @@ export interface paths {
       path?: never;
       cookie?: never;
     };
-    /** Admin Dedicated Exits */
+    /** 列出专用出口 */
     get: operations["get_admin_dedicated_exits_route"];
     put?: never;
-    /** Admin Dedicated Exit Create */
+    /** 登记专用出口 */
     post: operations["post_admin_dedicated_exit_create_route"];
     delete?: never;
     options?: never;
@@ -1153,7 +1153,7 @@ export interface paths {
       path?: never;
       cookie?: never;
     };
-    /** Admin Exit Audit */
+    /** 获取出口审计记录 */
     get: operations["get_admin_exit_audit_route"];
     put?: never;
     post?: never;
@@ -1172,7 +1172,7 @@ export interface paths {
     };
     get?: never;
     put?: never;
-    /** Admin Exit Reclaim */
+    /** 回收专用出口 */
     post: operations["post_admin_exit_reclaim_route"];
     delete?: never;
     options?: never;
@@ -1189,7 +1189,7 @@ export interface paths {
     };
     get?: never;
     put?: never;
-    /** Admin Exit Verify */
+    /** 核验专用出口 */
     post: operations["post_admin_exit_verify_route"];
     delete?: never;
     options?: never;
@@ -1204,10 +1204,10 @@ export interface paths {
       path?: never;
       cookie?: never;
     };
-    /** Admin Documents List */
+    /** 列出管理文档 */
     get: operations["get_admin_documents_list_route"];
     put?: never;
-    /** Admin Document Create */
+    /** 创建文档 */
     post: operations["post_admin_document_create_route"];
     delete?: never;
     options?: never;
@@ -1222,12 +1222,12 @@ export interface paths {
       path?: never;
       cookie?: never;
     };
-    /** Admin Document Get */
+    /** 获取文档 */
     get: operations["get_admin_document_get_route"];
-    /** Admin Document Update */
+    /** 更新文档 */
     put: operations["put_admin_document_update_route"];
     post?: never;
-    /** Admin Document Delete */
+    /** 删除文档 */
     delete: operations["delete_admin_document_delete_route"];
     options?: never;
     head?: never;
@@ -1241,7 +1241,7 @@ export interface paths {
       path?: never;
       cookie?: never;
     };
-    /** Admin Extensions */
+    /** 列出后台扩展 */
     get: operations["get_admin_extensions_route"];
     put?: never;
     post?: never;
@@ -1260,7 +1260,7 @@ export interface paths {
     };
     get?: never;
     put?: never;
-    /** Admin Extension Action */
+    /** 执行扩展操作 */
     post: operations["post_admin_extension_action_route"];
     delete?: never;
     options?: never;
@@ -1277,7 +1277,7 @@ export interface paths {
     };
     get?: never;
     put?: never;
-    /** Admin Extension Presentation */
+    /** 更新扩展展示 */
     post: operations["post_admin_extension_presentation_route"];
     delete?: never;
     options?: never;
@@ -1292,13 +1292,13 @@ export interface paths {
       path?: never;
       cookie?: never;
     };
-    /** Admin Gifts */
+    /** 列出礼品 */
     get: operations["get_admin_gifts_route"];
     put?: never;
     /**
-     * Admin Gift Create
+     * 创建礼品
      * @deprecated
-     * @description Retired in the independent-service deployment. Authorized requests return 410. The historical 200 schema is retained for upstream compatibility tooling only.
+     * @description 独立服务部署已停用此接口，鉴权成功后返回 410。历史 200 结构仅为上游兼容工具保留。
      */
     post: operations["post_admin_gift_create_route"];
     delete?: never;
@@ -1314,7 +1314,7 @@ export interface paths {
       path?: never;
       cookie?: never;
     };
-    /** Admin Gift Options */
+    /** 获取礼品选项 */
     get: operations["get_admin_gift_options_route"];
     put?: never;
     post?: never;
@@ -1331,7 +1331,7 @@ export interface paths {
       path?: never;
       cookie?: never;
     };
-    /** Admin Gift Detail */
+    /** 获取礼品详情 */
     get: operations["get_admin_gift_detail_route"];
     put?: never;
     post?: never;
@@ -1351,9 +1351,9 @@ export interface paths {
     get?: never;
     put?: never;
     /**
-     * Admin Gift Revoke
+     * 撤销礼品
      * @deprecated
-     * @description Retired in the independent-service deployment. Authorized requests return 410. The historical 200 schema is retained for upstream compatibility tooling only.
+     * @description 独立服务部署已停用此接口，鉴权成功后返回 410。历史 200 结构仅为上游兼容工具保留。
      */
     post: operations["post_admin_gift_revoke_route"];
     delete?: never;
@@ -1369,7 +1369,7 @@ export interface paths {
       path?: never;
       cookie?: never;
     };
-    /** Admin Health */
+    /** 获取系统健康状态 */
     get: operations["get_admin_health_route"];
     put?: never;
     post?: never;
@@ -1386,9 +1386,9 @@ export interface paths {
       path?: never;
       cookie?: never;
     };
-    /** Admin Information Page Get */
+    /** 获取信息页面 */
     get: operations["get_admin_information_page_get_route"];
-    /** Admin Information Page Save */
+    /** 保存信息页面 */
     put: operations["put_admin_information_page_save_route"];
     post?: never;
     delete?: never;
@@ -1404,7 +1404,7 @@ export interface paths {
       path?: never;
       cookie?: never;
     };
-    /** Admin Logs */
+    /** 获取操作日志 */
     get: operations["get_admin_logs_route"];
     put?: never;
     post?: never;
@@ -1421,7 +1421,7 @@ export interface paths {
       path?: never;
       cookie?: never;
     };
-    /** Admin Me */
+    /** 获取当前管理员信息 */
     get: operations["get_admin_me_route"];
     put?: never;
     post?: never;
@@ -1438,7 +1438,7 @@ export interface paths {
       path?: never;
       cookie?: never;
     };
-    /** Admin Message Image */
+    /** 获取消息图片 */
     get: operations["get_admin_message_image_route"];
     put?: never;
     post?: never;
@@ -1455,7 +1455,7 @@ export interface paths {
       path?: never;
       cookie?: never;
     };
-    /** Admin Message Targets */
+    /** 获取消息接收目标 */
     get: operations["get_admin_message_targets_route"];
     put?: never;
     post?: never;
@@ -1472,7 +1472,7 @@ export interface paths {
       path?: never;
       cookie?: never;
     };
-    /** Admin Panel Internal Squads */
+    /** 获取面板内部节点组 */
     get: operations["get_admin_panel_internal_squads_route"];
     put?: never;
     post?: never;
@@ -1489,7 +1489,7 @@ export interface paths {
       path?: never;
       cookie?: never;
     };
-    /** Admin Partner Applications */
+    /** 列出合作伙伴申请 */
     get: operations["get_admin_partner_applications_route"];
     put?: never;
     post?: never;
@@ -1506,7 +1506,7 @@ export interface paths {
       path?: never;
       cookie?: never;
     };
-    /** Admin Partner Application Detail */
+    /** 获取合作伙伴申请详情 */
     get: operations["get_admin_partner_application_detail_route"];
     put?: never;
     post?: never;
@@ -1526,9 +1526,9 @@ export interface paths {
     get?: never;
     put?: never;
     /**
-     * Admin Partner Application Approve
+     * 批准合作伙伴申请
      * @deprecated
-     * @description Retired in the independent-service deployment. Authorized requests return 410. The historical 200 schema is retained for upstream compatibility tooling only.
+     * @description 独立服务部署已停用此接口，鉴权成功后返回 410。历史 200 结构仅为上游兼容工具保留。
      */
     post: operations["post_admin_partner_application_approve_route"];
     delete?: never;
@@ -1547,9 +1547,9 @@ export interface paths {
     get?: never;
     put?: never;
     /**
-     * Admin Partner Application Reject
+     * 拒绝合作伙伴申请
      * @deprecated
-     * @description Retired in the independent-service deployment. Authorized requests return 410. The historical 200 schema is retained for upstream compatibility tooling only.
+     * @description 独立服务部署已停用此接口，鉴权成功后返回 410。历史 200 结构仅为上游兼容工具保留。
      */
     post: operations["post_admin_partner_application_reject_route"];
     delete?: never;
@@ -1568,9 +1568,9 @@ export interface paths {
     get?: never;
     put?: never;
     /**
-     * Admin Partner Application Reopen
+     * 重新打开合作伙伴申请
      * @deprecated
-     * @description Retired in the independent-service deployment. Authorized requests return 410. The historical 200 schema is retained for upstream compatibility tooling only.
+     * @description 独立服务部署已停用此接口，鉴权成功后返回 410。历史 200 结构仅为上游兼容工具保留。
      */
     post: operations["post_admin_partner_application_reopen_route"];
     delete?: never;
@@ -1586,7 +1586,7 @@ export interface paths {
       path?: never;
       cookie?: never;
     };
-    /** Admin Partner Withdrawals */
+    /** 列出合作伙伴提现 */
     get: operations["get_admin_partner_withdrawals_route"];
     put?: never;
     post?: never;
@@ -1603,7 +1603,7 @@ export interface paths {
       path?: never;
       cookie?: never;
     };
-    /** Admin Partner Withdrawal Detail */
+    /** 获取合作伙伴提现详情 */
     get: operations["get_admin_partner_withdrawal_detail_route"];
     put?: never;
     post?: never;
@@ -1623,9 +1623,9 @@ export interface paths {
     get?: never;
     put?: never;
     /**
-     * Admin Partner Withdrawal Fail
+     * 标记合作伙伴提现失败
      * @deprecated
-     * @description Retired in the independent-service deployment. Authorized requests return 410. The historical 200 schema is retained for upstream compatibility tooling only.
+     * @description 独立服务部署已停用此接口，鉴权成功后返回 410。历史 200 结构仅为上游兼容工具保留。
      */
     post: operations["post_admin_partner_withdrawal_fail_route"];
     delete?: never;
@@ -1644,9 +1644,9 @@ export interface paths {
     get?: never;
     put?: never;
     /**
-     * Admin Partner Withdrawal Paid
+     * 标记合作伙伴提现已付款
      * @deprecated
-     * @description Retired in the independent-service deployment. Authorized requests return 410. The historical 200 schema is retained for upstream compatibility tooling only.
+     * @description 独立服务部署已停用此接口，鉴权成功后返回 410。历史 200 结构仅为上游兼容工具保留。
      */
     post: operations["post_admin_partner_withdrawal_paid_route"];
     delete?: never;
@@ -1665,9 +1665,9 @@ export interface paths {
     get?: never;
     put?: never;
     /**
-     * Admin Partner Withdrawal Processing
+     * 标记合作伙伴提现处理中
      * @deprecated
-     * @description Retired in the independent-service deployment. Authorized requests return 410. The historical 200 schema is retained for upstream compatibility tooling only.
+     * @description 独立服务部署已停用此接口，鉴权成功后返回 410。历史 200 结构仅为上游兼容工具保留。
      */
     post: operations["post_admin_partner_withdrawal_processing_route"];
     delete?: never;
@@ -1686,9 +1686,9 @@ export interface paths {
     get?: never;
     put?: never;
     /**
-     * Admin Partner Withdrawal Reject
+     * 拒绝合作伙伴提现
      * @deprecated
-     * @description Retired in the independent-service deployment. Authorized requests return 410. The historical 200 schema is retained for upstream compatibility tooling only.
+     * @description 独立服务部署已停用此接口，鉴权成功后返回 410。历史 200 结构仅为上游兼容工具保留。
      */
     post: operations["post_admin_partner_withdrawal_reject_route"];
     delete?: never;
@@ -1707,9 +1707,9 @@ export interface paths {
     get?: never;
     put?: never;
     /**
-     * Admin Partner Withdrawal Reveal
+     * 查看合作伙伴提现收款信息
      * @deprecated
-     * @description Retired in the independent-service deployment. Authorized requests return 410. The historical 200 schema is retained for upstream compatibility tooling only.
+     * @description 独立服务部署已停用此接口，鉴权成功后返回 410。历史 200 结构仅为上游兼容工具保留。
      */
     post: operations["post_admin_partner_withdrawal_reveal_route"];
     delete?: never;
@@ -1725,13 +1725,13 @@ export interface paths {
       path?: never;
       cookie?: never;
     };
-    /** Admin Partners List */
+    /** 列出合作伙伴 */
     get: operations["get_admin_partners_list_route"];
     put?: never;
     /**
-     * Admin Partner Create
+     * 创建合作伙伴
      * @deprecated
-     * @description Retired in the independent-service deployment. Authorized requests return 410. The historical 200 schema is retained for upstream compatibility tooling only.
+     * @description 独立服务部署已停用此接口，鉴权成功后返回 410。历史 200 结构仅为上游兼容工具保留。
      */
     post: operations["post_admin_partner_create_route"];
     delete?: never;
@@ -1747,7 +1747,7 @@ export interface paths {
       path?: never;
       cookie?: never;
     };
-    /** Admin Partner Attention */
+    /** 获取合作伙伴待办事项 */
     get: operations["get_admin_partner_attention_route"];
     put?: never;
     post?: never;
@@ -1764,7 +1764,7 @@ export interface paths {
       path?: never;
       cookie?: never;
     };
-    /** Admin Partner Overview */
+    /** 获取合作伙伴运营概览 */
     get: operations["get_admin_partner_overview_route"];
     put?: never;
     post?: never;
@@ -1781,13 +1781,13 @@ export interface paths {
       path?: never;
       cookie?: never;
     };
-    /** Admin Partner Bulk Referral Import Preview */
+    /** 预览批量导入合作伙伴邀请关系 */
     get: operations["get_admin_partner_bulk_referral_import_preview_route"];
     put?: never;
     /**
-     * Admin Partner Bulk Referral Import
+     * 批量导入合作伙伴邀请关系
      * @deprecated
-     * @description Retired in the independent-service deployment. Authorized requests return 410. The historical 200 schema is retained for upstream compatibility tooling only.
+     * @description 独立服务部署已停用此接口，鉴权成功后返回 410。历史 200 结构仅为上游兼容工具保留。
      */
     post: operations["post_admin_partner_bulk_referral_import_route"];
     delete?: never;
@@ -1803,7 +1803,7 @@ export interface paths {
       path?: never;
       cookie?: never;
     };
-    /** Admin Partner Detail */
+    /** 获取合作伙伴详情 */
     get: operations["get_admin_partner_detail_route"];
     put?: never;
     post?: never;
@@ -1823,9 +1823,9 @@ export interface paths {
     get?: never;
     put?: never;
     /**
-     * Admin Partner Balance Adjustment
+     * 调整合作伙伴余额
      * @deprecated
-     * @description Retired in the independent-service deployment. Authorized requests return 410. The historical 200 schema is retained for upstream compatibility tooling only.
+     * @description 独立服务部署已停用此接口，鉴权成功后返回 410。历史 200 结构仅为上游兼容工具保留。
      */
     post: operations["post_admin_partner_balance_adjustment_route"];
     delete?: never;
@@ -1844,9 +1844,9 @@ export interface paths {
     get?: never;
     put?: never;
     /**
-     * Admin Partner Close
+     * 关闭合作伙伴账号
      * @deprecated
-     * @description Retired in the independent-service deployment. Authorized requests return 410. The historical 200 schema is retained for upstream compatibility tooling only.
+     * @description 独立服务部署已停用此接口，鉴权成功后返回 410。历史 200 结构仅为上游兼容工具保留。
      */
     post: operations["post_admin_partner_close_route"];
     delete?: never;
@@ -1865,9 +1865,9 @@ export interface paths {
     get?: never;
     put?: never;
     /**
-     * Admin Partner Rate
+     * 设置合作伙伴佣金比例
      * @deprecated
-     * @description Retired in the independent-service deployment. Authorized requests return 410. The historical 200 schema is retained for upstream compatibility tooling only.
+     * @description 独立服务部署已停用此接口，鉴权成功后返回 410。历史 200 结构仅为上游兼容工具保留。
      */
     post: operations["post_admin_partner_rate_route"];
     delete?: never;
@@ -1886,9 +1886,9 @@ export interface paths {
     get?: never;
     put?: never;
     /**
-     * Admin Partner Link Rotate
+     * 更换合作伙伴邀请链接
      * @deprecated
-     * @description Retired in the independent-service deployment. Authorized requests return 410. The historical 200 schema is retained for upstream compatibility tooling only.
+     * @description 独立服务部署已停用此接口，鉴权成功后返回 410。历史 200 结构仅为上游兼容工具保留。
      */
     post: operations["post_admin_partner_link_rotate_route"];
     delete?: never;
@@ -1907,9 +1907,9 @@ export interface paths {
     get?: never;
     put?: never;
     /**
-     * Admin Partner Pause
+     * 暂停合作伙伴
      * @deprecated
-     * @description Retired in the independent-service deployment. Authorized requests return 410. The historical 200 schema is retained for upstream compatibility tooling only.
+     * @description 独立服务部署已停用此接口，鉴权成功后返回 410。历史 200 结构仅为上游兼容工具保留。
      */
     post: operations["post_admin_partner_pause_route"];
     delete?: never;
@@ -1925,13 +1925,13 @@ export interface paths {
       path?: never;
       cookie?: never;
     };
-    /** Admin Partner Referral Import Preview */
+    /** 预览导入合作伙伴邀请关系 */
     get: operations["get_admin_partner_referral_import_preview_route"];
     put?: never;
     /**
-     * Admin Partner Referral Import
+     * 导入合作伙伴邀请关系
      * @deprecated
-     * @description Retired in the independent-service deployment. Authorized requests return 410. The historical 200 schema is retained for upstream compatibility tooling only.
+     * @description 独立服务部署已停用此接口，鉴权成功后返回 410。历史 200 结构仅为上游兼容工具保留。
      */
     post: operations["post_admin_partner_referral_import_route"];
     delete?: never;
@@ -1950,9 +1950,9 @@ export interface paths {
     get?: never;
     put?: never;
     /**
-     * Admin Partner Resume
+     * 恢复合作伙伴
      * @deprecated
-     * @description Retired in the independent-service deployment. Authorized requests return 410. The historical 200 schema is retained for upstream compatibility tooling only.
+     * @description 独立服务部署已停用此接口，鉴权成功后返回 410。历史 200 结构仅为上游兼容工具保留。
      */
     post: operations["post_admin_partner_resume_route"];
     delete?: never;
@@ -1968,7 +1968,7 @@ export interface paths {
       path?: never;
       cookie?: never;
     };
-    /** Admin Payments List */
+    /** 列出付款记录 */
     get: operations["get_admin_payments_list_route"];
     put?: never;
     post?: never;
@@ -1985,7 +1985,7 @@ export interface paths {
       path?: never;
       cookie?: never;
     };
-    /** Admin Payments Export */
+    /** 导出付款记录 */
     get: operations["get_admin_payments_export_route"];
     put?: never;
     post?: never;
@@ -2002,7 +2002,7 @@ export interface paths {
       path?: never;
       cookie?: never;
     };
-    /** Admin Payment Detail */
+    /** 获取付款详情 */
     get: operations["get_admin_payment_detail_route"];
     put?: never;
     post?: never;
@@ -2022,9 +2022,9 @@ export interface paths {
     get?: never;
     put?: never;
     /**
-     * Admin Payment Finalize
+     * 确认完成付款
      * @deprecated
-     * @description Retired in the independent-service deployment. Authorized requests return 410. The historical 200 schema is retained for upstream compatibility tooling only.
+     * @description 独立服务部署已停用此接口，鉴权成功后返回 410。历史 200 结构仅为上游兼容工具保留。
      */
     post: operations["post_admin_payment_finalize_route"];
     delete?: never;
@@ -2043,9 +2043,9 @@ export interface paths {
     get?: never;
     put?: never;
     /**
-     * Admin Payment Reverse
+     * 冲正付款
      * @deprecated
-     * @description Retired in the independent-service deployment. Authorized requests return 410. The historical 200 schema is retained for upstream compatibility tooling only.
+     * @description 独立服务部署已停用此接口，鉴权成功后返回 410。历史 200 结构仅为上游兼容工具保留。
      */
     post: operations["post_admin_payment_reverse_route"];
     delete?: never;
@@ -2061,7 +2061,7 @@ export interface paths {
       path?: never;
       cookie?: never;
     };
-    /** Admin Plugin Packages */
+    /** 列出插件包 */
     get: operations["get_admin_plugin_packages_route"];
     put?: never;
     post?: never;
@@ -2078,7 +2078,7 @@ export interface paths {
       path?: never;
       cookie?: never;
     };
-    /** Admin Plugin Asset */
+    /** 获取插件资源 */
     get: operations["get_admin_plugin_asset_route"];
     put?: never;
     post?: never;
@@ -2097,7 +2097,7 @@ export interface paths {
     };
     get?: never;
     put?: never;
-    /** Admin Plugin Install */
+    /** 安装插件 */
     post: operations["post_admin_plugin_install_route"];
     delete?: never;
     options?: never;
@@ -2114,7 +2114,7 @@ export interface paths {
     };
     get?: never;
     put?: never;
-    /** Admin Plugin Preview */
+    /** 预览插件 */
     post: operations["post_admin_plugin_preview_route"];
     delete?: never;
     options?: never;
@@ -2131,7 +2131,7 @@ export interface paths {
     };
     get?: never;
     put?: never;
-    /** Admin Plugin Repository Preview */
+    /** 预览插件仓库 */
     post: operations["post_admin_plugin_repository_preview_route"];
     delete?: never;
     options?: never;
@@ -2148,7 +2148,7 @@ export interface paths {
     };
     get?: never;
     put?: never;
-    /** Admin Plugin Repository Stage */
+    /** 暂存插件仓库 */
     post: operations["post_admin_plugin_repository_stage_route"];
     delete?: never;
     options?: never;
@@ -2163,7 +2163,7 @@ export interface paths {
       path?: never;
       cookie?: never;
     };
-    /** Admin Plugin Runtime */
+    /** 获取插件运行状态 */
     get: operations["get_admin_plugin_runtime_route"];
     put?: never;
     post?: never;
@@ -2182,7 +2182,7 @@ export interface paths {
     };
     get?: never;
     put?: never;
-    /** Admin Plugin Stage */
+    /** 暂存插件包 */
     post: operations["post_admin_plugin_stage_route"];
     delete?: never;
     options?: never;
@@ -2199,7 +2199,7 @@ export interface paths {
     };
     get?: never;
     put?: never;
-    /** Admin Plugin Trust */
+    /** 设置插件信任状态 */
     post: operations["post_admin_plugin_trust_route"];
     delete?: never;
     options?: never;
@@ -2214,7 +2214,7 @@ export interface paths {
       path?: never;
       cookie?: never;
     };
-    /** Admin Plugin Updates */
+    /** 获取插件更新 */
     get: operations["get_admin_plugin_updates_route"];
     put?: never;
     post?: never;
@@ -2233,7 +2233,7 @@ export interface paths {
     };
     get?: never;
     put?: never;
-    /** Admin Plugin Enabled */
+    /** 启用或停用插件 */
     post: operations["post_admin_plugin_enabled_route"];
     delete?: never;
     options?: never;
@@ -2250,7 +2250,7 @@ export interface paths {
     };
     get?: never;
     put?: never;
-    /** Admin Plugin Remove */
+    /** 移除插件 */
     post: operations["post_admin_plugin_remove_route"];
     delete?: never;
     options?: never;
@@ -2265,13 +2265,13 @@ export interface paths {
       path?: never;
       cookie?: never;
     };
-    /** Admin Promos List */
+    /** 列出激活码 */
     get: operations["get_admin_promos_list_route"];
     put?: never;
     /**
-     * Admin Promo Create
+     * 创建激活码
      * @deprecated
-     * @description Retired in the independent-service deployment. Authorized requests return 410. The historical 200 schema is retained for upstream compatibility tooling only.
+     * @description 独立服务部署已停用此接口，鉴权成功后返回 410。历史 200 结构仅为上游兼容工具保留。
      */
     post: operations["post_admin_promo_create_route"];
     delete?: never;
@@ -2287,7 +2287,7 @@ export interface paths {
       path?: never;
       cookie?: never;
     };
-    /** Admin Promo Options */
+    /** 获取激活码选项 */
     get: operations["get_admin_promo_options_route"];
     put?: never;
     post?: never;
@@ -2304,22 +2304,22 @@ export interface paths {
       path?: never;
       cookie?: never;
     };
-    /** Admin Promo Detail */
+    /** 获取激活码详情 */
     get: operations["get_admin_promo_detail_route"];
     put?: never;
     post?: never;
     /**
-     * Admin Promo Delete
+     * 删除激活码
      * @deprecated
-     * @description Retired in the independent-service deployment. Authorized requests return 410. The historical 200 schema is retained for upstream compatibility tooling only.
+     * @description 独立服务部署已停用此接口，鉴权成功后返回 410。历史 200 结构仅为上游兼容工具保留。
      */
     delete: operations["delete_admin_promo_delete_route"];
     options?: never;
     head?: never;
     /**
-     * Admin Promo Update
+     * 更新激活码
      * @deprecated
-     * @description Retired in the independent-service deployment. Authorized requests return 410. The historical 200 schema is retained for upstream compatibility tooling only.
+     * @description 独立服务部署已停用此接口，鉴权成功后返回 410。历史 200 结构仅为上游兼容工具保留。
      */
     patch: operations["patch_admin_promo_update_route"];
     trace?: never;
@@ -2331,7 +2331,7 @@ export interface paths {
       path?: never;
       cookie?: never;
     };
-    /** Admin Promo Activations */
+    /** 获取激活码使用记录 */
     get: operations["get_admin_promo_activations_route"];
     put?: never;
     post?: never;
@@ -2348,10 +2348,10 @@ export interface paths {
       path?: never;
       cookie?: never;
     };
-    /** Admin Roles List */
+    /** 列出管理员角色 */
     get: operations["get_admin_roles_list_route"];
     put?: never;
-    /** Admin Role Grant */
+    /** 授予管理员角色 */
     post: operations["post_admin_role_grant_route"];
     delete?: never;
     options?: never;
@@ -2366,7 +2366,7 @@ export interface paths {
       path?: never;
       cookie?: never;
     };
-    /** Admin Role Candidates */
+    /** 获取管理员角色候选账号 */
     get: operations["get_admin_role_candidates_route"];
     put?: never;
     post?: never;
@@ -2386,7 +2386,7 @@ export interface paths {
     get?: never;
     put?: never;
     post?: never;
-    /** Admin Role Revoke */
+    /** 撤销管理员角色 */
     delete: operations["delete_admin_role_revoke_route"];
     options?: never;
     head?: never;
@@ -2400,7 +2400,7 @@ export interface paths {
       path?: never;
       cookie?: never;
     };
-    /** Admin Service Orders */
+    /** 获取服务开通记录 */
     get: operations["get_admin_service_orders_route"];
     put?: never;
     post?: never;
@@ -2417,10 +2417,10 @@ export interface paths {
       path?: never;
       cookie?: never;
     };
-    /** Admin Service Plans */
+    /** 列出服务套餐 */
     get: operations["get_admin_service_plans_route"];
     put?: never;
-    /** Admin Service Plan Create */
+    /** 创建服务套餐 */
     post: operations["post_admin_service_plan_create_route"];
     delete?: never;
     options?: never;
@@ -2436,7 +2436,7 @@ export interface paths {
       cookie?: never;
     };
     get?: never;
-    /** Admin Service Plan Update */
+    /** 更新服务套餐 */
     put: operations["put_admin_service_plan_update_route"];
     post?: never;
     delete?: never;
@@ -2452,10 +2452,10 @@ export interface paths {
       path?: never;
       cookie?: never;
     };
-    /** Admin Services */
+    /** 列出用户服务 */
     get: operations["get_admin_services_route"];
     put?: never;
-    /** Admin Service Activate */
+    /** 为用户开通服务 */
     post: operations["post_admin_service_activate_route"];
     delete?: never;
     options?: never;
@@ -2472,7 +2472,7 @@ export interface paths {
     };
     get?: never;
     put?: never;
-    /** Admin Service Change */
+    /** 变更用户服务 */
     post: operations["post_admin_service_change_route"];
     delete?: never;
     options?: never;
@@ -2489,7 +2489,7 @@ export interface paths {
     };
     get?: never;
     put?: never;
-    /** Admin Service Deliver */
+    /** 交付用户服务 */
     post: operations["post_admin_service_deliver_route"];
     delete?: never;
     options?: never;
@@ -2506,7 +2506,7 @@ export interface paths {
     };
     get?: never;
     put?: never;
-    /** Admin Service Revoke */
+    /** 撤销用户服务 */
     post: operations["post_admin_service_revoke_route"];
     delete?: never;
     options?: never;
@@ -2521,14 +2521,14 @@ export interface paths {
       path?: never;
       cookie?: never;
     };
-    /** Admin Settings Get */
+    /** 获取后台设置 */
     get: operations["get_admin_settings_get_route"];
     put?: never;
     post?: never;
     delete?: never;
     options?: never;
     head?: never;
-    /** Admin Settings Patch */
+    /** 更新后台设置 */
     patch: operations["patch_admin_settings_patch_route"];
     trace?: never;
   };
@@ -2539,7 +2539,7 @@ export interface paths {
       path?: never;
       cookie?: never;
     };
-    /** Admin Stats */
+    /** 获取运营统计 */
     get: operations["get_admin_stats_route"];
     put?: never;
     post?: never;
@@ -2556,7 +2556,7 @@ export interface paths {
       path?: never;
       cookie?: never;
     };
-    /** Admin Support Stats */
+    /** 获取客服统计 */
     get: operations["get_admin_support_stats_route"];
     put?: never;
     post?: never;
@@ -2573,7 +2573,7 @@ export interface paths {
       path?: never;
       cookie?: never;
     };
-    /** Admin Support Tickets */
+    /** 列出客服工单 */
     get: operations["get_admin_support_tickets_route"];
     put?: never;
     post?: never;
@@ -2590,14 +2590,14 @@ export interface paths {
       path?: never;
       cookie?: never;
     };
-    /** Admin Support Ticket Detail */
+    /** 获取客服工单详情 */
     get: operations["get_admin_support_ticket_detail_route"];
     put?: never;
     post?: never;
     delete?: never;
     options?: never;
     head?: never;
-    /** Admin Support Ticket Patch */
+    /** 更新客服工单 */
     patch: operations["patch_admin_support_ticket_patch_route"];
     trace?: never;
   };
@@ -2610,7 +2610,7 @@ export interface paths {
     };
     get?: never;
     put?: never;
-    /** Admin Support Ticket Reply */
+    /** 回复客服工单 */
     post: operations["post_admin_support_ticket_reply_route"];
     delete?: never;
     options?: never;
@@ -2627,7 +2627,7 @@ export interface paths {
     };
     get?: never;
     put?: never;
-    /** Admin Support Ticket Read */
+    /** 标记客服工单已读 */
     post: operations["post_admin_support_ticket_read_route"];
     delete?: never;
     options?: never;
@@ -2644,7 +2644,7 @@ export interface paths {
     };
     get?: never;
     put?: never;
-    /** Admin Support Ticket Typing */
+    /** 更新客服输入状态 */
     post: operations["post_admin_support_ticket_typing_route"];
     delete?: never;
     options?: never;
@@ -2662,9 +2662,9 @@ export interface paths {
     get?: never;
     put?: never;
     /**
-     * Admin Sync
+     * 同步面板数据
      * @deprecated
-     * @description Retired in the independent-service deployment. Authorized requests return 410. The historical 200 schema is retained for upstream compatibility tooling only.
+     * @description 独立服务部署已停用此接口，鉴权成功后返回 410。历史 200 结构仅为上游兼容工具保留。
      */
     post: operations["post_admin_sync_route"];
     delete?: never;
@@ -2680,12 +2680,12 @@ export interface paths {
       path?: never;
       cookie?: never;
     };
-    /** Admin Tariffs Get */
+    /** 获取上游套餐配置 */
     get: operations["get_admin_tariffs_get_route"];
     /**
-     * Admin Tariffs Save
+     * 保存上游套餐配置
      * @deprecated
-     * @description Retired in the independent-service deployment. Authorized requests return 410. The historical 200 schema is retained for upstream compatibility tooling only.
+     * @description 独立服务部署已停用此接口，鉴权成功后返回 410。历史 200 结构仅为上游兼容工具保留。
      */
     put: operations["put_admin_tariffs_save_route"];
     post?: never;
@@ -2702,13 +2702,13 @@ export interface paths {
       path?: never;
       cookie?: never;
     };
-    /** Admin Tariff Reconciliation Get */
+    /** 获取套餐核对方案 */
     get: operations["get_admin_tariff_reconciliation_get_route"];
     put?: never;
     /**
-     * Admin Tariff Reconciliation Apply
+     * 应用套餐核对方案
      * @deprecated
-     * @description Retired in the independent-service deployment. Authorized requests return 410. The historical 200 schema is retained for upstream compatibility tooling only.
+     * @description 独立服务部署已停用此接口，鉴权成功后返回 410。历史 200 结构仅为上游兼容工具保留。
      */
     post: operations["post_admin_tariff_reconciliation_apply_route"];
     delete?: never;
@@ -2724,7 +2724,7 @@ export interface paths {
       path?: never;
       cookie?: never;
     };
-    /** Admin Tariffs Tribute Catalog */
+    /** 获取 Tribute 套餐目录 */
     get: operations["get_admin_tariffs_tribute_catalog_route"];
     put?: never;
     post?: never;
@@ -2741,7 +2741,7 @@ export interface paths {
       path?: never;
       cookie?: never;
     };
-    /** Admin Telegram Emoji Catalog */
+    /** 获取 Telegram 表情目录 */
     get: operations["get_admin_telegram_emoji_catalog_route"];
     put?: never;
     post?: never;
@@ -2758,12 +2758,12 @@ export interface paths {
       path?: never;
       cookie?: never;
     };
-    /** Admin Telegram Emoji Library */
+    /** 获取 Telegram 表情库 */
     get: operations["get_admin_telegram_emoji_library_route"];
     put?: never;
-    /** Admin Telegram Emoji Add */
+    /** 添加 Telegram 表情来源 */
     post: operations["post_admin_telegram_emoji_add_route"];
-    /** Admin Telegram Emoji Remove */
+    /** 移除 Telegram 表情来源 */
     delete: operations["delete_admin_telegram_emoji_remove_route"];
     options?: never;
     head?: never;
@@ -2779,7 +2779,7 @@ export interface paths {
     };
     get?: never;
     put?: never;
-    /** Admin Telegram Emoji Refresh */
+    /** 刷新 Telegram 表情库 */
     post: operations["post_admin_telegram_emoji_refresh_route"];
     delete?: never;
     options?: never;
@@ -2794,7 +2794,7 @@ export interface paths {
       path?: never;
       cookie?: never;
     };
-    /** Admin Telegram Emoji Media */
+    /** 获取 Telegram 表情媒体 */
     get: operations["get_admin_telegram_emoji_media_route"];
     put?: never;
     post?: never;
@@ -2811,7 +2811,7 @@ export interface paths {
       path?: never;
       cookie?: never;
     };
-    /** Admin Telegram Emoji Previews */
+    /** 获取 Telegram 表情预览 */
     get: operations["get_admin_telegram_emoji_previews_route"];
     put?: never;
     post?: never;
@@ -2828,9 +2828,9 @@ export interface paths {
       path?: never;
       cookie?: never;
     };
-    /** Admin Telegram Menu */
+    /** 获取 Telegram 菜单 */
     get: operations["get_admin_telegram_menu_route"];
-    /** Admin Telegram Menu Save */
+    /** 保存 Telegram 菜单 */
     put: operations["put_admin_telegram_menu_save_route"];
     post?: never;
     delete?: never;
@@ -2848,7 +2848,7 @@ export interface paths {
     };
     get?: never;
     put?: never;
-    /** Admin Telegram Menu Preview */
+    /** 预览 Telegram 菜单 */
     post: operations["post_admin_telegram_menu_preview_route"];
     delete?: never;
     options?: never;
@@ -2865,7 +2865,7 @@ export interface paths {
     };
     get?: never;
     put?: never;
-    /** Admin Telegram Menu Test */
+    /** 测试发送 Telegram 菜单 */
     post: operations["post_admin_telegram_menu_test_route"];
     delete?: never;
     options?: never;
@@ -2880,9 +2880,9 @@ export interface paths {
       path?: never;
       cookie?: never;
     };
-    /** Admin Themes Get */
+    /** 获取主题配置 */
     get: operations["get_admin_themes_get_route"];
-    /** Admin Themes Save */
+    /** 保存主题配置 */
     put: operations["put_admin_themes_save_route"];
     post?: never;
     delete?: never;
@@ -2900,7 +2900,7 @@ export interface paths {
     };
     get?: never;
     put?: never;
-    /** Admin Theme Export */
+    /** 导出主题 */
     post: operations["post_admin_theme_export_route"];
     delete?: never;
     options?: never;
@@ -2917,7 +2917,7 @@ export interface paths {
     };
     get?: never;
     put?: never;
-    /** Admin Theme Import */
+    /** 导入主题 */
     post: operations["post_admin_theme_import_route"];
     delete?: never;
     options?: never;
@@ -2932,11 +2932,11 @@ export interface paths {
       path?: never;
       cookie?: never;
     };
-    /** Admin Theme Import Status */
+    /** 获取主题导入状态 */
     get: operations["get_admin_theme_import_status_route"];
     put?: never;
     post?: never;
-    /** Admin Theme Import Cancel */
+    /** 取消主题导入 */
     delete: operations["delete_admin_theme_import_cancel_route"];
     options?: never;
     head?: never;
@@ -2950,7 +2950,7 @@ export interface paths {
       path?: never;
       cookie?: never;
     };
-    /** Admin Theme Import Effects Preview */
+    /** 预览待导入主题效果 */
     get: operations["get_admin_theme_import_effects_preview_route"];
     put?: never;
     post?: never;
@@ -2969,7 +2969,7 @@ export interface paths {
     };
     get?: never;
     put?: never;
-    /** Admin Theme Install */
+    /** 安装主题 */
     post: operations["post_admin_theme_install_route"];
     delete?: never;
     options?: never;
@@ -2984,7 +2984,7 @@ export interface paths {
       path?: never;
       cookie?: never;
     };
-    /** Admin Theme Preview */
+    /** 获取主题预览 */
     get: operations["get_admin_theme_preview_route"];
     put?: never;
     post?: never;
@@ -3001,7 +3001,7 @@ export interface paths {
       path?: never;
       cookie?: never;
     };
-    /** Admin Theme Library */
+    /** 获取主题库 */
     get: operations["get_admin_theme_library_route"];
     put?: never;
     post?: never;
@@ -3021,7 +3021,7 @@ export interface paths {
     get?: never;
     put?: never;
     post?: never;
-    /** Admin Theme Remove */
+    /** 移除主题 */
     delete: operations["delete_admin_theme_remove_route"];
     options?: never;
     head?: never;
@@ -3036,7 +3036,7 @@ export interface paths {
       cookie?: never;
     };
     get?: never;
-    /** Admin Theme Effects */
+    /** 保存主题效果 */
     put: operations["put_admin_theme_effects_route"];
     post?: never;
     delete?: never;
@@ -3052,7 +3052,7 @@ export interface paths {
       path?: never;
       cookie?: never;
     };
-    /** Admin Theme Effects Preview */
+    /** 预览主题效果 */
     get: operations["get_admin_theme_effects_preview_route"];
     put?: never;
     post?: never;
@@ -3069,10 +3069,10 @@ export interface paths {
       path?: never;
       cookie?: never;
     };
-    /** Admin Theme Installed Preview */
+    /** 预览已安装主题 */
     get: operations["get_admin_theme_installed_preview_route"];
     put?: never;
-    /** Admin Theme Preview Upload */
+    /** 上传主题预览 */
     post: operations["post_admin_theme_preview_upload_route"];
     delete?: never;
     options?: never;
@@ -3089,7 +3089,7 @@ export interface paths {
     };
     get?: never;
     put?: never;
-    /** Admin Theme Rollback */
+    /** 回退主题版本 */
     post: operations["post_admin_theme_rollback_route"];
     delete?: never;
     options?: never;
@@ -3104,14 +3104,14 @@ export interface paths {
       path?: never;
       cookie?: never;
     };
-    /** Admin Translations Get */
+    /** 获取翻译配置 */
     get: operations["get_admin_translations_get_route"];
     put?: never;
     post?: never;
     delete?: never;
     options?: never;
     head?: never;
-    /** Admin Translations Patch */
+    /** 更新翻译配置 */
     patch: operations["patch_admin_translations_patch_route"];
     trace?: never;
   };
@@ -3122,7 +3122,7 @@ export interface paths {
       path?: never;
       cookie?: never;
     };
-    /** Admin Users List */
+    /** 列出用户 */
     get: operations["get_admin_users_list_route"];
     put?: never;
     post?: never;
@@ -3139,11 +3139,11 @@ export interface paths {
       path?: never;
       cookie?: never;
     };
-    /** Admin User Detail */
+    /** 获取用户详情 */
     get: operations["get_admin_user_detail_route"];
     put?: never;
     post?: never;
-    /** Admin User Delete */
+    /** 删除用户账号 */
     delete: operations["delete_admin_user_delete_route"];
     options?: never;
     head?: never;
@@ -3157,10 +3157,10 @@ export interface paths {
       path?: never;
       cookie?: never;
     };
-    /** Admin Account Access */
+    /** 获取用户连接权限核对信息 */
     get: operations["get_admin_account_access_route"];
     put?: never;
-    /** Admin Account Access */
+    /** 执行用户连接权限核对 */
     post: operations["post_admin_account_access_route"];
     delete?: never;
     options?: never;
@@ -3175,7 +3175,7 @@ export interface paths {
       path?: never;
       cookie?: never;
     };
-    /** Admin User Avatar */
+    /** 获取用户头像 */
     get: operations["get_admin_user_avatar_route"];
     put?: never;
     post?: never;
@@ -3195,9 +3195,9 @@ export interface paths {
     get?: never;
     put?: never;
     /**
-     * Admin User Balance Adjustment
+     * 调整用户余额
      * @deprecated
-     * @description Retired in the independent-service deployment. Authorized requests return 410. The historical 200 schema is retained for upstream compatibility tooling only.
+     * @description 独立服务部署已停用此接口，鉴权成功后返回 410。历史 200 结构仅为上游兼容工具保留。
      */
     post: operations["post_admin_user_balance_adjustment_route"];
     delete?: never;
@@ -3216,9 +3216,9 @@ export interface paths {
     get?: never;
     put?: never;
     /**
-     * Admin User Balance Conversion
+     * 转换用户余额
      * @deprecated
-     * @description Retired in the independent-service deployment. Authorized requests return 410. The historical 200 schema is retained for upstream compatibility tooling only.
+     * @description 独立服务部署已停用此接口，鉴权成功后返回 410。历史 200 结构仅为上游兼容工具保留。
      */
     post: operations["post_admin_user_balance_conversion_route"];
     delete?: never;
@@ -3236,7 +3236,7 @@ export interface paths {
     };
     get?: never;
     put?: never;
-    /** Admin User Ban */
+    /** 设置用户封禁状态 */
     post: operations["post_admin_user_ban_route"];
     delete?: never;
     options?: never;
@@ -3254,9 +3254,9 @@ export interface paths {
     get?: never;
     put?: never;
     /**
-     * Admin User Extend
+     * 延长用户订阅
      * @deprecated
-     * @description Retired in the independent-service deployment. Authorized requests return 410. The historical 200 schema is retained for upstream compatibility tooling only.
+     * @description 独立服务部署已停用此接口，鉴权成功后返回 410。历史 200 结构仅为上游兼容工具保留。
      */
     post: operations["post_admin_user_extend_route"];
     delete?: never;
@@ -3275,9 +3275,9 @@ export interface paths {
     get?: never;
     put?: never;
     /**
-     * Admin User Hwid Device Limit
+     * 设置用户设备数量上限
      * @deprecated
-     * @description Retired in the independent-service deployment. Authorized requests return 410. The historical 200 schema is retained for upstream compatibility tooling only.
+     * @description 独立服务部署已停用此接口，鉴权成功后返回 410。历史 200 结构仅为上游兼容工具保留。
      */
     post: operations["post_admin_user_hwid_device_limit_route"];
     delete?: never;
@@ -3295,7 +3295,7 @@ export interface paths {
     };
     get?: never;
     put?: never;
-    /** Admin User Merge */
+    /** 合并用户账号 */
     post: operations["post_admin_user_merge_route"];
     delete?: never;
     options?: never;
@@ -3310,7 +3310,7 @@ export interface paths {
       path?: never;
       cookie?: never;
     };
-    /** Admin User Merge Context */
+    /** 获取用户合并上下文 */
     get: operations["get_admin_user_merge_context_route"];
     put?: never;
     post?: never;
@@ -3329,7 +3329,7 @@ export interface paths {
     };
     get?: never;
     put?: never;
-    /** Admin User Message */
+    /** 向用户发送消息 */
     post: operations["post_admin_user_message_route"];
     delete?: never;
     options?: never;
@@ -3346,7 +3346,7 @@ export interface paths {
     };
     get?: never;
     put?: never;
-    /** Admin User Message Preview */
+    /** 预览用户消息 */
     post: operations["post_admin_user_message_preview_route"];
     delete?: never;
     options?: never;
@@ -3367,7 +3367,7 @@ export interface paths {
     delete?: never;
     options?: never;
     head?: never;
-    /** Admin User Notification Preferences */
+    /** 更新用户通知偏好 */
     patch: operations["patch_admin_user_notification_preferences_route"];
     trace?: never;
   };
@@ -3381,9 +3381,9 @@ export interface paths {
     get?: never;
     put?: never;
     /**
-     * Admin User Premium Override
+     * 覆盖用户高级流量配置
      * @deprecated
-     * @description Retired in the independent-service deployment. Authorized requests return 410. The historical 200 schema is retained for upstream compatibility tooling only.
+     * @description 独立服务部署已停用此接口，鉴权成功后返回 410。历史 200 结构仅为上游兼容工具保留。
      */
     post: operations["post_admin_user_premium_override_route"];
     delete?: never;
@@ -3399,7 +3399,7 @@ export interface paths {
       path?: never;
       cookie?: never;
     };
-    /** Admin User Referrals */
+    /** 获取用户邀请记录 */
     get: operations["get_admin_user_referrals_route"];
     put?: never;
     post?: never;
@@ -3419,9 +3419,9 @@ export interface paths {
     get?: never;
     put?: never;
     /**
-     * Admin User Regular Traffic Override
+     * 覆盖用户普通流量配置
      * @deprecated
-     * @description Retired in the independent-service deployment. Authorized requests return 410. The historical 200 schema is retained for upstream compatibility tooling only.
+     * @description 独立服务部署已停用此接口，鉴权成功后返回 410。历史 200 结构仅为上游兼容工具保留。
      */
     post: operations["post_admin_user_regular_traffic_override_route"];
     delete?: never;
@@ -3440,9 +3440,9 @@ export interface paths {
     get?: never;
     put?: never;
     /**
-     * Admin User Reset Trial
+     * 重置用户试用资格
      * @deprecated
-     * @description Retired in the independent-service deployment. Authorized requests return 410. The historical 200 schema is retained for upstream compatibility tooling only.
+     * @description 独立服务部署已停用此接口，鉴权成功后返回 410。历史 200 结构仅为上游兼容工具保留。
      */
     post: operations["post_admin_user_reset_trial_route"];
     delete?: never;
@@ -3465,9 +3465,9 @@ export interface paths {
     options?: never;
     head?: never;
     /**
-     * Admin User Squad Overrides
+     * 覆盖用户节点组配置
      * @deprecated
-     * @description Retired in the independent-service deployment. Authorized requests return 410. The historical 200 schema is retained for upstream compatibility tooling only.
+     * @description 独立服务部署已停用此接口，鉴权成功后返回 410。历史 200 结构仅为上游兼容工具保留。
      */
     patch: operations["patch_admin_user_squad_overrides_route"];
     trace?: never;
@@ -3482,9 +3482,9 @@ export interface paths {
     get?: never;
     put?: never;
     /**
-     * Admin User Squad Overrides Refresh
+     * 刷新用户节点组配置
      * @deprecated
-     * @description Retired in the independent-service deployment. Authorized requests return 410. The historical 200 schema is retained for upstream compatibility tooling only.
+     * @description 独立服务部署已停用此接口，鉴权成功后返回 410。历史 200 结构仅为上游兼容工具保留。
      */
     post: operations["post_admin_user_squad_overrides_refresh_route"];
     delete?: never;
@@ -3503,9 +3503,9 @@ export interface paths {
     get?: never;
     put?: never;
     /**
-     * Admin User Subscription Reissue
+     * 重发用户订阅链接
      * @deprecated
-     * @description Retired in the independent-service deployment. Authorized requests return 410. The historical 200 schema is retained for upstream compatibility tooling only.
+     * @description 独立服务部署已停用此接口，鉴权成功后返回 410。历史 200 结构仅为上游兼容工具保留。
      */
     post: operations["post_admin_user_subscription_reissue_route"];
     delete?: never;
@@ -3524,9 +3524,9 @@ export interface paths {
     get?: never;
     put?: never;
     /**
-     * Admin User Tariff
+     * 设置用户套餐
      * @deprecated
-     * @description Retired in the independent-service deployment. Authorized requests return 410. The historical 200 schema is retained for upstream compatibility tooling only.
+     * @description 独立服务部署已停用此接口，鉴权成功后返回 410。历史 200 结构仅为上游兼容工具保留。
      */
     post: operations["post_admin_user_tariff_route"];
     delete?: never;
@@ -3544,7 +3544,7 @@ export interface paths {
     };
     get?: never;
     put?: never;
-    /** Admin User Telegram Profile Link */
+    /** 获取用户 Telegram 资料链接 */
     post: operations["post_admin_user_telegram_profile_link_route"];
     delete?: never;
     options?: never;
@@ -3562,9 +3562,9 @@ export interface paths {
     get?: never;
     put?: never;
     /**
-     * Admin User Traffic Grant
+     * 为用户增加流量
      * @deprecated
-     * @description Retired in the independent-service deployment. Authorized requests return 410. The historical 200 schema is retained for upstream compatibility tooling only.
+     * @description 独立服务部署已停用此接口，鉴权成功后返回 410。历史 200 结构仅为上游兼容工具保留。
      */
     post: operations["post_admin_user_traffic_grant_route"];
     delete?: never;
@@ -3583,9 +3583,9 @@ export interface paths {
     get?: never;
     put?: never;
     /**
-     * Admin User Traffic Strategy
+     * 设置用户流量重置策略
      * @deprecated
-     * @description Retired in the independent-service deployment. Authorized requests return 410. The historical 200 schema is retained for upstream compatibility tooling only.
+     * @description 独立服务部署已停用此接口，鉴权成功后返回 410。历史 200 结构仅为上游兼容工具保留。
      */
     post: operations["post_admin_user_traffic_strategy_route"];
     delete?: never;
@@ -3603,7 +3603,7 @@ export interface paths {
     };
     get?: never;
     put?: never;
-    /** Advertising Capture */
+    /** 记录广告归属信息 */
     post: operations["post_advertising_capture_route"];
     delete?: never;
     options?: never;
@@ -3618,7 +3618,7 @@ export interface paths {
       path?: never;
       cookie?: never;
     };
-    /** Advertising Context */
+    /** 获取广告归属上下文 */
     get: operations["get_advertising_context_route"];
     put?: never;
     post?: never;
@@ -3637,7 +3637,7 @@ export interface paths {
     };
     get?: never;
     put?: never;
-    /** Email Auth Magic */
+    /** 通过邮箱免密链接登录 */
     post: operations["post_email_auth_magic_route"];
     delete?: never;
     options?: never;
@@ -3654,7 +3654,7 @@ export interface paths {
     };
     get?: never;
     put?: never;
-    /** Email Password Auth */
+    /** 通过邮箱和密码登录 */
     post: operations["post_email_password_auth_route"];
     delete?: never;
     options?: never;
@@ -3671,7 +3671,7 @@ export interface paths {
     };
     get?: never;
     put?: never;
-    /** Email Auth Request */
+    /** 请求邮箱登录验证码 */
     post: operations["post_email_auth_request_route"];
     delete?: never;
     options?: never;
@@ -3688,7 +3688,7 @@ export interface paths {
     };
     get?: never;
     put?: never;
-    /** Email Auth Verify */
+    /** 验证邮箱登录验证码 */
     post: operations["post_email_auth_verify_route"];
     delete?: never;
     options?: never;
@@ -3705,7 +3705,7 @@ export interface paths {
     };
     get?: never;
     put?: never;
-    /** External Oauth Pending Cancel */
+    /** 取消外部登录绑定 */
     post: operations["post_external_oauth_pending_cancel_route"];
     delete?: never;
     options?: never;
@@ -3722,7 +3722,7 @@ export interface paths {
     };
     get?: never;
     put?: never;
-    /** External Oauth Pending Status */
+    /** 获取外部登录绑定状态 */
     post: operations["post_external_oauth_pending_status_route"];
     delete?: never;
     options?: never;
@@ -3739,7 +3739,7 @@ export interface paths {
     };
     get?: never;
     put?: never;
-    /** External Oauth Pending Request */
+    /** 请求外部登录绑定验证码 */
     post: operations["post_external_oauth_pending_request_route"];
     delete?: never;
     options?: never;
@@ -3756,7 +3756,7 @@ export interface paths {
     };
     get?: never;
     put?: never;
-    /** External Oauth Pending Verify */
+    /** 验证外部登录绑定验证码 */
     post: operations["post_external_oauth_pending_verify_route"];
     delete?: never;
     options?: never;
@@ -3773,7 +3773,7 @@ export interface paths {
     };
     get?: never;
     put?: never;
-    /** Logout */
+    /** 退出登录 */
     post: operations["post_logout_route"];
     delete?: never;
     options?: never;
@@ -3790,7 +3790,7 @@ export interface paths {
     };
     get?: never;
     put?: never;
-    /** Passkey Auth Options */
+    /** 获取通行密钥登录参数 */
     post: operations["post_passkey_auth_options_route"];
     delete?: never;
     options?: never;
@@ -3807,7 +3807,7 @@ export interface paths {
     };
     get?: never;
     put?: never;
-    /** Passkey Auth Verify */
+    /** 验证通行密钥登录 */
     post: operations["post_passkey_auth_verify_route"];
     delete?: never;
     options?: never;
@@ -3824,7 +3824,7 @@ export interface paths {
     };
     get?: never;
     put?: never;
-    /** Qr Login Cancel */
+    /** 取消扫码登录 */
     post: operations["post_qr_login_cancel_route"];
     delete?: never;
     options?: never;
@@ -3841,7 +3841,7 @@ export interface paths {
     };
     get?: never;
     put?: never;
-    /** Qr Login Poll */
+    /** 查询扫码登录状态 */
     post: operations["post_qr_login_poll_route"];
     delete?: never;
     options?: never;
@@ -3858,7 +3858,7 @@ export interface paths {
     };
     get?: never;
     put?: never;
-    /** Qr Login Start */
+    /** 发起扫码登录 */
     post: operations["post_qr_login_start_route"];
     delete?: never;
     options?: never;
@@ -3873,7 +3873,7 @@ export interface paths {
       path?: never;
       cookie?: never;
     };
-    /** Session */
+    /** 获取当前会话 */
     get: operations["get_session_route"];
     put?: never;
     post?: never;
@@ -3892,7 +3892,7 @@ export interface paths {
     };
     get?: never;
     put?: never;
-    /** Telegram Oauth Nonce */
+    /** 获取 Telegram 登录随机凭据 */
     post: operations["post_telegram_oauth_nonce_route"];
     delete?: never;
     options?: never;
@@ -3909,7 +3909,7 @@ export interface paths {
     };
     get?: never;
     put?: never;
-    /** Auth Token */
+    /** 通过令牌登录 */
     post: operations["post_auth_token_route"];
     delete?: never;
     options?: never;
@@ -3924,7 +3924,7 @@ export interface paths {
       path?: never;
       cookie?: never;
     };
-    /** Backup Restore Status */
+    /** 获取备份恢复状态 */
     get: operations["get_backup_restore_status_route"];
     put?: never;
     post?: never;
@@ -3942,9 +3942,9 @@ export interface paths {
       cookie?: never;
     };
     /**
-     * Balance
+     * 获取用户余额
      * @deprecated
-     * @description Retired in the independent-service deployment. Authorized requests return 410. The historical 200 schema is retained for upstream compatibility tooling only.
+     * @description 独立服务部署已停用此接口，鉴权成功后返回 410。历史 200 结构仅为上游兼容工具保留。
      */
     get: operations["get_balance_route"];
     put?: never;
@@ -3965,9 +3965,9 @@ export interface paths {
     get?: never;
     put?: never;
     /**
-     * Balance Topup
+     * 发起余额充值
      * @deprecated
-     * @description Retired in the independent-service deployment. Authorized requests return 410. The historical 200 schema is retained for upstream compatibility tooling only.
+     * @description 独立服务部署已停用此接口，鉴权成功后返回 410。历史 200 结构仅为上游兼容工具保留。
      */
     post: operations["post_balance_topup_route"];
     delete?: never;
@@ -3983,7 +3983,7 @@ export interface paths {
       path?: never;
       cookie?: never;
     };
-    /** Bootstrap */
+    /** 获取应用初始化数据 */
     get: operations["get_bootstrap_route"];
     put?: never;
     post?: never;
@@ -4001,9 +4001,9 @@ export interface paths {
       cookie?: never;
     };
     /**
-     * Devices
+     * 列出用户设备
      * @deprecated
-     * @description Retired in the independent-service deployment. Authorized requests return 410. The historical 200 schema is retained for upstream compatibility tooling only.
+     * @description 独立服务部署已停用此接口，鉴权成功后返回 410。历史 200 结构仅为上游兼容工具保留。
      */
     get: operations["get_devices_route"];
     put?: never;
@@ -4024,9 +4024,9 @@ export interface paths {
     get?: never;
     put?: never;
     /**
-     * Disconnect Device
+     * 断开用户设备
      * @deprecated
-     * @description Retired in the independent-service deployment. Authorized requests return 410. The historical 200 schema is retained for upstream compatibility tooling only.
+     * @description 独立服务部署已停用此接口，鉴权成功后返回 410。历史 200 结构仅为上游兼容工具保留。
      */
     post: operations["post_disconnect_device_route"];
     delete?: never;
@@ -4045,9 +4045,9 @@ export interface paths {
     get?: never;
     put?: never;
     /**
-     * Rename Device
+     * 重命名用户设备
      * @deprecated
-     * @description Retired in the independent-service deployment. Authorized requests return 410. The historical 200 schema is retained for upstream compatibility tooling only.
+     * @description 独立服务部署已停用此接口，鉴权成功后返回 410。历史 200 结构仅为上游兼容工具保留。
      */
     post: operations["post_rename_device_route"];
     delete?: never;
@@ -4064,9 +4064,9 @@ export interface paths {
       cookie?: never;
     };
     /**
-     * Device Topup Options
+     * 获取设备扩容选项
      * @deprecated
-     * @description Retired in the independent-service deployment. Authorized requests return 410. The historical 200 schema is retained for upstream compatibility tooling only.
+     * @description 独立服务部署已停用此接口，鉴权成功后返回 410。历史 200 结构仅为上游兼容工具保留。
      */
     get: operations["get_device_topup_options_route"];
     put?: never;
@@ -4084,7 +4084,7 @@ export interface paths {
       path?: never;
       cookie?: never;
     };
-    /** Documents List */
+    /** 列出用户可读文档 */
     get: operations["get_documents_list_route"];
     put?: never;
     post?: never;
@@ -4101,7 +4101,7 @@ export interface paths {
       path?: never;
       cookie?: never;
     };
-    /** Document Content */
+    /** 获取文档正文 */
     get: operations["get_document_content_route"];
     put?: never;
     post?: never;
@@ -4118,7 +4118,7 @@ export interface paths {
       path?: never;
       cookie?: never;
     };
-    /** Extension Asset */
+    /** 获取扩展资源文件 */
     get: operations["get_extension_asset_route"];
     put?: never;
     post?: never;
@@ -4138,9 +4138,9 @@ export interface paths {
     get?: never;
     put?: never;
     /**
-     * Extension Checkout
+     * 为扩展订单结账
      * @deprecated
-     * @description Retired in the independent-service deployment. Authorized requests return 410. The historical 200 schema is retained for upstream compatibility tooling only.
+     * @description 独立服务部署已停用此接口，鉴权成功后返回 410。历史 200 结构仅为上游兼容工具保留。
      */
     post: operations["post_extension_checkout_route"];
     delete?: never;
@@ -4157,9 +4157,9 @@ export interface paths {
       cookie?: never;
     };
     /**
-     * Extension Order
+     * 获取扩展订单
      * @deprecated
-     * @description Retired in the independent-service deployment. Authorized requests return 410. The historical 200 schema is retained for upstream compatibility tooling only.
+     * @description 独立服务部署已停用此接口，鉴权成功后返回 410。历史 200 结构仅为上游兼容工具保留。
      */
     get: operations["get_extension_order_route"];
     put?: never;
@@ -4178,16 +4178,16 @@ export interface paths {
       cookie?: never;
     };
     /**
-     * Extension Orders
+     * 列出扩展订单
      * @deprecated
-     * @description Retired in the independent-service deployment. Authorized requests return 410. The historical 200 schema is retained for upstream compatibility tooling only.
+     * @description 独立服务部署已停用此接口，鉴权成功后返回 410。历史 200 结构仅为上游兼容工具保留。
      */
     get: operations["get_extension_orders_route"];
     put?: never;
     /**
-     * Extension Order Create
+     * 创建扩展订单
      * @deprecated
-     * @description Retired in the independent-service deployment. Authorized requests return 410. The historical 200 schema is retained for upstream compatibility tooling only.
+     * @description 独立服务部署已停用此接口，鉴权成功后返回 410。历史 200 结构仅为上游兼容工具保留。
      */
     post: operations["post_extension_order_create_route"];
     delete?: never;
@@ -4204,9 +4204,9 @@ export interface paths {
       cookie?: never;
     };
     /**
-     * Extension Payment Methods
+     * 获取扩展支付方式
      * @deprecated
-     * @description Retired in the independent-service deployment. Authorized requests return 410. The historical 200 schema is retained for upstream compatibility tooling only.
+     * @description 独立服务部署已停用此接口，鉴权成功后返回 410。历史 200 结构仅为上游兼容工具保留。
      */
     get: operations["get_extension_payment_methods_route"];
     put?: never;
@@ -4224,7 +4224,7 @@ export interface paths {
       path?: never;
       cookie?: never;
     };
-    /** Extension Resource */
+    /** 获取扩展资源 */
     get: operations["get_extension_resource_route"];
     put?: never;
     post?: never;
@@ -4241,7 +4241,7 @@ export interface paths {
       path?: never;
       cookie?: never;
     };
-    /** Extension Runtime */
+    /** 获取扩展运行信息 */
     get: operations["get_extension_runtime_route"];
     put?: never;
     post?: never;
@@ -4259,9 +4259,9 @@ export interface paths {
       cookie?: never;
     };
     /**
-     * Gifts
+     * 列出用户礼品
      * @deprecated
-     * @description Retired in the independent-service deployment. Authorized requests return 410. The historical 200 schema is retained for upstream compatibility tooling only.
+     * @description 独立服务部署已停用此接口，鉴权成功后返回 410。历史 200 结构仅为上游兼容工具保留。
      */
     get: operations["get_gifts_route"];
     put?: never;
@@ -4282,9 +4282,9 @@ export interface paths {
     get?: never;
     put?: never;
     /**
-     * Gift Claim
+     * 领取礼品
      * @deprecated
-     * @description Retired in the independent-service deployment. Authorized requests return 410. The historical 200 schema is retained for upstream compatibility tooling only.
+     * @description 独立服务部署已停用此接口，鉴权成功后返回 410。历史 200 结构仅为上游兼容工具保留。
      */
     post: operations["post_gift_claim_route"];
     delete?: never;
@@ -4301,9 +4301,9 @@ export interface paths {
       cookie?: never;
     };
     /**
-     * Gift Options
+     * 获取用户礼品选项
      * @deprecated
-     * @description Retired in the independent-service deployment. Authorized requests return 410. The historical 200 schema is retained for upstream compatibility tooling only.
+     * @description 独立服务部署已停用此接口，鉴权成功后返回 410。历史 200 结构仅为上游兼容工具保留。
      */
     get: operations["get_gift_options_route"];
     put?: never;
@@ -4324,9 +4324,9 @@ export interface paths {
     get?: never;
     put?: never;
     /**
-     * Gift Preview
+     * 预览用户礼品
      * @deprecated
-     * @description Retired in the independent-service deployment. Authorized requests return 410. The historical 200 schema is retained for upstream compatibility tooling only.
+     * @description 独立服务部署已停用此接口，鉴权成功后返回 410。历史 200 结构仅为上游兼容工具保留。
      */
     post: operations["post_gift_preview_route"];
     delete?: never;
@@ -4342,7 +4342,7 @@ export interface paths {
       path?: never;
       cookie?: never;
     };
-    /** I18N */
+    /** 获取语言资源 */
     get: operations["get_i18n_route"];
     put?: never;
     post?: never;
@@ -4359,7 +4359,7 @@ export interface paths {
       path?: never;
       cookie?: never;
     };
-    /** Me */
+    /** 获取当前用户信息 */
     get: operations["get_me_route"];
     put?: never;
     post?: never;
@@ -4376,10 +4376,10 @@ export interface paths {
       path?: never;
       cookie?: never;
     };
-    /** Email Notification Preferences */
+    /** 获取邮件通知偏好 */
     get: operations["get_email_notification_preferences_route"];
     put?: never;
-    /** Email Notification Preferences Update */
+    /** 更新邮件通知偏好 */
     post: operations["post_email_notification_preferences_update_route"];
     delete?: never;
     options?: never;
@@ -4394,7 +4394,7 @@ export interface paths {
       path?: never;
       cookie?: never;
     };
-    /** Information Page Content */
+    /** 获取信息页面正文 */
     get: operations["get_information_page_content_route"];
     put?: never;
     post?: never;
@@ -4414,9 +4414,9 @@ export interface paths {
     get?: never;
     put?: never;
     /**
-     * Partner Application Create
+     * 提交合作伙伴申请
      * @deprecated
-     * @description Retired in the independent-service deployment. Authorized requests return 410. The historical 200 schema is retained for upstream compatibility tooling only.
+     * @description 独立服务部署已停用此接口，鉴权成功后返回 410。历史 200 结构仅为上游兼容工具保留。
      */
     post: operations["post_partner_application_create_route"];
     delete?: never;
@@ -4435,9 +4435,9 @@ export interface paths {
     get?: never;
     put?: never;
     /**
-     * Partner Balance Renew
+     * 使用合作伙伴余额续费
      * @deprecated
-     * @description Retired in the independent-service deployment. Authorized requests return 410. The historical 200 schema is retained for upstream compatibility tooling only.
+     * @description 独立服务部署已停用此接口，鉴权成功后返回 410。历史 200 结构仅为上游兼容工具保留。
      */
     post: operations["post_partner_balance_renew_route"];
     delete?: never;
@@ -4454,9 +4454,9 @@ export interface paths {
       cookie?: never;
     };
     /**
-     * Partner Clients
+     * 列出合作伙伴客户
      * @deprecated
-     * @description Retired in the independent-service deployment. Authorized requests return 410. The historical 200 schema is retained for upstream compatibility tooling only.
+     * @description 独立服务部署已停用此接口，鉴权成功后返回 410。历史 200 结构仅为上游兼容工具保留。
      */
     get: operations["get_partner_clients_route"];
     put?: never;
@@ -4475,9 +4475,9 @@ export interface paths {
       cookie?: never;
     };
     /**
-     * Partner Commissions
+     * 获取合作伙伴佣金记录
      * @deprecated
-     * @description Retired in the independent-service deployment. Authorized requests return 410. The historical 200 schema is retained for upstream compatibility tooling only.
+     * @description 独立服务部署已停用此接口，鉴权成功后返回 410。历史 200 结构仅为上游兼容工具保留。
      */
     get: operations["get_partner_commissions_route"];
     put?: never;
@@ -4496,9 +4496,9 @@ export interface paths {
       cookie?: never;
     };
     /**
-     * Partner Overview
+     * 获取合作伙伴概览
      * @deprecated
-     * @description Retired in the independent-service deployment. Authorized requests return 410. The historical 200 schema is retained for upstream compatibility tooling only.
+     * @description 独立服务部署已停用此接口，鉴权成功后返回 410。历史 200 结构仅为上游兼容工具保留。
      */
     get: operations["get_partner_overview_route"];
     put?: never;
@@ -4517,16 +4517,16 @@ export interface paths {
       cookie?: never;
     };
     /**
-     * Partner Withdrawals
+     * 获取合作伙伴提现记录
      * @deprecated
-     * @description Retired in the independent-service deployment. Authorized requests return 410. The historical 200 schema is retained for upstream compatibility tooling only.
+     * @description 独立服务部署已停用此接口，鉴权成功后返回 410。历史 200 结构仅为上游兼容工具保留。
      */
     get: operations["get_partner_withdrawals_route"];
     put?: never;
     /**
-     * Partner Withdrawal Create
+     * 申请合作伙伴提现
      * @deprecated
-     * @description Retired in the independent-service deployment. Authorized requests return 410. The historical 200 schema is retained for upstream compatibility tooling only.
+     * @description 独立服务部署已停用此接口，鉴权成功后返回 410。历史 200 结构仅为上游兼容工具保留。
      */
     post: operations["post_partner_withdrawal_create_route"];
     delete?: never;
@@ -4545,9 +4545,9 @@ export interface paths {
     get?: never;
     put?: never;
     /**
-     * Partner Withdrawal Cancel
+     * 取消合作伙伴提现
      * @deprecated
-     * @description Retired in the independent-service deployment. Authorized requests return 410. The historical 200 schema is retained for upstream compatibility tooling only.
+     * @description 独立服务部署已停用此接口，鉴权成功后返回 410。历史 200 结构仅为上游兼容工具保留。
      */
     post: operations["post_partner_withdrawal_cancel_route"];
     delete?: never;
@@ -4566,9 +4566,9 @@ export interface paths {
     get?: never;
     put?: never;
     /**
-     * Create Payment
+     * 创建付款
      * @deprecated
-     * @description Retired in the independent-service deployment. Authorized requests return 410. The historical 200 schema is retained for upstream compatibility tooling only.
+     * @description 独立服务部署已停用此接口，鉴权成功后返回 410。历史 200 结构仅为上游兼容工具保留。
      */
     post: operations["post_create_payment_route"];
     delete?: never;
@@ -4585,9 +4585,9 @@ export interface paths {
       cookie?: never;
     };
     /**
-     * Payment History
+     * 获取付款历史
      * @deprecated
-     * @description Retired in the independent-service deployment. Authorized requests return 410. The historical 200 schema is retained for upstream compatibility tooling only.
+     * @description 独立服务部署已停用此接口，鉴权成功后返回 410。历史 200 结构仅为上游兼容工具保留。
      */
     get: operations["get_payment_history_route"];
     put?: never;
@@ -4606,9 +4606,9 @@ export interface paths {
       cookie?: never;
     };
     /**
-     * Payment Status
+     * 获取付款状态
      * @deprecated
-     * @description Retired in the independent-service deployment. Authorized requests return 410. The historical 200 schema is retained for upstream compatibility tooling only.
+     * @description 独立服务部署已停用此接口，鉴权成功后返回 410。历史 200 结构仅为上游兼容工具保留。
      */
     get: operations["get_payment_status_route"];
     put?: never;
@@ -4629,9 +4629,9 @@ export interface paths {
     get?: never;
     put?: never;
     /**
-     * Cancel Payment
+     * 取消付款
      * @deprecated
-     * @description Retired in the independent-service deployment. Authorized requests return 410. The historical 200 schema is retained for upstream compatibility tooling only.
+     * @description 独立服务部署已停用此接口，鉴权成功后返回 410。历史 200 结构仅为上游兼容工具保留。
      */
     post: operations["post_cancel_payment_route"];
     delete?: never;
@@ -4650,9 +4650,9 @@ export interface paths {
     get?: never;
     put?: never;
     /**
-     * Complete Qa Payment
+     * 完成测试付款
      * @deprecated
-     * @description Retired in the independent-service deployment. Authorized requests return 410. The historical 200 schema is retained for upstream compatibility tooling only.
+     * @description 独立服务部署已停用此接口，鉴权成功后返回 410。历史 200 结构仅为上游兼容工具保留。
      */
     post: operations["post_complete_qa_payment_route"];
     delete?: never;
@@ -4671,9 +4671,9 @@ export interface paths {
     get?: never;
     put?: never;
     /**
-     * Plans Viewed
+     * 记录套餐目录访问
      * @deprecated
-     * @description Retired in the independent-service deployment. Authorized requests return 410. The historical 200 schema is retained for upstream compatibility tooling only.
+     * @description 独立服务部署已停用此接口，鉴权成功后返回 410。历史 200 结构仅为上游兼容工具保留。
      */
     post: operations["post_plans_viewed_route"];
     delete?: never;
@@ -4692,9 +4692,9 @@ export interface paths {
     get?: never;
     put?: never;
     /**
-     * Apply Promo
+     * 使用激活码
      * @deprecated
-     * @description Retired in the independent-service deployment. Authorized requests return 410. The historical 200 schema is retained for upstream compatibility tooling only.
+     * @description 独立服务部署已停用此接口，鉴权成功后返回 410。历史 200 结构仅为上游兼容工具保留。
      */
     post: operations["post_apply_promo_route"];
     delete?: never;
@@ -4713,9 +4713,9 @@ export interface paths {
     get?: never;
     put?: never;
     /**
-     * Promo Status
+     * 获取激活码状态
      * @deprecated
-     * @description Retired in the independent-service deployment. Authorized requests return 410. The historical 200 schema is retained for upstream compatibility tooling only.
+     * @description 独立服务部署已停用此接口，鉴权成功后返回 410。历史 200 结构仅为上游兼容工具保留。
      */
     post: operations["post_promo_status_route"];
     delete?: never;
@@ -4734,9 +4734,9 @@ export interface paths {
     get?: never;
     put?: never;
     /**
-     * Referral Welcome Bonus Claim
+     * 领取邀请新人奖励
      * @deprecated
-     * @description Retired in the independent-service deployment. Authorized requests return 410. The historical 200 schema is retained for upstream compatibility tooling only.
+     * @description 独立服务部署已停用此接口，鉴权成功后返回 410。历史 200 结构仅为上游兼容工具保留。
      */
     post: operations["post_referral_welcome_bonus_claim_route"];
     delete?: never;
@@ -4752,7 +4752,7 @@ export interface paths {
       path?: never;
       cookie?: never;
     };
-    /** Service Catalog */
+    /** 获取服务套餐目录 */
     get: operations["get_service_catalog_route"];
     put?: never;
     post?: never;
@@ -4769,7 +4769,7 @@ export interface paths {
       path?: never;
       cookie?: never;
     };
-    /** User Service Guides */
+    /** 获取当前服务使用指南 */
     get: operations["get_user_service_guides_route"];
     put?: never;
     post?: never;
@@ -4786,7 +4786,7 @@ export interface paths {
       path?: never;
       cookie?: never;
     };
-    /** User Services */
+    /** 列出我的服务 */
     get: operations["get_user_services_route"];
     put?: never;
     post?: never;
@@ -4803,7 +4803,7 @@ export interface paths {
       path?: never;
       cookie?: never;
     };
-    /** User Service */
+    /** 获取我的服务详情 */
     get: operations["get_user_service_route"];
     put?: never;
     post?: never;
@@ -4820,7 +4820,7 @@ export interface paths {
       path?: never;
       cookie?: never;
     };
-    /** User Service Subscription */
+    /** 获取当前服务订阅 */
     get: operations["get_user_service_subscription_route"];
     put?: never;
     post?: never;
@@ -4837,7 +4837,7 @@ export interface paths {
       path?: never;
       cookie?: never;
     };
-    /** Server Status */
+    /** 获取服务器状态 */
     get: operations["get_server_status_route"];
     put?: never;
     post?: never;
@@ -4855,9 +4855,9 @@ export interface paths {
       cookie?: never;
     };
     /**
-     * Subscription Guides
+     * 获取订阅指南
      * @deprecated
-     * @description Retired in the independent-service deployment. Authorized requests return 410. The historical 200 schema is retained for upstream compatibility tooling only.
+     * @description 独立服务部署已停用此接口，鉴权成功后返回 410。历史 200 结构仅为上游兼容工具保留。
      */
     get: operations["get_subscription_guides_route"];
     put?: never;
@@ -4876,9 +4876,9 @@ export interface paths {
       cookie?: never;
     };
     /**
-     * Public Subscription Guides
+     * 获取公开订阅指南
      * @deprecated
-     * @description Retired in the independent-service deployment. Authorized requests return 410. The historical 200 schema is retained for upstream compatibility tooling only.
+     * @description 独立服务部署已停用此接口，鉴权成功后返回 410。历史 200 结构仅为上游兼容工具保留。
      */
     get: operations["get_public_subscription_guides_route"];
     put?: never;
@@ -4899,9 +4899,9 @@ export interface paths {
     get?: never;
     put?: never;
     /**
-     * Subscription Auto Renew
+     * 设置订阅自动续费
      * @deprecated
-     * @description Retired in the independent-service deployment. Authorized requests return 410. The historical 200 schema is retained for upstream compatibility tooling only.
+     * @description 独立服务部署已停用此接口，鉴权成功后返回 410。历史 200 结构仅为上游兼容工具保留。
      */
     post: operations["post_subscription_auto_renew_route"];
     delete?: never;
@@ -4920,9 +4920,9 @@ export interface paths {
     get?: never;
     put?: never;
     /**
-     * Subscription Quote
+     * 计算订阅报价
      * @deprecated
-     * @description Retired in the independent-service deployment. Authorized requests return 410. The historical 200 schema is retained for upstream compatibility tooling only.
+     * @description 独立服务部署已停用此接口，鉴权成功后返回 410。历史 200 结构仅为上游兼容工具保留。
      */
     post: operations["post_subscription_quote_route"];
     delete?: never;
@@ -4941,9 +4941,9 @@ export interface paths {
     get?: never;
     put?: never;
     /**
-     * Quote Promo
+     * 计算激活码优惠
      * @deprecated
-     * @description Retired in the independent-service deployment. Authorized requests return 410. The historical 200 schema is retained for upstream compatibility tooling only.
+     * @description 独立服务部署已停用此接口，鉴权成功后返回 410。历史 200 结构仅为上游兼容工具保留。
      */
     post: operations["post_quote_promo_route"];
     delete?: never;
@@ -4962,9 +4962,9 @@ export interface paths {
     get?: never;
     put?: never;
     /**
-     * Subscription Reissue
+     * 重发订阅链接
      * @deprecated
-     * @description Retired in the independent-service deployment. Authorized requests return 410. The historical 200 schema is retained for upstream compatibility tooling only.
+     * @description 独立服务部署已停用此接口，鉴权成功后返回 410。历史 200 结构仅为上游兼容工具保留。
      */
     post: operations["post_subscription_reissue_route"];
     delete?: never;
@@ -4980,7 +4980,7 @@ export interface paths {
       path?: never;
       cookie?: never;
     };
-    /** Support Message Image */
+    /** 获取客服消息图片 */
     get: operations["get_support_message_image_route"];
     put?: never;
     post?: never;
@@ -4997,10 +4997,10 @@ export interface paths {
       path?: never;
       cookie?: never;
     };
-    /** Support Tickets */
+    /** 列出我的客服工单 */
     get: operations["get_support_tickets_route"];
     put?: never;
-    /** Support Create Ticket */
+    /** 创建客服工单 */
     post: operations["post_support_create_ticket_route"];
     delete?: never;
     options?: never;
@@ -5015,7 +5015,7 @@ export interface paths {
       path?: never;
       cookie?: never;
     };
-    /** Support Ticket Detail */
+    /** 获取我的工单详情 */
     get: operations["get_support_ticket_detail_route"];
     put?: never;
     post?: never;
@@ -5032,7 +5032,7 @@ export interface paths {
       path?: never;
       cookie?: never;
     };
-    /** Support Ticket Emoji */
+    /** 获取工单表情 */
     get: operations["get_support_ticket_emoji_route"];
     put?: never;
     post?: never;
@@ -5051,7 +5051,7 @@ export interface paths {
     };
     get?: never;
     put?: never;
-    /** Support Ticket Reply */
+    /** 回复我的客服工单 */
     post: operations["post_support_ticket_reply_route"];
     delete?: never;
     options?: never;
@@ -5068,7 +5068,7 @@ export interface paths {
     };
     get?: never;
     put?: never;
-    /** Support Ticket Read */
+    /** 标记我的工单已读 */
     post: operations["post_support_ticket_read_route"];
     delete?: never;
     options?: never;
@@ -5085,7 +5085,7 @@ export interface paths {
     };
     get?: never;
     put?: never;
-    /** Support Ticket Typing */
+    /** 更新工单输入状态 */
     post: operations["post_support_ticket_typing_route"];
     delete?: never;
     options?: never;
@@ -5100,7 +5100,7 @@ export interface paths {
       path?: never;
       cookie?: never;
     };
-    /** Support Unread */
+    /** 获取客服未读数量 */
     get: operations["get_support_unread_route"];
     put?: never;
     post?: never;
@@ -5120,9 +5120,9 @@ export interface paths {
     get?: never;
     put?: never;
     /**
-     * Tariff Change
+     * 变更套餐
      * @deprecated
-     * @description Retired in the independent-service deployment. Authorized requests return 410. The historical 200 schema is retained for upstream compatibility tooling only.
+     * @description 独立服务部署已停用此接口，鉴权成功后返回 410。历史 200 结构仅为上游兼容工具保留。
      */
     post: operations["post_tariff_change_route"];
     delete?: never;
@@ -5139,9 +5139,9 @@ export interface paths {
       cookie?: never;
     };
     /**
-     * Tariff Change Options
+     * 获取套餐变更选项
      * @deprecated
-     * @description Retired in the independent-service deployment. Authorized requests return 410. The historical 200 schema is retained for upstream compatibility tooling only.
+     * @description 独立服务部署已停用此接口，鉴权成功后返回 410。历史 200 结构仅为上游兼容工具保留。
      */
     get: operations["get_tariff_change_options_route"];
     put?: never;
@@ -5162,9 +5162,9 @@ export interface paths {
     get?: never;
     put?: never;
     /**
-     * Tariff Change Payment
+     * 创建套餐变更付款
      * @deprecated
-     * @description Retired in the independent-service deployment. Authorized requests return 410. The historical 200 schema is retained for upstream compatibility tooling only.
+     * @description 独立服务部署已停用此接口，鉴权成功后返回 410。历史 200 结构仅为上游兼容工具保留。
      */
     post: operations["post_tariff_change_payment_route"];
     delete?: never;
@@ -5181,9 +5181,9 @@ export interface paths {
       cookie?: never;
     };
     /**
-     * Tariff Topup Options
+     * 获取套餐流量加购选项
      * @deprecated
-     * @description Retired in the independent-service deployment. Authorized requests return 410. The historical 200 schema is retained for upstream compatibility tooling only.
+     * @description 独立服务部署已停用此接口，鉴权成功后返回 410。历史 200 结构仅为上游兼容工具保留。
      */
     get: operations["get_tariff_topup_options_route"];
     put?: never;
@@ -5201,7 +5201,7 @@ export interface paths {
       path?: never;
       cookie?: never;
     };
-    /** Theme Effects */
+    /** 获取当前主题效果 */
     get: operations["get_theme_effects_route"];
     put?: never;
     post?: never;
@@ -5218,7 +5218,7 @@ export interface paths {
       path?: never;
       cookie?: never;
     };
-    /** Theme Effect Asset */
+    /** 获取主题效果资源 */
     get: operations["get_theme_effect_asset_route"];
     put?: never;
     post?: never;
@@ -5238,9 +5238,9 @@ export interface paths {
     get?: never;
     put?: never;
     /**
-     * Activate Trial
+     * 开通试用
      * @deprecated
-     * @description Retired in the independent-service deployment. Authorized requests return 410. The historical 200 schema is retained for upstream compatibility tooling only.
+     * @description 独立服务部署已停用此接口，鉴权成功后返回 410。历史 200 结构仅为上游兼容工具保留。
      */
     post: operations["post_activate_trial_route"];
     delete?: never;
@@ -6262,14 +6262,14 @@ export interface components {
     };
     /**
      * AdminBroadcastButtonBody
-     * @description One inline button attached to a broadcast.
+     * @description 群发消息附带的一个内联按钮。
      *
-     *     ``kind`` selects how the button URL is produced:
-     *     - ``url`` — explicit ``url`` field;
-     *     - ``promo_bot`` — deep link into the bot applying ``promo_code``;
-     *     - ``promo_webapp`` — link into the Mini App checkout with ``promo_code``;
-     *     - ``webapp_section`` — link that opens the Mini App screen named by
-     *       ``section`` (invite, support, devices, …).
+     *     ``kind`` 决定按钮链接的生成方式：
+     *     - ``url``：使用明确提供的 ``url`` 字段；
+     *     - ``promo_bot``：打开机器人并使用 ``promo_code`` 的深链接；
+     *     - ``promo_webapp``：携带 ``promo_code`` 的小程序结账链接；
+     *     - ``webapp_section``：打开 ``section`` 指定的小程序页面
+     *       （invite、support、devices 等）。
      */
     AdminBroadcastButtonBody: {
       /**
@@ -10799,7 +10799,7 @@ export interface components {
       checkout_discount_amount: number | null;
       /**
        * Checkout Url
-       * @description Active checkout link, only for a payment awaiting payment.
+       * @description 有效的收款链接，仅适用于等待付款的记录。
        * @default null
        */
       checkout_url: string | null;
@@ -11769,7 +11769,7 @@ export interface components {
     };
     /**
      * ServiceCatalogPlanOut
-     * @description Customer-visible terms; panel groups and resource inventory stay private.
+     * @description 用户可见的服务条款；不公开面板节点组和资源库存。
      */
     ServiceCatalogPlanOut: {
       /** Currency */
@@ -12053,7 +12053,7 @@ export interface components {
     };
     /**
      * SupportCountsOut
-     * @description Ticket counters keyed by known statuses, with room for future status keys.
+     * @description 按已知状态统计的工单数量，允许后续增加状态键。
      */
     SupportCountsOut: {
       /** Active */
@@ -12067,7 +12067,7 @@ export interface components {
     };
     /**
      * SupportMessageButtonOut
-     * @description A button the admin attached, already resolved to the link it opens.
+     * @description 管理员附加的按钮，已解析为点击后打开的链接。
      */
     SupportMessageButtonOut: {
       /**
@@ -12574,7 +12574,7 @@ export interface components {
     };
     /**
      * ThemeTokens
-     * @description CSS design tokens for the subscription Mini App shell.
+     * @description 订阅小程序界面的 CSS 设计变量。
      */
     ThemeTokens: {
       /**
@@ -12983,14 +12983,13 @@ export interface components {
     };
     /**
      * TributeTariffConfig
-     * @description Creator-side mapping for one tariff.
+     * @description 单个套餐在创作者侧的映射。
      *
-     *     A period may be sold by its own Tribute subscription, with its own share
-     *     link and subscription id, because Tribute publishes one subscription per
-     *     offer rather than one per tariff. ``period_links`` and
-     *     ``period_subscription_ids`` carry those overrides; the tariff-level
-     *     ``link``/``subscription_id`` pair stays as the default for periods that do
-     *     not declare their own, which is what a single-subscription tariff uses.
+     *     Tribute 按每个销售规格发布订阅，而非每个套餐发布一份订阅，因此每种时长
+     *     可以通过独立的 Tribute 订阅销售，并拥有自己的分享链接和订阅编号。
+     *     ``period_links`` 和 ``period_subscription_ids`` 保存这些覆盖值；
+     *     未单独声明的时长继续使用套餐级 ``link``／``subscription_id`` 默认值，
+     *     仅关联一份订阅的套餐也使用这组默认值。
      */
     TributeTariffConfig: {
       /**
@@ -13699,7 +13698,7 @@ export interface components {
     };
     /**
      * WebAppSubscriptionReissuePayload
-     * @description Empty body for the subscription reissue action (extra keys ignored).
+     * @description 重发订阅操作使用的空请求体，多余字段会被忽略。
      */
     WebAppSubscriptionReissuePayload: Record<string, never>;
     /** WebAppTariffChangePayload */
@@ -13911,7 +13910,7 @@ export interface components {
     };
     /**
      * WebappTheme
-     * @description Single theme descriptor loaded from WEBAPP_THEMES_DIR/<key>/theme.json.
+     * @description 从 WEBAPP_THEMES_DIR/<key>/theme.json 加载的单个主题描述。
      */
     WebappTheme: {
       /**
@@ -13983,7 +13982,7 @@ export interface components {
     };
     /**
      * WebappThemesConfig
-     * @description Runtime catalog assembled from individual theme descriptor files.
+     * @description 由各个主题描述文件组装的运行时主题目录。
      */
     WebappThemesConfig: {
       /**
@@ -14012,7 +14011,7 @@ export interface operations {
     };
     requestBody?: never;
     responses: {
-      /** @description Response */
+      /** @description 响应 */
       200: {
         headers: {
           [name: string]: unknown;
@@ -14036,7 +14035,7 @@ export interface operations {
       };
     };
     responses: {
-      /** @description JSON response */
+      /** @description JSON 响应 */
       200: {
         headers: {
           [name: string]: unknown;
@@ -14073,7 +14072,7 @@ export interface operations {
     };
     requestBody?: never;
     responses: {
-      /** @description JSON response */
+      /** @description JSON 响应 */
       200: {
         headers: {
           [name: string]: unknown;
@@ -14103,7 +14102,7 @@ export interface operations {
       };
     };
     responses: {
-      /** @description JSON response */
+      /** @description JSON 响应 */
       200: {
         headers: {
           [name: string]: unknown;
@@ -14131,7 +14130,7 @@ export interface operations {
       };
     };
     responses: {
-      /** @description JSON response */
+      /** @description JSON 响应 */
       200: {
         headers: {
           [name: string]: unknown;
@@ -14161,7 +14160,7 @@ export interface operations {
       };
     };
     responses: {
-      /** @description JSON response */
+      /** @description JSON 响应 */
       200: {
         headers: {
           [name: string]: unknown;
@@ -14189,7 +14188,7 @@ export interface operations {
       };
     };
     responses: {
-      /** @description JSON response */
+      /** @description JSON 响应 */
       200: {
         headers: {
           [name: string]: unknown;
@@ -14220,7 +14219,7 @@ export interface operations {
       };
     };
     responses: {
-      /** @description JSON response */
+      /** @description JSON 响应 */
       200: {
         headers: {
           [name: string]: unknown;
@@ -14261,7 +14260,7 @@ export interface operations {
       };
     };
     responses: {
-      /** @description JSON response */
+      /** @description JSON 响应 */
       200: {
         headers: {
           [name: string]: unknown;
@@ -14288,7 +14287,7 @@ export interface operations {
       };
     };
     responses: {
-      /** @description JSON response */
+      /** @description JSON 响应 */
       200: {
         headers: {
           [name: string]: unknown;
@@ -14312,7 +14311,7 @@ export interface operations {
     };
     requestBody?: never;
     responses: {
-      /** @description JSON response */
+      /** @description JSON 响应 */
       200: {
         headers: {
           [name: string]: unknown;
@@ -14339,7 +14338,7 @@ export interface operations {
       };
     };
     responses: {
-      /** @description JSON response */
+      /** @description JSON 响应 */
       200: {
         headers: {
           [name: string]: unknown;
@@ -14376,7 +14375,7 @@ export interface operations {
     };
     requestBody?: never;
     responses: {
-      /** @description JSON response */
+      /** @description JSON 响应 */
       200: {
         headers: {
           [name: string]: unknown;
@@ -14406,7 +14405,7 @@ export interface operations {
       };
     };
     responses: {
-      /** @description JSON response */
+      /** @description JSON 响应 */
       200: {
         headers: {
           [name: string]: unknown;
@@ -14429,7 +14428,7 @@ export interface operations {
     };
     requestBody?: never;
     responses: {
-      /** @description JSON response */
+      /** @description JSON 响应 */
       200: {
         headers: {
           [name: string]: unknown;
@@ -14455,7 +14454,7 @@ export interface operations {
     };
     requestBody?: never;
     responses: {
-      /** @description JSON response */
+      /** @description JSON 响应 */
       200: {
         headers: {
           [name: string]: unknown;
@@ -14487,7 +14486,7 @@ export interface operations {
       };
     };
     responses: {
-      /** @description JSON response */
+      /** @description JSON 响应 */
       200: {
         headers: {
           [name: string]: unknown;
@@ -14515,7 +14514,7 @@ export interface operations {
       };
     };
     responses: {
-      /** @description JSON response */
+      /** @description JSON 响应 */
       200: {
         headers: {
           [name: string]: unknown;
@@ -14538,7 +14537,7 @@ export interface operations {
     };
     requestBody?: never;
     responses: {
-      /** @description JSON response */
+      /** @description JSON 响应 */
       200: {
         headers: {
           [name: string]: unknown;
@@ -14568,7 +14567,7 @@ export interface operations {
       };
     };
     responses: {
-      /** @description JSON response */
+      /** @description JSON 响应 */
       200: {
         headers: {
           [name: string]: unknown;
@@ -14595,7 +14594,7 @@ export interface operations {
       };
     };
     responses: {
-      /** @description JSON response */
+      /** @description JSON 响应 */
       200: {
         headers: {
           [name: string]: unknown;
@@ -14619,7 +14618,7 @@ export interface operations {
     };
     requestBody?: never;
     responses: {
-      /** @description JSON response */
+      /** @description JSON 响应 */
       200: {
         headers: {
           [name: string]: unknown;
@@ -14647,7 +14646,7 @@ export interface operations {
       };
     };
     responses: {
-      /** @description JSON response */
+      /** @description JSON 响应 */
       200: {
         headers: {
           [name: string]: unknown;
@@ -14676,7 +14675,7 @@ export interface operations {
       };
     };
     responses: {
-      /** @description JSON response */
+      /** @description JSON 响应 */
       200: {
         headers: {
           [name: string]: unknown;
@@ -14708,7 +14707,7 @@ export interface operations {
       };
     };
     responses: {
-      /** @description JSON response */
+      /** @description JSON 响应 */
       200: {
         headers: {
           [name: string]: unknown;
@@ -14735,7 +14734,7 @@ export interface operations {
       };
     };
     responses: {
-      /** @description JSON response */
+      /** @description JSON 响应 */
       200: {
         headers: {
           [name: string]: unknown;
@@ -14776,7 +14775,7 @@ export interface operations {
       };
     };
     responses: {
-      /** @description JSON response */
+      /** @description JSON 响应 */
       200: {
         headers: {
           [name: string]: unknown;
@@ -14813,7 +14812,7 @@ export interface operations {
     };
     requestBody?: never;
     responses: {
-      /** @description JSON response */
+      /** @description JSON 响应 */
       200: {
         headers: {
           [name: string]: unknown;
@@ -14839,7 +14838,7 @@ export interface operations {
     };
     requestBody?: never;
     responses: {
-      /** @description JSON response */
+      /** @description JSON 响应 */
       200: {
         headers: {
           [name: string]: unknown;
@@ -14868,7 +14867,7 @@ export interface operations {
     };
     requestBody?: never;
     responses: {
-      /** @description JSON response */
+      /** @description JSON 响应 */
       200: {
         headers: {
           [name: string]: unknown;
@@ -14895,7 +14894,7 @@ export interface operations {
       };
     };
     responses: {
-      /** @description JSON response */
+      /** @description JSON 响应 */
       200: {
         headers: {
           [name: string]: unknown;
@@ -14919,7 +14918,7 @@ export interface operations {
     };
     requestBody?: never;
     responses: {
-      /** @description JSON response */
+      /** @description JSON 响应 */
       200: {
         headers: {
           [name: string]: unknown;
@@ -14946,7 +14945,7 @@ export interface operations {
       };
     };
     responses: {
-      /** @description JSON response */
+      /** @description JSON 响应 */
       200: {
         headers: {
           [name: string]: unknown;
@@ -14971,7 +14970,7 @@ export interface operations {
     };
     requestBody?: never;
     responses: {
-      /** @description JSON response */
+      /** @description JSON 响应 */
       200: {
         headers: {
           [name: string]: unknown;
@@ -14996,7 +14995,7 @@ export interface operations {
     };
     requestBody?: never;
     responses: {
-      /** @description JSON response */
+      /** @description JSON 响应 */
       200: {
         headers: {
           [name: string]: unknown;
@@ -15025,7 +15024,7 @@ export interface operations {
       };
     };
     responses: {
-      /** @description JSON response */
+      /** @description JSON 响应 */
       200: {
         headers: {
           [name: string]: unknown;
@@ -15054,7 +15053,7 @@ export interface operations {
       };
     };
     responses: {
-      /** @description JSON response */
+      /** @description JSON 响应 */
       200: {
         headers: {
           [name: string]: unknown;
@@ -15080,7 +15079,7 @@ export interface operations {
     };
     requestBody?: never;
     responses: {
-      /** @description JSON response */
+      /** @description JSON 响应 */
       200: {
         headers: {
           [name: string]: unknown;
@@ -15110,7 +15109,7 @@ export interface operations {
       };
     };
     responses: {
-      /** @description JSON response */
+      /** @description JSON 响应 */
       200: {
         headers: {
           [name: string]: unknown;
@@ -15135,7 +15134,7 @@ export interface operations {
     };
     requestBody?: never;
     responses: {
-      /** @description JSON response */
+      /** @description JSON 响应 */
       200: {
         headers: {
           [name: string]: unknown;
@@ -15164,7 +15163,7 @@ export interface operations {
       };
     };
     responses: {
-      /** @description JSON response */
+      /** @description JSON 响应 */
       200: {
         headers: {
           [name: string]: unknown;
@@ -15189,7 +15188,7 @@ export interface operations {
     };
     requestBody?: never;
     responses: {
-      /** @description Response */
+      /** @description 响应 */
       200: {
         headers: {
           [name: string]: unknown;
@@ -15216,7 +15215,7 @@ export interface operations {
       };
     };
     responses: {
-      /** @description JSON response */
+      /** @description JSON 响应 */
       200: {
         headers: {
           [name: string]: unknown;
@@ -15246,7 +15245,7 @@ export interface operations {
       };
     };
     responses: {
-      /** @description JSON response */
+      /** @description JSON 响应 */
       200: {
         headers: {
           [name: string]: unknown;
@@ -15276,7 +15275,7 @@ export interface operations {
       };
     };
     responses: {
-      /** @description JSON response */
+      /** @description JSON 响应 */
       200: {
         headers: {
           [name: string]: unknown;
@@ -15302,7 +15301,7 @@ export interface operations {
     };
     requestBody?: never;
     responses: {
-      /** @description JSON response */
+      /** @description JSON 响应 */
       200: {
         headers: {
           [name: string]: unknown;
@@ -15331,7 +15330,7 @@ export interface operations {
       };
     };
     responses: {
-      /** @description JSON response */
+      /** @description JSON 响应 */
       200: {
         headers: {
           [name: string]: unknown;
@@ -15361,7 +15360,7 @@ export interface operations {
       };
     };
     responses: {
-      /** @description JSON response */
+      /** @description JSON 响应 */
       200: {
         headers: {
           [name: string]: unknown;
@@ -15386,7 +15385,7 @@ export interface operations {
     };
     requestBody?: never;
     responses: {
-      /** @description JSON response */
+      /** @description JSON 响应 */
       200: {
         headers: {
           [name: string]: unknown;
@@ -15411,7 +15410,7 @@ export interface operations {
     };
     requestBody?: never;
     responses: {
-      /** @description JSON response */
+      /** @description JSON 响应 */
       200: {
         headers: {
           [name: string]: unknown;
@@ -15440,7 +15439,7 @@ export interface operations {
       };
     };
     responses: {
-      /** @description JSON response */
+      /** @description JSON 响应 */
       200: {
         headers: {
           [name: string]: unknown;
@@ -15469,7 +15468,7 @@ export interface operations {
       };
     };
     responses: {
-      /** @description JSON response */
+      /** @description JSON 响应 */
       200: {
         headers: {
           [name: string]: unknown;
@@ -15504,7 +15503,7 @@ export interface operations {
       };
     };
     responses: {
-      /** @description JSON response */
+      /** @description JSON 响应 */
       200: {
         headers: {
           [name: string]: unknown;
@@ -15541,7 +15540,7 @@ export interface operations {
       };
     };
     responses: {
-      /** @description JSON response */
+      /** @description JSON 响应 */
       200: {
         headers: {
           [name: string]: unknown;
@@ -15569,7 +15568,7 @@ export interface operations {
     };
     requestBody?: never;
     responses: {
-      /** @description JSON response */
+      /** @description JSON 响应 */
       200: {
         headers: {
           [name: string]: unknown;
@@ -15594,7 +15593,7 @@ export interface operations {
     };
     requestBody?: never;
     responses: {
-      /** @description Response */
+      /** @description 响应 */
       200: {
         headers: {
           [name: string]: unknown;
@@ -15614,7 +15613,7 @@ export interface operations {
     };
     requestBody?: never;
     responses: {
-      /** @description JSON response */
+      /** @description JSON 响应 */
       200: {
         headers: {
           [name: string]: unknown;
@@ -15637,7 +15636,7 @@ export interface operations {
     };
     requestBody?: never;
     responses: {
-      /** @description JSON response */
+      /** @description JSON 响应 */
       200: {
         headers: {
           [name: string]: unknown;
@@ -15664,7 +15663,7 @@ export interface operations {
       };
     };
     responses: {
-      /** @description JSON response */
+      /** @description JSON 响应 */
       200: {
         headers: {
           [name: string]: unknown;
@@ -15688,13 +15687,13 @@ export interface operations {
     requestBody: {
       content: {
         "multipart/form-data": {
-          /** @description One ZIP, or a parts manifest and all parts in repeated file fields. */
+          /** @description 上传一个 ZIP，或通过重复的文件字段上传分卷清单与全部分卷。 */
           file: string | string[];
         };
       };
     };
     responses: {
-      /** @description JSON response */
+      /** @description JSON 响应 */
       200: {
         headers: {
           [name: string]: unknown;
@@ -15725,7 +15724,7 @@ export interface operations {
       };
     };
     responses: {
-      /** @description JSON response */
+      /** @description JSON 响应 */
       200: {
         headers: {
           [name: string]: unknown;
@@ -15748,7 +15747,7 @@ export interface operations {
     };
     requestBody?: never;
     responses: {
-      /** @description JSON response */
+      /** @description JSON 响应 */
       200: {
         headers: {
           [name: string]: unknown;
@@ -15779,7 +15778,7 @@ export interface operations {
       };
     };
     responses: {
-      /** @description JSON response */
+      /** @description JSON 响应 */
       200: {
         headers: {
           [name: string]: unknown;
@@ -15802,7 +15801,7 @@ export interface operations {
     };
     requestBody?: never;
     responses: {
-      /** @description JSON response */
+      /** @description JSON 响应 */
       200: {
         headers: {
           [name: string]: unknown;
@@ -15825,7 +15824,7 @@ export interface operations {
     };
     requestBody?: never;
     responses: {
-      /** @description JSON response */
+      /** @description JSON 响应 */
       200: {
         headers: {
           [name: string]: unknown;
@@ -15850,7 +15849,7 @@ export interface operations {
     };
     requestBody?: never;
     responses: {
-      /** @description JSON response */
+      /** @description JSON 响应 */
       200: {
         headers: {
           [name: string]: unknown;
@@ -15879,7 +15878,7 @@ export interface operations {
       };
     };
     responses: {
-      /** @description JSON response */
+      /** @description JSON 响应 */
       200: {
         headers: {
           [name: string]: unknown;
@@ -15904,7 +15903,7 @@ export interface operations {
     };
     requestBody?: never;
     responses: {
-      /** @description JSON response */
+      /** @description JSON 响应 */
       200: {
         headers: {
           [name: string]: unknown;
@@ -15927,7 +15926,7 @@ export interface operations {
     };
     requestBody?: never;
     responses: {
-      /** @description JSON response */
+      /** @description JSON 响应 */
       200: {
         headers: {
           [name: string]: unknown;
@@ -15956,7 +15955,7 @@ export interface operations {
       };
     };
     responses: {
-      /** @description JSON response */
+      /** @description JSON 响应 */
       200: {
         headers: {
           [name: string]: unknown;
@@ -15982,7 +15981,7 @@ export interface operations {
     };
     requestBody?: never;
     responses: {
-      /** @description JSON response */
+      /** @description JSON 响应 */
       200: {
         headers: {
           [name: string]: unknown;
@@ -16013,7 +16012,7 @@ export interface operations {
       };
     };
     responses: {
-      /** @description JSON response */
+      /** @description JSON 响应 */
       200: {
         headers: {
           [name: string]: unknown;
@@ -16045,7 +16044,7 @@ export interface operations {
       };
     };
     responses: {
-      /** @description JSON response */
+      /** @description JSON 响应 */
       200: {
         headers: {
           [name: string]: unknown;
@@ -16071,7 +16070,7 @@ export interface operations {
     };
     requestBody?: never;
     responses: {
-      /** @description JSON response */
+      /** @description JSON 响应 */
       200: {
         headers: {
           [name: string]: unknown;
@@ -16098,7 +16097,7 @@ export interface operations {
       };
     };
     responses: {
-      /** @description JSON response */
+      /** @description JSON 响应 */
       200: {
         headers: {
           [name: string]: unknown;
@@ -16123,7 +16122,7 @@ export interface operations {
     };
     requestBody?: never;
     responses: {
-      /** @description JSON response */
+      /** @description JSON 响应 */
       200: {
         headers: {
           [name: string]: unknown;
@@ -16152,7 +16151,7 @@ export interface operations {
       };
     };
     responses: {
-      /** @description JSON response */
+      /** @description JSON 响应 */
       200: {
         headers: {
           [name: string]: unknown;
@@ -16177,7 +16176,7 @@ export interface operations {
     };
     requestBody?: never;
     responses: {
-      /** @description JSON response */
+      /** @description JSON 响应 */
       200: {
         headers: {
           [name: string]: unknown;
@@ -16200,7 +16199,7 @@ export interface operations {
     };
     requestBody?: never;
     responses: {
-      /** @description JSON response */
+      /** @description JSON 响应 */
       200: {
         headers: {
           [name: string]: unknown;
@@ -16227,7 +16226,7 @@ export interface operations {
       };
     };
     responses: {
-      /** @description JSON response */
+      /** @description JSON 响应 */
       200: {
         headers: {
           [name: string]: unknown;
@@ -16254,7 +16253,7 @@ export interface operations {
       };
     };
     responses: {
-      /** @description JSON response */
+      /** @description JSON 响应 */
       200: {
         headers: {
           [name: string]: unknown;
@@ -16277,7 +16276,7 @@ export interface operations {
     };
     requestBody?: never;
     responses: {
-      /** @description JSON response */
+      /** @description JSON 响应 */
       200: {
         headers: {
           [name: string]: unknown;
@@ -16304,7 +16303,7 @@ export interface operations {
       };
     };
     responses: {
-      /** @description Historical response (not served) */
+      /** @description 历史响应（不再提供） */
       200: {
         headers: {
           [name: string]: unknown;
@@ -16317,7 +16316,7 @@ export interface operations {
           };
         };
       };
-      /** @description Single-subscription business is retired */
+      /** @description 旧单订阅业务已停用 */
       410: {
         headers: {
           [name: string]: unknown;
@@ -16342,7 +16341,7 @@ export interface operations {
     };
     requestBody?: never;
     responses: {
-      /** @description JSON response */
+      /** @description JSON 响应 */
       200: {
         headers: {
           [name: string]: unknown;
@@ -16440,7 +16439,7 @@ export interface operations {
     };
     requestBody?: never;
     responses: {
-      /** @description JSON response */
+      /** @description JSON 响应 */
       200: {
         headers: {
           [name: string]: unknown;
@@ -16470,7 +16469,7 @@ export interface operations {
       };
     };
     responses: {
-      /** @description Historical response (not served) */
+      /** @description 历史响应（不再提供） */
       200: {
         headers: {
           [name: string]: unknown;
@@ -16483,7 +16482,7 @@ export interface operations {
           };
         };
       };
-      /** @description Single-subscription business is retired */
+      /** @description 旧单订阅业务已停用 */
       410: {
         headers: {
           [name: string]: unknown;
@@ -16508,7 +16507,7 @@ export interface operations {
     };
     requestBody?: never;
     responses: {
-      /** @description JSON response */
+      /** @description JSON 响应 */
       200: {
         headers: {
           [name: string]: unknown;
@@ -16531,7 +16530,7 @@ export interface operations {
     };
     requestBody?: never;
     responses: {
-      /** @description JSON response */
+      /** @description JSON 响应 */
       200: {
         headers: {
           [name: string]: unknown;
@@ -16558,7 +16557,7 @@ export interface operations {
       };
     };
     responses: {
-      /** @description JSON response */
+      /** @description JSON 响应 */
       200: {
         headers: {
           [name: string]: unknown;
@@ -16581,7 +16580,7 @@ export interface operations {
     };
     requestBody?: never;
     responses: {
-      /** @description JSON response */
+      /** @description JSON 响应 */
       200: {
         headers: {
           [name: string]: unknown;
@@ -16604,7 +16603,7 @@ export interface operations {
     };
     requestBody?: never;
     responses: {
-      /** @description JSON response */
+      /** @description JSON 响应 */
       200: {
         headers: {
           [name: string]: unknown;
@@ -16629,7 +16628,7 @@ export interface operations {
     };
     requestBody?: never;
     responses: {
-      /** @description Response */
+      /** @description 响应 */
       200: {
         headers: {
           [name: string]: unknown;
@@ -16649,7 +16648,7 @@ export interface operations {
     };
     requestBody?: never;
     responses: {
-      /** @description JSON response */
+      /** @description JSON 响应 */
       200: {
         headers: {
           [name: string]: unknown;
@@ -16672,7 +16671,7 @@ export interface operations {
     };
     requestBody?: never;
     responses: {
-      /** @description JSON response */
+      /** @description JSON 响应 */
       200: {
         headers: {
           [name: string]: unknown;
@@ -16696,7 +16695,7 @@ export interface operations {
     };
     requestBody?: never;
     responses: {
-      /** @description JSON response */
+      /** @description JSON 响应 */
       200: {
         headers: {
           [name: string]: unknown;
@@ -16721,7 +16720,7 @@ export interface operations {
     };
     requestBody?: never;
     responses: {
-      /** @description JSON response */
+      /** @description JSON 响应 */
       200: {
         headers: {
           [name: string]: unknown;
@@ -16751,7 +16750,7 @@ export interface operations {
       };
     };
     responses: {
-      /** @description Historical response (not served) */
+      /** @description 历史响应（不再提供） */
       200: {
         headers: {
           [name: string]: unknown;
@@ -16763,7 +16762,7 @@ export interface operations {
           };
         };
       };
-      /** @description Single-subscription business is retired */
+      /** @description 旧单订阅业务已停用 */
       410: {
         headers: {
           [name: string]: unknown;
@@ -16794,7 +16793,7 @@ export interface operations {
       };
     };
     responses: {
-      /** @description Historical response (not served) */
+      /** @description 历史响应（不再提供） */
       200: {
         headers: {
           [name: string]: unknown;
@@ -16807,7 +16806,7 @@ export interface operations {
           };
         };
       };
-      /** @description Single-subscription business is retired */
+      /** @description 旧单订阅业务已停用 */
       410: {
         headers: {
           [name: string]: unknown;
@@ -16834,7 +16833,7 @@ export interface operations {
     };
     requestBody?: never;
     responses: {
-      /** @description Historical response (not served) */
+      /** @description 历史响应（不再提供） */
       200: {
         headers: {
           [name: string]: unknown;
@@ -16847,7 +16846,7 @@ export interface operations {
           };
         };
       };
-      /** @description Single-subscription business is retired */
+      /** @description 旧单订阅业务已停用 */
       410: {
         headers: {
           [name: string]: unknown;
@@ -16872,7 +16871,7 @@ export interface operations {
     };
     requestBody?: never;
     responses: {
-      /** @description JSON response */
+      /** @description JSON 响应 */
       200: {
         headers: {
           [name: string]: unknown;
@@ -16897,7 +16896,7 @@ export interface operations {
     };
     requestBody?: never;
     responses: {
-      /** @description JSON response */
+      /** @description JSON 响应 */
       200: {
         headers: {
           [name: string]: unknown;
@@ -16927,7 +16926,7 @@ export interface operations {
       };
     };
     responses: {
-      /** @description Historical response (not served) */
+      /** @description 历史响应（不再提供） */
       200: {
         headers: {
           [name: string]: unknown;
@@ -16940,7 +16939,7 @@ export interface operations {
           };
         };
       };
-      /** @description Single-subscription business is retired */
+      /** @description 旧单订阅业务已停用 */
       410: {
         headers: {
           [name: string]: unknown;
@@ -16971,7 +16970,7 @@ export interface operations {
       };
     };
     responses: {
-      /** @description Historical response (not served) */
+      /** @description 历史响应（不再提供） */
       200: {
         headers: {
           [name: string]: unknown;
@@ -16984,7 +16983,7 @@ export interface operations {
           };
         };
       };
-      /** @description Single-subscription business is retired */
+      /** @description 旧单订阅业务已停用 */
       410: {
         headers: {
           [name: string]: unknown;
@@ -17015,7 +17014,7 @@ export interface operations {
       };
     };
     responses: {
-      /** @description Historical response (not served) */
+      /** @description 历史响应（不再提供） */
       200: {
         headers: {
           [name: string]: unknown;
@@ -17028,7 +17027,7 @@ export interface operations {
           };
         };
       };
-      /** @description Single-subscription business is retired */
+      /** @description 旧单订阅业务已停用 */
       410: {
         headers: {
           [name: string]: unknown;
@@ -17059,7 +17058,7 @@ export interface operations {
       };
     };
     responses: {
-      /** @description Historical response (not served) */
+      /** @description 历史响应（不再提供） */
       200: {
         headers: {
           [name: string]: unknown;
@@ -17072,7 +17071,7 @@ export interface operations {
           };
         };
       };
-      /** @description Single-subscription business is retired */
+      /** @description 旧单订阅业务已停用 */
       410: {
         headers: {
           [name: string]: unknown;
@@ -17099,7 +17098,7 @@ export interface operations {
     };
     requestBody?: never;
     responses: {
-      /** @description Historical response (not served) */
+      /** @description 历史响应（不再提供） */
       200: {
         headers: {
           [name: string]: unknown;
@@ -17112,7 +17111,7 @@ export interface operations {
           };
         };
       };
-      /** @description Single-subscription business is retired */
+      /** @description 旧单订阅业务已停用 */
       410: {
         headers: {
           [name: string]: unknown;
@@ -17137,7 +17136,7 @@ export interface operations {
     };
     requestBody?: never;
     responses: {
-      /** @description JSON response */
+      /** @description JSON 响应 */
       200: {
         headers: {
           [name: string]: unknown;
@@ -17164,7 +17163,7 @@ export interface operations {
       };
     };
     responses: {
-      /** @description Historical response (not served) */
+      /** @description 历史响应（不再提供） */
       200: {
         headers: {
           [name: string]: unknown;
@@ -17177,7 +17176,7 @@ export interface operations {
           };
         };
       };
-      /** @description Single-subscription business is retired */
+      /** @description 旧单订阅业务已停用 */
       410: {
         headers: {
           [name: string]: unknown;
@@ -17202,7 +17201,7 @@ export interface operations {
     };
     requestBody?: never;
     responses: {
-      /** @description JSON response */
+      /** @description JSON 响应 */
       200: {
         headers: {
           [name: string]: unknown;
@@ -17225,7 +17224,7 @@ export interface operations {
     };
     requestBody?: never;
     responses: {
-      /** @description JSON response */
+      /** @description JSON 响应 */
       200: {
         headers: {
           [name: string]: unknown;
@@ -17248,7 +17247,7 @@ export interface operations {
     };
     requestBody?: never;
     responses: {
-      /** @description JSON response */
+      /** @description JSON 响应 */
       200: {
         headers: {
           [name: string]: unknown;
@@ -17276,7 +17275,7 @@ export interface operations {
       };
     };
     responses: {
-      /** @description Historical response (not served) */
+      /** @description 历史响应（不再提供） */
       200: {
         headers: {
           [name: string]: unknown;
@@ -17289,7 +17288,7 @@ export interface operations {
           };
         };
       };
-      /** @description Single-subscription business is retired */
+      /** @description 旧单订阅业务已停用 */
       410: {
         headers: {
           [name: string]: unknown;
@@ -17316,7 +17315,7 @@ export interface operations {
     };
     requestBody?: never;
     responses: {
-      /** @description JSON response */
+      /** @description JSON 响应 */
       200: {
         headers: {
           [name: string]: unknown;
@@ -17345,7 +17344,7 @@ export interface operations {
       };
     };
     responses: {
-      /** @description Historical response (not served) */
+      /** @description 历史响应（不再提供） */
       200: {
         headers: {
           [name: string]: unknown;
@@ -17357,7 +17356,7 @@ export interface operations {
           };
         };
       };
-      /** @description Single-subscription business is retired */
+      /** @description 旧单订阅业务已停用 */
       410: {
         headers: {
           [name: string]: unknown;
@@ -17388,7 +17387,7 @@ export interface operations {
       };
     };
     responses: {
-      /** @description Historical response (not served) */
+      /** @description 历史响应（不再提供） */
       200: {
         headers: {
           [name: string]: unknown;
@@ -17401,7 +17400,7 @@ export interface operations {
           };
         };
       };
-      /** @description Single-subscription business is retired */
+      /** @description 旧单订阅业务已停用 */
       410: {
         headers: {
           [name: string]: unknown;
@@ -17432,7 +17431,7 @@ export interface operations {
       };
     };
     responses: {
-      /** @description Historical response (not served) */
+      /** @description 历史响应（不再提供） */
       200: {
         headers: {
           [name: string]: unknown;
@@ -17445,7 +17444,7 @@ export interface operations {
           };
         };
       };
-      /** @description Single-subscription business is retired */
+      /** @description 旧单订阅业务已停用 */
       410: {
         headers: {
           [name: string]: unknown;
@@ -17472,7 +17471,7 @@ export interface operations {
     };
     requestBody?: never;
     responses: {
-      /** @description Historical response (not served) */
+      /** @description 历史响应（不再提供） */
       200: {
         headers: {
           [name: string]: unknown;
@@ -17485,7 +17484,7 @@ export interface operations {
           };
         };
       };
-      /** @description Single-subscription business is retired */
+      /** @description 旧单订阅业务已停用 */
       410: {
         headers: {
           [name: string]: unknown;
@@ -17516,7 +17515,7 @@ export interface operations {
       };
     };
     responses: {
-      /** @description Historical response (not served) */
+      /** @description 历史响应（不再提供） */
       200: {
         headers: {
           [name: string]: unknown;
@@ -17529,7 +17528,7 @@ export interface operations {
           };
         };
       };
-      /** @description Single-subscription business is retired */
+      /** @description 旧单订阅业务已停用 */
       410: {
         headers: {
           [name: string]: unknown;
@@ -17556,7 +17555,7 @@ export interface operations {
     };
     requestBody?: never;
     responses: {
-      /** @description JSON response */
+      /** @description JSON 响应 */
       200: {
         headers: {
           [name: string]: unknown;
@@ -17586,7 +17585,7 @@ export interface operations {
       };
     };
     responses: {
-      /** @description Historical response (not served) */
+      /** @description 历史响应（不再提供） */
       200: {
         headers: {
           [name: string]: unknown;
@@ -17599,7 +17598,7 @@ export interface operations {
           };
         };
       };
-      /** @description Single-subscription business is retired */
+      /** @description 旧单订阅业务已停用 */
       410: {
         headers: {
           [name: string]: unknown;
@@ -17630,7 +17629,7 @@ export interface operations {
       };
     };
     responses: {
-      /** @description Historical response (not served) */
+      /** @description 历史响应（不再提供） */
       200: {
         headers: {
           [name: string]: unknown;
@@ -17643,7 +17642,7 @@ export interface operations {
           };
         };
       };
-      /** @description Single-subscription business is retired */
+      /** @description 旧单订阅业务已停用 */
       410: {
         headers: {
           [name: string]: unknown;
@@ -17668,7 +17667,7 @@ export interface operations {
     };
     requestBody?: never;
     responses: {
-      /** @description JSON response */
+      /** @description JSON 响应 */
       200: {
         headers: {
           [name: string]: unknown;
@@ -17691,7 +17690,7 @@ export interface operations {
     };
     requestBody?: never;
     responses: {
-      /** @description Response */
+      /** @description 响应 */
       200: {
         headers: {
           [name: string]: unknown;
@@ -17713,7 +17712,7 @@ export interface operations {
     };
     requestBody?: never;
     responses: {
-      /** @description JSON response */
+      /** @description JSON 响应 */
       200: {
         headers: {
           [name: string]: unknown;
@@ -17743,7 +17742,7 @@ export interface operations {
       };
     };
     responses: {
-      /** @description Historical response (not served) */
+      /** @description 历史响应（不再提供） */
       200: {
         headers: {
           [name: string]: unknown;
@@ -17756,7 +17755,7 @@ export interface operations {
           };
         };
       };
-      /** @description Single-subscription business is retired */
+      /** @description 旧单订阅业务已停用 */
       410: {
         headers: {
           [name: string]: unknown;
@@ -17787,7 +17786,7 @@ export interface operations {
       };
     };
     responses: {
-      /** @description Historical response (not served) */
+      /** @description 历史响应（不再提供） */
       200: {
         headers: {
           [name: string]: unknown;
@@ -17800,7 +17799,7 @@ export interface operations {
           };
         };
       };
-      /** @description Single-subscription business is retired */
+      /** @description 旧单订阅业务已停用 */
       410: {
         headers: {
           [name: string]: unknown;
@@ -17825,7 +17824,7 @@ export interface operations {
     };
     requestBody?: never;
     responses: {
-      /** @description JSON response */
+      /** @description JSON 响应 */
       200: {
         headers: {
           [name: string]: unknown;
@@ -17867,7 +17866,7 @@ export interface operations {
     };
     requestBody?: never;
     responses: {
-      /** @description Response */
+      /** @description 响应 */
       200: {
         headers: {
           [name: string]: unknown;
@@ -17893,7 +17892,7 @@ export interface operations {
       };
     };
     responses: {
-      /** @description JSON response */
+      /** @description JSON 响应 */
       200: {
         headers: {
           [name: string]: unknown;
@@ -17924,7 +17923,7 @@ export interface operations {
       };
     };
     responses: {
-      /** @description JSON response */
+      /** @description JSON 响应 */
       200: {
         headers: {
           [name: string]: unknown;
@@ -17961,7 +17960,7 @@ export interface operations {
       };
     };
     responses: {
-      /** @description JSON response */
+      /** @description JSON 响应 */
       200: {
         headers: {
           [name: string]: unknown;
@@ -18002,7 +18001,7 @@ export interface operations {
       };
     };
     responses: {
-      /** @description JSON response */
+      /** @description JSON 响应 */
       200: {
         headers: {
           [name: string]: unknown;
@@ -18035,7 +18034,7 @@ export interface operations {
     };
     requestBody?: never;
     responses: {
-      /** @description JSON response */
+      /** @description JSON 响应 */
       200: {
         headers: {
           [name: string]: unknown;
@@ -18069,7 +18068,7 @@ export interface operations {
       };
     };
     responses: {
-      /** @description JSON response */
+      /** @description JSON 响应 */
       200: {
         headers: {
           [name: string]: unknown;
@@ -18105,7 +18104,7 @@ export interface operations {
       };
     };
     responses: {
-      /** @description JSON response */
+      /** @description JSON 响应 */
       200: {
         headers: {
           [name: string]: unknown;
@@ -18129,7 +18128,7 @@ export interface operations {
     };
     requestBody?: never;
     responses: {
-      /** @description JSON response */
+      /** @description JSON 响应 */
       200: {
         headers: {
           [name: string]: unknown;
@@ -18163,7 +18162,7 @@ export interface operations {
       };
     };
     responses: {
-      /** @description JSON response */
+      /** @description JSON 响应 */
       200: {
         headers: {
           [name: string]: unknown;
@@ -18195,7 +18194,7 @@ export interface operations {
       };
     };
     responses: {
-      /** @description JSON response */
+      /** @description JSON 响应 */
       200: {
         headers: {
           [name: string]: unknown;
@@ -18219,7 +18218,7 @@ export interface operations {
     };
     requestBody?: never;
     responses: {
-      /** @description JSON response */
+      /** @description JSON 响应 */
       200: {
         headers: {
           [name: string]: unknown;
@@ -18251,7 +18250,7 @@ export interface operations {
       };
     };
     responses: {
-      /** @description Historical response (not served) */
+      /** @description 历史响应（不再提供） */
       200: {
         headers: {
           [name: string]: unknown;
@@ -18264,7 +18263,7 @@ export interface operations {
           };
         };
       };
-      /** @description Single-subscription business is retired */
+      /** @description 旧单订阅业务已停用 */
       410: {
         headers: {
           [name: string]: unknown;
@@ -18289,7 +18288,7 @@ export interface operations {
     };
     requestBody?: never;
     responses: {
-      /** @description JSON response */
+      /** @description JSON 响应 */
       200: {
         headers: {
           [name: string]: unknown;
@@ -18315,7 +18314,7 @@ export interface operations {
     };
     requestBody?: never;
     responses: {
-      /** @description JSON response */
+      /** @description JSON 响应 */
       200: {
         headers: {
           [name: string]: unknown;
@@ -18341,7 +18340,7 @@ export interface operations {
     };
     requestBody?: never;
     responses: {
-      /** @description Historical response (not served) */
+      /** @description 历史响应（不再提供） */
       200: {
         headers: {
           [name: string]: unknown;
@@ -18353,7 +18352,7 @@ export interface operations {
           };
         };
       };
-      /** @description Single-subscription business is retired */
+      /** @description 旧单订阅业务已停用 */
       410: {
         headers: {
           [name: string]: unknown;
@@ -18384,7 +18383,7 @@ export interface operations {
       };
     };
     responses: {
-      /** @description Historical response (not served) */
+      /** @description 历史响应（不再提供） */
       200: {
         headers: {
           [name: string]: unknown;
@@ -18397,7 +18396,7 @@ export interface operations {
           };
         };
       };
-      /** @description Single-subscription business is retired */
+      /** @description 旧单订阅业务已停用 */
       410: {
         headers: {
           [name: string]: unknown;
@@ -18424,7 +18423,7 @@ export interface operations {
     };
     requestBody?: never;
     responses: {
-      /** @description JSON response */
+      /** @description JSON 响应 */
       200: {
         headers: {
           [name: string]: unknown;
@@ -18452,7 +18451,7 @@ export interface operations {
     };
     requestBody?: never;
     responses: {
-      /** @description JSON response */
+      /** @description JSON 响应 */
       200: {
         headers: {
           [name: string]: unknown;
@@ -18479,7 +18478,7 @@ export interface operations {
       };
     };
     responses: {
-      /** @description JSON response */
+      /** @description JSON 响应 */
       200: {
         headers: {
           [name: string]: unknown;
@@ -18502,7 +18501,7 @@ export interface operations {
     };
     requestBody?: never;
     responses: {
-      /** @description JSON response */
+      /** @description JSON 响应 */
       200: {
         headers: {
           [name: string]: unknown;
@@ -18528,7 +18527,7 @@ export interface operations {
     };
     requestBody?: never;
     responses: {
-      /** @description JSON response */
+      /** @description JSON 响应 */
       200: {
         headers: {
           [name: string]: unknown;
@@ -18551,7 +18550,7 @@ export interface operations {
     };
     requestBody?: never;
     responses: {
-      /** @description JSON response */
+      /** @description JSON 响应 */
       200: {
         headers: {
           [name: string]: unknown;
@@ -18576,7 +18575,7 @@ export interface operations {
     };
     requestBody?: never;
     responses: {
-      /** @description JSON response */
+      /** @description JSON 响应 */
       200: {
         headers: {
           [name: string]: unknown;
@@ -18605,7 +18604,7 @@ export interface operations {
       };
     };
     responses: {
-      /** @description JSON response */
+      /** @description JSON 响应 */
       200: {
         headers: {
           [name: string]: unknown;
@@ -18635,7 +18634,7 @@ export interface operations {
       };
     };
     responses: {
-      /** @description JSON response */
+      /** @description JSON 响应 */
       200: {
         headers: {
           [name: string]: unknown;
@@ -18659,7 +18658,7 @@ export interface operations {
     };
     requestBody?: never;
     responses: {
-      /** @description JSON response */
+      /** @description JSON 响应 */
       200: {
         headers: {
           [name: string]: unknown;
@@ -18688,7 +18687,7 @@ export interface operations {
       };
     };
     responses: {
-      /** @description JSON response */
+      /** @description JSON 响应 */
       200: {
         headers: {
           [name: string]: unknown;
@@ -18720,7 +18719,7 @@ export interface operations {
       };
     };
     responses: {
-      /** @description JSON response */
+      /** @description JSON 响应 */
       200: {
         headers: {
           [name: string]: unknown;
@@ -18752,7 +18751,7 @@ export interface operations {
       };
     };
     responses: {
-      /** @description JSON response */
+      /** @description JSON 响应 */
       200: {
         headers: {
           [name: string]: unknown;
@@ -18784,7 +18783,7 @@ export interface operations {
       };
     };
     responses: {
-      /** @description JSON response */
+      /** @description JSON 响应 */
       200: {
         headers: {
           [name: string]: unknown;
@@ -18810,7 +18809,7 @@ export interface operations {
     };
     requestBody?: never;
     responses: {
-      /** @description JSON response */
+      /** @description JSON 响应 */
       200: {
         headers: {
           [name: string]: unknown;
@@ -18837,7 +18836,7 @@ export interface operations {
       };
     };
     responses: {
-      /** @description JSON response */
+      /** @description JSON 响应 */
       200: {
         headers: {
           [name: string]: unknown;
@@ -18863,7 +18862,7 @@ export interface operations {
     };
     requestBody?: never;
     responses: {
-      /** @description JSON response */
+      /** @description JSON 响应 */
       200: {
         headers: {
           [name: string]: unknown;
@@ -18886,7 +18885,7 @@ export interface operations {
     };
     requestBody?: never;
     responses: {
-      /** @description JSON response */
+      /** @description JSON 响应 */
       200: {
         headers: {
           [name: string]: unknown;
@@ -18910,7 +18909,7 @@ export interface operations {
     };
     requestBody?: never;
     responses: {
-      /** @description JSON response */
+      /** @description JSON 响应 */
       200: {
         headers: {
           [name: string]: unknown;
@@ -18936,7 +18935,7 @@ export interface operations {
     };
     requestBody?: never;
     responses: {
-      /** @description JSON response */
+      /** @description JSON 响应 */
       200: {
         headers: {
           [name: string]: unknown;
@@ -18971,7 +18970,7 @@ export interface operations {
       };
     };
     responses: {
-      /** @description JSON response */
+      /** @description JSON 响应 */
       200: {
         headers: {
           [name: string]: unknown;
@@ -19005,7 +19004,7 @@ export interface operations {
       };
     };
     responses: {
-      /** @description JSON response */
+      /** @description JSON 响应 */
       200: {
         headers: {
           [name: string]: unknown;
@@ -19032,7 +19031,7 @@ export interface operations {
     };
     requestBody?: never;
     responses: {
-      /** @description JSON response */
+      /** @description JSON 响应 */
       200: {
         headers: {
           [name: string]: unknown;
@@ -19061,7 +19060,7 @@ export interface operations {
       };
     };
     responses: {
-      /** @description JSON response */
+      /** @description JSON 响应 */
       200: {
         headers: {
           [name: string]: unknown;
@@ -19084,7 +19083,7 @@ export interface operations {
     };
     requestBody?: never;
     responses: {
-      /** @description Historical response (not served) */
+      /** @description 历史响应（不再提供） */
       200: {
         headers: {
           [name: string]: unknown;
@@ -19096,7 +19095,7 @@ export interface operations {
           } & components["schemas"]["AdminSyncOut"];
         };
       };
-      /** @description Single-subscription business is retired */
+      /** @description 旧单订阅业务已停用 */
       410: {
         headers: {
           [name: string]: unknown;
@@ -19121,7 +19120,7 @@ export interface operations {
     };
     requestBody?: never;
     responses: {
-      /** @description JSON response */
+      /** @description JSON 响应 */
       200: {
         headers: {
           [name: string]: unknown;
@@ -19148,7 +19147,7 @@ export interface operations {
       };
     };
     responses: {
-      /** @description Historical response (not served) */
+      /** @description 历史响应（不再提供） */
       200: {
         headers: {
           [name: string]: unknown;
@@ -19160,7 +19159,7 @@ export interface operations {
           } & components["schemas"]["AdminTariffsOut"];
         };
       };
-      /** @description Single-subscription business is retired */
+      /** @description 旧单订阅业务已停用 */
       410: {
         headers: {
           [name: string]: unknown;
@@ -19185,7 +19184,7 @@ export interface operations {
     };
     requestBody?: never;
     responses: {
-      /** @description JSON response */
+      /** @description JSON 响应 */
       200: {
         headers: {
           [name: string]: unknown;
@@ -19212,7 +19211,7 @@ export interface operations {
       };
     };
     responses: {
-      /** @description Historical response (not served) */
+      /** @description 历史响应（不再提供） */
       200: {
         headers: {
           [name: string]: unknown;
@@ -19224,7 +19223,7 @@ export interface operations {
           } & components["schemas"]["AdminTariffReconciliationOut"];
         };
       };
-      /** @description Single-subscription business is retired */
+      /** @description 旧单订阅业务已停用 */
       410: {
         headers: {
           [name: string]: unknown;
@@ -19249,7 +19248,7 @@ export interface operations {
     };
     requestBody?: never;
     responses: {
-      /** @description JSON response */
+      /** @description JSON 响应 */
       200: {
         headers: {
           [name: string]: unknown;
@@ -19274,7 +19273,7 @@ export interface operations {
     };
     requestBody?: never;
     responses: {
-      /** @description JSON response */
+      /** @description JSON 响应 */
       200: {
         headers: {
           [name: string]: unknown;
@@ -19297,7 +19296,7 @@ export interface operations {
     };
     requestBody?: never;
     responses: {
-      /** @description JSON response */
+      /** @description JSON 响应 */
       200: {
         headers: {
           [name: string]: unknown;
@@ -19324,7 +19323,7 @@ export interface operations {
       };
     };
     responses: {
-      /** @description JSON response */
+      /** @description JSON 响应 */
       200: {
         headers: {
           [name: string]: unknown;
@@ -19351,7 +19350,7 @@ export interface operations {
       };
     };
     responses: {
-      /** @description JSON response */
+      /** @description JSON 响应 */
       200: {
         headers: {
           [name: string]: unknown;
@@ -19378,7 +19377,7 @@ export interface operations {
       };
     };
     responses: {
-      /** @description JSON response */
+      /** @description JSON 响应 */
       200: {
         headers: {
           [name: string]: unknown;
@@ -19403,7 +19402,7 @@ export interface operations {
     };
     requestBody?: never;
     responses: {
-      /** @description Response */
+      /** @description 响应 */
       200: {
         headers: {
           [name: string]: unknown;
@@ -19423,7 +19422,7 @@ export interface operations {
     };
     requestBody?: never;
     responses: {
-      /** @description JSON response */
+      /** @description JSON 响应 */
       200: {
         headers: {
           [name: string]: unknown;
@@ -19446,7 +19445,7 @@ export interface operations {
     };
     requestBody?: never;
     responses: {
-      /** @description JSON response */
+      /** @description JSON 响应 */
       200: {
         headers: {
           [name: string]: unknown;
@@ -19473,7 +19472,7 @@ export interface operations {
       };
     };
     responses: {
-      /** @description JSON response */
+      /** @description JSON 响应 */
       200: {
         headers: {
           [name: string]: unknown;
@@ -19500,7 +19499,7 @@ export interface operations {
       };
     };
     responses: {
-      /** @description JSON response */
+      /** @description JSON 响应 */
       200: {
         headers: {
           [name: string]: unknown;
@@ -19527,7 +19526,7 @@ export interface operations {
       };
     };
     responses: {
-      /** @description JSON response */
+      /** @description JSON 响应 */
       200: {
         headers: {
           [name: string]: unknown;
@@ -19550,7 +19549,7 @@ export interface operations {
     };
     requestBody?: never;
     responses: {
-      /** @description JSON response */
+      /** @description JSON 响应 */
       200: {
         headers: {
           [name: string]: unknown;
@@ -19577,7 +19576,7 @@ export interface operations {
       };
     };
     responses: {
-      /** @description JSON response */
+      /** @description JSON 响应 */
       200: {
         headers: {
           [name: string]: unknown;
@@ -19604,7 +19603,7 @@ export interface operations {
       };
     };
     responses: {
-      /** @description Response */
+      /** @description 响应 */
       200: {
         headers: {
           [name: string]: unknown;
@@ -19632,7 +19631,7 @@ export interface operations {
       };
     };
     responses: {
-      /** @description JSON response */
+      /** @description JSON 响应 */
       200: {
         headers: {
           [name: string]: unknown;
@@ -19657,7 +19656,7 @@ export interface operations {
     };
     requestBody?: never;
     responses: {
-      /** @description JSON response */
+      /** @description JSON 响应 */
       200: {
         headers: {
           [name: string]: unknown;
@@ -19682,7 +19681,7 @@ export interface operations {
     };
     requestBody?: never;
     responses: {
-      /** @description JSON response */
+      /** @description JSON 响应 */
       200: {
         headers: {
           [name: string]: unknown;
@@ -19708,7 +19707,7 @@ export interface operations {
     };
     requestBody?: never;
     responses: {
-      /** @description Response */
+      /** @description 响应 */
       200: {
         headers: {
           [name: string]: unknown;
@@ -19734,7 +19733,7 @@ export interface operations {
       };
     };
     responses: {
-      /** @description JSON response */
+      /** @description JSON 响应 */
       200: {
         headers: {
           [name: string]: unknown;
@@ -19760,7 +19759,7 @@ export interface operations {
     };
     requestBody?: never;
     responses: {
-      /** @description Response */
+      /** @description 响应 */
       200: {
         headers: {
           [name: string]: unknown;
@@ -19780,7 +19779,7 @@ export interface operations {
     };
     requestBody?: never;
     responses: {
-      /** @description JSON response */
+      /** @description JSON 响应 */
       200: {
         headers: {
           [name: string]: unknown;
@@ -19809,7 +19808,7 @@ export interface operations {
       };
     };
     responses: {
-      /** @description JSON response */
+      /** @description JSON 响应 */
       200: {
         headers: {
           [name: string]: unknown;
@@ -19838,7 +19837,7 @@ export interface operations {
       };
     };
     responses: {
-      /** @description JSON response */
+      /** @description JSON 响应 */
       200: {
         headers: {
           [name: string]: unknown;
@@ -19863,7 +19862,7 @@ export interface operations {
     };
     requestBody?: never;
     responses: {
-      /** @description Response */
+      /** @description 响应 */
       200: {
         headers: {
           [name: string]: unknown;
@@ -19885,7 +19884,7 @@ export interface operations {
     };
     requestBody?: never;
     responses: {
-      /** @description Response */
+      /** @description 响应 */
       200: {
         headers: {
           [name: string]: unknown;
@@ -19914,7 +19913,7 @@ export interface operations {
       };
     };
     responses: {
-      /** @description JSON response */
+      /** @description JSON 响应 */
       200: {
         headers: {
           [name: string]: unknown;
@@ -19943,7 +19942,7 @@ export interface operations {
       };
     };
     responses: {
-      /** @description JSON response */
+      /** @description JSON 响应 */
       200: {
         headers: {
           [name: string]: unknown;
@@ -19966,7 +19965,7 @@ export interface operations {
     };
     requestBody?: never;
     responses: {
-      /** @description JSON response */
+      /** @description JSON 响应 */
       200: {
         headers: {
           [name: string]: unknown;
@@ -19993,7 +19992,7 @@ export interface operations {
       };
     };
     responses: {
-      /** @description JSON response */
+      /** @description JSON 响应 */
       200: {
         headers: {
           [name: string]: unknown;
@@ -20019,7 +20018,7 @@ export interface operations {
     };
     requestBody?: never;
     responses: {
-      /** @description JSON response */
+      /** @description JSON 响应 */
       200: {
         headers: {
           [name: string]: unknown;
@@ -20065,7 +20064,7 @@ export interface operations {
     };
     requestBody?: never;
     responses: {
-      /** @description JSON response */
+      /** @description JSON 响应 */
       200: {
         headers: {
           [name: string]: unknown;
@@ -20156,7 +20155,7 @@ export interface operations {
     };
     requestBody?: never;
     responses: {
-      /** @description JSON response */
+      /** @description JSON 响应 */
       200: {
         headers: {
           [name: string]: unknown;
@@ -20181,7 +20180,7 @@ export interface operations {
     };
     requestBody?: never;
     responses: {
-      /** @description JSON response */
+      /** @description JSON 响应 */
       200: {
         headers: {
           [name: string]: unknown;
@@ -20207,7 +20206,7 @@ export interface operations {
     };
     requestBody?: never;
     responses: {
-      /** @description JSON response */
+      /** @description JSON 响应 */
       200: {
         headers: {
           [name: string]: unknown;
@@ -20233,7 +20232,7 @@ export interface operations {
     };
     requestBody?: never;
     responses: {
-      /** @description Response */
+      /** @description 响应 */
       200: {
         headers: {
           [name: string]: unknown;
@@ -20259,7 +20258,7 @@ export interface operations {
       };
     };
     responses: {
-      /** @description Historical response (not served) */
+      /** @description 历史响应（不再提供） */
       200: {
         headers: {
           [name: string]: unknown;
@@ -20306,7 +20305,7 @@ export interface operations {
           };
         };
       };
-      /** @description Single-subscription business is retired */
+      /** @description 旧单订阅业务已停用 */
       410: {
         headers: {
           [name: string]: unknown;
@@ -20337,7 +20336,7 @@ export interface operations {
       };
     };
     responses: {
-      /** @description Historical response (not served) */
+      /** @description 历史响应（不再提供） */
       200: {
         headers: {
           [name: string]: unknown;
@@ -20384,7 +20383,7 @@ export interface operations {
           };
         };
       };
-      /** @description Single-subscription business is retired */
+      /** @description 旧单订阅业务已停用 */
       410: {
         headers: {
           [name: string]: unknown;
@@ -20415,7 +20414,7 @@ export interface operations {
       };
     };
     responses: {
-      /** @description JSON response */
+      /** @description JSON 响应 */
       200: {
         headers: {
           [name: string]: unknown;
@@ -20446,7 +20445,7 @@ export interface operations {
       };
     };
     responses: {
-      /** @description Historical response (not served) */
+      /** @description 历史响应（不再提供） */
       200: {
         headers: {
           [name: string]: unknown;
@@ -20459,7 +20458,7 @@ export interface operations {
           };
         };
       };
-      /** @description Single-subscription business is retired */
+      /** @description 旧单订阅业务已停用 */
       410: {
         headers: {
           [name: string]: unknown;
@@ -20490,7 +20489,7 @@ export interface operations {
       };
     };
     responses: {
-      /** @description Historical response (not served) */
+      /** @description 历史响应（不再提供） */
       200: {
         headers: {
           [name: string]: unknown;
@@ -20503,7 +20502,7 @@ export interface operations {
           };
         };
       };
-      /** @description Single-subscription business is retired */
+      /** @description 旧单订阅业务已停用 */
       410: {
         headers: {
           [name: string]: unknown;
@@ -20534,7 +20533,7 @@ export interface operations {
       };
     };
     responses: {
-      /** @description JSON response */
+      /** @description JSON 响应 */
       200: {
         headers: {
           [name: string]: unknown;
@@ -20559,7 +20558,7 @@ export interface operations {
     };
     requestBody?: never;
     responses: {
-      /** @description JSON response */
+      /** @description JSON 响应 */
       200: {
         headers: {
           [name: string]: unknown;
@@ -20588,7 +20587,7 @@ export interface operations {
       };
     };
     responses: {
-      /** @description JSON response */
+      /** @description JSON 响应 */
       200: {
         headers: {
           [name: string]: unknown;
@@ -20617,7 +20616,7 @@ export interface operations {
       };
     };
     responses: {
-      /** @description JSON response */
+      /** @description JSON 响应 */
       200: {
         headers: {
           [name: string]: unknown;
@@ -20646,7 +20645,7 @@ export interface operations {
       };
     };
     responses: {
-      /** @description JSON response */
+      /** @description JSON 响应 */
       200: {
         headers: {
           [name: string]: unknown;
@@ -20676,7 +20675,7 @@ export interface operations {
       };
     };
     responses: {
-      /** @description Historical response (not served) */
+      /** @description 历史响应（不再提供） */
       200: {
         headers: {
           [name: string]: unknown;
@@ -20689,7 +20688,7 @@ export interface operations {
           };
         };
       };
-      /** @description Single-subscription business is retired */
+      /** @description 旧单订阅业务已停用 */
       410: {
         headers: {
           [name: string]: unknown;
@@ -20716,7 +20715,7 @@ export interface operations {
     };
     requestBody?: never;
     responses: {
-      /** @description JSON response */
+      /** @description JSON 响应 */
       200: {
         headers: {
           [name: string]: unknown;
@@ -20751,7 +20750,7 @@ export interface operations {
       };
     };
     responses: {
-      /** @description Historical response (not served) */
+      /** @description 历史响应（不再提供） */
       200: {
         headers: {
           [name: string]: unknown;
@@ -20764,7 +20763,7 @@ export interface operations {
           };
         };
       };
-      /** @description Single-subscription business is retired */
+      /** @description 旧单订阅业务已停用 */
       410: {
         headers: {
           [name: string]: unknown;
@@ -20791,7 +20790,7 @@ export interface operations {
     };
     requestBody?: never;
     responses: {
-      /** @description Historical response (not served) */
+      /** @description 历史响应（不再提供） */
       200: {
         headers: {
           [name: string]: unknown;
@@ -20803,7 +20802,7 @@ export interface operations {
           };
         };
       };
-      /** @description Single-subscription business is retired */
+      /** @description 旧单订阅业务已停用 */
       410: {
         headers: {
           [name: string]: unknown;
@@ -20834,7 +20833,7 @@ export interface operations {
       };
     };
     responses: {
-      /** @description Historical response (not served) */
+      /** @description 历史响应（不再提供） */
       200: {
         headers: {
           [name: string]: unknown;
@@ -20847,7 +20846,7 @@ export interface operations {
           };
         };
       };
-      /** @description Single-subscription business is retired */
+      /** @description 旧单订阅业务已停用 */
       410: {
         headers: {
           [name: string]: unknown;
@@ -20874,7 +20873,7 @@ export interface operations {
     };
     requestBody?: never;
     responses: {
-      /** @description Historical response (not served) */
+      /** @description 历史响应（不再提供） */
       200: {
         headers: {
           [name: string]: unknown;
@@ -20887,7 +20886,7 @@ export interface operations {
           };
         };
       };
-      /** @description Single-subscription business is retired */
+      /** @description 旧单订阅业务已停用 */
       410: {
         headers: {
           [name: string]: unknown;
@@ -20914,7 +20913,7 @@ export interface operations {
     };
     requestBody?: never;
     responses: {
-      /** @description Historical response (not served) */
+      /** @description 历史响应（不再提供） */
       200: {
         headers: {
           [name: string]: unknown;
@@ -20927,7 +20926,7 @@ export interface operations {
           };
         };
       };
-      /** @description Single-subscription business is retired */
+      /** @description 旧单订阅业务已停用 */
       410: {
         headers: {
           [name: string]: unknown;
@@ -20958,7 +20957,7 @@ export interface operations {
       };
     };
     responses: {
-      /** @description Historical response (not served) */
+      /** @description 历史响应（不再提供） */
       200: {
         headers: {
           [name: string]: unknown;
@@ -20971,7 +20970,7 @@ export interface operations {
           };
         };
       };
-      /** @description Single-subscription business is retired */
+      /** @description 旧单订阅业务已停用 */
       410: {
         headers: {
           [name: string]: unknown;
@@ -20998,7 +20997,7 @@ export interface operations {
     };
     requestBody?: never;
     responses: {
-      /** @description JSON response */
+      /** @description JSON 响应 */
       200: {
         headers: {
           [name: string]: unknown;
@@ -21028,7 +21027,7 @@ export interface operations {
       };
     };
     responses: {
-      /** @description Historical response (not served) */
+      /** @description 历史响应（不再提供） */
       200: {
         headers: {
           [name: string]: unknown;
@@ -21046,7 +21045,7 @@ export interface operations {
           };
         };
       };
-      /** @description Single-subscription business is retired */
+      /** @description 旧单订阅业务已停用 */
       410: {
         headers: {
           [name: string]: unknown;
@@ -21077,7 +21076,7 @@ export interface operations {
       };
     };
     responses: {
-      /** @description Historical response (not served) */
+      /** @description 历史响应（不再提供） */
       200: {
         headers: {
           [name: string]: unknown;
@@ -21090,7 +21089,7 @@ export interface operations {
           };
         };
       };
-      /** @description Single-subscription business is retired */
+      /** @description 旧单订阅业务已停用 */
       410: {
         headers: {
           [name: string]: unknown;
@@ -21119,7 +21118,7 @@ export interface operations {
       };
     };
     responses: {
-      /** @description JSON response */
+      /** @description JSON 响应 */
       200: {
         headers: {
           [name: string]: unknown;
@@ -21142,7 +21141,7 @@ export interface operations {
     };
     requestBody?: never;
     responses: {
-      /** @description JSON response */
+      /** @description JSON 响应 */
       200: {
         headers: {
           [name: string]: unknown;
@@ -21169,7 +21168,7 @@ export interface operations {
       };
     };
     responses: {
-      /** @description JSON response */
+      /** @description JSON 响应 */
       200: {
         headers: {
           [name: string]: unknown;
@@ -21210,7 +21209,7 @@ export interface operations {
       };
     };
     responses: {
-      /** @description JSON response */
+      /** @description JSON 响应 */
       200: {
         headers: {
           [name: string]: unknown;
@@ -21251,7 +21250,7 @@ export interface operations {
       };
     };
     responses: {
-      /** @description JSON response */
+      /** @description JSON 响应 */
       200: {
         headers: {
           [name: string]: unknown;
@@ -21281,7 +21280,7 @@ export interface operations {
       };
     };
     responses: {
-      /** @description JSON response */
+      /** @description JSON 响应 */
       200: {
         headers: {
           [name: string]: unknown;
@@ -21318,7 +21317,7 @@ export interface operations {
     };
     requestBody?: never;
     responses: {
-      /** @description JSON response */
+      /** @description JSON 响应 */
       200: {
         headers: {
           [name: string]: unknown;
@@ -21341,7 +21340,7 @@ export interface operations {
     };
     requestBody?: never;
     responses: {
-      /** @description JSON response */
+      /** @description JSON 响应 */
       200: {
         headers: {
           [name: string]: unknown;
@@ -21368,7 +21367,7 @@ export interface operations {
     };
     requestBody?: never;
     responses: {
-      /** @description JSON response */
+      /** @description JSON 响应 */
       200: {
         headers: {
           [name: string]: unknown;
@@ -21398,7 +21397,7 @@ export interface operations {
       };
     };
     responses: {
-      /** @description JSON response */
+      /** @description JSON 响应 */
       200: {
         headers: {
           [name: string]: unknown;
@@ -21435,7 +21434,7 @@ export interface operations {
     };
     requestBody?: never;
     responses: {
-      /** @description JSON response */
+      /** @description JSON 响应 */
       200: {
         headers: {
           [name: string]: unknown;
@@ -21458,7 +21457,7 @@ export interface operations {
     };
     requestBody?: never;
     responses: {
-      /** @description JSON response */
+      /** @description JSON 响应 */
       200: {
         headers: {
           [name: string]: unknown;
@@ -21488,7 +21487,7 @@ export interface operations {
       };
     };
     responses: {
-      /** @description JSON response */
+      /** @description JSON 响应 */
       200: {
         headers: {
           [name: string]: unknown;
@@ -21529,7 +21528,7 @@ export interface operations {
       };
     };
     responses: {
-      /** @description JSON response */
+      /** @description JSON 响应 */
       200: {
         headers: {
           [name: string]: unknown;
@@ -21556,7 +21555,7 @@ export interface operations {
       };
     };
     responses: {
-      /** @description JSON response */
+      /** @description JSON 响应 */
       200: {
         headers: {
           [name: string]: unknown;
@@ -21586,7 +21585,7 @@ export interface operations {
     };
     requestBody?: never;
     responses: {
-      /** @description JSON response */
+      /** @description JSON 响应 */
       200: {
         headers: {
           [name: string]: unknown;
@@ -21613,7 +21612,7 @@ export interface operations {
     };
     requestBody?: never;
     responses: {
-      /** @description JSON response */
+      /** @description JSON 响应 */
       200: {
         headers: {
           [name: string]: unknown;
@@ -21638,7 +21637,7 @@ export interface operations {
     };
     requestBody?: never;
     responses: {
-      /** @description JSON response */
+      /** @description JSON 响应 */
       200: {
         headers: {
           [name: string]: unknown;
@@ -21668,7 +21667,7 @@ export interface operations {
       };
     };
     responses: {
-      /** @description JSON response */
+      /** @description JSON 响应 */
       200: {
         headers: {
           [name: string]: unknown;
@@ -21707,7 +21706,7 @@ export interface operations {
     };
     requestBody?: never;
     responses: {
-      /** @description JSON response */
+      /** @description JSON 响应 */
       200: {
         headers: {
           [name: string]: unknown;
@@ -21730,7 +21729,7 @@ export interface operations {
     };
     requestBody?: never;
     responses: {
-      /** @description Historical response (not served) */
+      /** @description 历史响应（不再提供） */
       200: {
         headers: {
           [name: string]: unknown;
@@ -21773,7 +21772,7 @@ export interface operations {
           };
         };
       };
-      /** @description Single-subscription business is retired */
+      /** @description 旧单订阅业务已停用 */
       410: {
         headers: {
           [name: string]: unknown;
@@ -21802,7 +21801,7 @@ export interface operations {
       };
     };
     responses: {
-      /** @description Historical response (not served) */
+      /** @description 历史响应（不再提供） */
       200: {
         headers: {
           [name: string]: unknown;
@@ -21814,7 +21813,7 @@ export interface operations {
             /** @constant */
             ok: true;
             paid?: boolean;
-            /** @description Provider-specific payment payload returned by the selected integration. */
+            /** @description 所选支付集成返回的渠道专用付款数据。 */
             payment?: {
               [key: string]: unknown;
             };
@@ -21824,7 +21823,7 @@ export interface operations {
           };
         };
       };
-      /** @description Single-subscription business is retired */
+      /** @description 旧单订阅业务已停用 */
       410: {
         headers: {
           [name: string]: unknown;
@@ -21849,7 +21848,7 @@ export interface operations {
     };
     requestBody?: never;
     responses: {
-      /** @description JSON response */
+      /** @description JSON 响应 */
       200: {
         headers: {
           [name: string]: unknown;
@@ -21872,7 +21871,7 @@ export interface operations {
     };
     requestBody?: never;
     responses: {
-      /** @description Historical response (not served) */
+      /** @description 历史响应（不再提供） */
       200: {
         headers: {
           [name: string]: unknown;
@@ -21890,7 +21889,7 @@ export interface operations {
           };
         };
       };
-      /** @description Single-subscription business is retired */
+      /** @description 旧单订阅业务已停用 */
       410: {
         headers: {
           [name: string]: unknown;
@@ -21919,7 +21918,7 @@ export interface operations {
       };
     };
     responses: {
-      /** @description Historical response (not served) */
+      /** @description 历史响应（不再提供） */
       200: {
         headers: {
           [name: string]: unknown;
@@ -21931,7 +21930,7 @@ export interface operations {
           };
         };
       };
-      /** @description Single-subscription business is retired */
+      /** @description 旧单订阅业务已停用 */
       410: {
         headers: {
           [name: string]: unknown;
@@ -21960,7 +21959,7 @@ export interface operations {
       };
     };
     responses: {
-      /** @description Historical response (not served) */
+      /** @description 历史响应（不再提供） */
       200: {
         headers: {
           [name: string]: unknown;
@@ -21973,7 +21972,7 @@ export interface operations {
           };
         };
       };
-      /** @description Single-subscription business is retired */
+      /** @description 旧单订阅业务已停用 */
       410: {
         headers: {
           [name: string]: unknown;
@@ -21998,7 +21997,7 @@ export interface operations {
     };
     requestBody?: never;
     responses: {
-      /** @description Historical response (not served) */
+      /** @description 历史响应（不再提供） */
       200: {
         headers: {
           [name: string]: unknown;
@@ -22106,7 +22105,7 @@ export interface operations {
           };
         };
       };
-      /** @description Single-subscription business is retired */
+      /** @description 旧单订阅业务已停用 */
       410: {
         headers: {
           [name: string]: unknown;
@@ -22131,7 +22130,7 @@ export interface operations {
     };
     requestBody?: never;
     responses: {
-      /** @description JSON response */
+      /** @description JSON 响应 */
       200: {
         headers: {
           [name: string]: unknown;
@@ -22156,7 +22155,7 @@ export interface operations {
     };
     requestBody?: never;
     responses: {
-      /** @description JSON response */
+      /** @description JSON 响应 */
       200: {
         headers: {
           [name: string]: unknown;
@@ -22183,7 +22182,7 @@ export interface operations {
     };
     requestBody?: never;
     responses: {
-      /** @description Response */
+      /** @description 响应 */
       200: {
         headers: {
           [name: string]: unknown;
@@ -22207,7 +22206,7 @@ export interface operations {
       };
     };
     responses: {
-      /** @description Historical response (not served) */
+      /** @description 历史响应（不再提供） */
       200: {
         headers: {
           [name: string]: unknown;
@@ -22219,7 +22218,7 @@ export interface operations {
           } & components["schemas"]["ExtensionCheckoutOut"];
         };
       };
-      /** @description Single-subscription business is retired */
+      /** @description 旧单订阅业务已停用 */
       410: {
         headers: {
           [name: string]: unknown;
@@ -22244,7 +22243,7 @@ export interface operations {
     };
     requestBody?: never;
     responses: {
-      /** @description Historical response (not served) */
+      /** @description 历史响应（不再提供） */
       200: {
         headers: {
           [name: string]: unknown;
@@ -22257,7 +22256,7 @@ export interface operations {
           };
         };
       };
-      /** @description Single-subscription business is retired */
+      /** @description 旧单订阅业务已停用 */
       410: {
         headers: {
           [name: string]: unknown;
@@ -22282,7 +22281,7 @@ export interface operations {
     };
     requestBody?: never;
     responses: {
-      /** @description Historical response (not served) */
+      /** @description 历史响应（不再提供） */
       200: {
         headers: {
           [name: string]: unknown;
@@ -22294,7 +22293,7 @@ export interface operations {
           } & components["schemas"]["ExtensionOrdersOut"];
         };
       };
-      /** @description Single-subscription business is retired */
+      /** @description 旧单订阅业务已停用 */
       410: {
         headers: {
           [name: string]: unknown;
@@ -22323,7 +22322,7 @@ export interface operations {
       };
     };
     responses: {
-      /** @description Historical response (not served) */
+      /** @description 历史响应（不再提供） */
       200: {
         headers: {
           [name: string]: unknown;
@@ -22336,7 +22335,7 @@ export interface operations {
           };
         };
       };
-      /** @description Single-subscription business is retired */
+      /** @description 旧单订阅业务已停用 */
       410: {
         headers: {
           [name: string]: unknown;
@@ -22361,7 +22360,7 @@ export interface operations {
     };
     requestBody?: never;
     responses: {
-      /** @description Historical response (not served) */
+      /** @description 历史响应（不再提供） */
       200: {
         headers: {
           [name: string]: unknown;
@@ -22373,7 +22372,7 @@ export interface operations {
           } & components["schemas"]["ExtensionPaymentMethodsOut"];
         };
       };
-      /** @description Single-subscription business is retired */
+      /** @description 旧单订阅业务已停用 */
       410: {
         headers: {
           [name: string]: unknown;
@@ -22398,7 +22397,7 @@ export interface operations {
     };
     requestBody?: never;
     responses: {
-      /** @description Response */
+      /** @description 响应 */
       200: {
         headers: {
           [name: string]: unknown;
@@ -22418,7 +22417,7 @@ export interface operations {
     };
     requestBody?: never;
     responses: {
-      /** @description JSON response */
+      /** @description JSON 响应 */
       200: {
         headers: {
           [name: string]: unknown;
@@ -22441,7 +22440,7 @@ export interface operations {
     };
     requestBody?: never;
     responses: {
-      /** @description Historical response (not served) */
+      /** @description 历史响应（不再提供） */
       200: {
         headers: {
           [name: string]: unknown;
@@ -22455,7 +22454,7 @@ export interface operations {
           };
         };
       };
-      /** @description Single-subscription business is retired */
+      /** @description 旧单订阅业务已停用 */
       410: {
         headers: {
           [name: string]: unknown;
@@ -22484,7 +22483,7 @@ export interface operations {
       };
     };
     responses: {
-      /** @description Historical response (not served) */
+      /** @description 历史响应（不再提供） */
       200: {
         headers: {
           [name: string]: unknown;
@@ -22496,7 +22495,7 @@ export interface operations {
           };
         };
       };
-      /** @description Single-subscription business is retired */
+      /** @description 旧单订阅业务已停用 */
       410: {
         headers: {
           [name: string]: unknown;
@@ -22521,7 +22520,7 @@ export interface operations {
     };
     requestBody?: never;
     responses: {
-      /** @description Historical response (not served) */
+      /** @description 历史响应（不再提供） */
       200: {
         headers: {
           [name: string]: unknown;
@@ -22607,7 +22606,7 @@ export interface operations {
           };
         };
       };
-      /** @description Single-subscription business is retired */
+      /** @description 旧单订阅业务已停用 */
       410: {
         headers: {
           [name: string]: unknown;
@@ -22636,7 +22635,7 @@ export interface operations {
       };
     };
     responses: {
-      /** @description Historical response (not served) */
+      /** @description 历史响应（不再提供） */
       200: {
         headers: {
           [name: string]: unknown;
@@ -22649,7 +22648,7 @@ export interface operations {
           };
         };
       };
-      /** @description Single-subscription business is retired */
+      /** @description 旧单订阅业务已停用 */
       410: {
         headers: {
           [name: string]: unknown;
@@ -22674,7 +22673,7 @@ export interface operations {
     };
     requestBody?: never;
     responses: {
-      /** @description JSON response */
+      /** @description JSON 响应 */
       200: {
         headers: {
           [name: string]: unknown;
@@ -22697,7 +22696,7 @@ export interface operations {
     };
     requestBody?: never;
     responses: {
-      /** @description JSON response */
+      /** @description JSON 响应 */
       200: {
         headers: {
           [name: string]: unknown;
@@ -23142,7 +23141,7 @@ export interface operations {
     };
     requestBody?: never;
     responses: {
-      /** @description JSON response */
+      /** @description JSON 响应 */
       200: {
         headers: {
           [name: string]: unknown;
@@ -23172,7 +23171,7 @@ export interface operations {
       };
     };
     responses: {
-      /** @description JSON response */
+      /** @description JSON 响应 */
       200: {
         headers: {
           [name: string]: unknown;
@@ -23200,7 +23199,7 @@ export interface operations {
     };
     requestBody?: never;
     responses: {
-      /** @description JSON response */
+      /** @description JSON 响应 */
       200: {
         headers: {
           [name: string]: unknown;
@@ -23227,7 +23226,7 @@ export interface operations {
       };
     };
     responses: {
-      /** @description Historical response (not served) */
+      /** @description 历史响应（不再提供） */
       200: {
         headers: {
           [name: string]: unknown;
@@ -23240,7 +23239,7 @@ export interface operations {
           };
         };
       };
-      /** @description Single-subscription business is retired */
+      /** @description 旧单订阅业务已停用 */
       410: {
         headers: {
           [name: string]: unknown;
@@ -23269,7 +23268,7 @@ export interface operations {
       };
     };
     responses: {
-      /** @description Historical response (not served) */
+      /** @description 历史响应（不再提供） */
       200: {
         headers: {
           [name: string]: unknown;
@@ -23284,7 +23283,7 @@ export interface operations {
           };
         };
       };
-      /** @description Single-subscription business is retired */
+      /** @description 旧单订阅业务已停用 */
       410: {
         headers: {
           [name: string]: unknown;
@@ -23309,7 +23308,7 @@ export interface operations {
     };
     requestBody?: never;
     responses: {
-      /** @description Historical response (not served) */
+      /** @description 历史响应（不再提供） */
       200: {
         headers: {
           [name: string]: unknown;
@@ -23325,7 +23324,7 @@ export interface operations {
           };
         };
       };
-      /** @description Single-subscription business is retired */
+      /** @description 旧单订阅业务已停用 */
       410: {
         headers: {
           [name: string]: unknown;
@@ -23350,7 +23349,7 @@ export interface operations {
     };
     requestBody?: never;
     responses: {
-      /** @description Historical response (not served) */
+      /** @description 历史响应（不再提供） */
       200: {
         headers: {
           [name: string]: unknown;
@@ -23366,7 +23365,7 @@ export interface operations {
           };
         };
       };
-      /** @description Single-subscription business is retired */
+      /** @description 旧单订阅业务已停用 */
       410: {
         headers: {
           [name: string]: unknown;
@@ -23391,7 +23390,7 @@ export interface operations {
     };
     requestBody?: never;
     responses: {
-      /** @description Historical response (not served) */
+      /** @description 历史响应（不再提供） */
       200: {
         headers: {
           [name: string]: unknown;
@@ -23403,7 +23402,7 @@ export interface operations {
           } & components["schemas"]["PartnerOverviewOut"];
         };
       };
-      /** @description Single-subscription business is retired */
+      /** @description 旧单订阅业务已停用 */
       410: {
         headers: {
           [name: string]: unknown;
@@ -23428,7 +23427,7 @@ export interface operations {
     };
     requestBody?: never;
     responses: {
-      /** @description Historical response (not served) */
+      /** @description 历史响应（不再提供） */
       200: {
         headers: {
           [name: string]: unknown;
@@ -23444,7 +23443,7 @@ export interface operations {
           };
         };
       };
-      /** @description Single-subscription business is retired */
+      /** @description 旧单订阅业务已停用 */
       410: {
         headers: {
           [name: string]: unknown;
@@ -23473,7 +23472,7 @@ export interface operations {
       };
     };
     responses: {
-      /** @description Historical response (not served) */
+      /** @description 历史响应（不再提供） */
       200: {
         headers: {
           [name: string]: unknown;
@@ -23486,7 +23485,7 @@ export interface operations {
           };
         };
       };
-      /** @description Single-subscription business is retired */
+      /** @description 旧单订阅业务已停用 */
       410: {
         headers: {
           [name: string]: unknown;
@@ -23513,7 +23512,7 @@ export interface operations {
     };
     requestBody?: never;
     responses: {
-      /** @description Historical response (not served) */
+      /** @description 历史响应（不再提供） */
       200: {
         headers: {
           [name: string]: unknown;
@@ -23526,7 +23525,7 @@ export interface operations {
           };
         };
       };
-      /** @description Single-subscription business is retired */
+      /** @description 旧单订阅业务已停用 */
       410: {
         headers: {
           [name: string]: unknown;
@@ -23555,7 +23554,7 @@ export interface operations {
       };
     };
     responses: {
-      /** @description Historical response (not served) */
+      /** @description 历史响应（不再提供） */
       200: {
         headers: {
           [name: string]: unknown;
@@ -23567,7 +23566,7 @@ export interface operations {
             /** @constant */
             ok: true;
             paid?: boolean;
-            /** @description Provider-specific payment payload returned by the selected integration. */
+            /** @description 所选支付集成返回的渠道专用付款数据。 */
             payment?: {
               [key: string]: unknown;
             };
@@ -23577,7 +23576,7 @@ export interface operations {
           };
         };
       };
-      /** @description Single-subscription business is retired */
+      /** @description 旧单订阅业务已停用 */
       410: {
         headers: {
           [name: string]: unknown;
@@ -23602,7 +23601,7 @@ export interface operations {
     };
     requestBody?: never;
     responses: {
-      /** @description Historical response (not served) */
+      /** @description 历史响应（不再提供） */
       200: {
         headers: {
           [name: string]: unknown;
@@ -23618,7 +23617,7 @@ export interface operations {
           };
         };
       };
-      /** @description Single-subscription business is retired */
+      /** @description 旧单订阅业务已停用 */
       410: {
         headers: {
           [name: string]: unknown;
@@ -23645,7 +23644,7 @@ export interface operations {
     };
     requestBody?: never;
     responses: {
-      /** @description Historical response (not served) */
+      /** @description 历史响应（不再提供） */
       200: {
         headers: {
           [name: string]: unknown;
@@ -23657,7 +23656,7 @@ export interface operations {
             /** @constant */
             ok: true;
             paid?: boolean;
-            /** @description Provider-specific payment payload returned by the selected integration. */
+            /** @description 所选支付集成返回的渠道专用付款数据。 */
             payment?: {
               [key: string]: unknown;
             };
@@ -23667,7 +23666,7 @@ export interface operations {
           };
         };
       };
-      /** @description Single-subscription business is retired */
+      /** @description 旧单订阅业务已停用 */
       410: {
         headers: {
           [name: string]: unknown;
@@ -23694,7 +23693,7 @@ export interface operations {
     };
     requestBody?: never;
     responses: {
-      /** @description Historical response (not served) */
+      /** @description 历史响应（不再提供） */
       200: {
         headers: {
           [name: string]: unknown;
@@ -23708,7 +23707,7 @@ export interface operations {
           };
         };
       };
-      /** @description Single-subscription business is retired */
+      /** @description 旧单订阅业务已停用 */
       410: {
         headers: {
           [name: string]: unknown;
@@ -23735,7 +23734,7 @@ export interface operations {
     };
     requestBody?: never;
     responses: {
-      /** @description Historical response (not served) */
+      /** @description 历史响应（不再提供） */
       200: {
         headers: {
           [name: string]: unknown;
@@ -23751,7 +23750,7 @@ export interface operations {
           };
         };
       };
-      /** @description Single-subscription business is retired */
+      /** @description 旧单订阅业务已停用 */
       410: {
         headers: {
           [name: string]: unknown;
@@ -23780,7 +23779,7 @@ export interface operations {
       };
     };
     responses: {
-      /** @description Historical response (not served) */
+      /** @description 历史响应（不再提供） */
       200: {
         headers: {
           [name: string]: unknown;
@@ -23792,7 +23791,7 @@ export interface operations {
           };
         };
       };
-      /** @description Single-subscription business is retired */
+      /** @description 旧单订阅业务已停用 */
       410: {
         headers: {
           [name: string]: unknown;
@@ -23821,7 +23820,7 @@ export interface operations {
       };
     };
     responses: {
-      /** @description Historical response (not served) */
+      /** @description 历史响应（不再提供） */
       200: {
         headers: {
           [name: string]: unknown;
@@ -23848,7 +23847,7 @@ export interface operations {
           };
         };
       };
-      /** @description Single-subscription business is retired */
+      /** @description 旧单订阅业务已停用 */
       410: {
         headers: {
           [name: string]: unknown;
@@ -23877,7 +23876,7 @@ export interface operations {
       };
     };
     responses: {
-      /** @description Historical response (not served) */
+      /** @description 历史响应（不再提供） */
       200: {
         headers: {
           [name: string]: unknown;
@@ -23904,7 +23903,7 @@ export interface operations {
           };
         };
       };
-      /** @description Single-subscription business is retired */
+      /** @description 旧单订阅业务已停用 */
       410: {
         headers: {
           [name: string]: unknown;
@@ -23929,7 +23928,7 @@ export interface operations {
     };
     requestBody?: never;
     responses: {
-      /** @description Historical response (not served) */
+      /** @description 历史响应（不再提供） */
       200: {
         headers: {
           [name: string]: unknown;
@@ -23944,7 +23943,7 @@ export interface operations {
           };
         };
       };
-      /** @description Single-subscription business is retired */
+      /** @description 旧单订阅业务已停用 */
       410: {
         headers: {
           [name: string]: unknown;
@@ -23969,7 +23968,7 @@ export interface operations {
     };
     requestBody?: never;
     responses: {
-      /** @description JSON response */
+      /** @description JSON 响应 */
       200: {
         headers: {
           [name: string]: unknown;
@@ -23994,7 +23993,7 @@ export interface operations {
     };
     requestBody?: never;
     responses: {
-      /** @description JSON response */
+      /** @description JSON 响应 */
       200: {
         headers: {
           [name: string]: unknown;
@@ -24021,7 +24020,7 @@ export interface operations {
     };
     requestBody?: never;
     responses: {
-      /** @description JSON response */
+      /** @description JSON 响应 */
       200: {
         headers: {
           [name: string]: unknown;
@@ -24048,7 +24047,7 @@ export interface operations {
     };
     requestBody?: never;
     responses: {
-      /** @description JSON response */
+      /** @description JSON 响应 */
       200: {
         headers: {
           [name: string]: unknown;
@@ -24074,7 +24073,7 @@ export interface operations {
     };
     requestBody?: never;
     responses: {
-      /** @description JSON response */
+      /** @description JSON 响应 */
       200: {
         headers: {
           [name: string]: unknown;
@@ -24098,7 +24097,7 @@ export interface operations {
     };
     requestBody?: never;
     responses: {
-      /** @description JSON response */
+      /** @description JSON 响应 */
       200: {
         headers: {
           [name: string]: unknown;
@@ -24121,7 +24120,7 @@ export interface operations {
     };
     requestBody?: never;
     responses: {
-      /** @description Historical response (not served) */
+      /** @description 历史响应（不再提供） */
       200: {
         headers: {
           [name: string]: unknown;
@@ -24133,7 +24132,7 @@ export interface operations {
           } & components["schemas"]["SubscriptionGuidesOut"];
         };
       };
-      /** @description Single-subscription business is retired */
+      /** @description 旧单订阅业务已停用 */
       410: {
         headers: {
           [name: string]: unknown;
@@ -24160,7 +24159,7 @@ export interface operations {
     };
     requestBody?: never;
     responses: {
-      /** @description Historical response (not served) */
+      /** @description 历史响应（不再提供） */
       200: {
         headers: {
           [name: string]: unknown;
@@ -24172,7 +24171,7 @@ export interface operations {
           } & components["schemas"]["PublicSubscriptionGuidesOut"];
         };
       };
-      /** @description Single-subscription business is retired */
+      /** @description 旧单订阅业务已停用 */
       410: {
         headers: {
           [name: string]: unknown;
@@ -24201,7 +24200,7 @@ export interface operations {
       };
     };
     responses: {
-      /** @description Historical response (not served) */
+      /** @description 历史响应（不再提供） */
       200: {
         headers: {
           [name: string]: unknown;
@@ -24216,7 +24215,7 @@ export interface operations {
           };
         };
       };
-      /** @description Single-subscription business is retired */
+      /** @description 旧单订阅业务已停用 */
       410: {
         headers: {
           [name: string]: unknown;
@@ -24245,7 +24244,7 @@ export interface operations {
       };
     };
     responses: {
-      /** @description Historical response (not served) */
+      /** @description 历史响应（不再提供） */
       200: {
         headers: {
           [name: string]: unknown;
@@ -24286,7 +24285,7 @@ export interface operations {
           };
         };
       };
-      /** @description Single-subscription business is retired */
+      /** @description 旧单订阅业务已停用 */
       410: {
         headers: {
           [name: string]: unknown;
@@ -24315,7 +24314,7 @@ export interface operations {
       };
     };
     responses: {
-      /** @description Historical response (not served) */
+      /** @description 历史响应（不再提供） */
       200: {
         headers: {
           [name: string]: unknown;
@@ -24350,7 +24349,7 @@ export interface operations {
           };
         };
       };
-      /** @description Single-subscription business is retired */
+      /** @description 旧单订阅业务已停用 */
       410: {
         headers: {
           [name: string]: unknown;
@@ -24379,7 +24378,7 @@ export interface operations {
       };
     };
     responses: {
-      /** @description Historical response (not served) */
+      /** @description 历史响应（不再提供） */
       200: {
         headers: {
           [name: string]: unknown;
@@ -24394,7 +24393,7 @@ export interface operations {
           };
         };
       };
-      /** @description Single-subscription business is retired */
+      /** @description 旧单订阅业务已停用 */
       410: {
         headers: {
           [name: string]: unknown;
@@ -24421,7 +24420,7 @@ export interface operations {
     };
     requestBody?: never;
     responses: {
-      /** @description Response */
+      /** @description 响应 */
       200: {
         headers: {
           [name: string]: unknown;
@@ -24441,7 +24440,7 @@ export interface operations {
     };
     requestBody?: never;
     responses: {
-      /** @description JSON response */
+      /** @description JSON 响应 */
       200: {
         headers: {
           [name: string]: unknown;
@@ -24474,7 +24473,7 @@ export interface operations {
       };
     };
     responses: {
-      /** @description JSON response */
+      /** @description JSON 响应 */
       200: {
         headers: {
           [name: string]: unknown;
@@ -24500,7 +24499,7 @@ export interface operations {
     };
     requestBody?: never;
     responses: {
-      /** @description JSON response */
+      /** @description JSON 响应 */
       200: {
         headers: {
           [name: string]: unknown;
@@ -24531,7 +24530,7 @@ export interface operations {
     };
     requestBody?: never;
     responses: {
-      /** @description Response */
+      /** @description 响应 */
       200: {
         headers: {
           [name: string]: unknown;
@@ -24561,7 +24560,7 @@ export interface operations {
       };
     };
     responses: {
-      /** @description JSON response */
+      /** @description JSON 响应 */
       200: {
         headers: {
           [name: string]: unknown;
@@ -24588,7 +24587,7 @@ export interface operations {
     };
     requestBody?: never;
     responses: {
-      /** @description JSON response */
+      /** @description JSON 响应 */
       200: {
         headers: {
           [name: string]: unknown;
@@ -24617,7 +24616,7 @@ export interface operations {
       };
     };
     responses: {
-      /** @description JSON response */
+      /** @description JSON 响应 */
       200: {
         headers: {
           [name: string]: unknown;
@@ -24640,7 +24639,7 @@ export interface operations {
     };
     requestBody?: never;
     responses: {
-      /** @description JSON response */
+      /** @description JSON 响应 */
       200: {
         headers: {
           [name: string]: unknown;
@@ -24668,7 +24667,7 @@ export interface operations {
       };
     };
     responses: {
-      /** @description Historical response (not served) */
+      /** @description 历史响应（不再提供） */
       200: {
         headers: {
           [name: string]: unknown;
@@ -24682,7 +24681,7 @@ export interface operations {
           };
         };
       };
-      /** @description Single-subscription business is retired */
+      /** @description 旧单订阅业务已停用 */
       410: {
         headers: {
           [name: string]: unknown;
@@ -24707,7 +24706,7 @@ export interface operations {
     };
     requestBody?: never;
     responses: {
-      /** @description Historical response (not served) */
+      /** @description 历史响应（不再提供） */
       200: {
         headers: {
           [name: string]: unknown;
@@ -24745,7 +24744,7 @@ export interface operations {
               effective_hwid_device_limit?: number | null;
               hwid_device_limit?: number | null;
               monthly_gb?: number | null;
-              /** @description Raw switch calculation details from the subscription service. */
+              /** @description 订阅服务返回的套餐切换原始计算明细。 */
               options?: {
                 [key: string]: unknown;
               };
@@ -24762,7 +24761,7 @@ export interface operations {
           };
         };
       };
-      /** @description Single-subscription business is retired */
+      /** @description 旧单订阅业务已停用 */
       410: {
         headers: {
           [name: string]: unknown;
@@ -24791,7 +24790,7 @@ export interface operations {
       };
     };
     responses: {
-      /** @description Historical response (not served) */
+      /** @description 历史响应（不再提供） */
       200: {
         headers: {
           [name: string]: unknown;
@@ -24803,7 +24802,7 @@ export interface operations {
             /** @constant */
             ok: true;
             paid?: boolean;
-            /** @description Provider-specific payment payload returned by the selected integration. */
+            /** @description 所选支付集成返回的渠道专用付款数据。 */
             payment?: {
               [key: string]: unknown;
             };
@@ -24813,7 +24812,7 @@ export interface operations {
           };
         };
       };
-      /** @description Single-subscription business is retired */
+      /** @description 旧单订阅业务已停用 */
       410: {
         headers: {
           [name: string]: unknown;
@@ -24838,7 +24837,7 @@ export interface operations {
     };
     requestBody?: never;
     responses: {
-      /** @description Historical response (not served) */
+      /** @description 历史响应（不再提供） */
       200: {
         headers: {
           [name: string]: unknown;
@@ -24946,7 +24945,7 @@ export interface operations {
           };
         };
       };
-      /** @description Single-subscription business is retired */
+      /** @description 旧单订阅业务已停用 */
       410: {
         headers: {
           [name: string]: unknown;
@@ -24971,7 +24970,7 @@ export interface operations {
     };
     requestBody?: never;
     responses: {
-      /** @description JSON response */
+      /** @description JSON 响应 */
       200: {
         headers: {
           [name: string]: unknown;
@@ -24998,7 +24997,7 @@ export interface operations {
     };
     requestBody?: never;
     responses: {
-      /** @description Response */
+      /** @description 响应 */
       200: {
         headers: {
           [name: string]: unknown;
@@ -25018,7 +25017,7 @@ export interface operations {
     };
     requestBody?: never;
     responses: {
-      /** @description Historical response (not served) */
+      /** @description 历史响应（不再提供） */
       200: {
         headers: {
           [name: string]: unknown;
@@ -25037,7 +25036,7 @@ export interface operations {
           };
         };
       };
-      /** @description Single-subscription business is retired */
+      /** @description 旧单订阅业务已停用 */
       410: {
         headers: {
           [name: string]: unknown;

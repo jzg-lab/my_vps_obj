@@ -1,6 +1,6 @@
 export type TokenMap = Record<string, unknown>;
 export type ThemeVariant = "dark" | "light";
-export type FontOption = { value: string; label: string };
+export type FontOption = { value: string; label: string; labelKey?: string };
 export type ThemeEntry = Record<string, unknown> & {
   active_variant?: string | null;
   css_file?: string;
@@ -411,10 +411,11 @@ export const googleMonoFontStack = (family: string): string =>
   `${quoteFontFamily(family)}, ${MONO_FALLBACK}`;
 
 export const FONT_OPTIONS: FontOption[] = [
-  { value: "", label: "System" },
+  { value: "", label: "System", labelKey: "appearance_font_system" },
   {
     value: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif',
     label: "System UI",
+    labelKey: "appearance_font_system_ui",
   },
   ...GOOGLE_SANS_FONTS.map((family) => ({
     value: googleSansFontStack(family),
@@ -423,12 +424,17 @@ export const FONT_OPTIONS: FontOption[] = [
   {
     value: '"Press Start 2P", "JetBrains Mono", monospace',
     label: "Pixel",
+    labelKey: "appearance_font_pixel",
   },
 ];
 
 export const MONO_FONT_OPTIONS: FontOption[] = [
-  { value: "", label: "Default mono" },
-  { value: "ui-monospace, SFMono-Regular, Menlo, Consolas, monospace", label: "System mono" },
+  { value: "", label: "Default mono", labelKey: "appearance_font_default_mono" },
+  {
+    value: "ui-monospace, SFMono-Regular, Menlo, Consolas, monospace",
+    label: "System mono",
+    labelKey: "appearance_font_system_mono",
+  },
   ...GOOGLE_MONO_FONTS.map((family) => ({
     value: googleMonoFontStack(family),
     label: family,

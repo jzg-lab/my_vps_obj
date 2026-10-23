@@ -1,13 +1,15 @@
-# Миграция с `remnawave-tg-shop` на `remnawave-minishop`
+<a id="миграция-с-remnawave-tg-shop-на-remnawave-minishop"></a>
 
-Для переноса со старого родственного стека используйте общий install wizard:
+# 从 remnawave-tg-shop 迁移到 remnawave-minishop
+
+从旧关联项目迁移可使用通用安装向导：
 
 ```bash
 curl -fsSL https://gitlab.com/3252a8/remnawave-minishop/-/raw/main/scripts/install.sh -o install.sh
 sh install.sh
 ```
 
-<!-- Альтернативная ссылка на install-скрипт в GitHub (disabled):
+<!-- GitHub 备用安装地址（停用）：
 
 ```bash
 curl -fsSL https://raw.githubusercontent.com/3252a8/remnawave-minishop/main/scripts/install.sh -o install.sh
@@ -15,128 +17,109 @@ sh install.sh
 ```
 -->
 
-Wizard полностью русскоязычный. В главном меню выберите
-`Установить новый remnawave-minishop и мигрировать данные из другого бота` для
-нового сервера или `Мигрировать данные в уже установленный remnawave-minishop`,
-если compose-папка уже готова. Затем выберите источник
-`Старый remnawave-tg-shop`.
+上游向导目前使用俄语提示。本指南以中文说明选项含义：新服务器选择“安装新的 remnawave-minishop 并从其他机器人迁移数据”；Compose 目录已准备好时，选择“迁移到已安装的 remnawave-minishop”。来源选择“旧 remnawave-tg-shop”。以下流程是上游安装参考，不代表本项目生产迁移已获批准。
 
-Wizard переносит базу безопасным `pg_dump`-путем. Он не копирует raw PostgreSQL
-volume старого стека в новый, потому что raw volume уже инициализирован старыми
-ролями и паролем PostgreSQL. Вместо этого wizard:
+向导使用安全的 `pg_dump` 逻辑迁移，不复制旧 PostgreSQL 原始数据卷，因为其中已初始化旧角色和密码。它会：
 
-- пытается сам найти старый контейнер PostgreSQL (`remnawave-tg-shop-db` или
-  `LEGACY_TGSHOP_DB_CONTAINER`) и собрать source DSN из его
-  `POSTGRES_USER`, `POSTGRES_PASSWORD`, `POSTGRES_DB`;
-- если автодетект невозможен, просит `LEGACY_TGSHOP_SOURCE_DSN` / source DSN
-  вручную;
-- до удаления целевого volume сохраняет `pg_dump` старой БД в
-  `backups/pre-remnawave-tg-shop-source-*`;
-- удаляет целевой DB volume Minishop и поднимает чистый PostgreSQL с новыми
-  `POSTGRES_*` из `.env`;
-- восстанавливает сохраненный dump в compose-БД и запускает сервис `migrate`.
+- 自动查找旧 PostgreSQL 容器（`remnawave-tg-shop-db` 或 `LEGACY_TGSHOP_DB_CONTAINER`），从 `POSTGRES_USER`、`POSTGRES_PASSWORD`、`POSTGRES_DB` 构造源 DSN。
+- 无法自动发现时，请求手动填写 `LEGACY_TGSHOP_SOURCE_DSN`／源 DSN。
+- 删除目标卷前，将旧数据库逻辑备份保存至 `backups/pre-remnawave-tg-shop-source-*`。
+- 删除 Minishop 目标数据库卷，用 `.env` 中新 `POSTGRES_*` 启动空 PostgreSQL。
+- 恢复备份，再启动 `migrate`。
 
-Старый DB volume `remnawave-tg-shop-db-data` и старая БД не удаляются
-автоматически; они остаются на хосте для отката.
+旧 `remnawave-tg-shop-db-data` 和源数据库不会自动删除，保留供回滚。
 
-## Как работает перенос
+<a id="как-работает-перенос"></a>
 
-`remnawave-tg-shop` и `remnawave-minishop` имеют совместимую историю схемы.
-После переноса старой PostgreSQL-БД сервис `migrate` накатывает недостающие
-миграции из `backend/db/migrator/`: сначала применяются `Base.metadata`,
-затем последовательные записи `schema_migrations`. Это one-shot сервис: он
-должен завершиться с кодом `0`, после чего стартуют `backend` и `worker`.
+## 迁移原理
 
-При миграции wizard:
+两项目具有兼容的数据库结构历史。恢复旧 PostgreSQL 后，`migrate` 应用 `backend/db/migrator/` 中缺失迁移：先处理 `Base.metadata`，再按顺序执行 `schema_migrations`。该服务只运行一次，必须以 `0` 退出，然后才启动 backend、worker。
 
-1. Читает source DSN старого PostgreSQL автоматически из старого контейнера
-   или из `LEGACY_TGSHOP_SOURCE_DSN`.
-2. Подключает старый DB-контейнер к compose-сети целевого стека, если source
-   DSN указывает на локальный контейнер.
-3. Сохраняет backup источника:
+向导步骤：
+
+1. 从旧容器或 `LEGACY_TGSHOP_SOURCE_DSN` 读取源 DSN。
+2. 源 DSN 指向本地容器时，将其加入目标 Compose 网络。
+3. 保存源备份：
 
    ```bash
    pg_dump --clean --if-exists --no-owner --no-privileges "$SOURCE_DSN" \
      > backups/pre-remnawave-tg-shop-source-*/dumps/remnawave-tg-shop-source.sql
    ```
 
-4. Сохраняет бэкап файлов целевого Minishop и, если текущий target PostgreSQL
-   доступен, логический дамп перед заменой.
-5. Останавливает целевой compose-стек и удаляет целевой DB volume:
+4. 备份目标 Minishop 文件；目标数据库可用时，也保存替换前的逻辑备份。
+5. 停止目标服务栈并删除目标数据库卷：
 
    ```bash
    docker volume rm remnawave-minishop-db-data
    ```
 
-6. Поднимает `postgres` и `redis`; новый PostgreSQL инициализируется текущими
-   `POSTGRES_USER`, `POSTGRES_PASSWORD`, `POSTGRES_DB` из `.env`.
-7. Восстанавливает заранее сохраненный dump:
+6. 启动 postgres、redis；PostgreSQL 按当前 `.env` 的 `POSTGRES_USER`、`POSTGRES_PASSWORD`、`POSTGRES_DB` 初始化。
+7. 恢复预先保存的备份：
 
    ```bash
    psql "$TARGET_DSN" -v ON_ERROR_STOP=1 \
      < backups/pre-remnawave-tg-shop-source-*/dumps/remnawave-tg-shop-source.sql
    ```
 
-8. Запускает миграции схемы Minishop и затем полный stack.
+8. 运行 Minishop 迁移，再启动完整服务栈。
 
-## Что меняется в архитектуре
+<a id="что-меняется-в-архитектуре"></a>
 
-**Контейнеры**:
+## 架构变化
 
-| Версия | Сервисы |
+**容器：**
+
+| 版本 | 服务 |
 | --- | --- |
-| `v2.7.0` | `remnawave-tg-shop`, `remnawave-tg-shop-db` |
-| `v3.1.x-v3.3.x` | `remnawave-minishop`, `remnawave-minishop-db` |
-| `v3.4+` | `remnawave-minishop-backend`, `remnawave-minishop-worker`, `remnawave-minishop-frontend`, `remnawave-minishop-migrate`, `remnawave-minishop-postgres`, `remnawave-minishop-redis` |
+| `v2.7.0` | `remnawave-tg-shop`、`remnawave-tg-shop-db` |
+| `v3.1.x-v3.3.x` | `remnawave-minishop`、`remnawave-minishop-db` |
+| `v3.4+` | `remnawave-minishop-backend`、`remnawave-minishop-worker`、`remnawave-minishop-frontend`、`remnawave-minishop-migrate`、`remnawave-minishop-postgres`、`remnawave-minishop-redis` |
 
-**Volumes**:
+**数据卷：**
 
-| Volume | Что происходит |
+| 数据卷 | 行为 |
 | --- | --- |
-| `remnawave-minishop-db-data` | пересоздается и восстанавливается из source DSN; raw volume старого PostgreSQL не копируется |
-| `remnawave-minishop-redis-data` | создается пустым |
-| `remnawave-minishop-shop-data` | создается пустым; runtime-файлы в `/app/data` дальше настраиваются через админку или вручную |
-| `remnawave-minishop-caddy-data` / `remnawave-minishop-caddy-config` | создаются новым Caddy-профилем; старые `remnawave-tg-shop-caddy-*` остаются как источник для ручного отката |
-| `remnawave-minishop-angie-acme` | создается Angie-профилем; хранит ACME-аккаунт и сертификаты Let's Encrypt |
+| `remnawave-minishop-db-data` | 重建并从源 DSN 恢复，不复制旧 PostgreSQL 原始卷 |
+| `remnawave-minishop-redis-data` | 创建空卷 |
+| `remnawave-minishop-shop-data` | 创建空卷；`/app/data` 运行文件后续通过后台或手动配置 |
+| `remnawave-minishop-caddy-data`／`remnawave-minishop-caddy-config` | 新 Caddy 配置创建；旧 `remnawave-tg-shop-caddy-*` 保留供人工回滚 |
+| `remnawave-minishop-angie-acme` | Angie 配置创建，保存 ACME 账号及 Let's Encrypt 证书 |
 
-Доступные compose-профили: `docker-compose.yml`,
-`deploy/examples/caddy/docker-compose.yml`,
-`deploy/examples/angie/docker-compose.yml`,
-`deploy/examples/nginx/docker-compose.yml`,
-`deploy/examples/newt/docker-compose.yml`,
-`deploy/examples/no-proxy/docker-compose.yml`.
+可用 Compose 文件：`docker-compose.yml`、`deploy/examples/caddy/docker-compose.yml`、`deploy/examples/angie/docker-compose.yml`、`deploy/examples/nginx/docker-compose.yml`、`deploy/examples/newt/docker-compose.yml`、`deploy/examples/no-proxy/docker-compose.yml`。
 
-## Переменные окружения
+<a id="переменные-окружения"></a>
 
-Перед запуском нового стека проверьте `.env`. Самые важные изменения:
+## 环境变量
 
-| Было | Стало | Действие |
+启动前核对 `.env`，主要变化如下：
+
+| 原配置 | 新配置 | 操作 |
 | --- | --- | --- |
-| `TELEGRAM_WEBHOOK_SECRET` | `WEBHOOK_SECRET_TOKEN` | Перенести значение или сгенерировать новый stable secret. |
-| `TELEGRAM_WEBHOOK_PATH` | удалена | Путь вебхука теперь рассчитывается автоматически. |
-| `REQUIRED_CHANNEL_SUBSCRIBE_TO_USE` | удалена | Гейт включается, когда задан `REQUIRED_CHANNEL_ID`. |
-| `STARS_PROVIDER_TOKEN` | удалена | Telegram Stars используются напрямую. |
-| `POSTGRES_HOST=remnawave-tg-shop-db` | `postgres` внутри Compose | В compose-файлах `POSTGRES_HOST` переопределяется service name `postgres`. |
-| `WEBHOOK_BASE_URL` | обязательна | Без публичного URL backend не стартует корректно. |
-| - | `REDIS_URL=redis://redis:6379/0` | В compose-профилях задано автоматически. |
-| - | `WEBAPP_SESSION_SECRET`, `WEBAPP_ENABLED`, `TARIFFS_CONFIG_PATH` | Новые настройки Web App и каталога тарифов. |
+| `TELEGRAM_WEBHOOK_SECRET` | `WEBHOOK_SECRET_TOKEN` | 迁移原值或生成新的固定密钥 |
+| `TELEGRAM_WEBHOOK_PATH` | 已删除 | webhook 路径自动计算 |
+| `REQUIRED_CHANNEL_SUBSCRIBE_TO_USE` | 已删除 | 设置 `REQUIRED_CHANNEL_ID` 即开启限制 |
+| `STARS_PROVIDER_TOKEN` | 已删除 | 直接使用 Telegram Stars |
+| `POSTGRES_HOST=remnawave-tg-shop-db` | Compose 内为 `postgres` | Compose 按服务名覆盖主机 |
+| `WEBHOOK_BASE_URL` | 必填 | 缺少公开 URL 时后端不能正常启动 |
+| 无 | `REDIS_URL=redis://redis:6379/0` | Compose 自动设置 |
+| 无 | `WEBAPP_SESSION_SECRET`、`WEBAPP_ENABLED`、`TARIFFS_CONFIG_PATH` | 网页应用与套餐目录新配置 |
 
-Остальные продуктовые настройки удобнее проверить после первого входа в
-админку.
+其他产品设置建议在首次登录后台后核对。
 
-## Обратный прокси
+<a id="обратный-прокси"></a>
 
-В старом стеке часто был один upstream `remnawave-tg-shop:8000`. В текущем
-split-arch stack маршруты разделены:
+## 反向代理
 
-| Назначение | Service | Port |
+旧栈通常只有 `remnawave-tg-shop:8000` 上游，当前拆分为：
+
+| 用途 | 服务 | 端口 |
 | --- | --- | --- |
-| Telegram, платежные и panel webhooks | `backend` | `8080` |
-| Health-check | `backend` | `8080` (`/healthz`) |
-| Web App API и auth | `backend` | `8081` внутри Docker-сети |
-| Статический Web App frontend | `frontend` | `80` |
+| Telegram、支付、面板 webhook | `backend` | `8080` |
+| 健康检查 | `backend` | `8080`（`/healthz`） |
+| 网页 API 与认证 | `backend` | Docker 内部 `8081` |
+| 静态网页前端 | `frontend` | `80` |
 
-Минимальная схема для внешнего Nginx:
+外部 Nginx 最小示例：
 
 ```nginx
 upstream remnawave_backend_webhooks { server backend:8080; }
@@ -152,12 +135,13 @@ server {
 }
 ```
 
-Готовые Caddy, Angie, Nginx, Pangolin/Newt и no-proxy профили уже содержат нужную
-маршрутизацию.
+现成 Caddy、Angie、Nginx、Pangolin／Newt、无代理配置已包含路由。
 
-## Проверка
+<a id="проверка"></a>
 
-После переноса:
+## 核查
+
+迁移后运行：
 
 ```bash
 docker compose ps
@@ -165,10 +149,9 @@ docker compose logs migrate
 docker compose logs -f backend worker frontend
 ```
 
-`migrate` должен завершиться успешно, а `backend`, `worker`, `frontend`,
-`postgres` и `redis` должны быть running/healthy.
+`migrate` 必须成功退出；backend、worker、frontend、postgres、redis 应运行且健康。
 
-Когда убедитесь, что новый stack работает, старые volumes можно удалить вручную:
+确认新栈正常、回滚准备完备后，才考虑手动删除旧卷：
 
 ```bash
 docker volume rm remnawave-tg-shop-db-data

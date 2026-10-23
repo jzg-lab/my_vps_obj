@@ -1,16 +1,18 @@
-# Примеры Docker Compose
+<a id="примеры-docker-compose"></a>
 
-Каноничная документация по вариантам запуска живет в [docs/getting-started/deployment.md](../../docs/getting-started/deployment.md).
+# Docker Compose 示例
 
-Эта папка хранит только рабочие compose-примеры и конфиги. Подробное описание не дублируется здесь, чтобы сайт документации и навигация из README использовали один источник.
+各启动方案的完整文档见[部署指南](../../docs/getting-started/deployment.md)。
 
-Файлы приложения (`/app/data`: тарифы, темы, логотипы) монтируются из папки `data` рядом с выбранным `docker-compose.yml` в `migrate`, `backend` и `worker`. Для кастомных тем создайте `data/themes`; для ручного каталога тарифов используйте `data/tariffs.json`.
+本目录只保留可运行 Compose 示例和配置，不重复详细说明，使文档站和 README 导航使用同一来源。
 
-| Папка   | Документация                                                                                                                                           |
-| ------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| `caddy`    | [Развертывание с Caddy](../../docs/getting-started/deployment.md#caddy-рекомендуемый-вариант)                                       |
-| `angie`    | [Развертывание с Angie](../../docs/getting-started/deployment.md#angie)                                                                                 |
-| `nginx`    | [Развертывание с Nginx](../../docs/getting-started/deployment.md#nginx)                                                                                 |
-| `newt`     | [Развертывание через Pangolin / Newt](../../docs/getting-started/deployment.md#pangolin--newt)                                                      |
-| `no-proxy` | [Запуск без обратного прокси](../../docs/getting-started/deployment.md#без-обратного-прокси)                                |
-| `mail`     | [Развертывание локального SMTP-сервера](../../docs/features/login-methods.md#настройка-локального-smtp-сервера) |
+应用文件 `/app/data`（套餐、主题、标志）从所选 `docker-compose.yml` 同级 `data` 目录挂载到 `migrate`、`backend`、`worker`。自定义主题需创建 `data/themes`；手工套餐目录使用 `data/tariffs.json`。
+
+| 目录 | 文档 |
+| --- | --- |
+| `caddy` | [Caddy 部署](../../docs/getting-started/deployment.md#caddy-推荐方案) |
+| `angie` | [Angie 部署](../../docs/getting-started/deployment.md#angie) |
+| `nginx` | [Nginx 部署](../../docs/getting-started/deployment.md#nginx) |
+| `newt` | [Pangolin／Newt 部署](../../docs/getting-started/deployment.md#pangolin--newt) |
+| `no-proxy` | [无反向代理](../../docs/getting-started/deployment.md#无反向代理) |
+| `mail` | [本地 SMTP](../../docs/features/login-methods.md#本地-smtp-配置) |

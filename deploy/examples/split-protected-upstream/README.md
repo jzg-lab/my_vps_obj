@@ -1,23 +1,23 @@
-# Split protected upstream
+# 分离部署与受保护上游
 
-Use this when the Mini App frontend runs on a separate server, but browser requests must still stay same-origin:
+Mini App 前端位于独立服务器，但浏览器请求仍需保持同源时使用：
 
 ```text
 browser -> https://app.example.com/api -> frontend nginx -> protected backend upstream
 ```
 
-`WEBAPP_API_BASE_URL` remains `/api`. Configure only the frontend server's `WEBAPP_BACKEND_UPSTREAM`.
+`WEBAPP_API_BASE_URL` 保持 `/api`，仅在前端服务器配置 `WEBAPP_BACKEND_UPSTREAM`。
 
-Backend routes keep two planes:
+后端区分两类入口：
 
-- `backend:8080` is the public webhook plane for Telegram, payment providers and Remnawave Panel.
-- `backend:8081` is the private Web App API plane for `/api`, `/auth`, `/open-app` and Web App assets.
+- `backend:8080`：Telegram、支付提供商与 Remnawave Panel 的公开 webhook。
+- `backend:8081`：`/api`、`/auth`、`/open-app` 及网页应用资源的私有 API。
 
-For one-backend-domain mode, route webhook paths to `backend:8080` without `MINISHOP_EDGE_TOKEN`, and route `/api/*`, `/auth/*`, `/open-app`, logo/theme/favicon paths to `backend:8081` with `X-Minishop-Edge-Token`.
+使用单一后端域名时，webhook 路径转发到 `backend:8080`，不携带 `MINISHOP_EDGE_TOKEN`；`/api/*`、`/auth/*`、`/open-app` 及标志／主题／站点图标路径转发到 `backend:8081`，携带 `X-Minishop-Edge-Token`。
 
-For private IP/VPN mode, set `WEBAPP_BACKEND_UPSTREAM=http://10.0.0.5:8081` and restrict `8081` with firewall/VPN/allowlist.
+私有 IP／VPN 模式可设 `WEBAPP_BACKEND_UPSTREAM=http://10.0.0.5:8081`，通过防火墙／VPN／允许清单限制 `8081`。
 
-Config checks:
+配置检查：
 
 ```bash
 docker compose -f frontend.docker-compose.yml config

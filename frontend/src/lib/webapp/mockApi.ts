@@ -11,11 +11,23 @@ import { telegramMenuDemoResponse } from "./mockApi/telegramMenuDemo";
 import { accountMergeDemoResponse } from "./mockApi/accountMerge";
 import { issueReviewDemoResponse } from "./mockApi/issueReview";
 import { paymentHistoryDemoResponse } from "./mockApi/paymentHistory";
+import { chineseDemoContent } from "./mockApi/chineseDemo";
 
 export async function mockApi(
   path: string,
   options: RequestInit = {},
   context: MockApiContext = {}
+): Promise<unknown> {
+  const response = await mockApiResponse(path, options, context);
+  return context.currentLang === "zh-hans" && !path.startsWith("/admin/translations")
+    ? chineseDemoContent(response)
+    : response;
+}
+
+async function mockApiResponse(
+  path: string,
+  options: RequestInit,
+  context: MockApiContext
 ): Promise<unknown> {
   const {
     currentLang = "ru",
@@ -32,7 +44,7 @@ export async function mockApi(
   if (issueReview !== undefined) return issueReview;
   const mergeResponse = accountMergeDemoResponse(cleanPath, options);
   if (mergeResponse !== undefined) return mergeResponse;
-  const telegramMenu = telegramMenuDemoResponse(path, options);
+  const telegramMenu = telegramMenuDemoResponse(path, options, currentLang);
   if (telegramMenu !== undefined) return telegramMenu;
   const advertising = advertisingDemoResponse(path, options);
   if (advertising !== undefined) return advertising;
