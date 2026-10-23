@@ -270,6 +270,12 @@ npm --prefix frontend run test:e2e -- e2e/service-metering.spec.ts
 崩溃与提交失败的重试测试，不能证明恢复较旧的整库备份后仍然安全；
 该场景属于 E 的恢复流程，并且需要独立的用量证据。
 
+### 合并版本与后续真实数据面证据
+
+以上是 A 包当时的验证记录。合并版本后续已执行 PostgreSQL 并发、无 Node 面板及完整产品门禁，A/B/C 简体中文与页面亦已验收；具体数字以[主窗口集成记录](../implementation-plan.md#10-剩余工作分包与协作)为准。
+
+2026-10-23 又在本机两只真实 Node 上验证跨节点载荷精确计量、限制执行、月度固定切点及故障恢复，并完成带周期/额度记录的商店数据库实际恢复。1 MiB 额度本次超出 1,561,651 字节，不承诺超额很小；实际版本、负载、范围和仍未验证的外部恢复边界见[本机节点与恢复验收](../implementation-plan.md#local-node-and-recovery-acceptance)。这些新证据不覆盖第三方订阅客户端导入或公网独享出口。
+
 ### 交给 C 的本地化清单
 
 <a id="localization-handoff-to-c"></a>
