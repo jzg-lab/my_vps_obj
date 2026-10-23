@@ -20,9 +20,9 @@ for (const width of [1440, 390]) {
       "简体中文"
     );
     await expect(page.locator("html")).toHaveAttribute("lang", "zh-hans");
-    await page.goto(url("app/"));
+    await page.goto(url("services"));
     const screen = page.locator(".services-screen");
-    await expect(screen.getByRole("heading", { name: "我的服务", exact: true })).toBeVisible();
+    await expect(screen.getByRole("heading", { name: "我的套餐", exact: true })).toBeVisible();
     const service = screen.locator("[data-service-id]").nth(1);
     await expect(service).toContainText("2026-11-22 12:00");
     await service.getByRole("button", { name: "服务详情", exact: true }).click();

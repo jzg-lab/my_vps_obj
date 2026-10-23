@@ -3,6 +3,7 @@ import { ADMIN_SECTIONS, APP_SECTION_PATHS } from "./constants";
 export type WebappSection =
   | "extensions"
   | "home"
+  | "services"
   | "invite"
   | "partner"
   | "install"
@@ -23,6 +24,7 @@ export function normalizeSection(value: unknown): WebappSection {
     .trim()
     .toLowerCase();
   if (
+    section === "services" ||
     section === "extensions" ||
     section === "invite" ||
     section === "partner" ||

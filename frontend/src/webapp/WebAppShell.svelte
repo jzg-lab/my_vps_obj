@@ -10,6 +10,8 @@
 
   type Props = {
     paymentsVisible?: boolean;
+    servicesVisible?: boolean;
+    goServices?: Action;
     extensionNavigation?: UserNavigationItem[];
     activeTab?: string;
     brand?: Record<string, unknown>;
@@ -41,6 +43,8 @@
 
   let {
     paymentsVisible = true,
+    servicesVisible = false,
+    goServices = () => {},
     extensionNavigation = [],
     screen = "home",
     activeTab = "home",
@@ -90,6 +94,8 @@
 
   <BottomNav
     {paymentsVisible}
+    {servicesVisible}
+    onServices={goServices}
     {extensionNavigation}
     {activeTab}
     {screen}

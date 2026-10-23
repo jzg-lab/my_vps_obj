@@ -94,7 +94,7 @@ for (const width of [1440, 390]) {
     page,
   }, testInfo) => {
     await page.setViewportSize({ width, height: 1000 });
-    await page.goto("/demo/runtime/app/?mock=services&cycle_pending=1&theme_preview=dark");
+    await page.goto("/demo/runtime/services?mock=services&cycle_pending=1&theme_preview=dark");
     const card = page.locator("[data-service-id]").nth(1);
     await expect(card).toContainText("23 GiB / 100 GiB");
     await expect(card).toContainText("Ожидается подтверждение месячной квоты");

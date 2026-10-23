@@ -5,9 +5,16 @@ export type CatalogPlan = components["schemas"]["ServiceCatalogPlanOut"];
 
 // The server selects the business model; upstream demo fixtures can omit it.
 export function independentServiceScreen(screen: string): string {
-  return ["home", "settings", "security", "notifications", "support", "status", "admin"].includes(
-    screen
-  )
+  return [
+    "home",
+    "services",
+    "settings",
+    "security",
+    "notifications",
+    "support",
+    "status",
+    "admin",
+  ].includes(screen)
     ? screen
     : "home";
 }

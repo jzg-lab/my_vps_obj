@@ -26,6 +26,10 @@ describe("admin user links", () => {
 });
 
 describe("sectionFromPath", () => {
+  it("recognizes the independent plans page and demo prefix", () => {
+    expect(sectionFromPath("/services")).toBe("services");
+    expect(sectionFromPath("/demo/runtime/services", "/demo/runtime")).toBe("services");
+  });
   it("recognizes payment history as a Settings subsection", () => {
     expect(sectionFromPath("/settings/payments")).toBe("payment-history");
     expect(sectionFromPath("/demo/runtime/settings/payments", "/demo/runtime")).toBe(

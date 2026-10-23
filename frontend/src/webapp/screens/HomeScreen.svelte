@@ -15,7 +15,7 @@
     Send,
   } from "$components/ui/icons.js";
 
-  import BrandMark from "$lib/webapp/BrandMark.svelte";
+  import HomeBrand from "../HomeBrand.svelte";
   import { AttentionDot } from "$components/ui/index.js";
   import Button from "$components/ui/button.svelte";
   import Card from "$components/ui/card.svelte";
@@ -442,13 +442,7 @@
 </script>
 
 <main class="home-layout">
-  <div class="login-brand home-brand" style="position:relative;isolation:isolate">
-    <ThemeEffectSurface name="home.header.surface" />
-    <div class="home-logo-slot">
-      <BrandMark {brand} size="xl" />
-    </div>
-    <h1>{brandTitle}</h1>
-  </div>
+  <HomeBrand {brand} {brandTitle} />
 
   {#if telegramNotificationsNeedPrompt}
     <TelegramNotificationsBanner

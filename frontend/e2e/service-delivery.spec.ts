@@ -3,7 +3,7 @@ import { expect, test } from "@playwright/test";
 for (const width of [1440, 390]) {
   test(`service-specific import and update at ${width}px`, async ({ page }, testInfo) => {
     await page.setViewportSize({ width, height: 1000 });
-    await page.goto("/demo/runtime/app/?mock=services&delivery=1&theme_preview=dark");
+    await page.goto("/demo/runtime/services?mock=services&delivery=1&theme_preview=dark");
     const cards = page.locator("[data-service-id]");
     await cards.first().getByRole("button", { name: "Подробнее об услуге" }).click();
     const dialog = page.getByRole("dialog");

@@ -25,6 +25,7 @@ const RESERVED_PAGE_ROOTS = new Set([
   "plans",
   "robots.txt",
   "s",
+  "services",
   "settings",
   "status",
   "subscription_webapp.css",

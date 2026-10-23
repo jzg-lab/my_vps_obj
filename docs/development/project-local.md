@@ -100,7 +100,7 @@ npm run project:down
 | 本机专用私钥 | `~/.ssh/my_vps_obj_prod_ed25519`，权限 `0600`；公钥已加入服务器 `authorized_keys` |
 | 网站 Compose 目录 | `/opt/remnawave-minishop`；使用 `docker-compose.yml` 与 `docker-compose.override.yml` |
 | 线上配置与应用文件 | `/opt/remnawave-minishop/.env`、`/opt/remnawave-minishop/data` |
-| 本次源码与构建材料 | `/opt/my-vps-obj/releases/32185a16` |
+| 本次源码与构建材料 | `/opt/my-vps-obj/releases/b70eb48e-simple-home-20261023`；首次替换材料另保留于 `releases/32185a16` |
 | 当前部署摘要 | `/opt/my-vps-obj/last-deployment.json` |
 | 切换前备份 | `/opt/my-vps-obj/backups/pre-32185a16-20261023T091750Z` |
 | 面板 / HTTPS / Node 目录 | `/opt/remnawave`、`/opt/remnawave-edge`、`/opt/remnawave-node` |
@@ -109,13 +109,19 @@ SSH 公钥认证原本关闭，本轮已启用并通过不复用旧连接的密�
 
 ### 当前版本与配置
 
-本次产品提交为 `32185a1631438c9997747bf7f103cf53436789b4`，镜像为 `my-vps-obj/backend:32185a16`、`my-vps-obj/worker:32185a16`、`my-vps-obj/frontend:32185a16`，迁移任务使用同一 backend 镜像。后台显示 `v3.8.2-feat-independent-services+g32185a16`。面板 **3.4.5**、Node **3.4.2**、数据库、Redis 与 Caddy 沿用原部署，没有随业务程序升级。
+当前镜像为 `my-vps-obj/backend:b70eb48e-simple-home-20261023`、`my-vps-obj/worker:b70eb48e-simple-home-20261023`、`my-vps-obj/frontend:b70eb48e-simple-home-20261023`，迁移任务引用同一 backend 镜像。本次发布以 `b70eb48ed8596d90baffb71beeeb1b71deb3ff3b` 为基线，包含首页与独立套餐菜单的工作区源码快照，不是该提交的原样构建；发布归档 SHA-256 为 `11785e3b58e91072a71f6d1464f26c3aaf4b4b6ff3b0148f7586a3e6086f12a2`。首次替换产品为 `32185a1631438c9997747bf7f103cf53436789b4`。面板 **3.4.5**、Node **3.4.2**、数据库、Redis 与 Caddy 沿用原部署，没有随业务程序升级。本次无数据库迁移。
 
 为降低 4 GB 服务器上的构建负载，前端在本机按正式构建脚本生成，再在服务器重建三个应用镜像。Python 依赖文件与服务器原固定摘要镜像逐字节一致（SHA-256 `ad6edf1a019a9d1f3dfff1e46a4d41552c607afa5a93cf782db536ea8452b8ec`）；前端 package/lock 和运行入口相对 v3.8.2 未变。因此本轮使用原固定摘要运行环境，完整替换 backend/locales 和前端静态文件，并加入服务教程。构建文件 `Dockerfile.redeploy`、对应 ignore、元数据和前端产物留在本次源码目录；该做法仅适用于这次依赖相同的提交，后续依赖变化应使用仓库完整 Dockerfile 构建。
 
-运行配置为 `APP_RUNTIME_MODE=production`、`PANEL_WRITE_MODE=live`、`DEFAULT_LANGUAGE=zh-hans`；QA 登录、测试支付、Telegram、试用、余额及分销关闭。原 SMTP、账号、会话密钥、面板凭据和域名保留。原有一个账号和一份旧测试订阅保留；旧订阅没有自动变成新服务，新套餐与服务从后台自行创建和开通。
+运行配置为 `APP_RUNTIME_MODE=production`、`PANEL_WRITE_MODE=live`、`DEFAULT_LANGUAGE=zh-hans`；QA 登录、测试支付、Telegram、试用、余额及分销关闭。原 SMTP、账号、会话密钥、面板凭据和域名保留。原有一个账号和一份旧测试订阅保留；旧订阅没有自动变成新服务，新套餐与服务从后台自行创建和开通。首页调整验收时已有用户自行创建的套餐及服务，仅做读取与页面查看，没有改动这些记录。
 
 原部署目录为 root 的 `0700`，导致容器内健康检查无法遍历 Compose 文件。本轮将目录及两个 Compose 文件的组设为应用组 `10001`，权限分别为 `0750`、`0640`；`.env` 保持 `0600`。修复后后台健康接口返回空告警列表。面板 API 正常读取两个节点组；直接诊断内部面板时须使用项目客户端，它会附带面板要求的转发请求头。
+
+### 客户端订阅名称
+
+2026-10-24（北京时间），按用户要求将线上 Remnawave 订阅设置的 `customResponseHeaders.profile-title` 从 `rwEncodeBase64:Remnawave` 改为 `rwEncodeBase64:Yourouter`，作为客户端导入时使用的默认品牌名称。只修改该响应头，不更改订阅链接、节点、流量、有效期或其他订阅设置。使用 Hiddify 4.1.1 与 v2rayN 请求标识，从公网读取现有服务订阅均返回 HTTP 200，`profile-title` 解码结果均为 `Yourouter`；本轮未操作本机 Hiddify，也未验证旧配置是否自动重命名。
+
+变更前设置保留在服务器私有备份 `/opt/my-vps-obj/backups/subscription-title-20261024.json`。操作期间临时增加集成令牌的 `subscription-settings:write`，完成后已恢复原权限，并清除 Redis 与进程内权限缓存。后续更改导入名称应修改面板订阅设置，不需要重建网站镜像。
 
 ### 日常检查与更新
 
@@ -138,3 +144,24 @@ docker compose logs --since 10m --tail 100 backend worker
 需要回退时，先停止新 backend/worker 并另备份切换后的数据，再恢复这份备份中匹配的数据库、应用文件和旧镜像配置；不要只降级程序而让新业务数据继续由旧模型处理。数据库恢复会回到上述备份时点，之后新建的套餐/服务应先单独留存，并核对面板中已产生的连接。商店数据库恢复方法见[备份说明](../features/backups.md)，本次没有执行线上回退演练，也没有备份或恢复外部面板数据库。
 
 公开站点、会话鉴权、用户服务/目录、后台套餐/资源接口，以及 1440px／390px 页面和套餐编辑弹窗已验证；节点组加载正常，无页面脚本异常和横向溢出。邮箱发码、真实客户端导入及公网独享出口本轮未重测；详细结果见[线上替换记录](../implementation-plan.md#production-cutover-20261023)。
+
+2026-10-23 后续已将简洁首页及独立「我的套餐」菜单部署到同一站点：`/home` 显示品牌与套餐数量摘要，`/services` 承载服务、目录与详情。桌面／手机页面、直接刷新、菜单切换和已有服务详情已在线验证，backend／frontend 健康，worker 运行。用户浏览器可正常访问；本机普通 urllib 公网请求被 Cloudflare 返回 403，不能将其混记为应用故障或该请求通过。完整源码门禁与此轮界面证据见[首页调整记录](../implementation-plan.md#simple-home-20261023)。
+
+
+### 当前线上节点与新增节点
+
+2026-10-23 只读核查面板：只有一台 Node `US Management Test` 已连接，部署在网站服务器 `38.76.215.26`，面板内部管理地址为 `remnanode:2222`。对客户端发布的 Host 为 `US - Operator Test`，入口 `38.76.215.26:443`，对应 `Operator Test` 组与 `Operator Test WS` 配置中的 `VLESS_WS_TEST` 入站（VLESS / WebSocket，内部端口 10080）。管理端口、内部入站端口与客户端入口不可混淆；用户应导入完整订阅，不是直接输入 IP 即可连接。
+
+`Default-Squad` 原先仅关联 `Default-Profile` 的 Shadowsocks 入站（1234），没有对应的已发布客户端 Host，导致该组服务的订阅返回 `No hosts found` 等占位节点。2026-10-23 经用户授权，已保留原入站并将 `VLESS_WS_TEST` 加入默认组；节点重新载入了该组现有 5 份服务身份，后续使用该组的服务也可获得这条美国测试线路。没有重置额度或到期时间。操作期间临时增加集成令牌的 `internal-squads:write`，完成后已恢复原权限，并清除 Redis 与进程内权限缓存。组变更前记录保留于服务器 `/opt/my-vps-obj/backups/default-squad-connectivity-fix-20261023.jsonl`。
+
+修复后，从用户 Mac 读取原故障服务的真实订阅配置，临时运行官方 sing-box 1.14.3（发布资产 SHA-256 已核对），经该节点访问 Google 连通性检测返回 204、Cloudflare 与 Wikipedia 返回 200；Cloudflare 报告出口为 `38.76.215.26`。临时内核已关闭，含身份的临时配置已删除。此证据验证了该服务的公网数据面，但本轮未完成 Hiddify 界面内的订阅更新与切换，客户端仍需刷新旧占位节点缓存。原两台 3x-ui 机器尚未接入此面板。
+
+新增多节点套餐线路的顺序：
+
+1. 在新服务器部署 Remnawave Node，由当前 [Remnawave 面板](https://panel.yourouter.org/auth/login) 统一管理；不需要每台重新安装一套面板。
+2. 在面板建立 Node 及对应配置/入站，再建立客户端 Host，填写实际地址、端口和协议所需参数，确认 Node 在线。
+3. 将该入站加入目标内部节点组（Internal Squad），例如普通线路组或优化线路组。服务通过组获得节点权限；新增 Host 本身不等于授予所有用户访问。
+4. 在 [网站套餐后台](https://vpn.yourouter.org/admin/service-plans) 创建/编辑模板并选择该节点组，再从用户管理开通服务。模板更换组只影响后续开通，已有服务保留资源范围快照；在已有组内增加入站则会改变该组成员可用的线路。
+5. 用一份已授权服务在通用客户端更新订阅，核对节点出现、可连接和流量归属。没有实测前不以面板“在线”代替连接成功。
+
+已有 3x-ui 服务器不能仅录入 IP 就纳管：需要明确并行部署还是迁移，在端口和现有配置安排好后接入 Remnawave Node。单人单 IP 套餐还需实际独享出口及资源验证，增加节点组不会自动创造独享 IP。

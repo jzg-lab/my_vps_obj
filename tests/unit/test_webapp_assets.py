@@ -1093,7 +1093,7 @@ class WebAppAssetTests(unittest.IsolatedAsyncioTestCase):
 
     def test_frontend_nginx_proxies_shell_routes_for_dynamic_theme(self):
         nginx_conf = Path("deploy/docker/frontend/nginx.conf").read_text(encoding="utf-8")
-        marker = 'location ~ "^/(?:$|login/password$|home$|plans$|checkout'
+        marker = 'location ~ "^/(?:$|login/password$|home$|services$|plans$|checkout'
 
         self.assertIn(marker, nginx_conf)
         start = nginx_conf.index(marker)
@@ -1106,6 +1106,7 @@ class WebAppAssetTests(unittest.IsolatedAsyncioTestCase):
         self.assertIn("checkout(?:/[a-fA-F0-9]{32})?$", shell_block)
         self.assertIn("settings(?:/(?:security|notifications))?$", shell_block)
         self.assertIn("devices$", shell_block)
+        self.assertIn("services$", shell_block)
         self.assertIn("admin(?:/.*)?$", shell_block)
 
         fallback_start = nginx_conf.index("location @webapp_static_shell")

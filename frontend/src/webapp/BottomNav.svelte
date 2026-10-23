@@ -1,5 +1,6 @@
 <script lang="ts">
   import {
+    WalletCards,
     Gift,
     Handshake,
     Home,
@@ -23,6 +24,8 @@
 
   type Props = {
     paymentsVisible?: boolean;
+    servicesVisible?: boolean;
+    onServices?: Action;
     extensionNavigation?: UserNavigationItem[];
     activeTab?: string;
     brand?: Record<string, unknown>;
@@ -53,6 +56,8 @@
 
   let {
     paymentsVisible = true,
+    servicesVisible = false,
+    onServices = () => {},
     extensionNavigation = [],
     activeTab = "home",
     brand = {},
@@ -84,6 +89,7 @@
   const visibleNavItems = $derived(
     2 +
       extensionNavigation.length +
+      (servicesVisible ? 1 : 0) +
       (bonusesNavigationVisible ? 1 : 0) +
       (partnerNavigationVisible ? 1 : 0) +
       (devicesEnabled ? 1 : 0) +
@@ -136,6 +142,19 @@
     <Home size={21} />
     <span class="bottom-nav-label">{t("wa_nav_home")}</span>
   </button>
+  {#if servicesVisible}
+    <button
+      data-nav-level="primary"
+      class:active={activeTab === "services"}
+      type="button"
+      aria-label={t("wa_services_nav")}
+      title={t("wa_services_nav")}
+      onclick={onServices}
+    >
+      <WalletCards size={21} />
+      <span class="bottom-nav-label">{t("wa_services_nav")}</span>
+    </button>
+  {/if}
   {#if bonusesNavigationVisible}
     <button
       data-nav-level="primary"

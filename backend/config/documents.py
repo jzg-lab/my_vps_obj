@@ -47,6 +47,7 @@ DOCUMENT_RESERVED_ROOTS = frozenset(
         "partner",
         "plans",
         "s",
+        "services",
         "settings",
         "status",
         "support",

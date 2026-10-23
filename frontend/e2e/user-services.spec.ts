@@ -11,8 +11,18 @@ for (const width of [1440, 390]) {
     page.on("pageerror", (error) => errors.push(error.message));
     await page.setViewportSize({ width, height: 1000 });
     await page.goto(url());
+    await expect(page.locator(".services-home")).toBeVisible();
+    await expect(page.locator(".services-home")).toContainText("12");
+    await expect(page.locator("[data-service-id]")).toHaveCount(0);
+    await page.screenshot({
+      path: testInfo.outputPath(`simple-home-${width}.png`),
+      fullPage: true,
+    });
+    await page.locator("nav").getByRole("button", { name: "Мои тарифы", exact: true }).click();
+    await expect(page).toHaveURL(/\/services\?/);
+    await page.reload();
     const screen = page.locator(".services-screen");
-    await expect(screen.getByRole("heading", { name: "Мои услуги", exact: true })).toBeVisible();
+    await expect(screen.getByRole("heading", { name: "Мои тарифы", exact: true })).toBeVisible();
     const cards = screen.locator("[data-service-id]");
     await expect(cards).toHaveCount(10);
     await expect(cards.first()).toContainText("117 GiB / 100 GiB");
@@ -56,6 +66,8 @@ for (const width of [1440, 390]) {
   test(`empty service account retains settings and security at ${width}px`, async ({ page }) => {
     await page.setViewportSize({ width, height: 1000 });
     await page.goto(url("/", "services-empty"));
+    await expect(page.locator(".services-home")).toContainText("Услуг пока нет");
+    await page.getByRole("button", { name: "Открыть мои тарифы", exact: true }).click();
     await expect(page.getByRole("heading", { name: "Услуг пока нет" })).toBeVisible();
     await page.goto(url("/settings", "services-empty"));
     await expect(page.locator(".settings-profile")).toBeVisible();
@@ -75,9 +87,9 @@ test("old checkout and bonus deep links do not open competing subscription flows
   page,
 }) => {
   await page.goto(`${url("/checkout")}&promo=GIFT7&topup=regular`);
-  await expect(page.getByRole("heading", { name: "Мои услуги", exact: true })).toBeVisible();
+  await expect(page.locator(".services-home")).toBeVisible();
   await expect(page.getByRole("dialog")).toHaveCount(0);
   await expect(page.locator(".checkout-entry-screen")).toHaveCount(0);
   await page.goto(url("/invite"));
-  await expect(page.getByRole("heading", { name: "Мои услуги", exact: true })).toBeVisible();
+  await expect(page.locator(".services-home")).toBeVisible();
 });

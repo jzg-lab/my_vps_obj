@@ -10,7 +10,7 @@ for (const width of [1440, 390]) {
     await page.locator(".language-select-trigger:not(.theme-select-trigger)").click();
     await page.getByRole("option", { name: /简体中文/ }).click();
     await expect(page.locator("html")).toHaveAttribute("lang", "zh-hans");
-    await page.goto("/demo/runtime/app/?mock=services&delivery=1&theme_preview=dark");
+    await page.goto("/demo/runtime/services?mock=services&delivery=1&theme_preview=dark");
 
     const cards = page.locator("[data-service-id]");
     const links: string[] = [];
@@ -73,7 +73,7 @@ for (const width of [1440, 390]) {
     await page.locator(".language-select-trigger:not(.theme-select-trigger)").click();
     await page.getByRole("option", { name: /简体中文/ }).click();
     await expect(page.locator("html")).toHaveAttribute("lang", "zh-hans");
-    await page.goto("/demo/runtime/app/?mock=services&delivery=1&guide_fail=1");
+    await page.goto("/demo/runtime/services?mock=services&delivery=1&guide_fail=1");
     await page
       .locator("[data-service-id]")
       .nth(2)

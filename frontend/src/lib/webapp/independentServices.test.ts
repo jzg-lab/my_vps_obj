@@ -33,26 +33,31 @@ describe("independent service presentation", () => {
       expect(independentServiceScreen(screen)).toBe("home");
     }
   );
-  it.each(["settings", "security", "notifications", "support", "admin"])(
+  it.each(["services", "settings", "security", "notifications", "support", "admin"])(
     "keeps %s usable",
     (screen) => {
       expect(independentServiceScreen(screen)).toBe(screen);
     }
   );
-  it("ships the service copy in both base languages", () => {
+  it("ships service and home copy in all three languages", () => {
     const en = JSON.parse(
       readFileSync(new URL("../../../../locales/en.json", import.meta.url), "utf8")
     );
     const ru = JSON.parse(
       readFileSync(new URL("../../../../locales/ru.json", import.meta.url), "utf8")
     );
-    const source = readFileSync(
-      new URL("../../webapp/screens/ServicesScreen.svelte", import.meta.url),
-      "utf8"
+    const zh = JSON.parse(
+      readFileSync(new URL("../../../../locales/zh-hans.json", import.meta.url), "utf8")
     );
+    const source = ["ServicesScreen", "ServicesHomeScreen"]
+      .map((name) =>
+        readFileSync(new URL(`../../webapp/screens/${name}.svelte`, import.meta.url), "utf8")
+      )
+      .join("\n");
     for (const key of source.matchAll(/"(wa_services_\w+)"/g)) {
       expect(en[key[1]], key[1]).toBeTruthy();
       expect(ru[key[1]], key[1]).toBeTruthy();
+      expect(zh[key[1]], key[1]).toBeTruthy();
     }
   });
 });

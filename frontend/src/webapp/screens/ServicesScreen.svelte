@@ -168,7 +168,7 @@
 <main class="content with-nav services-screen">
   <header class="services-header">
     <div class="brand-row"><BrandMark {brand} /><strong>{brandTitle}</strong></div>
-    <h1>{t("wa_services_title")}</h1>
+    <h1>{t("wa_services_nav")}</h1>
     <p>{t("wa_services_independent_hint")}</p>
   </header>
   <div class="services-toolbar">

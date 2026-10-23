@@ -21,6 +21,7 @@ describe("informationPagePathFromLocation", () => {
   it("does not capture SPA routes or traversal-shaped paths", () => {
     for (const path of [
       "/home",
+      "/services",
       "/login/password",
       "/legal",
       "/webapp-logo",
@@ -47,6 +48,8 @@ describe("documentSlugFromLocation", () => {
 
   it("rejects reserved roots and traversal-shaped paths", () => {
     expect(documentSlugFromLocation("/api/documents/about")).toBeNull();
+    expect(documentSlugFromLocation("/services")).toBeNull();
+    expect(documentHref("services")).toBe("/docs/services");
     expect(documentSlugFromLocation("/extensions/sample/resources")).toBeNull();
     expect(documentSlugFromLocation("/about%2fsecret")).toBeNull();
     expect(documentSlugFromLocation("/docs/About")).toBeNull();

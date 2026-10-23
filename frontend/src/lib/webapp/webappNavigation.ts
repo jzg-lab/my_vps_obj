@@ -38,6 +38,10 @@ export function createWebappNavigation({
     syncSectionPath(section);
   }
 
+  function goServices() {
+    showSection("services");
+  }
+
   function goHome() {
     showSection("home");
   }
@@ -110,6 +114,7 @@ export function createWebappNavigation({
   return {
     goDevices,
     goHome,
+    goServices,
     goInstall,
     goInvite,
     goPartner,

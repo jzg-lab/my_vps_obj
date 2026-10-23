@@ -224,6 +224,7 @@ def setup_subscription_webapp_routes(app: web.Application) -> None:
     app.router.add_get("/", index_route)
     app.router.add_get("/login/password", index_route)
     app.router.add_get("/home", index_route)
+    app.router.add_get("/services", index_route)
     app.router.add_get("/extensions", index_route)
     app.router.add_get(r"/extensions/{owner:[a-z][a-z0-9-]+}/{view:[a-z][a-z0-9-]+}", index_route)
     app.router.add_get("/api/extensions/runtime", extension_runtime_route)

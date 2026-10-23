@@ -21,6 +21,7 @@
   import UserExtensions from "./extensions/UserExtensions.svelte";
   import type { UserNavigationItem } from "$lib/webapp/extensionHost";
   import WebAppShell from "./WebAppShell.svelte";
+  import ServicesHomeScreen from "./screens/ServicesHomeScreen.svelte";
   import ServicesScreen from "./screens/ServicesScreen.svelte";
   import HomeScreen from "./screens/HomeScreen.svelte";
   import ScreenLoading from "./screens/ScreenLoading.svelte";
@@ -88,6 +89,7 @@
     notificationPreferencesEnabled?: boolean;
     goDevices: VoidAction;
     goHome: VoidAction;
+    goServices: VoidAction;
     goInvite: VoidAction;
     goInstall: VoidAction;
     goPartner: VoidAction;
@@ -221,6 +223,7 @@
     notificationPreferencesEnabled = true,
     goDevices,
     goHome,
+    goServices,
     goInvite,
     goInstall,
     goPartner,
@@ -424,6 +427,8 @@
   {brand}
   devicesEnabled={!independentServices && devicesEnabled}
   paymentsVisible={!independentServices}
+  servicesVisible={independentServices}
+  {goServices}
   supportEnabled={supportEnabled || extensionSections.includes("support")}
   {supportUnreadCount}
   {supportUnreadLoading}
@@ -458,6 +463,8 @@
     bind:sections={extensionSections}
   >
     {#if screen === "home" && independentServices}
+      <ServicesHomeScreen {api} {t} {brand} {brandTitle} {goServices} />
+    {:else if screen === "services" && independentServices}
       <ServicesScreen {api} {t} {brand} {brandTitle} />
     {:else if screen === "home"}
       <HomeScreen

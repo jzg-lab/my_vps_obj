@@ -315,6 +315,7 @@
   const confirmSubscriptionReissue = $derived(appActions.confirmSubscriptionReissue);
   const goDevices = $derived(appActions.goDevices);
   const goHome = $derived(appActions.goHome);
+  const goServices = $derived(appActions.goServices);
   const goInstall = $derived(appActions.goInstall);
   const goInvite = $derived(appActions.goInvite);
   const goPartner = $derived(appActions.goPartner);
@@ -627,6 +628,7 @@
       {emailAuthEnabled}
       {notificationPreferencesEnabled}
       {goDevices}
+      {goServices}
       {goHome}
       {goInstall}
       {goInvite}

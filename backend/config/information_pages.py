@@ -36,6 +36,7 @@ _RESERVED_ROOT_SEGMENTS = frozenset(
         "subscription_webapp.css",
         "subscription_webapp.js",
         "support",
+        "services",
         "settings",
         "unsubscribe",
         "webapp-default-logo.webp",

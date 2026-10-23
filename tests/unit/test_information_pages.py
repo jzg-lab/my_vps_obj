@@ -36,6 +36,7 @@ def test_legal_and_generic_routes_map_to_separate_markdown_roots(tmp_path: Path)
     "path",
     [
         "/home",
+        "/services",
         "/login/password",
         "/webapp-logo",
         "/legal",
