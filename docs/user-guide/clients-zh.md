@@ -2,11 +2,11 @@
 
 本教程适用于本项目的独立服务。网站账号可以有多份服务；每份服务有自己的订阅、额度、到期时间和连接身份。安装客户端不会自动开通服务，也不会把另一份服务的流量转过来。
 
-**当前验证边界：**已核查下方官方渠道和公开平台要求，并准备中文教程配置；本项目尚未提供用于客户端验收的真实订阅，因此所有客户端的导入、更新、节点权限、计量及撤销实测均为**待验证**。不要把“客户端支持某类订阅”理解为“已通过本项目验收”。
+**先确认验收范围：**客户端与执行层的具体版本、环境、证据和未测项只查[实施计划 §14：本轮本地最终验收](../implementation-plan.md#本轮本地最终验收)。Mihomo 原生核心验证不等于各平台图形客户端认证，也不能推定所有协议或设备通过。下方只保留本地教程已有候选和官方入口，不提供新的维护、价格或兼容性排名。
 
 ## 1. 先选择服务
 
-在网站登录，打开“我的服务”，按服务名称和服务 ID 选择这次要使用的一份，核对资源类型、额度、已用量及到期时间。
+在网站登录，打开“我的套餐”（`/services`），在“我的服务”页签按服务名称和服务 ID 找到这次要用的一份，再打开“服务详情”，核对资源类型、额度、已用量及到期时间。另一页签“套餐目录”只介绍可开通条款，一期由管理员人工开通，不是自助付款或申请入口。
 
 - 显示等待连接配置、等待核验或暂未提供订阅时，联系管理员完成交付；不要复制其他账号或其他服务的链接代替。
 - 显示已暂停、已到期、额度已耗尽或账号已封禁时，先处理该状态。刷新订阅不会续期或增加额度。
@@ -15,34 +15,34 @@
 
 ## 2. 从官方渠道安装
 
-以下清单在 **2026-10-23** 核查。每个桌面平台列 4 款，Android/iOS 各 3 款；电视按已查到的支持列出。顺序用于选择，不代表速度或兼容性排名。客户端费用与本项目服务价格无关，商店地区、系统版本和架构可能限制安装。
+下列清单来自仓库现有中文教程资料，不增加候选范围。表中的平台分组用于查找安装来源，不是对具体设备的兼容承诺；安装前核对所选发行包或商店的系统、架构、地区与费用要求。客户端费用与本项目服务价格无关，本文不把过去记录的版本或价格当成最新值。
 
-| 平台 | 候选客户端 | 已核查的要求及限制 |
+| 平台 | 本地教程候选 | 安装前核对 |
 | --- | --- | --- |
-| Android 手机/平板 | Hiddify、FlClash、v2rayNG | 使用官方 APK，区分 ARM64、ARMv7、x86_64。v2rayNG 当前源码要求 Android API 24（Android 7.0）；其他两款使用 Flutter 的最低版本配置，已核查发布说明未给出稳定的独立最低版本，安装前须以对应发行包要求为准。 |
-| iPhone/iPad | Shadowrocket、Stash、Streisand | 官方商店当前分别要求 iOS/iPadOS 13.0、16.0、14.0。需能访问对应地区商店；不要购买共享账号。 |
-| Windows | Hiddify、FlClash、Clash Verge Rev、v2rayN | FlClash 官方说明要求 Windows 10+；按 x64/ARM64 等发行包选型。其余精确最低版本及运行时依赖以对应发行说明为准，不能按文件名推断兼容。 |
-| macOS | Hiddify、FlClash、Clash Verge Rev、v2rayN | FlClash 要求 macOS 12+；Clash Verge Rev README 标明 macOS 11+。核对 Intel/Apple Silicon，其他最低系统版本以发行说明为准。不要为了安装关闭系统安全保护。 |
-| Linux | Hiddify、FlClash、Clash Verge Rev、v2rayN | 按发行版、x64/ARM64 和包格式选择。FlClash 提供 deb/rpm/AppImage；桌面托盘、WebView、TUN 权限与依赖仍需在目标系统实测。 |
-| Android TV | FlClash | 官方 README 明确支持 Android TV；具体电视架构、遥控器操作、VPN 权限与订阅输入待实测。不用手机可安装推断电视可用。 |
-| Apple TV | Shadowrocket、Stash | 两款官方商店页面均列出 tvOS 17.0+。遥控器操作、手机协助导入及具体协议待实测。 |
+| Android 手机/平板 | Hiddify、FlClash、v2rayNG | 使用官方发行包，核对 Android 最低版本及 ARM64、ARMv7、x86_64 等架构。 |
+| iPhone/iPad | Shadowrocket、Stash、Streisand | 核对商店地区、系统最低版本和收费；不要购买共享账号。 |
+| Windows | Hiddify、FlClash、Clash Verge Rev、v2rayN | 核对 Windows 版本、x64／ARM64 与运行时依赖，不能只按文件名推断兼容。 |
+| macOS | Hiddify、FlClash、Clash Verge Rev、v2rayN | 区分 Intel／Apple Silicon，核对最低系统版本，不为安装关闭系统安全保护。 |
+| Linux | Hiddify、FlClash、Clash Verge Rev、v2rayN | 核对发行版、架构和包格式；桌面托盘、WebView、TUN 权限与依赖需在目标系统检查。 |
+| Android TV | FlClash | 按电视发行包核对架构、遥控器操作、VPN 权限与订阅输入；手机可安装不证明电视可用。 |
+| Apple TV | Shadowrocket、Stash | 在商店核对 tvOS 要求，单独检查遥控器操作、导入方式与协议，不能沿用手机结论。 |
 
-| 客户端与官方来源 | 核查到的维护信息 | 订阅格式核对重点 |
-| --- | --- | --- |
-| [Hiddify 官方仓库及发行页](https://github.com/hiddify/hiddify-app/releases) | 仓库未归档；最新稳定标签 v4.1.1，发布于 2026-03-05；仓库 2026-10-21 仍有更新。源码更新不等于发布包更新。 | 确认服务网关输出的 URI/sing-box 等格式及协议受所装版本支持。 |
-| [FlClash 官方仓库及发行页](https://github.com/chen08209/FlClash/releases) | 仓库未归档；v0.9.1，2026-10-17 发布。 | 需要兼容的 Clash/Mihomo YAML，不能直接假定任意订阅链接都可用。 |
-| [v2rayNG 官方仓库及发行页](https://github.com/2dust/v2rayNG/releases) | 仓库未归档；2.3.11，2026-10-11 发布。 | 逐项核对服务输出的 URI/base64 订阅和 Xray 协议支持。 |
-| [v2rayN 官方仓库及发行页](https://github.com/2dust/v2rayN/releases) | 仓库未归档；7.25.6，2026-10-11 发布。 | 选定内核及平台后验证订阅格式；同名客户端不同内核不保证结果相同。 |
-| [Clash Verge Rev 官方仓库及发行页](https://github.com/clash-verge-rev/clash-verge-rev/releases) | 仓库未归档；v2.5.8，2026-10-09 发布。 | 需要兼容的 Clash/Mihomo YAML。不要混淆已停止维护的旧 Clash for Windows。 |
-| [Shadowrocket 官方商店](https://apps.apple.com/us/app/shadowrocket/id932747118) | 开发者 Shadow Launch Technology Limited；2.2.92，2026-09-07 更新。核查时美国商店 USD 2.99，实际地区价格以购买页为准。 | 核对 URI 订阅及所用协议；tvOS 与手机分别验收。 |
-| [Stash 官方商店](https://apps.apple.com/us/app/stash-rule-based-proxy/id1596063349) | 开发者 Stash Networks Limited；3.6.5，2026-10-21 更新。核查时美国商店 USD 5.99。 | 核对 Clash YAML，不能把 Mihomo 的全部扩展都视为兼容。 |
-| [Streisand 官方商店](https://apps.apple.com/us/app/streisand/id6450534064) | 开发者 ARCADIA ODYSSEY INC.；1.6.76，2026-09-10 更新。核查时免费，应用内收费及地区限制以商店为准。 | 核对 URI 订阅及版本协议支持；本清单不将其作为电视候选。 |
+| 客户端与官方来源 | 订阅格式核对重点 |
+| --- | --- |
+| [Hiddify 官方仓库及发行页](https://github.com/hiddify/hiddify-app/releases) | 核对当前服务输出的 URI／sing-box 等格式及协议是否受所装版本支持。 |
+| [FlClash 官方仓库及发行页](https://github.com/chen08209/FlClash/releases) | 核对 Clash／Mihomo YAML，不能假定任意订阅链接都可用。 |
+| [v2rayNG 官方仓库及发行页](https://github.com/2dust/v2rayNG/releases) | 核对 URI／base64 订阅与 Xray 协议支持。 |
+| [v2rayN 官方仓库及发行页](https://github.com/2dust/v2rayN/releases) | 选定内核及平台后验证格式；不同内核不保证结果相同。 |
+| [Clash Verge Rev 官方仓库及发行页](https://github.com/clash-verge-rev/clash-verge-rev/releases) | 核对 Clash／Mihomo YAML；不要混淆同名或旧分支。 |
+| [Shadowrocket 官方商店](https://apps.apple.com/us/app/shadowrocket/id932747118) | 核对 URI 订阅及协议；tvOS 与手机分别验收。 |
+| [Stash 官方商店](https://apps.apple.com/us/app/stash-rule-based-proxy/id1596063349) | 核对 Clash YAML，不把 Mihomo 全部扩展视为兼容。 |
+| [Streisand 官方商店](https://apps.apple.com/us/app/streisand/id6450534064) | 核对 URI 订阅及版本协议支持；本地教程不将其列为电视候选。 |
 
-以上依据各官方仓库 README、GitHub Releases API 和 Apple 商店页面/查询接口，不使用下载站排名。维护信息只是核查时的事实，不构成长期维护保证。
+官方入口保留自本地资料，本次文档整理未重新联网核验发行信息。格式匹配只是必要条件，实际导入、刷新、连接、权限与撤销仍须按具体版本及环境验证。
 
 ## 3. 导入所选服务
 
-1. 在服务详情确认此服务已可交付，使用该页面提供的本服务订阅入口。复制前再次核对服务 ID。
+1. 在“服务详情”点击“导入订阅”。页面取得本服务核验后的链接，才显示复制区及“安装与配置”；复制前再次核对服务 ID。无法确认交付时先刷新服务，不使用旧账号链接回退。
 2. 打开客户端，选择“添加远程订阅／配置／从链接导入”等对应入口，粘贴链接并命名。按钮名称随客户端版本及语言变化。
 3. FlClash、Clash Verge Rev、Stash 需要兼容的 YAML；v2rayN、v2rayNG、Shadowrocket、Streisand 等也要核对具体格式和协议。若提示格式不支持，请让管理员核对网关输出，不要把凭据发给第三方订阅转换网站。
 4. 更新这份配置，选择它包含的一个节点，再开启系统代理或 VPN。首次使用按系统提示授予必要权限。是否需要 TUN 取决于使用场景，不默认要求它。
@@ -58,18 +58,18 @@
 | --- | --- |
 | 没有订阅按钮 | 服务是否已交付；等待配置/核验状态应联系管理员。 |
 | 导入报格式错误 | 链接是否完整、客户端版本和格式是否匹配。不要自行换身份或清零计数。 |
-| 更新失败 | 本机网络、网站登录/服务状态、客户端时间；保留已确认信息，不据失败认定额度为零。 |
+| 更新失败 | 核对本机网络、服务状态、客户端时间、订阅地址及证书错误。网站获取链接需要登录；客户端刷新使用订阅凭据，不靠网站会话。不要关闭 TLS 校验解决证书错误，也不据更新失败认定额度为零。 |
 | 网站有效但不能连接 | 所选配置是否属于此服务、节点是否在授权范围、服务是否有待同步或故障提示。 |
 | 显示用量待核对 | 页面保留最后确认量。记录提示和时间，交管理员准确核对；不要用估算数字恢复。 |
-| 已停用但客户端还有节点 | 本地旧配置可能仍在列表中，不代表有连接权限。实际停用须服务端确认，相关验收仍待真实节点。 |
+| 已停用但客户端还有节点 | 本地缓存或占位项仍在列表中不代表有连接权限。实际停用由服务端执行；管理员须核对执行证据，不能用列表消失代替旧连接停止和新连接拒绝。 |
 | 专用出口 IP 不符 | 停止把它当作已核验专用出口使用，提供服务 ID 和脱敏证据给管理员；不默认换成共享出口。 |
 
 联系客服时提供服务 ID、系统/客户端版本、北京时间、操作步骤和脱敏错误。不要发送密码、完整订阅、二维码或 API 密钥。不要通过重置流量或新建身份“修复”计数异常。
 
 ## 管理员：复用教程配置
 
-仓库中的 `deploy/examples/independent-services-guides.json` 使用现有 Remnawave Subscription Page v1 格式，含 `zh`/`en`/`ru`，每款按“选择服务 → 安装 → 导入 → 更新”组织。所有客户端都明确保留“本项目导入待验证”，不设置已验证推荐标记。
+仓库中的 `deploy/examples/independent-services-guides.json` 使用现有 Remnawave Subscription Page v1 格式，含 `zh`/`en`/`ru`，每款按“选择服务 → 安装 → 导入 → 更新”组织。配置中的“本项目导入待验证”是图形客户端教程的保守提示，不是全部原生客户端测试的结论；不要据 Mihomo 核心验证替所有 GUI 标记通过。
 
 - 这份配置随 backend 镜像打包，由已登录网站的 `/api/service-guides` 入口读取；独立服务教程无需额外 `.env` 设置，也不使用旧账号订阅教程接口。若要定制品牌、Logo、客服或客户端列表，请修改该 JSON，按现有 v1 校验器检查后重建部署；品牌和业务内容不会自动翻译。
-- `{{SUBSCRIPTION_LINK}}` 只是模板占位符。教程按钮仅使用当前服务经 `/api/services/{service_id}/subscription` 核验后返回的链接；配置接口不返回凭据。B/D 完成格式、实际连接和旧配置撤销验收前，不据示例教程宣称真实客户端兼容。
+- `{{SUBSCRIPTION_LINK}}` 只是模板占位符。教程按钮仅使用当前服务经 `/api/services/{service_id}/subscription` 核验后返回的链接；配置接口不返回凭据。格式示例不能代替实际连接和旧配置撤销证据，验证范围统一查实施计划，不沿用历史窗口分工判断当前状态。
 - 集成后逐平台记录客户端版本、输出格式、导入、更新、实际连接、两服务隔离、旧配置撤销和专用出口结果。失败/未测保持原样记录，不能用“面板成功”代替。

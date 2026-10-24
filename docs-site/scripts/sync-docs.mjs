@@ -69,6 +69,7 @@ function toPosix(relativePath) {
 }
 
 function outputRelativePath(sourceRelativePath) {
+  if (sourceRelativePath === '../README.md') return 'index.md';
   if (sourceRelativePath === '../CHANGELOG.md') {
     return 'changelog.md';
   }
@@ -98,17 +99,26 @@ function extractTitle(relativePath, content) {
 }
 
 function stripFirstHeading(content) {
-  return content.replace(/^#\s+.+?\s*\r?\n+/, '');
+  return content.replace(/^#\s+.+?\s*(?:\r?\n|$)/m, '');
 }
 
 function rewriteMarkdownLinks(markdown, sourceRelativePath) {
   const sourceDirectory = path.posix.dirname(sourceRelativePath);
-  return markdown.replace(/\]\((?!https?:\/\/|mailto:|tel:|\/|#)([^)\s]+\.md)(#[^)]+)?\)/g, (match, target, hash = '') => {
+  const rootPages = new Set(['../README.md', '../CHANGELOG.md']);
+  return markdown.replace(/(?<!!)\[([^\]\n]+)\]\((?!https?:\/\/|mailto:|tel:|\/|#)([^)#\s]+)(#[^)]+)?\)/g, (match, label, target, hash = '') => {
     const resolvedTarget = path.posix.normalize(path.posix.join(sourceDirectory, target));
     const docsRelativeTarget = resolvedTarget.startsWith('../docs/')
       ? resolvedTarget.slice('../docs/'.length)
       : resolvedTarget;
-    return `](${pagePathForSource(docsRelativeTarget, hash)})`;
+    if (docsRelativeTarget.endsWith('.md') && (!docsRelativeTarget.startsWith('../') || rootPages.has(docsRelativeTarget))) {
+      return `[${label}](${pagePathForSource(docsRelativeTarget, hash)})`;
+    }
+    if (docsRelativeTarget === 'openapi.json') return `[${label}](/openapi.json${hash})`;
+    if (docsRelativeTarget.startsWith('../')) {
+      const repositoryPath = path.posix.normalize(`docs/${docsRelativeTarget}`);
+      return `${label}（仓库路径：\`${repositoryPath}${hash}\`）`;
+    }
+    return match;
   });
 }
 

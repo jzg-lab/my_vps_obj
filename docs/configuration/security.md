@@ -2,7 +2,7 @@
 
 <a id="безопасность"></a>
 
-Minishop 的安全主要依赖固定密钥、正确划分公开域名，以及受控的管理后台访问权限。
+本项目的安全配置包括固定密钥、环境隔离、公开入口及管理权限。先从[本地源码流程](../development/project-local.md)核对环境；账号和服务操作遵循[统一管理台指南](../admin-console-guide.md)的 UA-02／UA-20，不因有 SSH 别名或历史运维记录就获得生产操作授权。
 
 > 本页同时记录上游保留功能的安全要求。支付、试用等描述不表示本项目 MVP 已启用这些功能；当前范围见[需求文档](../requirements.md)。本地验证使用[隔离开发环境](../development/project-local.md)，不得将现有生产节点作为可随意重置的测试资源。
 
@@ -11,11 +11,12 @@ Minishop 的安全主要依赖固定密钥、正确划分公开域名，以及�
 <a id="секреты"></a>
 
 - `WEBAPP_SESSION_SECRET` 必须在重启之间保持不变，否则 Web App 会话会失效。
+- `EMAIL_AUTH_SECRET` 保护邮箱验证码和免密链接；已有环境不得为排障随意重新生成固定密钥。
 - `WEBHOOK_SECRET_TOKEN` 用于保护 Telegram webhook。
-- `PANEL_WEBHOOK_SECRET` 用于验证 Remnawave Panel 的入站事件。在 Remnawave Panel 中设置密钥，再填入机器人配置。
+- `PANEL_WEBHOOK_SECRET` 是上游账号级 Panel webhook 的校验配置；本项目对应旧回调已退役，不靠它驱动独立服务同步，也不要求为独立服务重新开启旧回调。
 - 支付令牌和 webhook 密钥应保存在 `.env` 或管理后台设置中，并相应限制服务器访问权限。
 
-生成密钥：
+仅为新环境生成尚未配置的密钥；下列命令只输出随机值，不自动修改现有配置：
 
 ```bash
 openssl rand -hex 32
@@ -51,15 +52,18 @@ Telegram FloodWait 之前，将这类异常突发流量丢弃。
 - 管理后台访问由内部账号保存的 `owner` 和 `admin` 角色决定。
 - 首位所有者需在验证邮箱后，通过服务器命令指定。
 - `ADMIN_IDS` 仅用作旧管理员的一次性导入来源，且要求 Telegram 身份已可靠绑定。
+- 管理员使用本项目同一账号进入客户与节点管理流程；外部高级维护仍使用外部面板自己的认证，不承诺 SSO。
 
 ## 公开 URL
 
 <a id="публичные-url"></a>
 
-- `WEBHOOK_BASE_URL` 必须指向 backend 的 webhook 服务。
-- Remnawave Panel 的 `WEBHOOK_URL` 必须为 `WEBHOOK_BASE_URL` 加 `/webhook/panel`，例如 `https://app.example.com/webhook/panel`。
+- 使用 Telegram 等已启用 webhook 时，`WEBHOOK_BASE_URL` 指向 backend 的 webhook 服务。
+- 上游单订阅部署的 Panel `WEBHOOK_URL` 采用 `WEBHOOK_BASE_URL` 加 `/webhook/panel`；本项目账号级 Panel 和支付回调返回 `410 legacy_business_retired`，不能将配置该地址当作独立服务接入步骤。
 - `SUBSCRIPTION_MINI_APP_URL` 必须指向 frontend/Mini App 域名。
 - 不要在 `SUBSCRIPTION_MINI_APP_URL` 后追加 `/api`、`/auth` 或 webhook 路径。
+- `PUBLIC_APP_URL` 是浏览器用户中心及邮件使用的公开地址；本机隔离环境的回环 HTTP 地址不用于公网。
+- 高级维护只接受显式且通过安全校验的 `PANEL_PUBLIC_URL`，不从内部 `PANEL_API_URL` 自动推导，也不在浏览器链接中携带 API 密钥或 Cookie。
 
 ## 前后端分离部署
 
@@ -69,7 +73,7 @@ Telegram FloodWait 之前，将这类异常突发流量丢弃。
 - 将 `WEBAPP_API_BASE_URL` 保持为 `/api`；在前端 JavaScript 中填写独立后端源并不能提供保护，反而会将 WebApp API 直接暴露给用户。
 - 连接受保护的上游时，配置前端 nginx 的 `WEBAPP_BACKEND_UPSTREAM` 和 `MINISHOP_EDGE_TOKEN`，由 nginx 在服务端向上游请求添加令牌。
 - 不得将 `MINISHOP_EDGE_TOKEN` 放入运行时配置或前端包；任何浏览器可见的令牌都能在开发者工具中读到。
-- 令牌、防火墙和 VPN 保护应用于 WebApp API 端口 `backend:8081`。Telegram、支付渠道和 Remnawave Panel 的 webhook 仍使用公开 webhook 端口 `backend:8080`，不得要求 `MINISHOP_EDGE_TOKEN`。
+- 令牌、防火墙和 VPN 保护应用于 WebApp API 端口 `backend:8081`。Telegram 及保留的上游 webhook 路由使用 `backend:8080`，不得要求 `MINISHOP_EDGE_TOKEN`；其中已退役的支付和账号级 Panel 回调仍返回 410。
 - 上游为 `https://bot.example.com` 时，设置 Host/SNI（`WEBAPP_BACKEND_UPSTREAM_HOST=bot.example.com`）及路由顺序，让 `/api/*`、`/auth/*`、`/open-app`、标志、主题和网站图标路径在通用 webhook 兜底路由之前转发至 `8081`。
 
 ## Webhook IP 白名单
@@ -122,8 +126,10 @@ PayKilla 汇率 URL 只接受 HTTP(S)；同步和异步请求路径都会限制�
 独立 worker 每 5 秒从数据库刷新 SMTP 和支付渠道设置，包括重置回 `.env` 值的操作。
 修改地址无需重启 worker；backend 进程中的配置在保存后立即生效。
 
-指南文件只能位于 `data/subpage-config` 内，或使用 `.env` 中原始配置的路径。
+上游订阅指南文件只能位于 `data/subpage-config` 内，或使用 `.env` 中原始配置的路径。
 读取仅限普通文件，大小上限为 4 MiB；管理员修改路径不会获得读取任意服务器文件的权限。
+
+本项目独立服务教程读取随源码交付的 `deploy/examples/independent-services-guides.json`，不使用上述旧指南配置覆盖；参见[初始配置](../getting-started/configuration.md)。
 
 - 所有公开域名均应使用 HTTPS。
 - 限制服务器及 `.env` 的访问权限。

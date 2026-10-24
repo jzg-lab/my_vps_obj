@@ -2,49 +2,55 @@
 
 <a id="обслуживание"></a>
 
-计划维护通常包括更新镜像、检查迁移、日志和备份。自动 ZIP 备份及恢复的详细步骤见[备份与恢复](../features/backups.md)。
+先确认正在维护哪一个环境：本项目开发使用[隔离源码流程](../development/project-local.md)，已有线上资料见 [production-access](../development/project-local.md#production-access)，上游通用部署见[兼容参考](../getting-started/deployment.md)。不要混用它们的镜像、配置、卷或凭据。
 
-> 本页保留上游运维流程，不代表本项目已完成生产部署或真实 Node 验收。当前 MVP 使用管理员手动激活、无支付；开发与验收使用[隔离开发环境](../development/project-local.md)，不将现有生产节点作为测试资源。
+本项目按客户与节点两条主线维护独立服务，日常操作见[统一管理台指南](../admin-console-guide.md) F01～F07。当前进度与证据只查[本轮本地最终验收](../implementation-plan.md#本轮本地最终验收)，本地通过不表示生产已更新。
 
 ## 更新
 
 <a id="обновление"></a>
 
-```bash
-docker compose pull
-docker compose up -d
-docker compose logs -f migrate backend worker
-```
+1. 核对目标目录、Docker context、Compose 项目和环境文件，记录源码快照与镜像。共享脏工作树先协调写入，保留未提交内容，不能直接 `git pull` 覆盖。
+2. 按 CONTRIBUTING.md 完成对应检查，构建与源码匹配的自有镜像。上游公开镜像不包含本项目改造，`docker compose pull` 不是二开更新流程。
+3. 确认维护范围、备份及回退组合后，只停止目标写入进程，执行缺失的追加迁移并更新受影响服务；不改旧迁移、不重播 seed、不删卷。
+4. 按下方清单核对，结果只登记在实施计划。
+
+本地 `project:up` 包含构建、迁移和 seed；它用于初始化，不应不经核对就当作已有验收环境的刷新命令。生产更新不能复制本机 QA 配置；已有授权在原目标与操作范围内可延续，超出范围再确认。
 
 ## PostgreSQL 备份
 
 <a id="резервная-копия-postgresql"></a>
 
+备份范围至少区分商店数据库、应用文件及外部面板，操作细节见[备份与恢复](../features/backups.md)。数据库转储包含敏感数据，保存在私有目录，不写入 Git。
+
+**以下仅适用于已核对的上游单文件 Compose 部署目录。** 先核对 Docker context、项目、数据库和备份磁盘；本项目多 overlay 环境应使用其完整 Compose 参数。此命令读取数据库并写新归档，不能证明与外部面板处于同一时点。
+
 ```bash
-docker compose exec -T postgres sh -c 'pg_dump -U "$POSTGRES_USER" -d "$POSTGRES_DB"' > backup.sql
+umask 077
+mkdir -p backups
+backup_path="backups/manual-$(date -u +%Y%m%dT%H%M%SZ).sql"
+(set -C; docker compose exec -T postgres sh -c 'pg_dump -U "$POSTGRES_USER" -d "$POSTGRES_DB"' > "$backup_path")
 ```
+
+确认命令成功退出并检查归档；失败时可能留下不完整文件，不得据此恢复。恢复验证在明确授权的隔离目标进行。已有线上备份路径保留在 production-access，不因文档整理改名或重新备份。
 
 ## 自动备份
 
 <a id="автоматические-бэкапы"></a>
 
-worker 可将 PostgreSQL 转储和 Compose 目录快照打包为 ZIP，发送到 Telegram，并在 `data/backups` 保留最近的归档。配置及恢复流程见[专门章节](../features/backups.md)。
+保留的备份能力可将 PostgreSQL 转储和 Compose 目录打包，并按配置保存或发送到 Telegram；本项目开发模板默认关闭自动备份。是否启用、备份内容、保留和投递策略需按目标环境核对，不能从功能存在推断归档已产生。
 
-修改 `.env` 中的备份设置后，重新启动 backend 和 worker：
+环境文件变更后，按已确认的目标 Compose 组合重建受影响进程，并核对日志；后台覆盖值可能优先于文件。仅为排障不启用外部发送，也不在共享引擎执行无范围 `prune` 或 `down -v`。
 
-```bash
-docker compose up -d --build backend worker
-docker compose logs -f backend worker
-```
-
-管理后台的**系统 → 备份**支持从归档恢复。也可在此手动上传 ZIP，选择“数据库”和／或“Compose 目录”；backend 会在开始前验证归档。详情参见[备份与恢复](../features/backups.md#восстановление-из-админки)。
+后台备份页保留上传和恢复能力，详见[恢复说明](../features/backups.md#восстановление-из-админки)。恢复会覆盖所选数据库／文件，须先确认恢复时点、备份当前状态并停止目标写入；匹配代码和数据库一起恢复，再核对远端身份与权限。归档验证通过不等于已完成恢复演练。
 
 ## 维护后的检查
 
 <a id="проверки-после-работ"></a>
 
-- `docker compose ps`。
-- `docker compose logs -f backend worker frontend`。
-- backend 域名上的 `/healthz`。
-- 登录 Mini App 和管理后台。
-- 当前 MVP 检查管理员手动激活；上游已启用支付或试用的环境可检查测试付款或测试激活。
+- 本地用 `npm run project:ps` 和 `npm run project:logs`；其他环境使用已核对的 Compose 项目，不切换目录碰运气。
+- 分别检查 backend 的 `/healthz` 与 frontend 的 `/health`；健康响应不是服务交付证明。
+- 验证网站登录、管理员进入／返回和普通账号拒绝；区分账号限制与单份服务状态。
+- 从客户检查目标服务的交付、用量和操作记录，从节点检查资源与潜在影响；未知指标不补零。
+- 需要业务写入或连接测试时先指定隔离账号、服务和资源；不为冒烟检查随意新开服务、重置额度或修改线上节点。
+- Telegram、支付和试用仅在明确使用这些上游能力的环境单独验收，不进入本项目一期人工开通流程。

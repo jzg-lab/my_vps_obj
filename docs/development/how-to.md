@@ -2,9 +2,14 @@
 
 <a id="рецепты-для-контрибьюторов"></a>
 
-本文保留上游扩展方法。本项目当前 MVP 通过管理员开通独立服务，不启用支付；
-支付服务商章节用于理解保留的上游架构，不代表本轮开发范围。
-当前业务约定见[独立服务说明](independent-services.md)。
+首次接手从[接手指南](../handoff.md)开始，再完整阅读本仓库[贡献指南](../../CONTRIBUTING.md)。
+本文提供保留架构中的具体修改方法，不另立开发规范。本项目通过管理员开通独立服务，
+不启用支付；支付服务商章节属于[上游兼容参考](../upstream/index.md)。
+独立服务的业务接口见[数据模型与接口](independent-services.md)，运行环境见[项目本地开发](project-local.md)。
+
+涉及客户、服务、节点、资源或后台操作时，先在[统一管理台指南](../admin-console-guide.md)中
+标明对应 UC 工作包、F 流程和 UA 验收项，再复用已有生命周期服务。
+结果只登记到[实施计划 §14](../implementation-plan.md#本轮本地最终验收)，不在技术页追加进度流水。
 
 下面介绍三类常见修改的具体步骤。每项修改都以同一要求收尾：
 **运行质量门禁**（CONTRIBUTING 第 1 节），让契约测试和生成物一致性检查确认各层正确衔接。
@@ -15,7 +20,7 @@
 - [docs/architecture/http-api.md](../architecture/http-api.md)：HTTP 契约参考。
 - [docs/architecture/events.md](../architecture/events.md)：生成的事件目录。
 - [docs/development/plugins.md](plugins.md)、[plugin-contract.md](plugin-contract.md)：插件 API。
-- [CONTRIBUTING.md](https://gitlab.com/3252a8/remnawave-minishop/-/blob/main/CONTRIBUTING.md)：约定及不可违反的规则。
+- [本仓库 CONTRIBUTING.md](../../CONTRIBUTING.md)：约定及不可违反的规则；[上游原文](https://gitlab.com/3252a8/remnawave-minishop/-/blob/main/CONTRIBUTING.md)仅供对照。
 <!-- GitHub 源链接（未启用）：[CONTRIBUTING.md](https://github.com/3252a8/remnawave-minishop/blob/main/CONTRIBUTING.md) -->
 
 ---

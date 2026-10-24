@@ -1,9 +1,17 @@
-# 生产部署
+# 部署与上游兼容参考
 
 <a id="production-развертывание"></a>
 
-本文说明项目拆分为 `backend`、`frontend` 和 `worker` 后的生产启动方式。
-开始前，按[初始配置](configuration.md)填写最小 `.env`。完整变量参考见[环境变量](../configuration/env-vars.md)；首次登录后，大多数产品设置可通过 Web App 管理后台调整。
+本项目先从[接手说明](../handoff.md)与[隔离源码流程](../development/project-local.md)进入。当前工作树可能含未提交交付，须同时核对源码快照、镜像与配置，不能仅看上游标签或 Git 提交号。
+
+| 目的 | 入口与边界 |
+| --- | --- |
+| 运行、开发、验证本项目 | [project-local](../development/project-local.md)，使用本仓库源码与项目 overlays。 |
+| 查看现有线上资料 | [production-access](../development/project-local.md#production-access)，保留记录中的目录、版本、密钥路径与备份；另行确认操作范围。 |
+| 确认本地交付 | [本轮本地最终验收](../implementation-plan.md#本轮本地最终验收)，不推导为全量生产完成。 |
+| 查上游安装与兼容能力 | 本页后续参考及[上游索引](../upstream/index.md)，不直接套用到二开部署。 |
+
+以下命令仅适用于已选定的独立上游安装目录、Docker context、Compose 项目和环境文件。每次启动、迁移、重建、恢复或发布前核对目标、镜像来源、备份与中断范围。配置参考见[初始配置](configuration.md)与[环境变量](../configuration/env-vars.md)。
 
 > 以下保留 Minishop 上游部署、镜像、迁移和商业功能说明。上游安装脚本及公开镜像不代表本项目当前版本；支付、试用等能力也不代表当前 MVP 已启用。本项目使用管理员手动激活、无支付及一个账号管理多个独立服务的方案。开发和验收必须使用[项目隔离开发环境](../development/project-local.md)，不得将现有生产节点作为测试资源；本文不构成生产部署、真实 Node 或固定／独享出口的验收证据。
 
@@ -11,19 +19,13 @@
 
 <a id="быстрый-старт"></a>
 
-```bash
-cp .env.example .env
-nano .env
-docker compose up -d --build
-docker compose ps
-docker compose logs -f backend worker frontend
-```
+本项目最短路径见[快速启动](setup.md)，不要在根目录运行裸 `docker compose up` 代替项目 overlays。首次隔离初始化与已有环境更新是不同操作，更新不重播 seed。生产发布使用核对过的自有镜像及匹配迁移，不以 `docker compose pull` 拉取上游镜像替换。
 
 ## 交互式安装向导
 
 <a id="интерактивный-install-wizard"></a>
 
-在新服务器上，下载并运行安装脚本：
+**仅上游兼容新装／迁移：**下列脚本会下载上游配置和镜像，可能改写配置、迁移数据库并重启服务。只有明确选择上游模式、审查来源且准备好备份后才运行；禁止用于覆盖更新当前二开站点。
 
 ```bash
 curl -fsSL https://gitlab.com/3252a8/remnawave-minishop/-/raw/main/scripts/install.sh -o install.sh
@@ -55,7 +57,7 @@ sh install.sh
 - 选择 frontend 到 backend WebApp API 的连接方式：同源、受保护的上游或 Rathole 隧道。
 
 常规流程不会询问仓库及 ref，默认使用 `3252a8/remnawave-minishop` 的 `main`。
-测试其他分支、标签或派生仓库时，在启动前指定来源：
+仅在独立上游测试目录修改来源；须同时核对 ref、下载配置与镜像来源。修改下列变量不保证镜像含二开源码，不能替代本项目源码构建：
 
 ```bash
 MINISHOP_INSTALL_REPO=3252a8/remnawave-minishop \
@@ -83,9 +85,7 @@ eGames 配置还会执行 `nginx -t` 并重新加载或重启 eGames Nginx。
 
 <a id="что-спрашивает-install-wizard"></a>
 
-向导尽量提供安全的默认值。在带有公开域名的常规 VPS 上，
-如果显示的默认值符合实际情况，通常可以直接按 Enter。下表将俄语提示的含义译为中文，
-并不表示上游安装向导已经提供中文界面。
+下表翻译俄语提示，不表示向导已有中文界面。逐项核对目标与影响后确认；迁移应用的默认值可能为 `Y`，不能连续按 Enter 当作只读检查。
 
 | 问题 | 含义 | 常见选择 |
 | --- | --- | --- |
@@ -93,7 +93,7 @@ eGames 配置还会执行 `nginx -t` 并重新加载或重启 eGames Nginx。
 | 部署方案 | 应用向外公开的方式。 | 新的公开服务器使用 `Caddy HTTPS`；偏好 Nginx 语法且需要自动证书时使用 `Angie HTTPS`；已管理证书时使用 `Nginx HTTPS`；入站端口关闭时使用 `Pangolin/Newt`；外部平台终止 TLS 时选择无代理；同机已通过 eGames 或其他 Nginx/Angie/Caddy 容器运行 Remnawave 时，选择现有反向代理方案。 |
 | 接入现有反向代理 | 现有代理方案中的选项：自动识别 eGames（`TCP/443` 或 Unix socket）、通用接入已运行的 Nginx/Angie/Caddy 容器，或跳过。 | eGames 脚本安装的 Remnawave 使用 eGames 方案，其他情况使用通用接入。向导会复用实际 TLS 监听方式，检查证书 SAN 是否覆盖两个新增主机名；`nginx -t`、`angie -t` 或 `caddy validate` 失败时回退配置。 |
 | Docker Compose 项目名称 | Docker 网络、数据卷和容器的名称前缀。 | 保留 `remnawave-minishop`；仅在同一服务器需要多个独立服务栈时修改。 |
-| Docker 镜像标签 | backend、worker、frontend 镜像版本。 | 常规上游安装保留 `latest`，或指定已发布的具体版本标签。 |
+| Docker 镜像标签 | backend、worker、frontend 镜像版本。 | 核对明确版本或摘要；`latest` 是可变上游标签，不代表本项目版本。 |
 | 是否启用 Telegram 机器人 | `TELEGRAM_ENABLED` 开关。 | 使用邮箱的浏览器模式选择“否”。 |
 | Telegram 机器人令牌 | BotFather 提供的 `BOT_TOKEN`。 | 仅在启用 Telegram 时必填。 |
 | Telegram Bot API 出站请求的 SOCKS5 代理 | `backend` 和 `worker` 可选的 `TELEGRAM_BOT_PROXY_URL`。 | 留空表示直连，或填写 `socks5://host:port`；含凭据的值在向导中只显示脱敏版本。 |
@@ -200,7 +200,7 @@ PostgreSQL advisory lock 保护下安全检查数据库结构，因此不通过 
 
 <a id="готовые-папки-запуска"></a>
 
-生产部署建议使用 `deploy/examples` 中独立的 Docker Compose 示例。每个目录都有自己的 `docker-compose.yml`、`.env.example` 和所需代理配置。
+`deploy/examples` 是独立的上游部署参考，各目录有 Compose、环境模板和代理配置，默认引用公开上游镜像。以下新装命令仅用于空的上游安装目录；先确认端口、证书、数据目录及镜像，不得覆盖已有 `.env`。本项目仍从 project-local 进入。
 
 常规公开服务器优先选择 **Caddy**，它会自动签发和续期 HTTPS 证书，配置比手动管理 Nginx 更短。偏好 Nginx 语法时，可以使用 **Angie**，它是原生支持 ACME 的 Nginx 分支，也提供自动 HTTPS。
 
@@ -225,7 +225,11 @@ https://github.com/3252a8/remnawave-minishop/tree/main/deploy/examples/split-pro
 https://github.com/3252a8/remnawave-minishop/tree/main/deploy/examples/rathole
 -->
 
+<a id="caddy-推荐方案"></a>
+
 ## Caddy（推荐方案）
+
+“推荐”是上游默认方案的原称，不表示要替换本项目已有代理。
 
 <a id="caddy-рекомендуемый-вариант"></a>
 
@@ -233,7 +237,7 @@ https://github.com/3252a8/remnawave-minishop/tree/main/deploy/examples/rathole
 
 ```bash
 cd deploy/examples/caddy
-cp .env.example .env
+test -e .env || cp .env.example .env
 nano .env
 docker compose up -d
 docker compose logs -f caddy backend worker frontend
@@ -248,7 +252,7 @@ docker compose logs -f caddy backend worker frontend
 - `WEBAPP_SESSION_SECRET`、`WEBHOOK_SECRET_TOKEN`。
 - `PANEL_API_URL`、`PANEL_API_KEY`、`PANEL_WEBHOOK_SECRET`。
 
-需要自定义 Caddy 行为时，修改 Compose 旁的 `Caddyfile` 并重建容器：
+**该上游 Caddy 部署内：**备份并检查修改后的 `Caddyfile`，确认允许短暂中断后重建代理：
 
 ```bash
 docker compose up -d --force-recreate caddy
@@ -259,13 +263,15 @@ docker compose up -d --force-recreate caddy
 
 ## Angie
 
+**环境与前置：独立上游 Angie 新装。** 先核对域名、端口、镜像与数据目录，已有配置不得覆盖。
+
 Angie 由原 Nginx 核心开发者创建，原生支持 ACME：像 Caddy 一样自动签发和续期
 Let's Encrypt 证书，同时保留 Nginx 配置语法。适用于 `WEBHOOK_HOST` 和 `MINIAPP_HOST`
 的 DNS 记录指向应用服务器，且入站 `80/tcp` 和 `443/tcp` 已开放的场景。
 
 ```bash
 cd deploy/examples/angie
-cp .env.example .env
+test -e .env || cp .env.example .env
 nano .env
 docker compose up -d
 docker compose logs -f angie backend worker frontend
@@ -286,13 +292,15 @@ docker compose logs -f angie backend worker frontend
 `remnawave-minishop-angie-acme`（`/var/lib/angie/acme`）中，重建容器不会重新签发证书。
 首次启动后，Angie 要等第一张证书签发完成才会响应 `443`，通常不到一分钟。
 
-需要自定义 Angie 行为时，修改 Compose 旁的 `angie.conf.template` 并重建容器：
+**该 Angie 部署内：**备份并检查 `angie.conf.template`，确认允许中断后重建：
 
 ```bash
 docker compose up -d --force-recreate angie
 ```
 
 ## Nginx
+
+**环境与前置：独立上游 Nginx 部署。** 新装前核对镜像、DNS、证书与端口；重建前保留配置备份并确认允许中断。下方命令都在该部署目录运行。
 
 Nginx 方案在应用所在的同一 Docker 网络中运行 Nginx：
 
@@ -302,7 +310,7 @@ Nginx 方案在应用所在的同一 Docker 网络中运行 Nginx：
 
 ```bash
 cd deploy/examples/nginx
-cp .env.example .env
+test -e .env || cp .env.example .env
 nano .env
 ```
 
@@ -333,11 +341,13 @@ docker compose up -d --force-recreate nginx
 
 ## Pangolin / Newt
 
+**环境与前置：独立上游 Newt 新装。** 先核对公开域名、访问控制与出站凭据，明确允许将服务公开，再运行本节启动命令。
+
 此方案不开放应用服务器的入站端口。Newt 主动连接 Pangolin，公开域名通过 Pangolin 面板中的资源配置。
 
 ```bash
 cd deploy/examples/newt
-cp .env.example .env
+test -e .env || cp .env.example .env
 nano .env
 docker compose up -d
 ```
@@ -366,6 +376,8 @@ docker compose logs -f newt backend worker frontend
 
 <a id="подключение-pangolin-к-уже-установленному-minishop"></a>
 
+**前置：已授权的上游入口变更。** 备份配置，核对现有流量、访问控制与中断范围；移除 Newt 会撤销经它发布的入口，不是无影响诊断。
+
 上述 `Pangolin/Newt` 方案将 Newt 作为应用的唯一入口。Minishop 已使用其他方案
 （Caddy、Angie、Nginx、no-proxy、eGames）安装时，也可稍后通过可撤销步骤添加
 Pangolin 发布方式：安装向导提供“将 Web App 接入 Pangolin（Newt）”及
@@ -382,14 +394,14 @@ Pangolin 发布方式：安装向导提供“将 Web App 接入 Pangolin（Newt�
 
 <a id="без-обратного-прокси"></a>
 
-此方案直接公开两个 HTTP 端口：
+**环境与前置：独立上游 no-proxy 部署。** 默认绑定可能向所有网卡公开 HTTP。先明确防火墙和外部 TLS 终止；本机检查先改为回环绑定，不把项目测试凭据公开。两个端口为：
 
 - backend/webhook：`WEB_SERVER_BIND`，默认为 `0.0.0.0:8080`。
 - frontend/Mini App：`FRONTEND_BIND`，默认为 `0.0.0.0:8082`。
 
 ```bash
 cd deploy/examples/no-proxy
-cp .env.example .env
+test -e .env || cp .env.example .env
 nano .env
 docker compose up -d
 ```
@@ -404,7 +416,7 @@ curl http://127.0.0.1:8082/health
 docker compose logs -f backend worker frontend
 ```
 
-根目录的 `docker-compose.yml` 用于从源码进行本地构建。`deploy/examples` 中的示例使用预构建的 Docker Hub 镜像，无需指定 `-f`。
+根 `docker-compose.yml` 虽可从源码构建，但仍使用上游镜像与资源命名，不能替代隔离项目 overlays。`deploy/examples` 使用预构建上游镜像；切换目录不等于切换到本项目版本。
 
 ## 前后端分离部署
 
@@ -416,12 +428,12 @@ docker compose logs -f backend worker frontend
 browser -> https://app.example.com/api -> frontend nginx -> WEBAPP_BACKEND_UPSTREAM
 ```
 
-后端提供两组不同的 HTTP 接口：
+后端沿用两组不同的 HTTP 入口；端口职责不代表旧商业流程在本项目启用：
 
-- `backend:8080`：公开 webhook 接口，用于 Telegram、支付渠道和 Remnawave Panel。
+- `backend:8080`：Telegram 及保留的上游 webhook 路由。本项目的支付和账号级 Panel 回调返回 `410 legacy_business_retired`，不处理独立服务权益。
 - `backend:8081`：WebApp API、认证和资源接口，供前端 nginx、私有网络、受保护上游或 Rathole 使用。
 
-不另设后端 API 域名时，受保护上游通常如下：
+不另设后端 API 域名时，保留的上游兼容路由布局如下；其中支付和账号级 Panel 路由在本项目仍为退役响应：
 
 ```text
 Telegram/payments/Panel -> https://bot.example.com/webhook/... -> backend:8080
@@ -430,6 +442,8 @@ frontend nginx         -> https://bot.example.com/auth/...    -> backend:8081
 ```
 
 后端代理只能在转发到 `8081` 的 `/api/*`、`/auth/*`、`/open-app`、标志、主题和网站图标路径上要求 `X-Minishop-Edge-Token`。转发到 `8080` 的 webhook 路由不得要求该令牌。
+
+直接使用私网连接两台服务器时，前端可设 `WEBAPP_BACKEND_UPSTREAM=http://10.0.0.5:8081`，后端对应设置 `WEBAPP_SERVER_BIND=10.0.0.5:8081`（以实际私网地址替换）。后端示例默认绑定回环地址，不能跨主机访问；更改绑定后仍须限制可访问来源，不能向公网暴露私有 API。
 
 检查配置：
 
@@ -445,19 +459,19 @@ Rathole 检查项：
 - `rathole.server.toml` 与 `rathole.client.toml` 使用相同的服务令牌。
 - 后端客户端可访问 `backend:8081`。
 - 前端 nginx 上游指向 `rathole-server:18081`。
-- 支付渠道和面板的 webhook 仍指向后端 `WEBHOOK_BASE_URL`，而非前端域名。
+- 上游兼容部署的支付和面板 webhook 指向后端 `WEBHOOK_BASE_URL`，而非前端域名；这不恢复本项目已退役的回调处理。
 
 ## 数据库迁移
 
 <a id="миграции"></a>
 
-常规启动时会自动应用迁移：
+**环境与前置：已核对的目标 Compose 项目。** 确认镜像与数据库匹配、备份可用且允许中断后，启动才可应用追加迁移。以下是通用部署命令，项目开发栈必须携带完整 overlays：
 
 ```bash
 docker compose up -d --build
 ```
 
-手动重新执行：
+仅在定位到目标迁移问题、保留日志并核对幂等前提后手动重跑，不删除迁移历史或修改旧迁移：
 
 ```bash
 docker compose run --rm migrate
@@ -478,7 +492,7 @@ docker compose logs migrate
 <a id="сервисы"></a>
 
 - `backend`：aiohttp API、Telegram webhook、支付 webhook、面板 webhook，以及 `/healthz` 健康检查。
-- `worker`：TariffTrafficWorker、面板同步任务、群发处理、webhook 队列消费者。
+- `worker`：独立服务交付、权益变更、用量和账号权限同步，以及队列等后台任务；注册及模式条件见 `backend/main_worker.py`。旧 `TariffTrafficWorker` 定义仍是兼容代码，不能据此断言它在当前核心运行。
 - `frontend`：通过 nginx 提供静态 Svelte 资源。
 - `postgres`：PostgreSQL 17。
 - `redis`：Redis 7，用于 FSM、缓存、限流、队列和锁。
@@ -500,7 +514,7 @@ docker compose logs -f frontend
 
 ```bash
 curl http://127.0.0.1:8080/healthz
-curl http://127.0.0.1:8080/health
+curl http://127.0.0.1:8082/health
 ```
 
 常规 Compose 将 backend 绑定到 `127.0.0.1:${WEB_SERVER_PORT:-8080}`，
@@ -512,26 +526,15 @@ frontend 绑定到 `127.0.0.1:${FRONTEND_PORT:-8082}`。
 
 <a id="обновление"></a>
 
-从仓库进行本地构建：
+本项目更新先查[本地开发](../development/project-local.md)或[线上记录](../development/project-local.md#production-access)。共享脏工作树不能直接 `git pull` 后构建：先协调写入、记录完整源码快照，保留未提交变更，再按 CONTRIBUTING.md 检查并构建自有镜像。
 
-```bash
-git pull
-docker compose up -d --build
-docker compose logs -f migrate backend worker
-```
-
-仅重新构建应用镜像：
-
-```bash
-docker compose build frontend backend worker
-docker compose up -d
-```
+部署前核对镜像来源、备份、追加迁移和回退组合；停止／重建只针对已确认项目与服务。不要为更新重置卷、重播 seed 或拉取上游镜像覆盖二开。进度与证据只登记在实施计划。
 
 ## Docker Hub 镜像
 
 <a id="образы-docker-hub"></a>
 
-应用镜像采用统一命名：
+以下是**上游**镜像名，不含本项目未发布的改造：
 
 ```text
 docker.io/3252a8/remnawave-minishop-backend:<tag>
@@ -539,72 +542,18 @@ docker.io/3252a8/remnawave-minishop-worker:<tag>
 docker.io/3252a8/remnawave-minishop-frontend:<tag>
 ```
 
-构建并立即将全部三个镜像发布到 Docker Hub 前，先登录：
+保留脚本索引，不作为本次发布授权：
 
-```bash
-docker login docker.io
-IMAGE_TAG=3.6.1 bash scripts/docker-build-push-images.sh
-```
+| 脚本 | 行为 |
+| --- | --- |
+| `scripts/docker-build-images.sh` / `scripts/docker-build-images.ps1` | 构建应用镜像。 |
+| `scripts/docker-push-images.sh` / `scripts/docker-push-images.ps1` | 发布已有镜像。 |
+| `scripts/docker-build-push-images.sh` / `scripts/docker-build-push-images.ps1` | 构建后立即发布。 |
+| `scripts/dockerhub-build-push-images.sh` / `scripts/dockerhub-build-push-images.ps1` | 旧 Docker Hub 兼容发布入口。 |
 
-PowerShell 版本：
+**发布前置：**明确发布授权、源码快照、质量门禁、目标仓库权限、命名空间、版本及架构。脚本默认 `IMAGE_REGISTRIES=docker.io`、`IMAGE_NAMESPACE=3252a8`、`IMAGE_PREFIX=remnawave-minishop`、`TARGETS=backend worker frontend`、`DOCKERFILE=deploy/docker/Dockerfile`，不能作为本项目默认发布目标。运行前按脚本核对 `IMAGE_REGISTRIES`／`IMAGE_REGISTRY`、`IMAGE_NAMESPACE`、`IMAGE_PREFIX`、`IMAGE_TAG` 和最终镜像名。
 
-```powershell
-$env:IMAGE_TAG = "3.6.1"
-docker login docker.io
-powershell -ExecutionPolicy Bypass -File .\scripts\docker-build-push-images.ps1
-```
-
-脚本默认使用：
-
-- `IMAGE_REGISTRIES=docker.io`
-- `IMAGE_NAMESPACE=3252a8`
-- `IMAGE_PREFIX=remnawave-minishop`
-- `TARGETS=backend worker frontend`
-- `DOCKERFILE=deploy/docker/Dockerfile`
-
-需要自建镜像仓库或其他命名空间时，可覆盖变量：
-
-```bash
-IMAGE_REGISTRIES=registry.example.com IMAGE_NAMESPACE=other IMAGE_TAG=3.6.1 bash scripts/docker-build-push-images.sh
-```
-
-原有的分步命令仍然保留：
-
-```bash
-IMAGE_TAG=3.6.1 scripts/docker-build-images.sh
-IMAGE_TAG=3.6.1 scripts/docker-push-images.sh
-```
-
-PowerShell 对应脚本为 `scripts/docker-build-images.ps1` 和
-`scripts/docker-push-images.ps1`。发布到其他镜像仓库、命名空间或使用其他名称前缀时，
-覆盖 `IMAGE_NAMESPACE`、`IMAGE_REGISTRY` 或 `IMAGE_PREFIX`。
-
-为兼容旧流程，还保留只面向 Docker Hub 的脚本：
-
-```bash
-docker login
-IMAGE_TAG=3.6.1 bash scripts/dockerhub-build-push-images.sh
-```
-
-PowerShell 版本：
-
-```powershell
-$env:IMAGE_TAG = "3.6.1"
-docker login
-powershell -ExecutionPolicy Bypass -File .\scripts\dockerhub-build-push-images.ps1
-```
-
-如果 PowerShell 因 `PSSecurityException` / Execution Policy 阻止本地脚本，
-可仅为当前进程绕过执行策略，运行相同脚本：
-
-```powershell
-$env:IMAGE_TAG = "3.6.1"
-docker login docker.io
-powershell -ExecutionPolicy Bypass -File .\scripts\docker-build-images.ps1
-powershell -ExecutionPolicy Bypass -File .\scripts\docker-push-images.ps1
-```
-
-该绕过只对启动的 `powershell` 进程有效，不修改系统策略。
+PowerShell 若受策略限制，仅在审查脚本后为该进程使用 `-ExecutionPolicy Bypass`，不更改系统策略。构建、发布镜像和部署到服务器是不同状态。
 
 ## 扩容
 
@@ -615,13 +564,13 @@ powershell -ExecutionPolicy Bypass -File .\scripts\docker-push-images.ps1
 需要水平扩容时，应移除待扩容服务的 `container_name`，或将配置迁移到容器编排平台。
 
 FSM 状态、限流和短期缓存放在 Redis 中，套餐周期任务通过 Redis 分布式锁保护。
-代码已为多副本做准备，但当前 Compose 文件仍面向固定容器名称。
+这些机制不等于容量或多副本验收。扩容须另验任务竞争、连接池和实际负载，不能仅删除 `container_name` 就宣称支持。
 
 ## 数据与数据卷
 
 <a id="данные-и-volumes"></a>
 
-生产 Compose 使用命名数据卷：
+各 Compose 文件的卷键与实际 Docker 卷名不同。上游示例常见卷键为：
 
 - `postgres-data`。
 - `redis-data`。
@@ -629,12 +578,11 @@ FSM 状态、限流和短期缓存放在 Redis 中，套餐周期任务通过 Re
 Caddy 方案还使用 `caddy-data` 和 `caddy-config`；Angie 方案使用 `angie-acme`
 保存 ACME 账号和 Let's Encrypt 证书。
 
-应用文件从所选 `docker-compose.yml` 旁的本地 `./data` 目录挂载到 `/app/data`，
-其中包含套餐、主题、标志及其他应用文件。
+`deploy/examples/` 中的 Compose 示例从所选文件旁的本地 `./data` 目录挂载应用文件到 `/app/data`；仓库根 `docker-compose.yml` 则使用命名卷 `shop-data`。其中包含旧套餐目录、主题、标志及其他应用文件；项目 overlays 的实际来源以最终 Compose 配置为准。
 
 同一个 `/app/data` 必须挂载到 `migrate`、`backend` 和 `worker`。这对 `data/tariffs.json` 尤其重要：`docker compose run --rm migrate` 应读取与应用相同的套餐目录。当前 Compose 文件已为三个服务配置这一挂载。
 
-首次在服务器启动前，预先授予容器用户 `10001` 所需权限：
+**仅独立上游新装绑定目录：**核对当前目录、确认 `data` 不是其他项目的链接、目标数据库和镜像匹配，才授予权限并执行迁移。已有目录先备份；递归权限修改不能作为未知线上挂载问题的通用修复。
 
 ```bash
 mkdir -p data/themes data/webapp-logo data/tariffs
@@ -648,29 +596,16 @@ docker compose up -d --force-recreate backend worker
 检查权限：
 
 ```bash
-docker compose exec backend sh -lc 'id; touch /app/data/themes/test && rm /app/data/themes/test'
+docker compose exec backend sh -lc 'id; test -w /app/data/themes'
 ```
 
 ## PostgreSQL 备份
 
 <a id="резервная-копия-postgresql"></a>
 
-标准自动 ZIP 备份、发送至 Telegram 及通过管理后台恢复的流程，见[备份与恢复](../features/backups.md)。以下命令是 PostgreSQL 的最小手动备用方案。
+备份与恢复按[备份说明](../features/backups.md)执行，日常检查见[维护说明](../troubleshooting/maintenance.md)。商店数据库、应用文件和外部面板是不同备份对象；商店备份不包含全部远端权限状态。
 
-```bash
-docker compose exec -T postgres sh -c 'pg_dump -U "$POSTGRES_USER" -d "$POSTGRES_DB"' > backup.sql
-```
-
-恢复到空数据库（以下操作会删除并重建目标数据库）：
-
-```bash
-docker compose stop backend worker
-docker compose exec postgres sh -c 'dropdb -U "$POSTGRES_USER" --if-exists "$POSTGRES_DB"'
-docker compose exec postgres sh -c 'createdb -U "$POSTGRES_USER" "$POSTGRES_DB"'
-docker compose exec -T postgres sh -c 'psql -v ON_ERROR_STOP=1 -U "$POSTGRES_USER" -d "$POSTGRES_DB"' < backup.sql
-docker compose run --rm migrate
-docker compose up -d backend worker
-```
+备份前核对目标项目、数据库和输出目录，限制归档权限并检查可读性。恢复会覆盖目标：先确认允许的数据损失时点、另备份现状、停止目标写入，再恢复匹配的数据库／应用文件／镜像并核对远端差异。不要为排障试执行 `dropdb`、删卷或单独降级程序。已有生产备份位置保留于 [production-access](../development/project-local.md#production-access)。
 
 ## 反向代理
 
@@ -720,18 +655,17 @@ app.example.com {
 
 <a id="переменный-env-файл"></a>
 
-Compose 默认读取 `.env`。冒烟测试或独立环境可以使用其他文件：
+更换环境文件不会自动隔离容器、网络、卷或端口；根 Compose 的显式资源名也不会仅因项目名改变。先准备对应 overlays，以下仅做配置检查、不启动：
 
 ```bash
-APP_ENV_FILE=.env.staging docker compose --env-file .env.staging up -d --build
+APP_ENV_FILE=.env.staging docker compose --env-file .env.staging config --quiet
 ```
 
 ## 与生产环境并行的开发 dry-run
 
 <a id="dev-dry-run-рядом-с-production"></a>
 
-以下为上游只读联调说明；本项目开发与验收以[隔离开发环境](../development/project-local.md)
-为准，默认 dry-run，不据此声称已通过真实 Node 验收。
+以下保留上游 `dry_run` 语义参考，不是连接生产的许可。本项目使用[隔离开发环境](../development/project-local.md)。`dry_run` 不是整个应用的只读沙箱：仍会读面板、写本地数据库并执行其他已启用任务；不能据此声称不会影响生产。
 
 需要针对同一 Remnawave Panel 检查功能时，开发服务栈应使用独立环境文件、独立 Telegram
 机器人和本地数据库。开发模式仍从实际面板读取用户、squad、设备和统计，但不向
@@ -750,11 +684,7 @@ REDIS_KEY_PREFIX=remnawave-tg-shop-dev
 BACKUP_ENABLED=False
 ```
 
-启动：
-
-```bash
-APP_ENV_FILE=.env.dev docker compose --env-file .env.dev up -d --build
-```
+启动前须隔离数据库、缓存、容器／网络／卷名、端口及外部凭据。本项目使用 project-local 完整组合，不能以更换 `.env.dev` 代替隔离；任何生产面板访问都需符合明确任务范围。
 
 只有独立的测试 Remnawave Panel 才能设置 `PANEL_WRITE_MODE=live`，因为该模式
 会真实修改面板用户。

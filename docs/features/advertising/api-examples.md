@@ -2,7 +2,7 @@
 
 # 广告 API 与示例
 
-本节说明 dev 分支的新实现。完整结构和认证要求见 [HTTP API](../../architecture/http-api.md)及发布的 OpenAPI。
+本页是[广告兼容参考](./index.md)，记录保留接口的参数、权限与示例。完整结构和认证要求见 [HTTP API](../../architecture/http-api.md)及 [OpenAPI 入口](../../api/index.md)；本项目退役的上游商业接口另受[运行时边界](../../upstream/index.md#运行时边界)约束。
 
 公开 `POST /api/advertising/capture` 接受 `code`、`utm` 对象中五个许可 UTM 字段，以及可选 `event_id`。用户 ID 来自已验证会话，不能通过请求体指定。响应只包含可公开的链接与优惠上下文，访问 cookie 有效期 30 天。
 

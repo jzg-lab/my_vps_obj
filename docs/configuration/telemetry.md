@@ -2,7 +2,9 @@
 
 # 安装实例匿名遥测
 
-为了了解活跃安装数量和使用中的版本，机器人可以每天发送一次匿名心跳。该功能面向自托管场景设计，可以关闭；遥测载荷不包含用户个人数据，也不参与机器人的业务处理。
+本页记录保留的上游遥测能力。[项目隔离模板](../development/project-local.md)显式设置 `TELEMETRY_ENABLED=False`；下方默认值是上游设置默认值，不能据此认定某个环境正在发送。核对有效值时还要检查数据库覆盖项及镜像端点，不为排障擅自启用遥测。
+
+该能力用于统计活跃安装和版本，可按配置周期发送匿名心跳；载荷不包含下文列出的用户资料，也不参与业务权益处理。安装标识和环境摘要仍会离开本机，启用前应明确接收方与用途。
 
 <a id="что-отправляется"></a>
 
@@ -15,7 +17,7 @@
 | `installation_id` | `f47ac10b-...`（UUIDv4） | 随机安装标识，只生成一次并保存在数据库中，不由令牌、域名或管理员 ID 推导。 |
 | `app_version` | `v3.4.6+gabc1234` | 完整构建版本。 |
 | `app_version_tag` | `v3.4.6` | 用于按版本汇总的发布标签。 |
-| `build_provenance` | `official` / `custom` | 镜像来源。只有项目官方构建设置 `official`；本地构建和派生项目为 `custom`。 |
+| `build_provenance` | `official` / `custom` | 镜像来源。只有上游官方构建设置 `official`；本地构建和派生项目为 `custom`。 |
 | `image_modified` | `false` / `true` | 便于汇总的布尔标记：官方镜像为 `false`，本地或派生构建为 `true`。 |
 | `os` / `arch` | `linux` / `x86_64` | 运行平台。 |
 | `python_version` | `3.12.7` | Python 运行时版本。 |
@@ -38,7 +40,7 @@
 
 任选一种方式：
 
-- **`.env`：**设置 `TELEMETRY_ENABLED=False`，然后重启。
+- **环境文件：**设置 `TELEMETRY_ENABLED=False`，核对数据库没有开启覆盖，再按该环境的维护流程重建受影响进程；本地为 `.env.project-dev`，通用部署为对应 `.env`。
 - **网页后台：**进入“管理 → 系统 → 安装匿名统计”。开关在每次调度时从数据库读取，无需重启。
 - **构建或镜像：**将 `TELEMETRY_ENDPOINT` 或 `TELEMETRY_API_KEY` 留空。没有接收地址或项目密钥时，不启动发送。
 
@@ -54,7 +56,7 @@
 
 | 变量 | 默认值 | 用途 |
 | --- | --- | --- |
-| `TELEMETRY_ENABLED` | `True` | 总开关，默认启用；也可在后台关闭。 |
+| `TELEMETRY_ENABLED` | `True` | 上游总开关默认值；本项目隔离模板覆盖为 `False`，也可在后台关闭。 |
 | `TELEMETRY_ENDPOINT` | `https://eu.i.posthog.com` | PostHog 接收地址，留空即关闭。 |
 | `TELEMETRY_API_KEY` | 空 | PostHog 项目写入密钥（`phc_...`），仅用于接收事件，不是读取数据或管理项目的密钥。留空即关闭。 |
 | `TELEMETRY_INTERVAL_HOURS` | `24` | 心跳发送间隔，单位为小时。 |

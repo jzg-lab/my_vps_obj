@@ -4,22 +4,23 @@
 
 本文保留上游 runes 迁移阶段的验收场景，不是本项目当前功能的通过记录。
 本项目 MVP 采用管理员开通独立服务，不启用支付或旧单订阅流程；实际验证使用
-[项目隔离开发环境](project-local.md)及[实施计划](../implementation-plan.md)中的适用场景。
+[项目隔离开发环境](project-local.md)，证据统一在
+[实施计划 §14：本轮本地最终验收](../implementation-plan.md#本轮本地最终验收)维护。
 下文支付等条目仅作为上游参考，不因保留清单而重新开放旧接口。
 
 Playwright 模拟冒烟测试（`npm --prefix frontend run test:e2e`）运行基于 `mockApi` 的演示构建，
 没有真实后端。因此它覆盖加载、切换页面、弹窗、后台延迟加载、渲染一致性和多语言，
 但**不覆盖**依赖真实后端的流程：认证、支付完成、网络/401、会话令牌和开通成功。
 
-这份清单补充上述流程的必要验证。可以对照[统一开发环境](dev-stand.md)手工执行，
-或逐步在其基础上自动化。在专门的全栈 E2E 建立之前，完成涉及以下流程的迁移阶段时必须手工验证：
+这份清单保留迁移时对真实后端的验证要求，可以对照[上游兼容环境](dev-stand.md)理解历史场景。
+R2～R4 是旧迁移阶段编号，不是当前待办：
 
 - **R2**：迁移 `authStore` / `billingStore` 后。
 - **R3**：将 `App.svelte` 外壳迁移到 runes 后。
 - **R4**：后台迁移到 runes 并移除 `componentApi: 4` / `$set` 后。
 
-每次验证都要记录日期、提交（`git rev-parse --short HEAD`）和结果，
-写入该阶段收尾提交的说明，或本页末尾的记录表。
+复用场景时，记录源码版本（脏工作树不能只记 `git rev-parse --short HEAD`）、环境、方法和实际结果，
+由实施计划统一维护。本项目自有 Svelte 的 runes 约束与门禁见[贡献指南](../../CONTRIBUTING.md)。
 
 ---
 
@@ -27,7 +28,7 @@ Playwright 模拟冒烟测试（`npm --prefix frontend run test:e2e`）运行基
 
 <a id="перед-прогоном"></a>
 
-1. 启动[统一开发环境](dev-stand.md)：`npm run dev:stand:up`。
+1. 先确认是在维护上游兼容环境，再按 [dev-stand](dev-stand.md)启动；本项目日常环境使用 `project:*`，不重播通用 seed。
 2. 构建最新资源：`npm --prefix frontend run build:webapp`。
 3. 分别从 Telegram 和直接访问 Web App URL 打开应用，部分条目需覆盖两种入口。
 4. 打开开发者工具的 Console 和 Network。**控制台出现任何红色错误，该项即判为失败。**
@@ -36,15 +37,16 @@ Playwright 模拟冒烟测试（`npm --prefix frontend run test:e2e`）运行基
 
 <a id="что-можно-автоматизировать"></a>
 
-这些场景可以且应当逐步自动化。它们未纳入 Playwright 模拟冒烟测试，
-因为该测试有意不连接后端，只负责快速 UI 回归。真实验收需要单独的全栈测试层：
+模拟 Playwright 与真实后端检查是不同测试层。以下为可复用的自动化方式，
+不表示对应场景尚未实现，也不把模拟测试当作真实集成：
 
 - pytest/API 测试可创建支付，再发送本地服务商 Webhook，检查订阅、支付及开通确认。
 - Playwright 可连接 `http://127.0.0.1:18082`，使用开发会话或测试邮箱验证码登录。
 - 后台保存场景可通过 UI 操作，再通过 API 或 PostgreSQL 核对结果。
 
-要成为稳定的 CI 门禁，还需补充测试数据重置、仅用于开发的邮箱验证码/会话令牌发放，
-以及统一的支付 Webhook 测试数据。此前，本清单仍是待转成自动化测试的场景来源。
+仓库已有 `tests/qa/` 的真实 HTTP 检查，以及 `frontend/playwright.live.config.ts` 指向的
+管理台真实浏览器用例；后者只允许回环地址，使用单 worker，不能转向生产运行。
+旧支付用例与独立服务的 410 策略分开选择；存在 QA 代码不代表已完成某次环境验收。
 
 ---
 
@@ -90,6 +92,5 @@ Playwright 模拟冒烟测试（`npm --prefix frontend run test:e2e`）运行基
 
 <a id="журнал-прогонов"></a>
 
-| 日期 | 提交 | 阶段 | 结果 | 备注 |
-| --- | --- | --- | --- | --- |
-| | | | | |
+此锚点保留供历史链接访问，不再维护独立记录表。
+当前结论见[实施计划 §14](../implementation-plan.md#本轮本地最终验收)，旧迁移背景由[历史索引](../archive/index.md)定位。

@@ -2,7 +2,9 @@
 
 # 从 remnawave-tg-shop 迁移到 remnawave-minishop
 
-从旧关联项目迁移可使用通用安装向导：
+本页保留旧库逻辑恢复与结构升级的上游兼容流程，先读[迁移索引](index.md)。恢复旧订阅不等于创建当前项目的多份独立服务；文件、远端权限及新旧权益映射须分别核对。本项目启动仍走[隔离源码流程](../development/project-local.md)。
+
+**上游安装器前置：**明确源与目标，核对脚本来源和目标可替换范围，并准备匹配备份与回退后才运行。流程会删除并重建目标数据库卷、恢复旧数据和启动迁移，不是当前二开站点的更新方式。
 
 ```bash
 curl -fsSL https://gitlab.com/3252a8/remnawave-minishop/-/raw/main/scripts/install.sh -o install.sh
@@ -19,7 +21,7 @@ sh install.sh
 
 上游向导目前使用俄语提示。本指南以中文说明选项含义：新服务器选择“安装新的 remnawave-minishop 并从其他机器人迁移数据”；Compose 目录已准备好时，选择“迁移到已安装的 remnawave-minishop”。来源选择“旧 remnawave-tg-shop”。以下流程是上游安装参考，不代表本项目生产迁移已获批准。
 
-向导使用安全的 `pg_dump` 逻辑迁移，不复制旧 PostgreSQL 原始数据卷，因为其中已初始化旧角色和密码。它会：
+向导使用 `pg_dump` 逻辑迁移，不复制旧 PostgreSQL 原始数据卷，因为其中已初始化旧角色和密码。它会：
 
 - 自动查找旧 PostgreSQL 容器（`remnawave-tg-shop-db` 或 `LEGACY_TGSHOP_DB_CONTAINER`），从 `POSTGRES_USER`、`POSTGRES_PASSWORD`、`POSTGRES_DB` 构造源 DSN。
 - 无法自动发现时，请求手动填写 `LEGACY_TGSHOP_SOURCE_DSN`／源 DSN。
@@ -35,30 +37,27 @@ sh install.sh
 
 两项目具有兼容的数据库结构历史。恢复旧 PostgreSQL 后，`migrate` 应用 `backend/db/migrator/` 中缺失迁移：先处理 `Base.metadata`，再按顺序执行 `schema_migrations`。该服务只运行一次，必须以 `0` 退出，然后才启动 backend、worker。
 
-向导步骤：
+以下是向导步骤及操作语义，**不是可直接对现有项目重放的脚本**。源数据库只读转储，目标恢复与删卷均是写入／破坏操作，执行前必须独立确认目标和可恢复备份：
 
 1. 从旧容器或 `LEGACY_TGSHOP_SOURCE_DSN` 读取源 DSN。
 2. 源 DSN 指向本地容器时，将其加入目标 Compose 网络。
-3. 保存源备份：
+3. 保存源备份。仅在已核对的迁移环境中，将 `SOURCE_DSN` 设为源库，`SOURCE_BACKUP` 设为私有目录内尚不存在的精确文件路径，不用通配符。转储命令只读源库，生成的 SQL 含清理语句，不能随意应用到其他目标：
 
    ```bash
-   pg_dump --clean --if-exists --no-owner --no-privileges "$SOURCE_DSN" \
-     > backups/pre-remnawave-tg-shop-source-*/dumps/remnawave-tg-shop-source.sql
+   umask 077
+   (set -C; pg_dump --clean --if-exists --no-owner --no-privileges "${SOURCE_DSN:?set source DSN}" \
+     > "${SOURCE_BACKUP:?set exact new backup path}")
    ```
 
 4. 备份目标 Minishop 文件；目标数据库可用时，也保存替换前的逻辑备份。
-5. 停止目标服务栈并删除目标数据库卷：
-
-   ```bash
-   docker volume rm remnawave-minishop-db-data
-   ```
+5. 仅在已批准替换目标、源与目标备份可用且目标写入进程已停止后，按已核实的精确卷标识重建目标数据库卷。历史默认名为 `remnawave-minishop-db-data`，实际名称取决于 Compose；不提供可误删当前项目的默认删卷命令，不使用 `down -v` 或全局 `prune`。
 
 6. 启动 postgres、redis；PostgreSQL 按当前 `.env` 的 `POSTGRES_USER`、`POSTGRES_PASSWORD`、`POSTGRES_DB` 初始化。
-7. 恢复预先保存的备份：
+7. 仅恢复到上一步明确准备的空目标。确认 `TARGET_DSN` 不是源库，`SOURCE_BACKUP` 指向已核验的单一归档，目标旧数据及回退已保留；此命令执行归档中的覆盖 SQL：
 
    ```bash
-   psql "$TARGET_DSN" -v ON_ERROR_STOP=1 \
-     < backups/pre-remnawave-tg-shop-source-*/dumps/remnawave-tg-shop-source.sql
+   psql "${TARGET_DSN:?set verified empty target DSN}" -v ON_ERROR_STOP=1 \
+     < "${SOURCE_BACKUP:?set verified backup path}"
    ```
 
 8. 运行 Minishop 迁移，再启动完整服务栈。
@@ -141,7 +140,7 @@ server {
 
 ## 核查
 
-迁移后运行：
+仅在本次已确认的目标 Compose 目录做只读核查；不要省略该环境所需的项目名、环境文件或 overlays：
 
 ```bash
 docker compose ps
@@ -149,11 +148,8 @@ docker compose logs migrate
 docker compose logs -f backend worker frontend
 ```
 
-`migrate` 必须成功退出；backend、worker、frontend、postgres、redis 应运行且健康。
+`migrate` 必须成功退出；各持续运行服务应处于预期状态，有健康检查的服务须健康。还需核对导入范围、权限与业务记录，容器运行不等于服务可连接。
 
-确认新栈正常、回滚准备完备后，才考虑手动删除旧卷：
+保留旧卷用于回退。历史名称 `remnawave-tg-shop-db-data`、`remnawave-tg-shop-caddy-data`、`remnawave-tg-shop-caddy-config` 仅供识别，不是自动清理清单。删除需另行确认保留期、备份与精确卷归属，不忽略删除错误，也不执行全局清理。
 
-```bash
-docker volume rm remnawave-tg-shop-db-data
-docker volume rm remnawave-tg-shop-caddy-data remnawave-tg-shop-caddy-config 2>/dev/null || true
-```
+当前本地验收及边界只查[本轮本地最终验收](../implementation-plan.md#本轮本地最终验收)，本文不登记生产迁移状态。

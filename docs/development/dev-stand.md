@@ -1,18 +1,36 @@
-# 统一开发环境
+# 上游兼容开发环境
+
+<a id="统一开发环境"></a>
 
 <a id="единый-dev-stand"></a>
 
-统一开发环境是供手工和自动化全栈 QA 使用的本地 Docker Compose 环境，运行 Mini Shop、PostgreSQL、Redis、本地 Remnawave Panel、Remnawave Subscription Page 和测试用户初始数据。
+dev-stand 是保留的通用 Docker Compose QA 工具链，运行 Mini Shop、PostgreSQL、Redis、本地 Remnawave Panel、Remnawave Subscription Page 和上游测试夹具。
 
 > 本文保留上游开发环境说明。本项目日常开发和验收使用[项目隔离开发环境](project-local.md)及 `my-vps-obj` 专属 Docker context/project，不直接运行上游环境命令替换它。上游订阅、支付和奖励夹具不属于当前 MVP 的业务数据；无真实 Node 时，面板测试不能证明实际流量、独享出口或旧连接停用。
+
+## 先选择环境
+
+| 用途 | 配置与命令 | 初始数据和生命周期 |
+| --- | --- | --- |
+| 本项目独立服务开发 | `.env.project-dev`、`project:*`；基础两份 Compose 后叠加 `docker-compose.project-dev.yml` | `seed-project-accounts.sql` 只补基础账号与 owner 角色，已有账号不覆盖；`seed-project-panel.sql` 只补开发令牌，不造订阅、支付、面板用户或 Node。项目命令还启动 worker。 |
+| 上游兼容 QA | `.env.remnawave-dev`、`dev:stand:*`；基础 `docker-compose-dev.yml` 加 Remnawave overlay | `seed-minishop.sql`、`seed-remnawave.sql` 使用账号级订阅／支付夹具；可另启用 `mock-data`。 |
+| 可复用测试运行器 | `check:local`、`qa:local` | 工具依赖缓存及一次性测试资源，见[测试环境](../test-environments.md)，不是日常业务库。 |
+
+这些区别可从根 `package.json`、项目 overlay 和 `deploy/dev/seed-project-*.sql` 核对。
+相同的本机端口、测试邮箱或密码不表示同一环境；运行任何 seed 前先确认配置、Compose 项目和数据库。
+通用 seed 的幂等不等于不覆盖夹具，不能在项目环境重播它来“补齐测试数据”。
+源码中的旧业务停用策略也不会因加载通用 seed 而解除；下文旧支付／订阅场景是兼容参考，
+不能据此承诺本派生项目全栈 QA 可不加区分地通过。接手顺序及验收证据见[接手指南](../handoff.md)。
 
 从仓库根目录进入上游环境的简短命令：
 
 ```powershell
-make dev
+make dev DEV_PRESET=3.4.5
 ```
 
-`make dev` 应用最新预设 `3.4.5`、校验 Compose 并启动环境。其他预设可使用 `$env:DEV_PRESET = "2.8.0"; make dev`。等价 npm 命令：
+显式传入 `DEV_PRESET=3.4.5` 后，命令应用该预设、校验 Compose 并启动环境。
+仓库 `Makefile` 的裸 `make dev` 默认仍为 `3.0.0`，不能将它当作下面 `3.4.5` 命令的等价写法。
+其他预设例如 `make dev DEV_PRESET=2.8.0`。上述 `3.4.5` 的等价 npm 命令：
 
 ```powershell
 npm run dev:stand:use:3.4.5
@@ -32,7 +50,7 @@ npm run dev:stand:up
 
 <a id="версии"></a>
 
-最新预设固定以下版本，上游记录的核验日期为 2026-10-09：
+仓库 `3.4.5` 预设固定以下版本；这是工具链版本，不是本项目实际环境或最新上游发布的声明：
 
 - Remnawave Panel `v3.4.5`（`remnawave/backend:3.4.5`）。
 - Remnawave Node `v3.3.0`（`remnawave/node:3.3.0`）。
@@ -97,7 +115,7 @@ npm run dev:stand:config
 npm run dev:stand:up
 ```
 
-返回最新预设：
+返回本文使用的 `3.4.5` 预设：
 
 ```powershell
 npm run dev:stand:down
@@ -225,7 +243,7 @@ npm run qa:all -- --keep-stand
 
 ```powershell
 $env:QA_FULLSTACK = "1"
-$env:QA_REMNAWAVE_PRESET = "3.4.5" # или 2.8.1 после смены пресета
+$env:QA_REMNAWAVE_PRESET = "3.4.5" # 或在切换预设后使用 2.8.1
 python -m pytest -q tests/qa/test_remnawave_panel_contract.py
 ```
 
@@ -272,7 +290,7 @@ docker compose --env-file .env.remnawave-dev `
 
 <a id="сиды"></a>
 
-`seed` 配置执行两份幂等 SQL：
+通用 dev-stand 的 `seed` 配置执行两份幂等 SQL；项目 overlay 会替换为前述专用脚本：
 
 - `deploy/dev/seed-minishop.sql`：Mini Shop 用户、订阅和支付。
 - `deploy/dev/seed-remnawave.sql`：API 令牌、Remnawave 用户和 `Default-Squad` 绑定。

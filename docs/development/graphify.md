@@ -7,7 +7,8 @@
 
 [Graphify](https://github.com/Graphify-Labs/graphify) 从仓库构建持久化知识图谱：
 通过 AST 解析代码，将文档和媒体作为语义节点加入，并将关系标记为实际发现或推断所得。
-本项目的结果保存在 `graphify-out/`。
+仓库保留的结果位于 `graphify-out/`，是生成时的快照，不代表当前共享工作树的全部关系。
+查到符号后仍须核对当前源码；接手所需文档与状态入口见[接手指南](../handoff.md)。
 
 `graphify-out/` 的主要文件有意纳入版本管理，便于快速了解后端、前端、文档、契约和生成物之间的联系，
 无需重新通读整个仓库。目录在 `.gitattributes` 中标为 `linguist-generated=true`，
@@ -24,8 +25,9 @@
 - `graphify-out/manifest.json` 与 `cost.json`：构建元数据。
 - `graphify-out/cache/`：本地提取缓存，避免每次重新开始；它保留在 `.gitignore` 中，不提交到仓库。
 
-不要手工编辑这些文件。关系图过期时，从仓库根目录重新生成，
-将变化的 `graphify-out/` 文件与引起变化的源代码一并提交，但不包括 `graphify-out/cache/`。
+不要手工编辑这些文件。需要且已安排更新关系图时，从仓库根目录重新生成，
+再审查 `graphify-out/` 与源代码的对应关系；`graphify-out/cache/` 不提交。
+阅读本文不授权创建 `.codegraph/`、安装工具或更新生成产物；普通文档整理不要求重建图谱。
 
 ## 何时更新
 

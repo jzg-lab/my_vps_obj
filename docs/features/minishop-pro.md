@@ -1,16 +1,14 @@
 # minishop PRO
 
-<div class="minishop-pro-overview">
-  <span class="minishop-pro-kicker">PRO 扩展</span>
-  <strong>提供更多销售数据与客户运营工具。</strong>
-  <p>minishop PRO 为免费的 Remnawave Minishop 增加业务分析、客户分群和沟通自动化。Core 仍可独立运行；PRO 单独接入、单独授权。</p>
-  <p>这些工具可帮助运营者根据数据识别增长机会、分析客户流失、促进复购并评估盈利情况。</p>
-  <a class="minishop-pro-cta" href="https://cloud.minidoc.cc">购买 minishop PRO <span aria-hidden="true">→</span></a>
-</div>
+本文属于[上游兼容与可选扩展](../upstream/index.md)，仅保留 minishop PRO 的公开介绍。PRO 单独交付、单独授权，核心可独立运行；本页不构成本项目采购、接入或启用营销流程的决定。
+
+本项目客户与节点的统一管理由本仓库二开承担，不能用 PRO 的销售分析替代。独立服务的实现进度与验收范围只查[本轮本地最终验收](../implementation-plan.md#本轮本地最终验收)。
 
 <a id="что-входит-в-pro"></a>
 
 ## PRO 包含哪些功能
+
+仓库保留的公开能力概述如下，具体交付以所用 PRO 版本及其官方说明为准：
 
 - **业务分析。** 收入、月度经常性收入（MRR）、每付费用户平均收入（ARPPU）、客户终身价值（LTV）、付费用户流失与留存、套餐和支付渠道比较，以及 CSV、XLSX 汇总数据导出。
 - **客户分群与历史。** 分析购买意向、生命周期阶段、续费风险和参与情况，按相关因素筛选，并在统一时间线中查看用户事件。
@@ -21,6 +19,6 @@
 
 ## PRO 与基础版本的关系
 
-minishop PRO 运行在兼容的 Core 版本之上，不替代 Core。基础版本的免费路由、worker、通知、结账及其他功能不依赖 PRO。PRO 授权失效时，PRO 页面会被限制，Core 继续运行。
+minishop PRO 面向兼容的 Core 版本，不替代 Core；核心路由、worker、通知及上游结账实现不依赖 PRO。核心不复制 PRO 代码、私有契约、资源或运行时依赖。公开扩展接口见[插件契约](../development/plugin-contract.md)。
 
-最新条款、购买和接入方式见 [cloud.minidoc.cc](https://cloud.minidoc.cc)。
+公开能力说明不能证明 PRO 已适配本项目 `ServicePlan`／`UserService`。如需接入，应另行核对版本、数据口径与权限边界；条款、购买和接入资料见 [cloud.minidoc.cc](https://cloud.minidoc.cc)。

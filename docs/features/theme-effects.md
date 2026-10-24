@@ -2,6 +2,8 @@
 
 # 主题包中的 JavaScript
 
+本文属于[主题与公开扩展参考](../upstream/index.md#主题与公开扩展)，描述需要单独授权的可选装饰效果。[基础主题](webapp-themes.md)不依赖 JavaScript；独立服务模式继续使用其配色、品牌和字体能力，不因未启用效果而不可用。
+
 主题可包含预构建 JavaScript 装饰模块，随主题安装、更新、导出、删除，无需独立插件。v1 普通主题继续兼容。
 
 <a id="установка-и-доверие"></a>
@@ -71,7 +73,7 @@ export function mount(host, context) {
 }
 ```
 
-装饰区域为 `shell.background`、`home.header.surface`、`home.card.surface`，带 `aria-hidden` 和 `pointer-events: none`，不替换业务按钮或 Svelte DOM。卡片区域目前指常规首页主要订阅卡片；紧凑布局应回退至背景／标题。不要依赖内部 CSS 类或结构，通过 `watchTargets` 监听导航中的区域变化。`context` 只包含变体、颜色、语言、减少动态效果，不含账号数据。`host.asset(name)` 返回已声明资源 URL。
+装饰区域为 `shell.background`、`home.header.surface`、`home.card.surface`，带 `aria-hidden` 和 `pointer-events: none`，不替换业务按钮或 Svelte DOM。卡片区域指上游常规首页主要订阅卡片，不保证在独立服务首页、服务列表或紧凑布局中存在；区域缺失时回退至背景／标题，不自行注入或替换服务卡片。不要依赖内部 CSS 类或结构，通过 `watchTargets` 监听导航中的区域变化。`context` 只包含变体、颜色、语言、减少动态效果，不含账号数据；这不限制 `trusted-dom` 模块自行读取页面。`host.asset(name)` 返回已声明资源 URL。
 
 SDK 通过 `host.signal` 和清理流程释放自己的监听、计时器、RAF、ResizeObserver；适配器须释放 WebGL 缓冲、纹理、程序、第三方对象及未完成操作。异步初始化的迟到结果必须检查 `host.signal.aborted`。文档隐藏停止效果，返回可重新挂载相同版本。初始化／更新错误保留 CSS；JS 启动后错误会带 `theme_effects=off` 重载。SDK 不能终止无限同步循环或故意恶意代码。
 

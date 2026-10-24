@@ -2,11 +2,13 @@
 
 # 赠送订阅
 
+本文属于[上游兼容参考](../upstream/index.md)，保留礼品购买、领取、退款及历史处理规则。本项目一期不开放礼品购买和在线支付；管理员人工开通独立服务也不等于创建礼品。
+
+下文礼品基于[上游单订阅套餐](subscriptions.md)，不代表可以为 `ServicePlan` 自动生成独立服务。所述按钮、默认开关和接口用于兼容维护，受本项目[运行时边界](../upstream/index.md#运行时边界)约束；实际交付范围只查[本轮本地最终验收](../implementation-plan.md#本轮本地最终验收)。
+
 购买者在“奖励 → 我的礼品 → 赠送”选择订阅。付款后获得链接，由其他用户自行激活。期限从激活时开始计算，未激活礼品没有失效期限。
 
 启用礼品或推荐计划时，首次打开应用会显示“奖励”标签。购买可用性通过 `/me` 的 `settings.gifts_enabled` 返回，不依赖礼品列表加载。关闭购买后，已付款礼品和保存的链接仍可访问。“我的礼品”使用共享卡片组件及奖励页面间距。
-
-> 本页说明上游赠送功能，本项目一期不开放礼品购买和在线支付。
 
 <a id="покупка-и-оплата"></a>
 
@@ -76,9 +78,11 @@ Remnawave 暂时不可用时，礼品以“激活中”状态绑定接收者，�
 - “设置 → 通用 → 赠送订阅”的 `GIFTS_ENABLED` 默认 `True`，控制新购买。关闭不阻止已有付款完成、历史查看、邮件投递和已付款礼品激活；与 `REFERRAL_PROGRAM_ENABLED` 独立。
 - “礼品”显示购买者、接收者、套餐、金额、渠道、日期与状态，支持搜索、状态／来源筛选、排序、每页 25 条，手机端显示卡片。图标按钮打开礼品与用户详情。
 - 详情显示保存的权益、奖励、折扣、个人与合作伙伴余额扣款、付款和邮件投递结果。用户历史显示最近 100 次购买，管理员可查看完整历史。
-- 管理员只能撤销已付款且处于 `ready` 的礼品。操作锁定付款与礼品，不与开始激活竞争；`activating`、`activated` 不可撤销。默认按实际支付总价（`checkout_total_amount`，缺失时使用 `amount`）以单次幂等 `gift_refund` 账本记录全额退回购买者个人余额。退款保存管理员及必填原因，覆盖混合支付全部金额，即使余额功能关闭仍入账，资金保留至后续开启。
+- 管理员只能撤销已付款且处于 `ready` 的礼品。操作锁定付款与礼品，不与开始激活竞争；`activating`、`activated` 不可撤销。默认按实际支付总价（`checkout_total_amount`，缺失时使用 `amount`）以单次幂等 `gift_refund` 账本记录全额退回购买者个人余额。退款保存管理员和原因，默认要求填写原因，兼容 API 的例外见下文。退款覆盖混合支付全部金额，即使余额功能关闭仍入账，资金保留至后续开启。
 - 邮件投递和未完成激活恢复需要运行 `worker`。升级时先由常规 `migrate` 服务应用 `0077_subscription_gifts`、`0078_gift_entitlements`。
 
 购买使用现有结账接口，传入 `gift: true` 和可选 `gift_recipient_email`。已登录接口：`GET /api/gifts/options`、`GET /api/gifts`、`POST /api/gifts/preview`、`POST /api/gifts/claim`；管理列表为 `GET /api/admin/gifts`。准确契约见 [OpenAPI](../api/index.md)。
 
-管理发放：`GET /api/admin/gifts/options`、`POST /api/admin/gifts`，字段为 `request_id`、`plan_id`，以及可选 `checkout_addons`、`recipient_email`。详情为 `GET /api/admin/gifts/{gift_id}`。撤销接口 `POST /api/admin/gifts/{gift_id}/revoke` 接受必填 `reason`，以及 `restore_promo_usage`、`refund_to_balance`。所有管理接口校验管理员权限，客户端不能指定退款金额或资金来源。
+管理发放：`GET /api/admin/gifts/options`、`POST /api/admin/gifts`，字段为 `request_id`、`plan_id`，以及可选 `checkout_addons`、`recipient_email`。这里的 `plan_id` 是上游销售选项标识，不是数据库 `ServicePlan.id`。详情为 `GET /api/admin/gifts/{gift_id}`。撤销接口 `POST /api/admin/gifts/{gift_id}/revoke` 接受 `reason`、`without_reason`、`restore_promo_usage`、`refund_to_balance`。默认要求原因去除首尾空白后至少三个字符；兼容 API 的 `without_reason=true` 允许空原因。所有管理接口校验管理员权限，客户端不能指定退款金额或资金来源。
+
+项目余额流程必须先在同一事务内将未使用已付礼品的实付金额记入购买者余额，再撤销权益。上游 [`revoke_paid_gift`](../../backend/bot/services/gift_revoke.py) 仍接受 `refund_to_balance=false`，这说明存在兼容分支，不是本项目允许丢弃已付礼品且不退款的业务规则。后续余额工作必须核对退款与撤销的原子性、幂等及回归，不能只恢复旧按钮；参见[贡献入口约束](../../AGENTS.md)和[用户余额](user-balance.md#礼品撤销与退款)。

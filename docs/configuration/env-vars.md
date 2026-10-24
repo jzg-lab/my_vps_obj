@@ -2,11 +2,13 @@
 
 <a id="переменные-окружения"></a>
 
-`.env` 主要用于启动配置：数据库访问、公开 URL 和固定密钥；仅启用 Telegram 时需要机器人令牌。首次登录后，大多数产品设置可在 Web App 管理后台修改，并以覆盖 `.env` 的形式保存在数据库中。
+本页是手工维护的配置源文档；文档站由 `docs-site/scripts/sync-docs.mjs` 复制并转换，不要编辑生成副本。变量定义与验证以 `backend/config/`、Compose 和实际消费者为准，表内的上游默认值不等于本项目环境中的有效值。
+
+环境文件主要保存数据库访问、公开 URL 和固定密钥；仅启用 Telegram 时需要机器人令牌。允许后台修改的设置以数据库覆盖值优先生效。本项目从[隔离源码流程](../development/project-local.md)进入，使用 `.env.project-dev` 与项目 overlays；通用部署才使用其对应 `.env`。当前证据与未验收范围只查[本轮本地最终验收](../implementation-plan.md#本轮本地最终验收)。
 
 > 本参考保留 Minishop 上游的完整变量说明；列出支付、试用、礼品、余额或营销参数，不表示本项目当前 MVP 已启用这些功能。本项目采用管理员手动激活、无支付及一个账号管理多个独立服务的方案。当前范围见[需求文档](../requirements.md)，开发和验收使用[项目隔离开发环境](../development/project-local.md)。
 
-上游完整功能的推荐配置顺序：
+本项目配置顺序见[初始配置](../getting-started/configuration.md)。以下顺序仅用于[上游兼容模式](../upstream/index.md)，不能将它作为二开项目的安装或业务启用步骤：
 
 1. 根据 `.env.example` 填写最小 `.env`。
 2. 启动服务栈，验证邮箱，并通过[独立运行模式指南](../features/telegram-optional.md)中的服务器命令指定首位所有者。
@@ -97,7 +99,7 @@ SOCKS5 只改变 Bot API，以及未显式禁用代理时的服务端 OAuth 出�
 指向容器自身，不是 Docker 宿主机。代理也在容器中时，使用其 Compose 服务名和共同网络；
 外部代理则使用容器可访问的 DNS/IP。
 
-修改后重建两个进程所在的容器：
+**环境与前置：仅已启用 Telegram 的通用单文件 Compose 部署。** 核对当前目录、项目名、环境文件、镜像和可中断窗口后，重建两个进程所在的容器；本项目隔离栈必须使用完整 project-dev overlays，不照抄裸 Compose 命令。
 
 ```bash
 docker compose up -d --force-recreate backend worker
@@ -126,7 +128,7 @@ Minishop 会为 `backend` 和 `worker` 的所有 Bot API 调用启用 aiogram �
 URL 不支持查询参数、片段或凭据；Compose 服务应使用 DNS 名称，而非 `127.0.0.1`。
 删除该变量即可恢复官方 Telegram Bot API。
 
-修改后重建两个进程所在的容器：
+**环境与前置：仅使用自建 Bot API 的通用单文件 Compose 部署。** 确认目标端点、项目、环境文件及允许中断后重建；不用于本项目默认关闭 Telegram 的隔离栈。
 
 ```bash
 docker compose up -d --force-recreate backend worker
@@ -140,7 +142,7 @@ docker compose up -d --force-recreate backend worker
 | --- | --- | --- |
 | `DEPLOYMENT_PROFILE` | 安装向导 | 所选方案的信息标记（`caddy`、`angie`、`nginx`、`newt`、`no-proxy`、`egames`）。`egames` 让后续仅迁移运行知道应复用现有 `eGamesAPI/remnawave-reverse-proxy` Nginx。 |
 | `APP_ENV_FILE` | CLI/Compose | 替代 `.env` 的环境文件路径。 |
-| `IMAGE_TAG` | CLI/Compose | Docker 镜像标签。 |
+| `IMAGE_TAG` | CLI/Compose | 所选 Compose 的镜像标签；不改变仓库或命名空间，也不会把上游镜像变成本项目版本。项目 overlay 的本地镜像另有固定名称。 |
 | `FRONTEND_PORT` | `.env` / Compose | 前端 nginx 的宿主机端口，默认 `8082`。 |
 | `WEB_SERVER_HOST` | `.env` | backend webhook 服务的内部监听地址，通常为 `0.0.0.0`。 |
 | `WEB_SERVER_PORT` | `.env` / Compose | backend webhook 服务的宿主机端口，默认 `8080`。 |
@@ -255,7 +257,7 @@ docker compose up -d --force-recreate backend worker
 | `WEBHOOK_QUEUE_RETRY_BASE_SECONDS` | webhook 指数退避重试的初始延迟，默认 `1`。 |
 | `WEBHOOK_QUEUE_RETRY_MAX_SECONDS` | webhook 重试之间的最大延迟，默认 `30`。 |
 | `WORKER_PANEL_SYNC_INTERVAL_SECONDS` | 后台面板同步间隔。 |
-| `TARIFF_WORKER_LOCK_TTL_SECONDS` | 套餐 worker 的 Redis 锁 TTL。 |
+| `TARIFF_WORKER_LOCK_TTL_SECONDS` | 上游旧套餐 worker 的 Redis 锁 TTL；不是独立服务周期同步的配置入口。 |
 | `TARIFF_WORKER_TICK_SECONDS` | 套餐 worker 执行间隔。 |
 | `TARIFF_WORKER_BULK_PANEL_FETCH_THRESHOLD` | 触发批量获取面板用户的活跃订阅数阈值。 |
 | `TARIFF_PREMIUM_FAST_TICK_SECONDS` | 套餐 worker 两次完整执行之间快速检查高级流量限额的间隔，默认 `60`；设为 `0` 或不小于 `TARIFF_WORKER_TICK_SECONDS` 的值会关闭快速检查。 |
@@ -328,7 +330,7 @@ Uptime Kuma、xray-checker、缓存及排障配置见[专门指南](../features/
 | 变量 | 用途 |
 | --- | --- |
 | `PANEL_API_URL` | backend 和 worker 请求使用的 API URL，例如共同 Docker 网络中的 `http://remnawave:3000/api`，或 `https://panel.example.com/api`。 |
-| `PANEL_PUBLIC_URL` | 管理员浏览器访问面板的地址，例如 `https://panel.example.com`。用于 Remnawave 3.x 用户详情链接，允许路径前缀和 `/api` 后缀。留空则为兼容现有安装，从 `PANEL_API_URL` 生成链接。 |
+| `PANEL_PUBLIC_URL` | 管理员浏览器访问面板的显式地址，例如 `https://panel.example.com`。统一管理台高级维护只使用通过安全校验的此值；留空或非法时入口不可用，不回退到 `PANEL_API_URL`，不承诺自动登录。旧 Remnawave 3.x 用户详情链接另保留空值时使用 API 地址的兼容行为；两者不可混用。 |
 | `PANEL_API_KEY` | 面板 API 密钥。 |
 | `PANEL_API_COOKIE` | 受 `eGamesAPI/remnawave-reverse-proxy` 保护的面板所需的可选 Cookie 请求头内容（`name=value`）。安装向导也接受 `Cookie:`/`Set-Cookie:` 行，或仅含一组查询参数的完整 eGames 访问 URL，并保存规范值。Cookie 不能替代 `PANEL_API_KEY`。 |
 | `APP_RUNTIME_MODE` | 运行模式：`production`、`development`、`staging`、`test`。 |
@@ -347,6 +349,8 @@ Uptime Kuma、xray-checker、缓存及排障配置见[专门指南](../features/
 和 `PANEL_PUBLIC_URL=https://panel.example.com`。backend 和 worker 容器必须可访问内部地址。
 公开 URL 不改变 API 密钥、Cookie、webhook 或面板返回的订阅地址；
 eGames 访问参数仍保存在 `PANEL_API_COOKIE`。
+
+高级维护地址检查见 `build_panel_maintenance_url`：接受 HTTP(S) 的公开地址及有效路径前缀，拒绝嵌入凭据、内部主机和私有／保留 IP 等不安全值；查询参数和片段不会作为管理凭据传给浏览器。它不发起连接或 DNS 探测，链接可生成不等于面板可达或已登录。日常管理仍从本项目客户与节点流程进入，见[统一管理台指南](../admin-console-guide.md)的 UA-20。
 
 安装向导分别建议两个地址：内部 API 来源于当前 `.env`、Remnashop/Bedolaga 或
 Remnawave 配置；浏览器地址来源于面板的 `FRONT_END_DOMAIN` / `REMNAWAVE_PANEL_URL`，
@@ -988,7 +992,7 @@ Stripe 创建托管 Checkout Sessions，并通过用户不在线时的 off-sessi
 
 <a id="тарифы-и-legacy-цены"></a>
 
-推荐通过管理后台的**系统 → 套餐**配置套餐，JSON 保存到 `TARIFFS_CONFIG_PATH`。
+本节仅描述上游旧套餐兼容模式：通过其**系统 → 套餐**配置 JSON，保存到 `TARIFFS_CONFIG_PATH`。本项目套餐模板与独立服务保存于数据库，不能用这些变量覆盖；当前模型见[独立服务说明](../development/independent-services.md)。
 
 存在且通过验证的 JSON 目录时，按时长套餐的价格、周期及邀请奖励均从 JSON 读取。下列旧版变量只在没有 JSON 目录时使用。
 

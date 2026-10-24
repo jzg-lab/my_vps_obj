@@ -46,6 +46,8 @@ npm run check:quick
 | `docs-site/package-lock.json` 或文档站依赖 | `npm run check:lockfiles`，然后 `npm run build:docs` |
 | 生成文档／契约 | 运行下表对应生成器和漂移／契约测试，再运行 `npm run check:docs`；修改生成器代码属于代码修改 |
 
+修改 `docs-site/scripts/sync-docs.mjs` 时，另运行 `npm --prefix docs-site run test:docs`，验证仓库文件引用、旧锚点和 OpenAPI 链接兼容。该测试会同步生成副本，不与文档构建并行；文档分工及来源规则见[文档维护规范](docs/documentation.md)。
+
 完成限定范围的检查后，列明已执行检查，并明确说明：由于已证明差异仅涉及文档或文档站，跳过了完整 `pytest`／`ruff`／`mypy`／前端矩阵。CI 仍是合并前的最终完整门禁。
 
 mypy 没有范围边界之外的豁免：整个仓库都在检查范围内，包括全部后端包、两个脚本根目录（`backend/scripts`、`scripts`）和完整 `tests/`。`type_ignore` 允许清单仅保留一项经边界证明的例外：`config/settings.py` 的 pydantic-settings 从环境填入必填字段，静态分析不可见；调用处的行内注释记录了原因。

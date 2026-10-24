@@ -2,12 +2,14 @@
 
 <a id="настройка-тарифов"></a>
 
-机器人支持两种销售配置方式：
+本文是[上游兼容参考](../upstream/index.md)，说明 Minishop 单订阅销售目录。它与本项目的 `ServicePlan` 套餐模板是两套不同模型，不能用修改 JSON 目录代替独立服务配置。
+
+本项目一期由管理员人工开通、不接在线支付；日常套餐管理使用统一管理台的套餐模板，并从客户开通逐份 `UserService`。资源类型、额度、周期和续期规则见[独立服务模型](../development/independent-services.md)与[额度与计量契约](../development/entitlement-metering-contract.md)。当前实现及验收边界只查[本轮本地最终验收](../implementation-plan.md#本轮本地最终验收)。
+
+以下目录、后台入口、试用、礼品和销售流程仅用于上游兼容模式，不是本项目一期的配置步骤。上游机器人支持两种销售配置方式：
 
 - `TARIFFS_CONFIG_PATH` 指定的 JSON 套餐目录，默认 `data/tariffs.json`。
 - JSON 文件不存在时，使用 `.env` 变量配置。
-
-> 本页保留 Minishop 上游套餐、支付、试用和营销流程，不表示本项目 MVP 已启用这些能力。当前项目采用一个账号管理多个独立服务、管理员手动激活及无支付。项目独立服务的计量与切换规则以[额度与计量契约](../development/entitlement-metering-contract.md)为准；本页不是生产节点、限流断连或真实出口的验收证据。
 
 <!-- GitHub 源文件链接（未启用）：[data/tariffs.example.json](https://github.com/3252a8/remnawave-minishop/blob/main/data/tariffs.example.json) -->
 JSON 目录可包含多种模式的套餐：按时长订阅、无到期时间的流量包、不同 Internal Squads、设备上限和加购包。格式示例见 [data/tariffs.example.json](https://gitlab.com/3252a8/remnawave-minishop/-/blob/main/data/tariffs.example.json)。
@@ -24,7 +26,7 @@ Docker 中，`TARIFFS_CONFIG_PATH` 通常指向 `/app/data` 内文件，`migrate
 
 <a id="управление-через-админку"></a>
 
-Web App 管理后台的**系统 → 套餐**可编辑目录。后台读取并保存 `TARIFFS_CONFIG_PATH`，通过与机器人相同的 `TariffsConfig` 模型验证，仅验证成功后才原子覆盖 JSON。
+上游 Web App 管理后台的**系统 → 套餐**用于编辑该目录。其实现读取并保存 `TARIFFS_CONFIG_PATH`，通过与机器人相同的 `TariffsConfig` 模型验证，仅验证成功后才原子覆盖 JSON。本项目独立服务模式的套餐模板不使用此入口；旧目录写入受[运行时边界](../upstream/index.md#运行时边界)约束。
 
 界面支持：
 
@@ -42,7 +44,7 @@ Web App 管理后台的**系统 → 套餐**可编辑目录。后台读取并保
 
 套餐配置在请求时从 JSON 加载，因此保存后立即作用于新的 Web App 请求。已有订阅保留自己的 `tariff_key`；删除或禁用套餐时，应检查引用该键的有效订阅是否仍需要续订或切换。
 
-权限、设置保存和页面列表详见[管理后台](admin-panel.md)。
+上游权限、设置保存和页面列表详见[管理后台参考](admin-panel.md)；本项目日常管理入口以[统一管理台指南](../admin-console-guide.md)为准。
 
 ## 模式选择
 
@@ -484,7 +486,7 @@ period 套餐流量加购增加 `topup_balance_bytes` 和总 `traffic_limit_byte
 - 高级额度耗尽时，只移除高级 squad，保留普通访问。最终非空 squad 集合相同的变更合并为 `POST /api/users/bulk/update-squads`，每次最多 500 用户；选择器从 2.8.1 的 `uuids` 自动切换到 3.x 的 `userIds`。最终集合为空时，使用逐用户 `PATCH /api/users`，因为 Remnawave 3.0.0 通过批量接口删除最后一个 squad 会返回 `A088/500`。不支持批量接口的面板也使用该已验证 PATCH 备用路径。
 - 高级限额检查不等待 worker 完整周期：已使用至少 `TARIFF_PREMIUM_FAST_WATCH_PERCENT` 百分比的订阅，以及所有临时受限订阅，每 `TARIFF_PREMIUM_FAST_TICK_SECONDS` 秒复查。因此检查延迟造成的超额窗口按分钟计算，而非完整 `TARIFF_WORKER_TICK_SECONDS`；这不是零超额保证。
 - 某个高级节点统计缺失时，不降低当前周期高级已用量，避免不完整数据向超额用户重新开放访问。
-- 移除 squad 只阻止新连接，因此限制后立即请求面板断开高级节点上已有会话。节点集合相同的用户合并为一请求：2.8.1 使用带 `userUuids` 的 `POST /api/ip-control/drop-connections`，3.x 使用带 `userIds` 的 `POST /api/connections/drop`。不影响普通访问和其他用户会话。`TARIFF_PREMIUM_DROP_CONNECTIONS` 可关闭此行为，重复请求受 `TARIFF_PREMIUM_DROP_CONNECTIONS_COOLDOWN_SECONDS` 限制。**Remnawave 节点必须具有 `CAP_NET_ADMIN`**，见下文。
+- 移除 squad 不能作为已有会话已终止的证明，因此限制后会请求面板断开高级节点上的目标会话。节点集合相同的用户合并为一请求：2.8.1 使用带 `userUuids` 的 `POST /api/ip-control/drop-connections`，3.x 使用带 `userIds` 的 `POST /api/connections/drop`。请求中的用户与节点范围不保证底层按身份精准断连；按源 IP 关闭连接的实现可能影响同源的其他有效服务。`TARIFF_PREMIUM_DROP_CONNECTIONS` 可关闭该上游请求，重复请求受 `TARIFF_PREMIUM_DROP_CONNECTIONS_COOLDOWN_SECONDS` 限制，但关闭请求不能替代本项目的停用和隔离验收。**标准 Node 的该断连路径要求 `CAP_NET_ADMIN`，它不是会话隔离保证**，见下文。
 - 已受限订阅的高级流量仍增长时，机器人记录含节点列表的警告，并在管理后台诊断页提示。
 - 加购高级流量后，只要新限额再次高于已用量，就恢复高级 squad。
 - 加购高级流量不过期：先消耗 `premium_monthly_gb`，只对超出基础高级额度的流量扣减加购余额。
@@ -519,7 +521,9 @@ period 套餐流量加购增加 `topup_balance_bytes` 和总 `traffic_limit_byte
 
 <a id="требование-к-нодам-cap_net_admin"></a>
 
-高级限额耗尽后，机器人从面板用户移除高级 squad，节点不再接受**新连接**，但 xray 不会自动断开现有会话。断开由 Remnawave 节点执行，且要求容器具有 `CAP_NET_ADMIN`；缺少此能力时无法获取用户在线 IP 列表并关闭套接字，因此限制后客户端仍可能通过旧连接下载。
+高级限额耗尽后，机器人请求移除高级 squad；新授权需实际下发到节点，已有会话则需另外终止。标准 Remnawave Node 的源 IP 断连路径要求容器具有 `CAP_NET_ADMIN`，缺失时可能无法关闭目标套接字。拥有该能力仅说明具备执行条件，不能证明目标旧连接已终止、旧配置的新连接已拒绝或同源其他服务未受影响。
+
+独立服务要求同时验证上述三个结果，不能从面板返回成功推断。固定身份级适配、默认 Node、协议与环境的实际验证边界只查[本轮本地最终验收](../implementation-plan.md#本轮本地最终验收)，本页不作全协议或生产隔离承诺。
 
 可查看节点启动日志：
 
@@ -527,12 +531,12 @@ period 套餐流量加购增加 `topup_balance_bytes` 和总 `traffic_limit_byte
 docker logs remnawave-node 2>&1 | grep CAP_NET_ADMIN
 ```
 
-`[OK] CAP_NET_ADMIN is available` 表示能力可用；`CAP_NET_ADMIN is not available.` 表示无法断开会话。需要时在节点 `docker-compose.yml` 添加该能力并重启节点。以下为配置说明，本项目验证必须使用独立测试资源，不对现有生产节点操作：
+`[OK] CAP_NET_ADMIN is available` 表示检测到该能力，不能替代连接验证；`CAP_NET_ADMIN is not available.` 表示该路径缺少必要权限。以下为隔离测试部署的配置片段，版本占位符须换成已核对的固定版本或摘要。添加能力并重建／重启节点属于独立运维操作，不是阅读本页后可以直接对现有生产节点执行的步骤：
 
 ```yaml
 services:
   remnawave-node:
-    image: remnawave/node:latest
+    image: remnawave/node:<PINNED_VERSION>
     cap_add:
       - NET_ADMIN
 ```

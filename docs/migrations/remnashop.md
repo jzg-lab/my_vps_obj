@@ -2,7 +2,9 @@
 
 # 从 Remnashop 迁移
 
-Remnashop 使用通用导入脚本 `backend/scripts/import_legacy.py`。最方便的方式是交互安装向导：
+本页仅描述 Remnashop 到 Minishop 旧模型的兼容导入，先读[迁移索引](index.md)。`backend/scripts/import_legacy.py` 不会将旧订阅自动转成当前独立服务；本项目启动仍走[隔离源码流程](../development/project-local.md)。
+
+**上游安装器前置：**仅用于单独授权的上游安装／迁移目录，核对脚本来源、源与目标、配置备份及停机范围后才运行。它下载上游配置和镜像，不是当前二开部署方式，也可能修改配置、重启并发送通知。
 
 ```bash
 curl -fsSL https://gitlab.com/3252a8/remnawave-minishop/-/raw/main/scripts/install.sh -o install.sh
@@ -50,7 +52,7 @@ sh install.sh
 
 一个 `point` 作为 Remnashop `settings.default_currency` 的一个完整货币单位导入。RUB／USD 转为最小单位时乘以 100；Telegram Stars（`XTR`）精度为 0，不乘。导入器不累加 `referral_rewards`，因为总额已包含在 `users.points`。
 
-试运行后，向导显示所选币种。存在非零余额时，将 `USER_BALANCE_CURRENCY` 写入 `.env` 并开启 `USER_BALANCE_ENABLED`。可通过 `REMNASHOP_BALANCE_CURRENCY` 或 `--balance-currency` 覆盖。币种无法确定，或重跑发现期初记录不一致时，阻止应用并回滚事务。
+试运行后，向导显示所选币种。上游迁移存在非零余额时，会将 `USER_BALANCE_CURRENCY` 写入 `.env` 并开启 `USER_BALANCE_ENABLED`；这是向导兼容行为，不能据此为当前无支付项目启用余额。可通过 `REMNASHOP_BALANCE_CURRENCY` 或 `--balance-currency` 覆盖。币种无法确定，或重跑发现期初记录不一致时，阻止应用并回滚事务。
 
 不自动导入群发历史、仅设备代码、无期限流量代码和永久个人／购买折扣，因为当前模型没有安全的直接对应；这些项目在摘要和配置计划中列出，供人工处理。
 
@@ -116,17 +118,17 @@ YooMoney、MulenPay、PayMaster、RoboKassa、UrlPay 当前无直接对应，存
 
 ## 手动运行
 
-不使用向导时：
+**环境与前置：仅隔离迁移副本，使用已准备依赖的本项目源码。** 源与目标必须不同，明确传入目标 DSN，源 `.env` 使用受保护副本；目标结构需先准备好，`--dry-run` 不运行目标迁移。下方地址、路径与币种是占位值，按清点结果替换，不把凭据写入仓库或共享日志。直接运行脚本可避免 `docker compose run backend` 顺带启动依赖迁移或修改挂载权限。
 
 ```bash
-docker compose run --rm backend \
-  python backend/scripts/import_legacy.py \
+python backend/scripts/import_legacy.py \
     --source-type remnashop \
     --source-dsn 'postgresql://old_user:old_password@old_host:5432/remnashop' \
+    --target-dsn 'postgresql://test_user:test_password@test_host:5432/minishop_import' \
     --source-schema public \
     --source-env-file /path/to/remnashop/.env \
     --balance-currency XTR \
     --dry-run
 ```
 
-试运行成功后移除 `--dry-run` 重复。默认冲突模式为 `merge`，映射已有用户与付款，加入新记录。窄范围导入使用 `--only`，例如 `--only users,referrals,balances,promocodes,advertising`。
+试运行后先核对冲突、币种、余额、未映射身份、目标范围及备份，明确批准正式应用后才移除 `--dry-run` 写入该目标。默认冲突模式为 `merge`，映射已有用户与付款，加入新记录；幂等不等于无覆盖风险。窄范围导入使用 `--only`，例如 `--only users,referrals,balances,promocodes,advertising`。报告留在私有目录，实施结果只记[实施计划](../implementation-plan.md#本轮本地最终验收)。

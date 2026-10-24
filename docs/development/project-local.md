@@ -1,87 +1,111 @@
 # 我的 VPN：本地开发
 
-本仓库基于 Minishop v3.8.2（`04b0ca5e210a33209bbf15485003865ee29304bc`），保留 MIT 许可和上游历史。业务需求以[需求基线](../requirements.md)、[产品设计](../product-design.md)为准；上游文档描述的是原有功能，并不表示多套餐改造已经完成。
+本仓库基于 Minishop v3.8.2（`04b0ca5e210a33209bbf15485003865ee29304bc`），保留 MIT 许可和上游历史。当前项目必须从本仓库源码进入，不能用上游安装器、公开镜像或上游克隆代替。先读[接手说明](../handoff.md)、[需求基线](../requirements.md)、[统一管理台指南](../admin-console-guide.md)和[产品设计](../product-design.md)。
+
+本文维护环境入口和操作前提，不维护产品完成清单。当前进度、源码快照、验收证据及未验收范围只查[实施计划 §14：本轮本地最终验收](../implementation-plan.md#本轮本地最终验收)。历史记录从[历史索引](../archive/index.md)查阅；历史测试状态不能作为当前待办。
 
 ## 启动
 
-需要 Docker、Docker Compose 和 Buildx。主机上执行质量检查另需 Python 3.12、Node.js 24+。下面的开发环境使用本仓库源码构建。
+需要 Docker、Docker Compose 和 Buildx；执行 `npm run project:*` 需要主机 Node.js/npm。主机质量检查使用 Python 3.12、Node.js 24+，具体门禁见 [CONTRIBUTING.md](../../CONTRIBUTING.md)。
+
+### 先选择并核对本机引擎
+
+在任何 `npm run project:*` 命令之前，先用 `docker context ls` 查看可用 context，并在当前终端用 `export DOCKER_CONTEXT=你的本机开发context名称` 指定已核对的本机开发引擎。可使用 Docker Desktop、本机 Docker Engine 或独立 Colima；不要求所有平台安装 Colima，也不默认接受当前 daemon。
+
+**macOS 可选隔离引擎：**仅在准备使用名为 `my-vps-obj` 的独立 Colima 实例时运行以下命令；已有实例先核对配置，不擅自调整资源。使用其他引擎时跳过此段，保留自己选定的本机 context。
 
 ```sh
-cp deploy/dev/project-dev.env.example .env.project-dev
+colima start my-vps-obj --activate=false --cpu 2 --memory 4 --disk 40
+export DOCKER_CONTEXT=colima-my-vps-obj
+```
+
+先只读核对 context 名称及 Docker endpoint，确认指向本机开发环境，不是生产或其他项目的远程引擎：
+
+```sh
+docker context show
+docker context inspect "${DOCKER_CONTEXT:?请先设置为已核对的本机开发context名称}"
+```
+
+确认端点后运行 `docker info` 检查引擎可用性，再执行下方首次初始化命令。`DOCKER_CONTEXT` 只影响当前终端，不切换其他项目的全局 Docker context；新终端须重新选择并核对。首次拉取与构建需要联网。端口冲突时在本地配置调整端口及对应 URL，不停止其他项目。
+
+### 首次初始化
+
+**环境与前置：仅首次创建本机隔离开发栈。** 在当前仓库根目录核对工作树、Docker context、端口和数据卷归属；已有环境不要覆盖配置或重新初始化。构建读取当前工作树，包含未提交修改，不能只凭 Git 提交号声称运行内容一致；接手时保留他人未提交内容，并对照实施计划中的源码与镜像记录。
+
+```sh
+# 只读确认：此处应是本项目源码目录和已选定的隔离引擎。
+git status --short
+# 仅首次复制；已有文件必须先阅读并保留。
+test -e .env.project-dev || cp deploy/dev/project-dev.env.example .env.project-dev
 npm run project:config
 npm run project:up
 npm run project:ps
 ```
 
-只有第一次需要复制配置；不要覆盖已经修改的 `.env.project-dev`。配置、数据库、缓存和本地抓取资料不会提交到 Git。不要从线上复制配置、用户数据或真实订阅。
+`project:up` 包含镜像构建、追加迁移和 seed，不是只读检查或通用更新命令。已有验收环境更新须先确定源码范围、备份和迁移步骤，不为更新重播 seed。配置、数据库、缓存和本地抓取资料不提交 Git；不要从线上复制配置、用户数据或真实订阅。
 
-macOS 使用独立 Colima 环境时：
+若网络需要代理，Docker daemon 和主机构建客户端都需能访问镜像仓库；仅设置构建参数不能解决镜像认证请求超时。主机客户端使用 `HTTP_PROXY` / `HTTPS_PROXY`，构建步骤可用 `DEV_BUILD_PROXY` 指定容器可访问的代理地址。这些地址只放在本地配置或当前终端环境。
 
-```sh
-colima start my-vps-obj --activate=false --cpu 2 --memory 4 --disk 40
-export DOCKER_CONTEXT=colima-my-vps-obj
-npm run project:up
-```
-
-`DOCKER_CONTEXT` 只影响当前终端，不切换其他项目的全局 Docker context。首次拉取与构建需要联网。默认端口必须未被占用；若冲突，在本地配置修改端口及对应 URL 后重试，不停止其他项目。
-
-若网络需要代理，Docker daemon 和主机上的构建客户端都需要能访问镜像仓库；仅设置构建参数不能解决镜像认证请求超时。主机客户端使用 `HTTP_PROXY` / `HTTPS_PROXY`，构建步骤可用 `DEV_BUILD_PROXY` 指定容器可访问的代理地址。这些地址只放在本地配置或当前终端环境。
-
-| 服务 | 本机地址 |
+| 服务 | 默认本机地址 |
 | --- | --- |
 | 网站与管理入口 | http://127.0.0.1:18082 |
 | 后端健康检查 | http://127.0.0.1:18080/healthz |
 | 测试 Remnawave | http://127.0.0.1:3000 |
 | 面板健康检查 | http://127.0.0.1:3001/health |
 
-开发服务仅绑定本机地址。测试管理员邮箱为 `runes.admin@example.com`，密码为 `Minishop-Dev-2026!`（上游公开测试夹具）。不要将此环境、测试凭据或 QA 登录功能用于公网部署。
+开发模板仅绑定本机地址。测试管理员邮箱为 `runes.admin@example.com`，密码为 `Minishop-Dev-2026!`（上游公开测试夹具）。不要将此环境、测试凭据或 QA 登录功能用于公网部署。
 
-基础测试数据仅包含三个虚构账号，不预置付款、套餐或节点身份绑定；重复启动不会覆盖已编辑的账号。用户首页已接入多份独立服务、套餐目录和服务详情；后台已有独立套餐、专用出口登记和用户多服务开通页面。用户端旧购买/营销入口已隐藏，账号合并、删除、历史保留及全服务封禁/解封的持久化同步已接入，后台历史页面已接入；网站旧业务接口和回调返回 410，旧权益 worker 不再运行，后台旧套餐操作、筛选及配置已收拢，Telegram 核心旧权益入口已隔离并导向网站。此时不构成完整业务验收。默认栈不包含实际节点，不交付可用代理连接；Remnawave 写操作默认为 dry-run。本地 HTTP 验证在测试管理员账号下创建了以 `Local QA` 开头的两份业务记录；状态为 pending，没有交付连接。
+`deploy/dev/seed-project-accounts.sql` 是首次初始化用的合成账号数据，不是正在运行数据库的库存清单。已有环境中的账号、套餐、服务和资源以实际记录及实施计划为准，不按初始夹具数量重置或清理。
 
-本项目开发配置关闭 Telegram、在线支付、自动试用、余额、分销、订阅通知、遥测及备份。保留上游功能代码以减少派生差异；这些功能不因此进入 MVP 范围。后台 worker 使用同一个本地面板和数据库。上游后台会提示本地地址使用 HTTP；公网 HTTPS 部署仍是后续阶段，不通过隐藏提示冒充生产就绪。
-
-后台已支持单份服务暂停、恢复和续期；续期保留用量和月度锚点。独立身份用量采集已实现，只有 live 模式才运行，默认 dry-run 不产生伪造的真实采样。月度额度切换使用持久化的固定计数检查点，限额核对成功后才更新页面。修改套餐模板额度会排队更新同模板已有服务的当前及未来额度，保留已用流量。计数异常保留已有用量；管理员须暂停服务（已取消的服务保持取消）、确认面板停用并提供准确记录才能核对，核对不会恢复权限。取消时未完成的月度切换须做终止结算，保留旧周期与切点、记录切点后准确用量，不将额度记为确认成功；证据提交后才能删除身份。合并后的基础逻辑、取消核对和终止结算已通过完整单元、模拟浏览器、隔离数据库/无 Node 面板与实际本地网站验收；本轮另用临时 live 进程和两只真实 Docker Node 完成了数据面测试，测试后已清理；第三方客户端订阅导入及真实公网独享出口仍未验证，不能仅靠切换配置宣称通过。详细证据见[权益与计量契约](entitlement-metering-contract.md#local-validation-and-remaining-acceptance-2026-10-23)。
+`deploy/dev/project-dev.env.example` 默认使用 `PANEL_WRITE_MODE=dry_run`，关闭 Telegram、在线支付相关业务、自动试用、余额、分销、订阅通知、遥测及备份；默认 Compose 组合不部署数据面 Node。这里描述的是模板，不是对本机现有环境的探测结果。切换 live、增加 Node 或写入面板前，须核对隔离对象、写入时段和清理范围；仅切换配置不能证明连接交付。
 
 ## 检查与停止
+
+**环境与前置：本机源码质量检查。** 以下安装命令仅用于尚未准备好的开发依赖；在共享工作树中先协调依赖使用。按 CONTRIBUTING.md 的修改区域矩阵选择检查，文档修改不因此要求重跑产品全量矩阵。
 
 ```sh
 python3.12 -m venv .venv
 .venv/bin/python -m pip install -r backend/requirements.txt -r requirements-dev.txt
 npm ci --prefix frontend
 PATH="$PWD/.venv/bin:$PATH" npm run check
+```
 
-# 已启动本地环境后验证登录、权限和设置保存，不调用支付流程。
+**环境与前置：仅已授权的隔离本地 QA。** 下例会登录并测试设置保存，属于有写入的测试；先核对目标 URL、测试账号和回退条件，不能对生产站点运行。
+
+```sh
 NO_PROXY=127.0.0.1,localhost,::1 QA_FULLSTACK=1 .venv/bin/python -m pytest -q tests/qa/test_fullstack_stand.py \
   -k 'email_auth_session_and_csrf or admin_settings_save_roundtrip'
+```
 
-npm run project:logs
+日常只读检查使用 `npm run project:ps`、`npm run project:logs`。**仅在确认没有其他窗口使用同一隔离栈、允许中断本地服务时**，运行：
+
+```sh
 npm run project:down
 ```
 
-停止保留数据库卷；不要随意使用 `down -v`。只想释放本项目 VM 资源可运行 `colima stop my-vps-obj`，下次启动后再执行 `project:up`。
+该命令限定 `my-vps-obj` 项目并保留数据卷。不要使用无范围的 `down -v` 或 `prune` 排障。仅在确认 VM 没有其他任务时，可用 `colima stop my-vps-obj` 释放该实例资源；恢复使用前重新核对环境，不将重新初始化当作启动前提。
 
-首次运行浏览器测试需执行 `npm exec --prefix frontend -- playwright install chromium`。macOS 的 `/usr/bin/openssl` 实际可能是 LibreSSL；安装器证书测试需要 OpenSSL，可在测试命令的 `PATH` 前加入 Homebrew 的 `openssl@3/bin`，不用替换系统程序。构建文档时也需将 `.venv/bin` 放入 `PATH`。
+首次运行浏览器测试需执行 `npm exec --prefix frontend -- playwright install chromium`。macOS 的 `/usr/bin/openssl` 可能是 LibreSSL；安装器证书测试需要 OpenSSL，可在测试命令的 `PATH` 前加入已有 Homebrew `openssl@3/bin`，不用替换系统程序。构建文档时也需将 `.venv/bin` 放入 `PATH`。
 
 ## 仓库与集成边界
 
 - `origin`：`https://github.com/jzg-lab/my_vps_obj.git`。
-- `upstream`：`https://gitlab.com/3252a8/remnawave-minishop.git`；不自动合并更新。
-- `frontend/`、`backend/`、`tests/`、`deploy/` 复用上游目录和接口契约。后续迁移只追加，不改旧迁移。
-- `docker-compose.project-dev.yml` 覆盖本项目的镜像、容器、网络和数据卷名称；基础 Compose 与 Remnawave overlay 继续复用。
-- 常规 CI 运行源码检查；完整面板矩阵暂限 3.4.5。上游镜像发布和自动提 PR 工作流在本仓库不执行。
-- 现有线上网站已按用户授权替换为二开版试测，见下方服务器资料；现有两台 3x-ui 节点接管仍另行安排。
-- `experiments/` 保存早期离线评估，单独按目录 README 运行；正常 `pytest` 只收集 `tests/`，不将“复现上游缺口”的实验当成产品回归测试。
-
-新业务模型、接口与当前未完成边界见[独立服务开发说明](independent-services.md)。
-
+- `upstream`：`https://gitlab.com/3252a8/remnawave-minishop.git`；不自动合并更新。[上游兼容参考](../upstream/index.md)保留旧功能和协议资料，不是本项目部署入口。
+- `frontend/`、`backend/`、`tests/`、`deploy/` 复用上游目录和接口契约；数据库迁移只追加，不改旧迁移。
+- `package.json` 的 `project:*` 固定组合 `docker-compose-dev.yml`、`docker-compose.remnawave-dev.yml`、`docker-compose.project-dev.yml`，并指定项目名及配置文件。项目 overlay 隔离镜像、容器、网络和卷名。
+- 常规 CI、面板版本矩阵和发布行为以仓库工作流为准；不能从上游发布标签推断本项目已发布。
+- `experiments/` 保存早期离线评估，单独按目录 README 运行；正常 `pytest` 只收集 `tests/`，不将复现上游缺口的实验当成产品回归测试。
+- 客户、服务、节点与资源操作对齐指南 F01～F07、UC-01～UC-09 及对应 UA 验收项；模型与契约见[独立服务开发说明](independent-services.md)、[权益与计量契约](entitlement-metering-contract.md#local-validation-and-remaining-acceptance-2026-10-23)。这些文档不替代实施计划的当前证据。
 
 ## 本机真实 Node 与恢复演练
 
-2026-10-23 主窗口经用户授权，在此机临时部署两只 Remnawave Node，完成真实 VLESS TCP 的跨节点上传/下载计量、额度耗尽、暂停/恢复、封禁/解封、到期、撤销、月度切换及短时故障测试。节点和测试数据已清理，默认无 Node / dry-run 配置未修改。环境、步骤、实际超额和未验证边界见[实施计划第 11 节](../implementation-plan.md#local-node-and-recovery-acceptance)。这是本机真实数据面证据，不能替代公网出口或第三方客户端导入验收。
+当前验证范围及保留边界统一查[本轮本地最终验收](../implementation-plan.md#本轮本地最终验收)。[早期 Node 与恢复演练](../implementation-plan.md#local-node-and-recovery-acceptance)保留历史依据，不能将其中的临时环境、数量或“尚未验证”复制为当前状态。
 
-本轮还使用现有备份与恢复代码执行商店数据库恢复，包含月度检查点、额度调整、原始价格快照和合成资源绑定，88 张表恢复前后内容一致。恢复时停本项目 backend/worker，保留旧数据库及恢复日志，完成后重新启动并核查健康；不要把较旧商店备份直接视为外部面板已经同步。详细流程和 CLI 入口见[备份说明](../features/backups.md)。私有演练摘要和归档在忽略的 `data/backups/`，不公开提交。
+重复真实节点测试前须独占本地面板写入时段，先记录资源标识，使用隔离商店 schema 和回环端口，结束后仅清理本轮创建的资源。默认无 Node 面板 QA 必须等临时 Node 清理后运行，不修改其保护条件。原生客户端核心验证、各平台 GUI 验证和公网固定独享出口是不同证据，不能互相替代。
 
-重复真实节点测试前须独占本地面板写入时段，先记录本轮资源标识，使用临时商店 schema 和回环端口，结束后仅删除本轮资源。默认的无 Node 面板 QA 必须等临时 Node 清理后运行，不修改其保护条件。
+恢复步骤与 CLI 入口见[备份说明](../features/backups.md)。恢复会写入数据库或应用文件，须先停止目标写入、保留旧数据及日志，再核查健康和远端差异；商店备份不等于外部面板同步快照。私有演练摘要与归档位于忽略的 `data/backups/`，不公开提交。
+
+下方生产资料保留已记录的地址、版本、密钥路径、备份和节点信息，供后续运维使用；不是本次本地验收的发布证明。已有明确授权在原目标与操作范围内可延续，无需为读全文、普通只读核查或已授权的后续步骤重复请示；文档本身不扩大授权。执行前核对目标服务器及停机、写入范围，超出原范围时再确认。节点接入和共享资源变更仍按指南 F06／F07 完成影响预览与确认；任务明确排除生产访问时，只阅读记录。
 
 ## 线上服务器资料
 
@@ -154,7 +178,7 @@ docker compose logs --since 10m --tail 100 backend worker
 
 `Default-Squad` 原先仅关联 `Default-Profile` 的 Shadowsocks 入站（1234），没有对应的已发布客户端 Host，导致该组服务的订阅返回 `No hosts found` 等占位节点。2026-10-23 经用户授权，已保留原入站并将 `VLESS_WS_TEST` 加入默认组；节点重新载入了该组现有 5 份服务身份，后续使用该组的服务也可获得这条美国测试线路。没有重置额度或到期时间。操作期间临时增加集成令牌的 `internal-squads:write`，完成后已恢复原权限，并清除 Redis 与进程内权限缓存。组变更前记录保留于服务器 `/opt/my-vps-obj/backups/default-squad-connectivity-fix-20261023.jsonl`。
 
-修复后，从用户 Mac 读取原故障服务的真实订阅配置，临时运行官方 sing-box 1.14.3（发布资产 SHA-256 已核对），经该节点访问 Google 连通性检测返回 204、Cloudflare 与 Wikipedia 返回 200；Cloudflare 报告出口为 `38.76.215.26`。临时内核已关闭，含身份的临时配置已删除。此证据验证了该服务的公网数据面，但本轮未完成 Hiddify 界面内的订阅更新与切换，客户端仍需刷新旧占位节点缓存。原两台 3x-ui 机器尚未接入此面板。
+修复后，从用户 Mac 读取原故障服务的真实订阅配置，临时运行官方 sing-box 1.14.3（发布资产 SHA-256 已核对），经该节点访问 Google 连通性检测返回 204、Cloudflare 与 Wikipedia 返回 200；Cloudflare 报告出口为 `38.76.215.26`。临时内核已关闭，含身份的临时配置已删除。此证据验证了该服务的公网数据面，但本轮未完成 Hiddify 界面内的订阅更新与切换，客户端仍需刷新旧占位节点缓存。两台现用 3x-ui 服务器的后续并行接入证据见实施计划第 15 节。
 
 新增多节点套餐线路的顺序：
 
@@ -165,3 +189,32 @@ docker compose logs --since 10m --tail 100 backend worker
 5. 用一份已授权服务在通用客户端更新订阅，核对节点出现、可连接和流量归属。没有实测前不以面板“在线”代替连接成功。
 
 已有 3x-ui 服务器不能仅录入 IP 就纳管：需要明确并行部署还是迁移，在端口和现有配置安排好后接入 Remnawave Node。单人单 IP 套餐还需实际独享出口及资源验证，增加节点组不会自动创造独享 IP。
+
+### 两台现用 3x-ui 服务器的 SSH 连接
+
+用户于 2026-10-24（北京时间）选择保留 3x-ui、并行部署 Remnawave Node，并授权配置本机密钥登录。后续使用下列已保存连接，不再重复索取密码：
+
+| 本机命令 | 服务器 | SSH 用户／端口 |
+| --- | --- | --- |
+| `ssh vpn-node-103` | `103.214.68.94` | `root`／`22` |
+| `ssh vpn-node-93` | `93.115.10.171` | `root`／`22` |
+
+别名保存在本机 `~/.ssh/config`，专用 Ed25519 私钥为 `~/.ssh/my_vps_obj_nodes_ed25519`，权限 `0600`；公钥已追加到两台服务器的 `/root/.ssh/authorized_keys`。密钥无口令，因此这台 Mac 上能够读取私钥的进程具有相应服务器访问能力；私钥不写入仓库，也不传到服务器。两台均已通过禁用密码认证且不复用连接的 SSH 登录验证，原密码登录保留。换电脑需要安全迁移密钥或另行授权新公钥，本机别名不会自动同步。
+
+服务器私有备份目录均为 `/root/my-vps-obj-backups/20261024-parallel-node`，包含 SQLite 在线备份及原配置；备份数据库已通过完整性检查。实际接入进度与验收结果仅在[实施计划第 15 节](../implementation-plan.md#existing-node-onboarding-20261024)维护。
+
+两台并行 Node 的运行位置：
+
+| 项目 | 位置／配置 |
+| --- | --- |
+| 部署目录 | `/opt/remnawave-node`；`node.env` 私有凭据禁止提交 |
+| 服务／容器 | `remnawave-node.service`、`remnawave-management-guard.service`；`remnanode` |
+| 镜像 | `remnawave/node:3.4.2@sha256:1f97485b4bc7e4944f1ae95cc57d176376813b0022e9567b705f384f1a2e909d` |
+| 客户端入口 | 各自公网 IP 的 TCP 24443，VLESS／Reality／Vision |
+| 管理入口 | TCP 2222，仅中央服务器 38.76.215.26；nft 表 `inet remnawave_management` |
+| Profile | `Parallel Reality 103`、`Parallel Reality 93` |
+| Host | `Reality - 103.214.68.94`、`Reality - 93.115.10.171` |
+| 授权组 | `Parallel Nodes`、`Default-Squad`，默认组保留原入站 |
+| 兼容配置 | 两个新配置 `minClientVer=0.0.0`，SNI／目标 `www.cloudflare.com`，认证和加密保留 |
+
+容器使用 host 网络、内存上限 320 MiB、无额外 swap、CPU shares 256、PID 上限 256、日志 10 MiB × 3。检查可用 `ssh vpn-node-103 'systemctl status remnawave-node --no-pager'`，另一台替换 SSH 别名。旧 3x-ui 身份、订阅、用量及到期由旧系统独立维护；不要在未确认端口影响前替换旧配置。

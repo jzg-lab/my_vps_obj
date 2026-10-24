@@ -2,7 +2,15 @@
 
 <a id="публичный-шлюз-подписки"></a>
 
-> 本页说明上游账号级订阅网关，供维护兼容代码时参考。本项目独立服务模式已经退役旧订阅入口，包括 `/s/` 和旧公开教程 API；不能通过下述开关绕过退役限制。当前交付以[独立服务交付](../development/service-delivery.md)为准，每份服务单独核验并提供链接，教程使用 `/api/service-guides`。本文不代表公开网关或真实 Node 已完成本项目验收。
+本页属于[上游兼容参考](../upstream/index.md)，说明账号级公开订阅网关的协议与维护方式。
+
+| 交付路径 | 身份与用途 | 本项目中的边界 |
+| --- | --- | --- |
+| `/s/<token>`、`/api/subscription-guides/public/{share_token}` | 上游账号级订阅及公开教程 | 旧业务停用策略返回 `410 legacy_business_retired`，下述开关不能绕过。 |
+| `/api/services/{service_id}/subscription`、`/api/service-guides` | 独立服务凭据读取及教程配置 | 按当前账号及指定服务核验，详见[独立服务交付](../development/service-delivery.md)。 |
+
+下文启用、迁移和回退步骤仅适用于维护上游网关的环境，不是本项目独立服务的上线步骤。
+实际验收范围统一见[实施计划 §14：本轮本地最终验收](../implementation-plan.md#本轮本地最终验收)。
 
 上游网关可在商店域名提供连接链接，替代直接的 Remnawave Panel 链接。同一个 `https://app.example.com/s/<token>` 地址在浏览器打开教程，在 VPN 应用中返回订阅配置；用户可导入后通过同一地址更新。
 
@@ -98,6 +106,7 @@ curl --fail-with-body -A 'Happ/1.0' \
 | --- | --- |
 | `400` | 配置请求需要 `User-Agent`；`view` 只能有一个值 `page` 或 `subscription`，页面请求不能带格式后缀。 |
 | `404` | 令牌不存在、已撤销，或不再匹配当前有效订阅及面板链接，应从账号取得新链接。 |
+| `410 legacy_business_retired` | 本项目已停用账号级入口，应使用独立服务交付流程；不是网关故障或令牌失效。 |
 | `429` | 公开教程和订阅共用请求配额已耗尽，按 `Retry-After` 重试。 |
 | `502` | 上游连接失败或面板响应无效：重定向、HTML、成功状态下配置为空、配置超过 8 MiB，或全部响应头超过 64 KiB。检查 `PANEL_API_URL` 及 `/api/sub/<shortUuid>` 可达性。 |
 | `503` | 网关关闭、访问校验暂不可用、并发上限耗尽，或配置的共享配额 Redis 不可用。 |

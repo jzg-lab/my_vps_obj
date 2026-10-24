@@ -3,12 +3,31 @@
 <!-- 保留翻译前的章节锚点，以兼容既有链接。 -->
 <a id="архитектура-проекта"></a>
 
-本文说明**系统如何组织**（“软件架构”一节），以及**仓库与部署如何安排**（后续章节）。
-本文保留 Minishop 上游通用架构说明；本项目已采用一个账号下多份独立服务的派生实现，
-支付和旧单订阅入口的保留代码不代表当前 MVP 已启用。
-当前业务模型见[独立服务说明](development/independent-services.md)，运行与验收使用
-[项目隔离开发环境](development/project-local.md)，完成情况见[实施计划](implementation-plan.md)。
-贡献规范与可自动检查的质量门禁见[贡献规范](https://gitlab.com/3252a8/remnawave-minishop/-/blob/main/CONTRIBUTING.md)。
+本文说明本项目的技术职责、运行进程、契约和仓库布局。首次接手从[接手指南](handoff.md)开始，
+开发规范与质量门禁以仓库内的[贡献指南](../CONTRIBUTING.md)为准。
+实施进度及证据只见[实施计划 §14：本轮本地最终验收](implementation-plan.md#本轮本地最终验收)，
+不能由源码存在、接口定义或本地通过推断生产已交付。
+
+## 业务与执行职责
+
+本项目基于 Minishop 二开：一个登录账号可以持有多份独立服务；一期人工开通，不接在线支付。
+管理台沿**客户**与**节点**两条主线组织，日常操作使用同一网站、同一账号，
+Remnawave 继续承担执行层职责。产品边界以[需求](requirements.md)和[统一管理台指南](admin-console-guide.md)为准。
+
+| 层次 | 负责什么 | 技术入口 |
+| --- | --- | --- |
+| 网站与管理台 | 用户查看自己的服务；管理员从客户或节点追溯服务、资源及操作结果。 | `frontend/src/webapp/`、`frontend/src/admin/` |
+| 业务层 | 账号、模板、开通记录、服务权益、周期、已确认用量和专用出口占用。 | [独立服务模型](development/independent-services.md)、[权益与计量契约](development/entitlement-metering-contract.md) |
+| 连接交付与同步 | 为每份服务维护独立连接身份，按权益核对远端权限、用量和撤销结果。 | [连接与资源交付](development/service-delivery.md) |
+| Remnawave／Node | 管理节点、Host、授权组和连接配置，执行数据面权限并提供统计来源。 | [面板 API 兼容性目录](architecture/remnawave-api-compatibility.md) |
+| 扩展与上游兼容 | 保留插件、旧单订阅业务及跨机器人迁移契约；不把保留能力当作本项目 MVP 入口。 | [上游兼容参考](upstream/index.md)、[插件契约](development/plugin-contract.md) |
+
+账号、服务、连接身份不是同一个对象。上游单订阅路径不能代替多服务的独立额度、有效期和停用；
+授权组描述可访问资源，不能据此推断当前在线连接。待接入节点仅登记名称、地址、备注，
+不执行远程安装或探测；实际接入按指南 F06 验证。低频复杂配置保留高级维护入口，不另建权益账本。
+
+运行环境选择见[项目隔离开发环境](development/project-local.md)；上游原文仅作对照：
+[上游贡献规范](https://gitlab.com/3252a8/remnawave-minishop/-/blob/main/CONTRIBUTING.md)。
 <!-- GitHub 源链接（未启用）：[贡献规范](https://github.com/3252a8/remnawave-minishop/blob/main/CONTRIBUTING.md) -->
 
 ## 软件架构
@@ -21,10 +40,11 @@
 
 应用通过两个进程运行，共用同一套初始化与依赖装配：
 
-- **backend**（`main_backend.py`）：基于 aiohttp，提供 Mini App 与管理后台的 HTTP API、
-  Telegram Webhook，以及支付服务商和面板的 Webhook。它在不同端口启动两个 aiohttp 应用：
-  一个处理 Webhook，另一个提供 Subscription WebApp（Mini App 与 `/api/*`）。
-- **worker**（`main_worker.py`）：执行套餐后台任务、面板同步和 Webhook 队列处理等后台工作。
+- **backend**（`main_backend.py`）：基于 aiohttp，提供用户网站与管理台 HTTP API、
+  Telegram Webhook 及保留的上游回调路径；本项目支付和账号级 Panel 回调返回 410。
+  它在不同端口启动两个 aiohttp 应用：一个提供 Webhook 路由，另一个提供网站与 `/api/*`。
+- **worker**（`main_worker.py`）：执行独立服务交付、计量、周期、资源操作、同步及重试。
+  保留旧商业处理代码不表示已启动对应 worker；旧核心权益事件按现有边界转入死信核对，不发放权益。
 
 两个进程都会调用 `run_setup(ctx)` 和 `register_core_reactions(ctx)`，
 因此**两者都会监听领域事件总线**并激活插件。事件层的任何改动都必须在两个进程中一致生效。
@@ -64,7 +84,7 @@ HTTP 路由 → parse_body / 请求契约 → 服务层（业务逻辑）→ DAL
 
 <a id="расширяемость"></a>
 
-外部代码通过独立软件包与入口点形式的插件扩展应用，无需派生核心代码。
+插件可通过独立软件包与入口点扩展应用；这是保留的公开扩展能力，不代表本项目仅靠插件实现。
 可扩展的部分包括 HTTP 路由（`setup_web`）、aiogram 路由器（`setup_bot`）、
 后台任务、队列处理器、带命名空间的迁移链、本地化资源和权益提供器。
 内置插件始终启用；外部插件由 `PLUGINS_ENABLED` 控制。
@@ -112,7 +132,7 @@ frontend/             基于 Svelte/Vite 的 Mini App 与管理后台
 
 deploy/
   docker/             Dockerfile，以及运行时 nginx 和 Caddy 配置
-  examples/           可直接使用的 Docker Compose 启动示例
+  examples/           上游 Compose 与部署配置参考，不替代本项目源码镜像
 
 data/                 挂载到容器中的运行数据
 locales/              机器人与 Web App 的翻译
@@ -124,11 +144,13 @@ tests/                Python 测试
 
 <a id="деплой"></a>
 
-主 `docker-compose.yml` 位于仓库根目录，使 `docker compose up` 保持为简单的生产启动方式。
+主 `docker-compose.yml` 位于仓库根目录，提供基础部署拓扑。
+本项目本地开发使用 `project:*` 命令及项目 overlay，具体配置见[项目环境](development/project-local.md)；
+通用兼容测试环境另见 [dev-stand](development/dev-stand.md)，两者的 seed 与生命周期不同。
 它通过 `deploy/docker/Dockerfile` 构建三个应用镜像：
 
 - `backend`：aiohttp API 与 Webhook。
-- `worker`：套餐后台任务、面板同步与 Webhook 队列处理器。
+- `worker`：独立服务、资源操作、面板同步及对应队列处理器。
 - `frontend`：由 nginx 提供的 Svelte 静态资源。
 
 Mini App 与管理后台以 ES 模块构建，并拆分代码包：页面通过
@@ -148,7 +170,9 @@ Postgres 与 Redis 进入健康状态后，`migrate` 执行 `Base.metadata.creat
 Python 导入有意保留在 `bot.*`、`config.*` 和 `db.*` 命名空间中。
 运行容器设置 `PYTHONPATH=/app/backend`；本地测试通过 `pytest.ini` 使用相同布局。
 
-主要命令：
+下列是基础 Compose／构建命令参考，不是项目环境的初始化步骤。
+执行前按对应环境文档确认 Docker context、Compose 文件和配置；生产更新另按
+[环境记录](development/project-local.md#production-access)及明确授权安排。
 
 ```bash
 docker compose up -d --build

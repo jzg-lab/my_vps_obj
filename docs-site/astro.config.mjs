@@ -84,7 +84,16 @@ export default defineConfig({
         {
           label: '我的 VPN · 二开项目',
           items: [
+            { label: '项目接手指南', slug: 'reference/handoff' },
+            { label: '文档维护规范', slug: 'reference/documentation' },
+            { label: '管理员操作手册', slug: 'user-guide/admin-workflows' },
+            { label: '上游兼容索引', slug: 'upstream' },
+            { label: '历史归档', slug: 'archive' },
+            { label: '旧实施记录', slug: 'archive/implementation-history-20261024' },
+            { label: '原架构调查', slug: 'archive/architecture-assessment-20261024' },
             { label: '需求基线', slug: 'reference/requirements' },
+            { label: '统一管理台实施指南', slug: 'reference/admin-console-guide' },
+            { label: '信息展示实施方案', slug: 'reference/information-experience-plan' },
             { label: '产品设计', slug: 'reference/product-design' },
             { label: '架构评估', slug: 'reference/architecture-assessment' },
             { label: '实施计划', slug: 'reference/implementation-plan' },

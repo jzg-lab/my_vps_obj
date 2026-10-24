@@ -55,7 +55,7 @@ ESM 导出为 `mountView(view, element, props) -> instance`、`unmountView(insta
 
 <a id="инструкции-и-ресурсы"></a>
 
-`GuideProvider(id, resolve)` 接收 `UserContext(session, user_id, language)`，返回 `GuideContribution(config, order)` 或 `None`。`config` 是现行 v1 教程格式的完整文档，可包含任意平台。Core 校验后，为平台和 SVG 标识添加 `owner--provider--` 前缀，再与选定的 Panel/config 来源合并，不替换基础教程。最终平台标识最长 64 个字符，冲突片段会被跳过。管理员可在插件操作页面隐藏提供者或调整顺序。个人片段不进入公开分享教程。本项目独立服务的实际教程入口见[本地开发说明](project-local.md)，不能用上游账号教程替代服务级凭据校验。
+`GuideProvider(id, resolve)` 接收 `UserContext(session, user_id, language)`，返回 `GuideContribution(config, order)` 或 `None`。`config` 是现行 v1 教程格式的完整文档，可包含任意平台。Core 校验后，为平台和 SVG 标识添加 `owner--provider--` 前缀，再与选定的 Panel/config 来源合并，不替换基础教程。最终平台标识最长 64 个字符，冲突片段会被跳过。管理员可在插件操作页面隐藏提供者或调整顺序。个人片段不进入公开分享教程。本项目独立服务的教程来源见[客户端体验](chinese-localization.md#客户端教程)，凭据核验见[服务交付](service-delivery.md)；不能用上游账号教程替代服务级凭据校验。
 
 `ResourceProvider(id, resolve)` 接收用户和不透明资源键。回调必须检查资源键属于该用户，并返回 `ResourceResult(body, content_type, filename)`。`/api/extensions/resource?provider=owner:id&key=...` 只允许已登录且未被封禁的用户访问；结果以附件返回，标记 `no-store`，最大 2 MiB，不执行 HTML/SVG。模块下载优先使用返回 Blob 的 `host.resource(provider, key)`。教程可链接此路由，但不透明资源键本身不得包含私钥。
 

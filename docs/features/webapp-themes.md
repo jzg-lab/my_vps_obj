@@ -1,10 +1,12 @@
-![Remnawave Minishop 网页主题](webapp-themes.webp)
-
-> **默认主题更新。** 内置 `dark` 是标准默认主题，包含 `dark`、`light` 两个变体。旧 `light` 键保留为隐藏兼容别名，因此 `WEBAPP_DEFAULT_THEME=light`、`/home?theme_preview=light` 仍打开浅色变体，管理员统一在默认主题卡片设置。无需代码即可调整预设、深浅模式、调色板、圆角、桌面／手机标志缩放、后台独立调色板，以及界面、品牌、等宽字体。
-
 <a id="темы-и-внешний-вид-web-app"></a>
 
 # 网页主题与外观
+
+本页归入[共享基础与可选扩展](../upstream/index.md#主题与公开扩展)。配色、品牌、字体、深浅模式和后台外观仍适用于本项目，不以支付或营销功能开放为前提。旧订阅、结账与礼品专用选择器保留作兼容参考，不代表这些业务入口已开放。
+
+![Remnawave Minishop 网页主题](webapp-themes.webp)
+
+内置 `dark` 是标准默认主题，包含 `dark`、`light` 两个变体。旧 `light` 键保留为隐藏兼容别名，因此 `WEBAPP_DEFAULT_THEME=light`、`/home?theme_preview=light` 仍打开浅色变体，管理员统一在默认主题卡片设置。无需代码即可调整预设、深浅模式、调色板、圆角、桌面／手机标志缩放、后台独立调色板，以及界面、品牌、等宽字体。
 
 网页应用支持文件主题、预览和后台基础外观设置。主题可以只是 JSON 颜色令牌，也可包含自定义 CSS、字体、图标及图片。
 
@@ -90,7 +92,7 @@ Mini App 设置提供“主题模式”：自动、浅色、深色。用户不�
 - 用户与后台基础颜色、圆角、字体、主标志尺寸。
 - 通过 CSS 修改卡片、导航、表格、弹窗、按钮、骨架屏、进度、悬停／激活、手机／桌面布局。
 - 购买、礼品、切换、续费卡片共用 `checkout-tariff-facts`、`checkout-tariff-fact`、`checkout-tariff-fact-label`、`checkout-tariff-limit-icon`、`checkout-addon-value`；可统一样式，无限、未知、不支持状态分开显示。
-- 安装页 `/install` 和 `/s/<token>` 的顶栏、平台选择、客户端卡片、步骤和私人二维码区。
+- 安装页 `/install` 及上游分享页 `/s/<token>` 的顶栏、平台选择、客户端卡片、步骤和私人二维码区。`/s/<token>` 是保留的上游路径，本项目独立服务订阅按[连接与资源交付](../development/service-delivery.md)处理，不能用主题恢复被退役的入口。
 - CSS 引用的主题图标和图片。
 - 只作用于用户站点、只作用于后台或双方。
 
@@ -120,7 +122,7 @@ WEBAPP_DEFAULT_THEME=
 
 `WEBAPP_DEFAULT_THEME` 可选，匹配主题键时覆盖描述中的 `default: true`；留空则依据描述选择。
 
-Compose 中 `data/themes` 位于所选 Compose 文件旁，挂载为 `/app/data/themes`。修改源码内置目录只有自建镜像才进入部署，已发布镜像看不到这些源码变化。
+主题在容器中的路径由 `WEBAPP_THEMES_DIR` 及所用 Compose 挂载共同决定。仓库根 Compose 使用命名卷 `shop-data:/app/data`，不能假定宿主的 `./data/themes` 就是运行中的目录；部署示例的 `./data:/app/data` 才对应示例目录旁的 `data/themes`。本项目环境以[隔离开发环境记录](../development/project-local.md)为准，操作前核对实际挂载。修改源码内置目录只有自建镜像才进入部署，已发布镜像看不到这些源码变化。
 
 `WEBAPP_PRIMARY_COLOR`、`WEBAPP_LOGO_URL` 已不用于 `.env` 初始配置，应在后台保存数据库覆盖项。主题仍可把保存的主色作为强调色回退。
 
@@ -298,6 +300,8 @@ Compose 中 `data/themes` 位于所选 Compose 文件旁，挂载为 `/app/data/
 
 普通与紧凑首页行为一致，不创建后端不可用操作，也不隐藏到期警告；异常状态、期限、日期仍可见。未知值回退 `auto`。后台主题卡片统一编辑八项，深浅变体可不同。
 
+这里的订阅卡片、余额、自动续费及推荐显示规则描述上游页面消费者。独立服务首页与“我的套餐”以实际组件为准；主题令牌不会把多个 `UserService` 合并成一份订阅，也不会开放已退役操作。
+
 未设 CSS 时，由令牌和共享样式构建全部界面；设 CSS 时仍先应用令牌，再由主题细化或覆盖。
 
 <a id="css-слой-темы"></a>
@@ -398,7 +402,7 @@ body:has(.theme-key-neon) .app-toast {
 公开 ZIP／仓库使用[主题包与 CLI](theme-packages.md)。以下只适用于自有测试服务器上的可信本地文件。
 
 1. 选择稳定短键，如 `neon`、`brand_dark`、`terminal-blue`，用于保存选择和资源 URL；发布后不要在未迁移文件和设置时重命名。
-2. 在 `WEBAPP_THEMES_DIR` 创建目录。Docker 主机为 Compose 旁 `data/themes`，容器内为 `/app/data/themes`，确保可写：
+2. 在实际 `WEBAPP_THEMES_DIR` 对应的持久目录创建主题目录并确保可写。以下仅以绑定挂载的开发目录为例；命名卷部署不能直接套用宿主路径：
 
    ```bash
    mkdir -p data/themes/neon
@@ -429,7 +433,7 @@ body:has(.theme-key-neon) .app-toast {
    }
    ```
 
-先覆盖 `.theme-key-neon.app-shell` 变量，再修改组件，至少检查首页、教程、公开分享页、付款、设置、弹窗、后台概览、用户表、套餐编辑器。手改 CSS 后增加 `assets_version` 或强制刷新；资源带 `?v=<assets_version>`，浏览器可能缓存旧版。
+先覆盖 `.theme-key-neon.app-shell` 变量，再修改组件。对本项目检查首页、我的套餐、服务详情、教程、设置，以及管理台的客户、节点、模板、菜单和弹窗；明确使用上游兼容流程的部署另查公开分享页、付款与礼品。手改 CSS 后增加 `assets_version` 或强制刷新；资源带 `?v=<assets_version>`，浏览器可能缓存旧版。
 
 9. 按需添加图片。可信手工主题可用 `/webapp-theme-assets/<key>/...`；不同 URL 层级可能使 `url("icons/x.png")` 错位。分发包则使用包内相对资源，安装器负责重定位。
 10. 装饰过强影响后台时设置 `use_in_admin: false`，后台回退深色。

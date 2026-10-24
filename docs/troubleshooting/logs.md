@@ -2,7 +2,7 @@
 
 <a id="логи"></a>
 
-日志是排查启动、支付、webhook 及 Remnawave Panel 同步问题的主要依据。
+日志用于解释目标账号、服务、节点或操作的实际结果。先从[接手说明](../handoff.md)核对环境，再按[统一管理台指南](../admin-console-guide.md) F02／F03、UC-05 排查；当前进度与证据统一查[本轮本地最终验收](../implementation-plan.md#本轮本地最终验收)。
 
 > 本页保留上游功能的日志说明。当前 MVP 使用管理员手动激活、无支付；Telegram 和支付相关检查仅适用于已配置相应上游能力的环境。本项目开发与验收使用[隔离开发环境](../development/project-local.md)。
 
@@ -10,22 +10,31 @@
 
 <a id="основные-команды"></a>
 
+以下命令**仅用于本项目已存在的本机隔离栈**，在仓库根目录、选定正确 Docker context 后运行，不会启动容器。先定义携带完整项目参数的临时 shell 函数，本页后续 Compose 日志命令沿用它：
+
 ```bash
-docker compose logs -f backend
-docker compose logs -f worker
-docker compose logs -f frontend
-docker compose logs migrate
+project_compose() {
+  docker compose --project-name my-vps-obj --env-file .env.project-dev \
+    -f docker-compose-dev.yml -f docker-compose.remnawave-dev.yml \
+    -f docker-compose.project-dev.yml --profile seed "$@"
+}
+project_compose ps
+project_compose logs --since 10m --tail 100 backend worker frontend migrate
 ```
+
+快速摘要也可用 `npm run project:logs`。上游或生产部署须使用其记录中的项目、环境文件及 Compose 组合，不能把本地函数换一个目录就用于生产。分享日志前移除密钥、Cookie、完整订阅、邮箱及其他不必要的个人信息；不要公开完整 `docker compose config` 输出。
 
 ## 重点查找的内容
 
 <a id="что-искать"></a>
 
 - `migrate` 中的迁移错误。
-- `backend` 中的 Telegram webhook 和支付 webhook 错误。
-- `worker` 中的 webhook 队列及后台任务问题。
+- `backend` 中的会话、权限、服务操作、资源影响预览和面板请求错误；Telegram／支付日志仅在对应模式启用时相关。
+- `worker` 中的账号权限、独立交付、权益变更、用量同步及队列处理问题。结合对象标识、操作阶段和时间，超时先核对结果，不盲目重复写入。
 - `frontend` 中 `/api`、`/auth` 及主题资源的代理错误。
-- Mini App 和 Telegram OAuth 的认证错误。
+- 当前流程的登录及权限错误；外部认证只检查已启用提供方。`429` 按 `Retry-After` 等待，不能通过持续重试制造噪声。
+
+服务业务状态、任务执行和远端观测分别记录；日志中“请求成功”不等于连接已停用，也不把缺失样本记为零或正常。
 
 ## frontend 代理、`/api`、`/auth` 与主题资源
 
@@ -36,7 +45,7 @@ docker compose logs migrate
 先查看 nginx 日志：
 
 ```bash
-docker compose logs -f frontend
+project_compose logs -f frontend
 ```
 
 出现 `404`、`502`、`upstream` 或 `connect() failed` 时，检查路由：
@@ -45,19 +54,18 @@ docker compose logs -f frontend
 - `/webapp-logo`、`/webapp-uploaded-logo/*`、`/webapp-favicon/*`、`/webapp-theme-css/*` 和 `/webapp-theme-assets/*` 同样经过 frontend 代理。
 - 外部反向代理不得将 `/api` 或 `/auth` 单独转发到 webhook 服务 `backend:8080`。
 
-从外部快速检查：
+仅对本机已启动的默认端口做只读检查；配置改过端口时相应调整。外部站点检查另需核对任务范围：
 
 ```bash
-curl -i https://app.domain.com/health
-curl -i https://app.domain.com/api/bootstrap
-curl -i https://app.domain.com/auth/telegram/start
-curl -i https://app.domain.com/webapp-theme-css/dark/style.css
+curl -i http://127.0.0.1:18082/health
+curl -i http://127.0.0.1:18082/api/bootstrap
+curl -i http://127.0.0.1:18082/webapp-theme-css/dark/style.css
 ```
 
 如果 `/health` 正常，而 `/api/bootstrap` 或主题资源失败，同时查看 frontend 和 backend：
 
 ```bash
-docker compose logs -f frontend backend
+project_compose logs -f frontend backend
 ```
 
 配置检查位置：
@@ -78,10 +86,10 @@ docker compose logs -f frontend backend
 
 <a id="авторизация-mini-app-и-telegram-oauth"></a>
 
-认证错误通常出现在 `backend` 中，因为 Telegram Mini Apps `initData`、Telegram OAuth `id_token`、nonce/state 及会话验证都在 backend 的 WebApp 服务中进行。
+本节仅用于已启用 Telegram 的兼容环境；本项目默认关闭时，`/auth/telegram/start` 不可用并不证明网站故障。认证错误通常出现在 `backend` 中，因为 Telegram Mini Apps `initData`、Telegram OAuth `id_token`、nonce/state 及会话验证都在 backend 的 WebApp 服务中进行。
 
 ```bash
-docker compose logs -f backend
+project_compose logs -f backend
 ```
 
 查找以下消息：
@@ -117,9 +125,6 @@ docker compose logs -f backend
 
 <a id="после-изменения-конфигурации"></a>
 
-```bash
-docker compose up -d
-docker compose logs -f backend worker frontend
-```
+配置生效与重建步骤见[维护说明](maintenance.md)。先区分数据库覆盖值、环境变量与镜像变化；不要为读日志重建容器，也不要用 `project:up` 重播已有环境 seed。完成已授权的修改后，只读核对目标日志与健康状态。
 
 另见[常见问题](issues.md)和[部署](../getting-started/deployment.md)。

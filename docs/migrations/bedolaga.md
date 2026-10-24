@@ -2,7 +2,9 @@
 
 # 从 Bedolaga 迁移
 
-Minishop 通过通用导入器读取 [Bedolaga](https://docs.bedolagam.ru/) PostgreSQL。已验证支持 Alembic `0110`、`0118`；未知版本只允许清点和试运行，禁止正式应用。
+Minishop 通用导入器保留 [Bedolaga](https://docs.bedolagam.ru/) PostgreSQL 的兼容导入，来源版本范围为 Alembic `0110`、`0118`；未知版本只允许清点和试运行，禁止正式应用。
+
+本页不是当前二开项目的安装或生产迁移授权。先读[迁移索引](index.md)：导入目标含旧 `Subscription`，不自动创建独立服务，也不因此启用支付、余额或礼品。开发入口是[隔离源码流程](../development/project-local.md)，当前交付证据只查[本轮本地最终验收](../implementation-plan.md#本轮本地最终验收)。
 
 <a id="что-переносится"></a>
 
@@ -36,7 +38,7 @@ Minishop 通过通用导入器读取 [Bedolaga](https://docs.bedolagam.ru/) Post
 
 ## 手动运行
 
-先试运行：
+**环境与前置：仅隔离迁移副本。** 已准备脚本依赖，源／目标 DSN 明确且不同，目标结构已准备，源 `.env` 为受保护副本。下方地址与路径是占位值；报告目录限制访问，凭据和报告不得提交 Git。试运行不执行目标结构迁移，不能用生产库填补此前提：
 
 ```bash
 python backend/scripts/import_legacy.py \
@@ -51,9 +53,9 @@ python backend/scripts/import_legacy.py \
   --reconciliation-output .installer/bedolaga-dry-run-reconciliation.json
 ```
 
-确认 `blockers` 为空、`balance_total_matches=true`，并处理 `identity_conflicts`、`unresolved_panel_subscriptions`。再移除 `--dry-run` 重复执行，正式报告使用独立文件名。
+确认 `blockers` 为空、`balance_total_matches=true`，并处理 `identity_conflicts`、`unresolved_panel_subscriptions`。这些检查通过后仍须核对目标范围、备份和回退，明确批准正式应用后才移除 `--dry-run` 重复执行；正式报告使用独立文件名，保留试运行依据。
 
-使用向导时，运行 `scripts/install.sh`，选择迁移及 Bedolaga 来源。向导发现本地 `.env`、PostgreSQL 容器和 Compose 项目，创建迁移前备份、试运行并请求确认应用。写入前显示脱敏计划，可自动将兼容启动设置迁入 Minishop `.env`：
+**仅已授权的上游安装／迁移目录**可运行 `scripts/install.sh`，选择迁移及 Bedolaga 来源；该向导下载上游配置和镜像，不能部署本项目未发布源码。向导发现本地 `.env`、PostgreSQL 容器和 Compose 项目，创建迁移前备份、试运行并请求确认应用。写入前显示脱敏计划，可自动将兼容启动设置迁入 Minishop `.env`：
 
 - `BOT_TOKEN`、`ADMIN_IDS` 和 Telegram webhook 密钥。
 - Remnawave 面板 URL／API 密钥。
@@ -81,7 +83,7 @@ python backend/scripts/import_legacy.py \
 
 ## 配置与切换
 
-配置计划只显示许可映射，秘密值标为 `<redacted>`。成功应用后，明确确认切换，向导将：
+配置计划只显示许可映射，秘密值标为 `<redacted>`。以下为上游切换步骤，涉及停源栈、改变重启策略和 webhook；须先确认维护窗口、源与目标范围、备份及回退，成功导入不自动授予切换权限。明确确认后，向导将：
 
 1. 检查 Bedolaga 没有通过 cron 启动。
 2. 停止整个源 Compose 项目，不删除容器、卷或数据库。

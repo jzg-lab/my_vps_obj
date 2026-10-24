@@ -2,7 +2,9 @@
 
 <a id="api-плагинов-и-расширений"></a>
 
-插件 API 允许独立 Python 包扩展 Remnawave Minishop，而无需派生核心仓库。契约仍属实验阶段，扩展接口稳定前可能在次版本间变化。
+插件 API 允许独立 Python 包扩展 Remnawave Minishop。本项目保留该公开兼容能力，
+契约以 `bot.plugins.spec` 及[插件契约](plugin-contract.md)为准；按 API 范围与 capability 版本检查兼容，
+不能以“实验阶段”为由破坏已有钩子、事件签名或传输格式。修改遵循[贡献指南](../../CONTRIBUTING.md)。
 
 > 这是上游扩展参考。本项目已经选择基于 Minishop 二开，插件能力不能替代一个账号管理多份独立服务的完整业务改造；本文中的支付、试用和营销能力不因此进入 MVP。业务边界见[需求基线](../requirements.md)。
 
@@ -37,6 +39,8 @@ from bot.plugins.spec import Plugin, PluginContext
 class ExamplePlugin(Plugin):
     name = "example"
     version = "0.1.0"
+    plugin_api_min_version = 1
+    plugin_api_max_version = 1
 
     def setup(self, ctx: PluginContext) -> None:
         ctx.services["example_service"] = object()
@@ -99,7 +103,8 @@ await ctx.emit_event(
 
 事件载荷是仅含基本类型的扁平字典，如 ID、数字、字符串和 ISO 日期。不能传 ORM 对象；需要详情时插件按 ID 重读数据库。
 
-公开事件包括：
+下列为保留的公开事件及常用字段索引，不是完整 schema；新增可空字段、模型及发送方以
+[生成事件目录](../architecture/events.md)为准。事件被定义不表示本项目独立服务模式会触发相应旧业务：
 
 - `payment.succeeded`：`user_id`、`payment_db_id`、`provider`、`amount`、`currency`、`sale_mode`、`months`、`traffic_gb`、`end_date`、`is_auto_renew`。
 - `payment.canceled`：`user_id`、`payment_db_id`、`provider`、`provider_payment_id`、`status`。
@@ -128,6 +133,8 @@ async def on_payment(event_name: str, payload: dict) -> None:
 class ExamplePlugin(Plugin):
     name = "example"
     version = "0.1.0"
+    plugin_api_min_version = 1
+    plugin_api_max_version = 1
 
     def setup(self, ctx: PluginContext) -> None:
         events.subscribe(events.PAYMENT_SUCCEEDED, on_payment)

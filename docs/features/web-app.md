@@ -2,39 +2,38 @@
 
 # 网页应用与 Mini App
 
-网页应用构建为独立 `frontend` 镜像，由 nginx 提供。Mini App 静态请求进入 `frontend:80`；frontend nginx 将 `/api/*`、`/auth/*` 和主题／标志资源代理至 `backend:8081` 的内部网页服务器。Telegram、支付和面板 webhook 仍由 `backend:8080` 处理。
+网站是客户查看多份独立服务的入口，也是管理员进入统一管理台的入口。普通浏览器可以独立使用，Telegram Mini App 是可选入口；两者使用同一账号与服务记录。
 
-> 本页包含上游功能参考。本项目一期以独立多服务、人工开通及中文教程为准，不开放旧支付与营销购买入口。旧教程接口已退役；当前服务教程路径见本页“安装教程”。
+一期由管理员人工开通，不接在线支付，不提供自有客户端。各份服务有自己的订阅、流量和有效期，不使用上游单一“当前套餐”模型。产品范围见[需求基线](../requirements.md)，具体环境的完成状态与证据只查[实施计划 §14：本轮本地最终验收](../implementation-plan.md#本轮本地最终验收)。
 
 <a id="что-показывает-веб-приложение"></a>
 
 ## 网页应用显示什么
 
-- 当前连接链接、订阅状态和到期日、已用与可用流量。
-- 当前套餐配置 premium 节点组及限额时，显示独立 premium 流量卡片。
-- 可用套餐、支付方式和付款状态。
-- 按时长套餐的权益卡片；管理员启用后，可在结账时通过滑块选择总设备数和普通／premium 周期限额。
-- 配置套餐目录后，可切换套餐、加购普通与 premium 流量。默认使用对应额度超过 80% 后才推荐加购；套餐开启“始终允许加购”时例外，见[流量加购显示时机](tariffs.md#когда-показывается-докупка-трафика)。
-- 内置安装教程：平台、客户端列表、深层链接按钮、二维码和订阅链接操作。
-- `MY_DEVICES_SECTION_ENABLED=True` 时显示“我的设备”。
-- `SUPPORT_TICKETS_ENABLED` 开启时显示客服工单与外部 `SUPPORT_LINK`。
-- `SERVER_STATUS_ENABLED=True` 时显示外部状态页，或内置 Uptime Kuma／xray-checker 数据。
-- “设置 → 通知”管理邮件、Telegram 营销和系统通知；消息按钮与菜单可使用 `/settings/notifications` 或 `startapp=notifications`。
-- 邀请链接与推荐统计。
-- 合作伙伴计划开启时显示“合作伙伴”，包括申请、专属链接、客户、佣金、独立余额、提现和余额全额／部分付款。
-- 将邮箱与 Telegram 绑定到同一账号。
+| 入口 | 客户操作 |
+| --- | --- |
+| 首页 `/home` | 查看简洁品牌概览与已开通套餐数量，通过“查看我的套餐”进入服务页。 |
+| 我的套餐 `/services` | 在“我的服务”页签查看每份已开通服务，在“套餐目录”了解管理员提供的套餐。 |
+| 服务详情 | 按服务 ID 核对已用／额度、剩余流量、到期时间、用量更新时间；月度套餐另看周期提示。详情在服务页内打开，不是单独的客户详情路由。 |
+| 导入订阅 | 在可交付服务内获取自己的链接，再展开“安装与配置”；不能借用其他服务的订阅。 |
+| 设置 → 安全 | 管理登录方式、已验证邮箱、密码、通行密钥及通知邮箱。 |
+| 设置 → 通知 | 按站点是否启用偏好设置，选择邮件／Telegram 的营销与系统通知。 |
+| 客服、服务器状态 | 由相应配置控制；客服用于沟通，状态页不替代单份服务诊断。 |
 
-具有 `owner` 或 `admin` 角色的账号还可进入管理后台，查看统计、用户搜索／筛选／premium 流量、合作伙伴、客服、群发、激活码、日志、设置和套餐编辑器。见[管理后台](admin-panel.md)。
+“套餐目录”展示价格并不表示已接支付，也不是申请或自动开通按钮。同名套餐可有多份服务；每次连接前确认所选配置对应的服务 ID。一份受限不自动转扣另一份额度。
 
-<a id="оформление-period-подписки"></a>
+客户使用步骤见[中文客户端教程](../user-guide/clients-zh.md)。管理员通过“管理后台”进入 `/admin/console-overview`，沿客户与节点两条主线处理日常事务；入口表见[统一管理后台](admin-panel.md)，实际任务见[管理员操作手册](../user-guide/admin-workflows.md)。后台资格来自账号当前角色，不来自 Telegram 或登录渠道。
 
-## 按时长订阅结账
+### 如何理解服务状态
 
-选择时长前，Mini App 展示紧凑套餐卡片，包括名称、说明、设备、普通及 premium 流量。无限资源显示“不限量”，不额外显示重置周期。存在可用结账滑块时，点击卡片或修改按钮可展开；未启用滑块的参数仅显示信息。
+- “等待连接配置”或“等待核验”：先由管理员完成交付，登记成功不等于可连接。
+- “已暂停”“已到期”“额度已耗尽”“账号已封禁”：刷新订阅不会续期、加额度或解除限制。
+- “用量尚未确认”或等待月度确认：保留最后确认量，未知不等于零。月度额度按北京时间原始开通日恢复，切换点之后的流量归新周期，核对成功后才展示新周期。
+- “有效”及面板观测正常：表示相应业务或管理条件，不保证客户端当前网络可达。
 
-切换购买时长会保留所选设备数和限额。总按钮、所有周期卡片和月均价格随选择动态更新。连续拖动时本地计算，松开滑块后调用 `/api/subscription/quote` 获取服务器权威报价。百分比折扣按整个购物车计算。
+## 部署与通用能力
 
-支付方式默认显示为带图标的下拉列表；`PAYMENT_METHODS_DISPLAY_MODE=buttons` 可恢复独立按钮。低于最低金额的渠道仍显示但禁用，悬停、聚焦或点击时提示最低值。见[价格核查](payments.md#проверка-расчёта)及[结账加购](tariffs.md#докупки-при-оформлении-подписки)。
+网页应用构建为独立 `frontend` 镜像，由 nginx 提供。静态请求进入 `frontend:80`；frontend nginx 将 `/api/*`、`/auth/*` 和主题／标志资源代理至 `backend:8081` 的内部网页服务器。`backend:8080` 保留 webhook 入口；路由存在不代表旧支付业务启用。部署变更按[隔离开发环境](../development/project-local.md)及部署文档执行，本文不是生产变更授权。
 
 <a id="настройки-env"></a>
 
@@ -49,10 +48,6 @@ WEBAPP_API_BASE_URL=/api
 WEBAPP_BACKEND_UPSTREAM=http://backend:8081
 WEBAPP_BACKEND_UPSTREAM_HOST=backend
 MINISHOP_EDGE_TOKEN=
-SUBSCRIPTION_GUIDES_ENABLED=True
-SUBSCRIPTION_GUIDES_BOT_MENU_ENABLED=True
-SUBSCRIPTION_PAGE_CONFIG_PANEL_ENABLED=True
-SUBSCRIPTION_PAGE_CONFIG_JSON_OVERRIDE_ENABLED=False
 WEBAPP_TITLE="/minishop"
 WEBAPP_THEMES_DIR=data/themes
 WEBAPP_DEFAULT_THEME=
@@ -133,6 +128,10 @@ curl -I https://app.example.com/guides/install/ios
 
 **本项目独立服务模式：**在具体服务详情中，只有获取该服务已核验订阅链接后，才显示中文教程。教程配置从 `GET /api/service-guides` 读取，随 backend 镜像打包，源文件为 `deploy/examples/independent-services-guides.json`，无需额外环境变量。链接只来自当前服务，不回退到旧账号订阅。配置失败可重试；订阅刷新失败会清空旧链接并隐藏教程。见[中文客户端教程](../user-guide/clients-zh.md)。旧 `/api/subscription-guides` 仍返回 410，下面的上游流程不适用于独立服务模式。
 
+### 上游教程格式与退役入口参考
+
+以下保留既有配置格式和迁移参考；本项目旧 `/s/` 及账号级教程接口返回 `410 legacy_business_retired`，这些开关不能恢复旧业务。旧客户端深链、分享令牌和面板配置回退不应成为独立服务交付路径。
+
 **上游兼容参考：**`SUBSCRIPTION_GUIDES_ENABLED=True` 时，个人中心“安装与配置”打开内部 `/install`。关闭教程、配置加载或校验失败时，旧行为是打开面板最终连接链接。
 
 上游 `/install` 要求网页登录，通过 `/api/subscription-guides` 获取配置，依次根据 Telegram Mini Apps 平台、`navigator.userAgentData.platform`、`navigator.userAgent` 判断设备，展示 Remnawave Subscription Page v1 配置中的客户端和步骤。`happ://...` 等深层链接可在 Mini App 直接打开。模板替换 `{{SUBSCRIPTION_LINK}}`、`{{USERNAME}}`、`{{HAPP_CRYPT3_LINK}}`、`{{HAPP_CRYPT4_LINK}}`、`{{INCY_CRYPT1_LINK}}`；加密模板将原 HTTP(S) 订阅 URL 转换为相应客户端格式。
@@ -166,7 +165,7 @@ curl -I https://app.example.com/guides/install/ios
 
 ## 身份认证
 
-支持邮箱验证码、邮箱密码、Telegram Mini Apps `initData`、Telegram OAuth／OpenID Connect、Google、Yandex ID 和通行密钥。各方式配置见[登录方式](login-methods.md)。
+支持邮箱验证码、邮箱密码、Telegram Mini Apps `initData`、Telegram OAuth／OpenID Connect、Google、Yandex ID、Discord 和通行密钥。实际显示的方式取决于启用配置，各方式配置见[登录方式](login-methods.md)。登录不会自动开通服务。
 
 SMTP 未配置时隐藏邮箱登录。未配置 Telegram OAuth 时，Telegram 内仍可通过 `initData` 登录，但外部浏览器不能启动 Telegram 登录。
 
@@ -217,6 +216,8 @@ services:
 
 ## 邀请链接
 
+本节与后面的合作伙伴、结账均为[上游兼容参考](../upstream/index.md)，不是一期客户操作路径。保留载荷格式和身份绑定说明，不据此启用奖励或付费流程。
+
 支持两种格式：
 
 - Telegram 深层链接：`https://t.me/<bot>?start=ref_u<code>`。
@@ -239,3 +240,12 @@ services:
 合作伙伴使用独立代码，不替换普通邀请关系。Telegram 载荷为 `p_<partner_code>`，网页参数为 `partner=<partner_code>`。只将新用户归属于活跃合作伙伴，重复打开其他链接不转移已有客户。`REGISTRATION_INVITE_ONLY_ENABLED=True` 时，有效合作伙伴链接同样允许注册。
 
 “合作伙伴”和 `/partner` 只在计划开启时可用。后台保存开关后，当前 Mini App 无需重启即可更新；其他会话下次加载数据时更新。完整归因、奖励、佣金与提现规则见[合作伙伴计划](partner-program.md)。
+
+<a id="оформление-period-подписки"></a>
+<a id="按时长订阅结账"></a>
+
+## 上游按时长订阅结账参考
+
+上游单订阅界面按时长、普通／premium 流量和设备数计算购物车，通过 `/api/subscription/quote` 获取报价，配合 `PAYMENT_METHODS_DISPLAY_MODE` 选择支付展示形式。该模型不等于本项目的一账号多份独立服务，也不是人工开通的前置流程。
+
+保留技术说明：[价格核查](payments.md#проверка-расчёта)、[结账加购](tariffs.md#докупки-при-оформлении-подписки)、[流量加购显示时机](tariffs.md#когда-показывается-докупка-трафика)。旧“我的设备”、推荐奖励及合作伙伴余额等能力按各自兼容资料阅读，不能据配置项存在推断当前客户入口可用。

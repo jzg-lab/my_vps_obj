@@ -13,15 +13,15 @@
 - **Frontend**：用户网站、运营后台和演示页面。
 - **PostgreSQL**：账号、套餐、服务、资源、订单历史及其他业务记录。
 - **Redis**：缓存、队列、状态和分布式锁；独立服务的账号变更使用数据库账号行锁串行化。
-- **Remnawave Panel**：连接身份、订阅与节点侧权限。真实节点尚待隔离验收。
+- **Remnawave Panel / Node**：面板管理连接身份、订阅与节点权限，Node 执行实际代理连接；管理接口在线不等于数据面连接通过。
 
-生产部署使用 Docker Compose。开发和测试请使用[项目隔离环境](../development/project-local.md)，不要把现用节点当作可销毁的测试资源。
+从[接手说明](../handoff.md)进入当前项目，开发和测试使用[项目隔离环境](../development/project-local.md)。源码构建、上游兼容安装及已有线上记录分开阅读；上游公开镜像不能代替本项目版本，也不要把现用节点当作可销毁的测试资源。
 
 ## 用户流程
 
 <a id="для-пользователей"></a>
 
-用户登录后可查看自己的多份服务，选择其中一份核对资源、流量、到期时间和连接状态。每份服务的订阅与计量独立；一份服务耗尽不会自动使用另一份的额度。等待配置或核验时，页面应明确显示当前状态。[客户端中文教程](../user-guide/clients-zh.md)说明如何选择服务、安装客户端、导入和更新；导入及连接实测仍待完成。
+用户登录后可查看自己的多份服务，选择其中一份核对资源、流量、到期时间和连接状态。每份服务的订阅与计量独立；一份服务耗尽不会自动使用另一份的额度。等待配置或核验时，页面应明确显示当前状态。[客户端中文教程](../user-guide/clients-zh.md)说明如何选择服务、安装客户端、导入和更新；具体平台和真实连接证据统一查[本轮本地最终验收](../implementation-plan.md#本轮本地最终验收)。
 
 上游 Minishop 还包含邮箱验证码、邮箱密码、Telegram、Google、Yandex 和通行密钥等[登录方式](../features/login-methods.md)，以及购买订阅、流量包、设备扩容、试用、[激活码](../features/promocodes.md)、推荐和站内客服工单。这些能力有对应代码或文档，但不表示本项目一期启用支付、营销和推荐流程。上游还提供内嵌安装说明及公开 `/s/<token>` 链接；独立服务必须使用当前服务已交付的订阅入口。
 
@@ -29,7 +29,9 @@
 
 <a id="для-администраторов"></a>
 
-管理员配置套餐，人工开通服务，登记专用出口，处理暂停、续期、用量核对和账号生命周期。模板额度修改影响同模板已开通服务的当前及未来额度；已用流量、价格、到期时间与资源快照保留。详细接口和状态见[独立服务说明](../development/independent-services.md)。
+管理员以客户与节点为两条主线，在同一网站、同一账号下管理套餐、独立服务、资源和异常。日常流程与验收编号见[统一管理台指南](../admin-console-guide.md)；本文描述职责，不另行维护实现进度。
+
+模板额度修改影响同模板已开通服务的当前及未来额度；已用流量、价格、到期时间与资源快照保留。详细接口和状态见[独立服务说明](../development/independent-services.md)。待接入节点仅登记名称、地址和备注，不连接、探测或安装服务器；复杂底层配置保留受控的高级维护入口。
 
 上游后台还包含支付配置、外观、客服、群发、激活码和日志等页面，也可与 Remnawave Panel 手动同步，并维护 JSON 套餐目录。相关功能分别见[网页管理后台](../features/admin-panel.md)、[网页应用](../features/web-app.md)和[客服与工单](../features/support.md)。
 
@@ -47,8 +49,10 @@
 
 <a id="куда-идти-дальше"></a>
 
-- [快速开始](setup.md)：使用 Docker Compose 启动的最短路径。
-- [生产部署](deployment.md)：Docker Compose、Caddy、Angie、Nginx、Pangolin/Newt 等部署方式。
+- [快速开始](setup.md)：从本项目源码启动隔离开发环境。
+- [部署与上游兼容参考](deployment.md)：区分本项目发布入口与 Caddy、Angie、Nginx、Pangolin/Newt 等上游方案。
 - [初始配置](configuration.md)：连接 Remnawave，配置网站与后台。
 - [登录方式](../features/login-methods.md)：邮箱、Telegram、OAuth 与通行密钥。
-- [实施计划](../implementation-plan.md)、[本地开发](../development/project-local.md)、[简体中文覆盖说明](../development/chinese-localization.md)：本项目的进度、隔离测试和翻译边界。
+- [本轮本地最终验收](../implementation-plan.md#本轮本地最终验收)：唯一的当前进度与证据入口，本地验收不等于全量生产完成。
+- [本地开发](../development/project-local.md)、[简体中文覆盖说明](../development/chinese-localization.md)：环境操作与翻译约定。
+- [文档索引](../index.md)、[上游兼容参考](../upstream/index.md)、[历史索引](../archive/index.md)：按任务找资料，避免用历史状态代替当前状态。

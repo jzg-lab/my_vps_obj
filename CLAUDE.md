@@ -1,33 +1,11 @@
 # CLAUDE.md
 
-Full conventions, architecture, and enforced quality gates live in @CONTRIBUTING.md
-(written in Russian — read it before changing code). Architecture overview:
-[docs/architecture.md](docs/architecture.md).
+本文件与其他智能体入口共用同一套项目规则，不维护独立规范。
 
-Non-negotiables (details in CONTRIBUTING.md §2):
+1. 先读 [AGENTS.md](AGENTS.md) 和[项目接手指南](docs/handoff.md)。
+2. 改代码前完整阅读中文 [CONTRIBUTING.md](CONTRIBUTING.md)，按其中修改区域矩阵运行门禁。
+3. 业务规则以[需求基线](docs/requirements.md)为准；客户、节点与管理流程遵循[统一管理台实施指南](docs/admin-console-guide.md)。
+4. 当前任务状态与证据只读[实施计划第 14 节](docs/implementation-plan.md#14-统一管理台执行追踪2026-10-24)；历史分工不是新指令，其他阶段的生产授权不能自动沿用。
+5. 发布历史唯一来源是根 [CHANGELOG.md](CHANGELOG.md)。文档站副本和契约产物通过生成器更新，不能手改。
 
-- Never hand-edit generated artifacts — run their generator (`openapi.json`, `events.md`,
-  `openapi.generated.ts`, settings manifest).
-- DB migrations are append-only — never edit or reorder existing ones.
-- Never silence the type checker on first-party code (`# type: ignore` / `any`); the whole
-  backend mypy run must stay green.
-- Never break the wire contracts: the HTTP `{"ok": …}` envelope, flat-dict event payloads,
-  the plugin `(event_name, dict)` subscriber signature.
-- Frontend: first-party Svelte code is runes-only and enforced for `frontend/src`; no
-  `export let`, `$:`, `$$props`, `$$restProps`, `<slot>`, `<svelte:component>`,
-  `createEventDispatcher`, or class API `$set`. First-party frontend code is TypeScript-only
-  (`.ts` / `<script lang="ts">`, enforced by architecture gates); no global `checkJs`;
-  use literal API paths; `unwrap` the envelope.
-- Decompose, then type; no module > ~1000 lines without a reason; mind the
-  monkeypatch/re-export trap (CONTRIBUTING.md §5).
-- "Compatibility with other bots" is a feature (keep), not legacy.
-- Keep core and separately shipped PRO functionality isolated. Public core documentation and
-  navigation may mention minishop PRO, summarize its public capabilities, and link to the official
-  PRO site; this exception does not allow copying PRO code, private contracts, assets, or runtime
-  dependencies into core.
-
-Before pushing, run the gates in CONTRIBUTING.md §1 (`pytest`, `ruff`, `mypy`,
-`npm run check`). Commits: Conventional Commits, no `Co-Authored-By` trailer.
-
-No `CHANGELOG.md` — the project deliberately has none; do not create or maintain one.
-Change history lives in Conventional Commits and PR descriptions (`pr-changelog` skill).
+运行环境见[项目环境记录](docs/development/project-local.md)；不要把上游安装说明、旧单订阅模型或演示数据当作当前项目的业务与生产事实。
