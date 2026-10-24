@@ -232,8 +232,8 @@ jobs:
           cache: pip
           cache-dependency-path: backend/requirements.txt
 
-      - name: Install backend deps + mypy
-        run: pip install -r backend/requirements.txt "mypy>=2.4.0,<3"
+      - name: Install backend deps + mypy + pytest
+        run: pip install -r backend/requirements.txt "mypy>=2.4.0,<3" "pytest>=9.1.1,<10"
 
       - name: Mypy web API and event layers
         run: >-
