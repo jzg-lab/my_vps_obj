@@ -1,4 +1,7 @@
+import { readFileSync } from "node:fs";
 import { expect, test } from "@playwright/test";
+
+const copy: Record<string, string> = JSON.parse(readFileSync("../locales/ru.json", "utf8"));
 
 const url = (scenario = "") =>
   `/demo/runtime/admin/service-history?theme_preview=dark&mock=${scenario}`;
@@ -13,9 +16,11 @@ for (const width of [1440, 390]) {
     await page.goto(url());
     const history = page.getByRole("region", { name: "История услуг", exact: true });
     await expect(history.locator("tbody tr")).toHaveCount(25);
-    await expect(history.locator("tbody tr").first()).toContainText(
-      "Расход не удалось проверить. Показано последнее подтверждённое значение."
-    );
+    const old = history.locator("tbody tr").first();
+    await expect(old).toContainText(copy.admin_services_usage_stale);
+    await expect(old).toContainText("10 GiB / 100 GiB");
+    await expect(old).toContainText("90 GiB");
+    await expect(old).toContainText("2026-10-22 12:00");
     await history
       .locator("tbody tr")
       .first()

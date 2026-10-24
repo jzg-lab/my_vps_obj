@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { onDestroy, onMount, tick } from "svelte";
   import {
     AdminBadge,
     AdminButton,
@@ -11,17 +12,77 @@
   import type { DedicatedExit, ServiceTranslate } from "$lib/admin/servicePlans.js";
   import ExitEvidenceDialog from "./services/ExitEvidenceDialog.svelte";
   import DedicatedExitEditor from "./services/DedicatedExitEditor.svelte";
-  let { api, at }: { api: ApiClient["api"]; at: ServiceTranslate } = $props();
+  import ConsoleServiceDetail from "./services/ConsoleServiceDetail.svelte";
+  import DedicatedExitOwnership from "./dedicated-exits/DedicatedExitOwnership.svelte";
+  import { exitHasHold } from "./dedicated-exits/availability";
+  import {
+    dedicatedExitsUrl,
+    readDedicatedExitsRoute,
+    type DedicatedExitsRoute,
+  } from "./dedicated-exits/navigation";
+  let {
+    api,
+    at,
+    routePrefix = "",
+    onOpenUserCard,
+  }: {
+    api: ApiClient["api"];
+    at: ServiceTranslate;
+    routePrefix?: string;
+    onOpenUserCard: (id: unknown) => void;
+  } = $props();
+  let route = $state(
+    readDedicatedExitsRoute(typeof window === "undefined" ? "" : window.location.search)
+  );
+  let currentUrl = $state(
+    typeof window === "undefined" ? "http://localhost/admin/dedicated-exits" : window.location.href
+  );
   let exits = $state<DedicatedExit[]>([]);
-  let total = $state(0);
-  let page = $state(0);
-  let loading = $state(false);
+  let total = $state<number | undefined>();
+  let loadedPage = $state<number | null>(null);
+  const page = $derived(route.page);
+  let loading = $state(true);
   let failed = $state(false);
-  let selected = $state<DedicatedExit | null>(null);
+  const selected = $derived(
+    loadedPage === page ? exits.find((resource) => resource.id === route.exitId) : undefined
+  );
+  let inventory: HTMLElement | undefined;
   let editorOpen = $state(false);
   let request = 0;
+  let controller: AbortController | null = null;
+  function navigate(patch: Partial<DedicatedExitsRoute>, replace = false) {
+    route = { ...route, ...patch };
+    const url = dedicatedExitsUrl(window.location.href, route, routePrefix);
+    window.history[replace ? "replaceState" : "pushState"](null, "", url);
+    currentUrl = url.href;
+  }
+  function openService(serviceId: string) {
+    navigate({ serviceId });
+  }
+  async function closeEvidence() {
+    const exitId = route.exitId;
+    navigate({ exitId: "", auditPage: 0 });
+    await load(page);
+    await tick();
+    const trigger = inventory?.querySelector<HTMLButtonElement>(
+      `[data-exit-id="${CSS.escape(exitId)}"] button`
+    );
+    (trigger ?? inventory)?.focus();
+  }
+  async function closeService() {
+    const serviceId = route.serviceId;
+    navigate({ serviceId: "" });
+    if (route.exitId) return;
+    await tick();
+    const trigger = inventory?.querySelector<HTMLAnchorElement>(
+      `[data-service-id="${CSS.escape(serviceId)}"]`
+    );
+    (trigger ?? inventory)?.focus();
+  }
   async function load(currentPage: number) {
     const id = ++request;
+    controller?.abort();
+    controller = new AbortController();
     loading = true;
     failed = false;
     try {
@@ -29,12 +90,18 @@
         await api(
           builtApiPath<"/api/admin/dedicated-exits">(
             `/admin/dedicated-exits?limit=25&offset=${currentPage * 25}`
-          )
+          ),
+          { signal: controller.signal }
         )
       );
       if (id === request) {
-        exits = result.exits;
         total = result.total;
+        if (currentPage > 0 && currentPage * 25 >= result.total) {
+          navigate({ page: Math.max(0, Math.ceil(result.total / 25) - 1) }, true);
+          return;
+        }
+        exits = result.exits;
+        loadedPage = currentPage;
       }
     } catch {
       if (id === request) failed = true;
@@ -45,9 +112,21 @@
   $effect(() => {
     void load(page);
   });
+  onMount(() => {
+    const restore = () => {
+      route = readDedicatedExitsRoute(window.location.search);
+      currentUrl = window.location.href;
+    };
+    window.addEventListener("popstate", restore);
+    return () => window.removeEventListener("popstate", restore);
+  });
+  onDestroy(() => {
+    request++;
+    controller?.abort();
+  });
 </script>
 
-<section class="exits" aria-busy={loading}>
+<section bind:this={inventory} class="exits" aria-busy={loading} tabindex="-1">
   <AdminListToolbar {total} totalLabel={at("services_exits_count")}>
     {#snippet actions()}<AdminButton disabled={loading} onclick={() => load(page)}
         >{at("refresh")}</AdminButton
@@ -72,28 +151,45 @@
             >{/each}</tr
         ></thead
       ><tbody>
-        {#each exits as resource (resource.id)}<tr>
+        {#each exits as resource (resource.id)}<tr data-exit-id={resource.id}>
             <td data-label={at("services_exit_label")}>{resource.label}</td>
             <td data-label={at("services_exit_ip")}>{resource.ip_address}</td>
             <td data-label={at("services_pool")}>{resource.resource_pool}</td>
             <td data-label={at("services_allocation")}
               ><AdminBadge
-                variant={resource.service_id ? "muted" : resource.enabled ? "success" : "muted"}
+                wrap
+                variant={exitHasHold(resource) || resource.service_id
+                  ? "muted"
+                  : resource.enabled
+                    ? "success"
+                    : "muted"}
                 >{at(
-                  resource.service_id
-                    ? "services_allocated"
-                    : resource.enabled
-                      ? "services_available"
-                      : "services_disabled"
+                  exitHasHold(resource)
+                    ? "services_exit_held"
+                    : resource.service_id
+                      ? "services_allocated"
+                      : resource.enabled
+                        ? "services_available"
+                        : "services_disabled"
                 )}</AdminBadge
               ></td
             >
             <td data-label={at("services_verification")}
               >{at(resource.verified_at ? "services_verified" : "services_unverified")}</td
             >
-            <td data-label={at("services_service_id")}>{resource.service_id || "—"}</td>
+            <td data-label={at("services_service_id")}
+              ><DedicatedExitOwnership
+                {resource}
+                {currentUrl}
+                {routePrefix}
+                {at}
+                onOpenService={openService}
+              /></td
+            >
             <td data-label={at("services_exit_evidence")}
-              ><AdminButton size="sm" onclick={() => (selected = resource)}
+              ><AdminButton
+                size="sm"
+                onclick={() => navigate({ exitId: resource.id, auditPage: 0 })}
                 >{at("services_exit_evidence")}</AdminButton
               ></td
             >
@@ -101,23 +197,23 @@
       </tbody></AdminTable
     >
   {/if}
-  <AdminPagination
-    {page}
-    pageCount={Math.ceil(total / 25)}
-    {total}
-    disabled={loading}
-    onPageChange={(value) => {
-      page = value;
-    }}
-    prevLabel={at("services_previous")}
-    nextLabel={at("services_next")}
-    pageLabel={at("services_page")}
-    ofLabel={at("services_of")}
-    totalLabel={at("services_exits_count")}
-    jumpLabel={at("services_page")}
-    jumpAriaLabel={at("services_go_page")}
-    goLabel={at("services_go_page")}
-  />
+  {#if total !== undefined}<AdminPagination
+      {page}
+      pageCount={Math.ceil(total / 25)}
+      {total}
+      disabled={loading || failed}
+      onPageChange={(value) => {
+        navigate({ page: value, exitId: "", auditPage: 0 });
+      }}
+      prevLabel={at("services_previous")}
+      nextLabel={at("services_next")}
+      pageLabel={at("services_page")}
+      ofLabel={at("services_of")}
+      totalLabel={at("services_exits_count")}
+      jumpLabel={at("services_page")}
+      jumpAriaLabel={at("services_go_page")}
+      goLabel={at("services_go_page")}
+    />{/if}
 </section>
 {#if editorOpen}<DedicatedExitEditor
     {api}
@@ -131,19 +227,32 @@
     }}
   />{/if}
 
+{#if !loading && !failed && loadedPage === page && route.exitId && !selected}<p role="alert">
+    {at("services_exit_unavailable")}
+  </p>
+  <AdminButton onclick={closeEvidence}>{at("close")}</AdminButton>{/if}
 {#if selected}{#key selected.id}<ExitEvidenceDialog
       {api}
       {at}
       resource={selected}
-      onclose={() => {
-        selected = null;
-        void load(page);
-      }}
-      onsaved={() => {
-        selected = null;
-        void load(page);
-      }}
+      open={!route.serviceId}
+      {currentUrl}
+      {routePrefix}
+      page={route.auditPage}
+      onPageChange={(auditPage, replace) => navigate({ auditPage }, replace)}
+      onOpenService={openService}
+      onclose={closeEvidence}
+      onsaved={closeEvidence}
     />{/key}{/if}
+
+{#if route.serviceId}<ConsoleServiceDetail
+    {api}
+    {at}
+    serviceId={route.serviceId}
+    {routePrefix}
+    {onOpenUserCard}
+    onclose={closeService}
+  />{/if}
 
 <style>
   .exits {

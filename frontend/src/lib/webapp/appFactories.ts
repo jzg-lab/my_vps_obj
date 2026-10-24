@@ -31,6 +31,7 @@ import { giftState } from "./gifts.svelte.js";
 import { invalidateWebappTariffOptionCaches } from "./billingOptionCache.js";
 import { buildAdminPanelProps } from "./adminPanelProps.js";
 import { shellState } from "./shellState.svelte";
+import { revokeAdminAccess } from "./adminAccessSession";
 import { structuredCloneSafe } from "./browser.js";
 import {
   createAppActionRuntime,
@@ -290,6 +291,12 @@ export function createAppFactories({
     onUnauthorized: () => {
       clearToken();
       showLogin();
+    },
+    onAdminAccessRevoked: () => {
+      revokeAdminAccess({ ...adminRuntime, syncAppSectionPath });
+    },
+    onAdminAccessRestored: () => {
+      shellState.adminAccessRevoked = false;
     },
     mockApi:
       MOCK && getRuntimeMockApi()

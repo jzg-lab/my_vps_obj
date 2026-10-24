@@ -10,7 +10,7 @@ from unittest.mock import AsyncMock, patch
 from uuid import UUID, uuid4
 
 import pytest
-from sqlalchemy import func, select, text
+from sqlalchemy import delete, func, inspect, select, text
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_async_engine
 from sqlalchemy.orm import sessionmaker
 
@@ -18,7 +18,11 @@ from bot.app.web.admin_api_impl import users_actions
 from bot.services.account_access_sync import set_account_ban, synchronize_account_access
 from bot.services.service_provisioning import provision_service_identity
 from bot.services.service_usage_sync import synchronize_service_usage
+from db.account_operation_models import AccountOperation
+from db.dal.service_accounts_dal import merge_history
 from db.dal.service_delivery_dal import record_exit_evidence, request_service_delivery
+from db.dal.service_operations_dal import retry_execution
+from db.dal.user_dal import lock_user_by_id
 from db.dal.user_services_dal import ServiceConflict, activate_service, create_exit, save_plan
 from db.migrator.chain_0107_user_services import _upgrade
 from db.migrator.chain_0108_service_account_history import _upgrade as upgrade_history
@@ -31,12 +35,18 @@ from db.migrator.chain_0114_service_delivery import _upgrade as upgrade_delivery
 from db.migrator.chain_0115_service_revocation_evidence import (
     _upgrade as upgrade_revocation_evidence,
 )
+from db.migrator.chain_0116_service_operation_executions import _upgrade as upgrade_executions
+from db.migrator.chain_0117_exit_replacement import _upgrade as upgrade_exit_replacement
+from db.migrator.chain_0118_resource_operations import _upgrade as upgrade_resource_operations
+from db.migrator.chain_0119_account_operations import _upgrade as upgrade_account_operations
 from db.models import Base, User
+from db.resource_operation_models import ResourceOperation
 from db.service_models import (
     AccountAccessSync,
     DedicatedExit,
     DedicatedExitAudit,
     ServiceConnection,
+    ServiceOperationExecution,
     ServiceOrder,
     UserService,
 )
@@ -67,8 +77,11 @@ def scenario(run: Callable[[async_sessionmaker[AsyncSession]], Awaitable[None]])
                     "dedicated_exits",
                     "dedicated_exit_audit",
                     "account_access_sync",
+                    "account_operations",
                     "service_usage_periods",
                     "service_plan_quota_changes",
+                    "service_operation_executions",
+                    "resource_operations",
                 }
                 await connection.run_sync(
                     lambda conn: Base.metadata.create_all(
@@ -98,6 +111,71 @@ def scenario(run: Callable[[async_sessionmaker[AsyncSession]], Awaitable[None]])
                 await connection.run_sync(upgrade_delivery)
                 await connection.run_sync(upgrade_revocation_evidence)
                 await connection.run_sync(upgrade_revocation_evidence)
+                await connection.run_sync(upgrade_executions)
+                await connection.run_sync(upgrade_executions)
+                await connection.run_sync(upgrade_exit_replacement)
+                await connection.run_sync(upgrade_exit_replacement)
+                await connection.run_sync(upgrade_resource_operations)
+                await connection.run_sync(upgrade_resource_operations)
+                await connection.run_sync(upgrade_account_operations)
+                await connection.run_sync(upgrade_account_operations)
+                account_columns, access_columns = await connection.run_sync(
+                    lambda conn: (
+                        {
+                            column["name"]
+                            for column in inspect(conn).get_columns("account_operations")
+                        },
+                        {
+                            column["name"]
+                            for column in inspect(conn).get_columns("account_access_sync")
+                        },
+                    )
+                )
+                assert account_columns == set(AccountOperation.__table__.columns.keys())
+                assert access_columns == set(AccountAccessSync.__table__.columns.keys())
+                columns, checks, unique_columns = await connection.run_sync(
+                    lambda conn: (
+                        {
+                            column["name"]
+                            for column in inspect(conn).get_columns("resource_operations")
+                        },
+                        {
+                            constraint["name"]
+                            for constraint in inspect(conn).get_check_constraints(
+                                "resource_operations"
+                            )
+                        },
+                        {
+                            tuple(constraint["column_names"])
+                            for constraint in inspect(conn).get_unique_constraints(
+                                "resource_operations"
+                            )
+                        },
+                    )
+                )
+                assert columns == set(ResourceOperation.__table__.columns.keys())
+                assert checks == {
+                    "ck_resource_operation_status",
+                    "ck_resource_operation_counts",
+                    "ck_resource_operation_gate",
+                }
+                assert unique_columns == {("actor_id", "idempotency_key"), ("gate_key",)}
+                for table, column in (
+                    ("dedicated_exits", "hold_order_id"),
+                    ("service_connections", "replacement_order_id"),
+                    ("service_operation_executions", "replacement_progress"),
+                ):
+                    assert (
+                        await connection.scalar(
+                            text(
+                                "SELECT count(*) FROM information_schema.columns "
+                                "WHERE table_schema = current_schema() AND table_name = :table "
+                                "AND column_name = :column"
+                            ),
+                            {"table": table, "column": column},
+                        )
+                        == 1
+                    )
             factory = async_sessionmaker(engine, expire_on_commit=False, autoflush=False)
             async with factory.begin() as session:
                 session.add_all([User(user_id=1), User(user_id=2)])
@@ -133,6 +211,129 @@ def test_concurrent_retries_create_exactly_one_service_and_order() -> None:
         assert sum(not duplicate for _, duplicate in results) == 1
         async with factory() as session:
             assert await session.scalar(select(func.count()).select_from(ServiceOrder)) == 1
+
+    scenario(run)
+
+
+def test_concurrent_execution_retries_save_one_request_without_replaying_activation() -> None:
+    async def run(factory: async_sessionmaker[AsyncSession]) -> None:
+        async with factory.begin() as session:
+            plan = await save_plan(session, terms=sample_terms(), enabled=True, actor_id=1)
+            service, _, _ = await activate_service(
+                session,
+                user_id=1,
+                actor_id=1,
+                plan_id=plan.id,
+                expected_revision=1,
+                idempotency_key="activate",
+            )
+            operation = await session.scalar(select(ServiceOperationExecution))
+            assert operation
+            operation_id = operation.id
+
+        async def retry() -> tuple[str, bool]:
+            async with factory.begin() as session:
+                execution, order, duplicate = await retry_execution(
+                    session,
+                    service_id=service.id,
+                    operation_id=operation_id,
+                    user_id=1,
+                    actor_id=1,
+                    expected_revision=1,
+                    idempotency_key="retry-once",
+                )
+                assert execution.attempt_count == 0
+                return order.id, duplicate
+
+        results = await asyncio.gather(*(retry() for _ in range(8)))
+        assert len({order_id for order_id, _ in results}) == 1
+        assert sum(not duplicate for _, duplicate in results) == 1
+        async with factory() as session:
+            assert await session.scalar(select(func.count()).select_from(ServiceOrder)) == 2
+            assert (
+                await session.scalar(select(func.count()).select_from(ServiceOperationExecution))
+                == 1
+            )
+            saved = await session.get(UserService, service.id)
+            assert saved and saved.revision == 1 and saved.used_bytes == 0
+            assert saved.expires_at == service.expires_at
+
+    scenario(run)
+
+
+def test_execution_migration_preserves_old_orders_without_inventing_outcomes() -> None:
+    async def run(factory: async_sessionmaker[AsyncSession]) -> None:
+        async with factory.begin() as session:
+            plan = await save_plan(session, terms=sample_terms(), enabled=True, actor_id=1)
+            service, order, _ = await activate_service(
+                session,
+                user_id=1,
+                actor_id=1,
+                plan_id=plan.id,
+                expected_revision=1,
+                idempotency_key="old-order",
+            )
+            await session.execute(text("DROP TABLE service_operation_executions"))
+        async with factory.begin() as session:
+            connection = await session.connection()
+            await connection.run_sync(upgrade_executions)
+            await connection.run_sync(upgrade_executions)
+            await connection.run_sync(upgrade_exit_replacement)
+            await connection.run_sync(upgrade_exit_replacement)
+        async with factory() as session:
+            assert await session.get(UserService, service.id) is not None
+            saved = await session.get(ServiceOrder, order.id)
+            assert saved and saved.snapshot == order.snapshot and saved.request == order.request
+            assert (
+                await session.scalar(select(func.count()).select_from(ServiceOperationExecution))
+                == 0
+            )
+
+    scenario(run)
+
+
+def test_execution_retry_rechecks_owner_after_waiting_for_an_account_merge() -> None:
+    async def run(factory: async_sessionmaker[AsyncSession]) -> None:
+        async with factory.begin() as session:
+            plan = await save_plan(session, terms=sample_terms(), enabled=True, actor_id=1)
+            service, _, _ = await activate_service(
+                session,
+                user_id=1,
+                actor_id=1,
+                plan_id=plan.id,
+                expected_revision=1,
+                idempotency_key="activate",
+            )
+            operation = await session.scalar(select(ServiceOperationExecution))
+            assert operation
+            operation_id = operation.id
+
+        async def retry() -> None:
+            async with factory.begin() as session:
+                await retry_execution(
+                    session,
+                    service_id=service.id,
+                    operation_id=operation_id,
+                    user_id=1,
+                    actor_id=1,
+                    expected_revision=1,
+                    idempotency_key="during-merge",
+                )
+
+        async with factory.begin() as session:
+            await lock_user_by_id(session, 1)
+            pending = asyncio.create_task(retry())
+            await asyncio.sleep(0.05)
+            assert not pending.done()
+            await merge_history(session, 1, 2)
+        with pytest.raises(ServiceConflict, match="service_not_found"):
+            await pending
+        async with factory() as session:
+            assert await session.scalar(select(func.count()).select_from(ServiceOrder)) == 1
+            saved = await session.get(UserService, service.id)
+            assert saved and saved.user_id == 2
+            execution = await session.get(ServiceOperationExecution, operation_id)
+            assert execution and execution.request_owner_id == 1
 
     scenario(run)
 
@@ -531,15 +732,70 @@ def test_access_upgrade_queues_existing_bans_without_reopening_completed_jobs() 
             connection = await session.connection()
             await connection.run_sync(upgrade_access)
             await connection.run_sync(upgrade_access)
-            job = await session.get(AccountAccessSync, 2)
-            assert job and job.pending
-            assert await session.get(AccountAccessSync, 1) is None
-            job.pending = False
+            # Verify 0109's original contract before loading the current ORM columns.
+            rows = await session.execute(
+                text("SELECT user_id, pending FROM account_access_sync ORDER BY user_id")
+            )
+            assert rows.all() == [(2, True)]
+            await session.execute(
+                text("UPDATE account_access_sync SET pending = FALSE WHERE user_id = 2")
+            )
         async with factory.begin() as session:
             connection = await session.connection()
             await connection.run_sync(upgrade_access)
+            rows = await session.execute(
+                text("SELECT user_id, pending FROM account_access_sync ORDER BY user_id")
+            )
+            assert rows.all() == [(2, False)]
+            await connection.run_sync(upgrade_account_operations)
+            await connection.run_sync(upgrade_account_operations)
             job = await session.get(AccountAccessSync, 2)
-            assert job and not job.pending
+            assert job and not job.pending and job.operation_id is None
+            assert await session.scalar(select(func.count()).select_from(AccountOperation)) == 0
+
+    scenario(run)
+
+
+def test_account_operation_upgrade_backfills_pending_jobs_and_retains_deleted_history() -> None:
+    async def run(factory: async_sessionmaker[AsyncSession]) -> None:
+        async with factory.begin() as session:
+            await session.execute(text("UPDATE users SET is_banned = TRUE WHERE user_id = 2"))
+            await session.execute(text("DROP TABLE account_access_sync"))
+            await session.execute(text("DROP TABLE account_operations"))
+            connection = await session.connection()
+            await connection.run_sync(upgrade_access)
+            await session.execute(
+                text("""UPDATE account_access_sync
+                    SET attempted_at = CURRENT_TIMESTAMP, last_error = :error
+                    WHERE user_id = 2"""),
+                {"error": "https://private.example/SECRET"},
+            )
+            await session.execute(
+                text("INSERT INTO account_access_sync (user_id, pending) VALUES (1, FALSE)")
+            )
+            await connection.run_sync(upgrade_account_operations)
+            await connection.run_sync(upgrade_account_operations)
+        async with factory.begin() as session:
+            operations = list(await session.scalars(select(AccountOperation)))
+            assert len(operations) == 1
+            operation = operations[0]
+            assert operation.target_id == operation.user_id == 2 and operation.desired_banned
+            assert operation.status == "unknown" and operation.source == "worker"
+            assert operation.actor_id is None and operation.before_banned is None
+            assert operation.attempt_count == 0 and operation.attempted_at is not None
+            assert operation.first_failed_at is None and operation.completed_at is None
+            assert operation.error_code == "account_sync_unconfirmed"
+            job = await session.get(AccountAccessSync, 2)
+            assert job and job.pending and job.operation_id == operation.id
+            completed = await session.get(AccountAccessSync, 1)
+            assert completed and not completed.pending and completed.operation_id is None
+            await session.execute(delete(User).where(User.user_id == 2))
+            await session.refresh(operation)
+            assert operation.user_id is None and operation.target_id == 2
+            assert await session.get(AccountOperation, operation.id) is operation
+        async with factory() as session:
+            assert await session.get(AccountAccessSync, 2) is None
+            assert await session.scalar(select(func.count()).select_from(AccountOperation)) == 1
 
     scenario(run)
 

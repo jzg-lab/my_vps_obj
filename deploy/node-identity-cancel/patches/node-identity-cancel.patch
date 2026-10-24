@@ -1,0 +1,1426 @@
+diff --git a/src/common/utils/identity-scope.ts b/src/common/utils/identity-scope.ts
+new file mode 100644
+index 0000000..7fdda1a
+--- /dev/null
++++ b/src/common/utils/identity-scope.ts
+@@ -0,0 +1,90 @@
++import type { XtlsApi } from '@remnawave/xtls-sdk';
++import { ReceiverConfig } from '@remnawave/xtls-sdk/build/src/xray-protos/app/proxyman/config';
++
++import { XRAY_API_INBOUND_MODEL } from '@libs/contracts/constants/xray';
++
++export const IDENTITY_SCOPE_ERROR = 'Identity cancellation scope is unavailable or unsupported';
++
++export interface IdentityScope {
++    readonly apiTag: string;
++    readonly apiSocket: string;
++    readonly userTags: readonly string[];
++}
++
++export function createIdentityScope(
++    config: Record<string, unknown>,
++    socketPath: string,
++): IdentityScope {
++    const api = XRAY_API_INBOUND_MODEL({ xtlsApiSocketPath: socketPath });
++    if (!socketPath || !Array.isArray(config.inbounds) || config.inbounds.length === 0) {
++        throw new Error(IDENTITY_SCOPE_ERROR);
++    }
++    const tags = new Set<string>();
++    for (const value of config.inbounds as unknown[]) {
++        if (typeof value !== 'object' || value === null || Array.isArray(value)) {
++            throw new Error(IDENTITY_SCOPE_ERROR);
++        }
++        const inbound = value as Record<string, unknown>;
++        if (
++            typeof inbound.tag !== 'string' ||
++            !inbound.tag ||
++            inbound.tag === api.tag ||
++            tags.has(inbound.tag) ||
++            inbound.protocol !== 'vless'
++        ) {
++            throw new Error(IDENTITY_SCOPE_ERROR);
++        }
++        tags.add(inbound.tag);
++    }
++    return { apiTag: api.tag, apiSocket: api.listen, userTags: [...tags] };
++}
++
++export async function listIdentityInbounds(
++    api: Pick<XtlsApi, 'handler'>,
++    scope: IdentityScope | null,
++): Promise<string[]> {
++    if (!scope) throw new Error(IDENTITY_SCOPE_ERROR);
++    try {
++        // Runtime settings may contain credentials: inspect, never log or retain the response.
++        const { inbounds } = await api.handler.rawClient.listInbounds({ isOnlyTags: false });
++        const seen = new Set<string>();
++        const users: string[] = [];
++        let managementVerified = false;
++        for (const inbound of inbounds) {
++            if (!inbound.tag || seen.has(inbound.tag)) throw new Error(IDENTITY_SCOPE_ERROR);
++            seen.add(inbound.tag);
++            if (inbound.tag === scope.apiTag) {
++                if (
++                    inbound.proxySettings?.type !== 'xray.proxy.dokodemo.Config' ||
++                    inbound.receiverSettings?.type !== ReceiverConfig.$type
++                ) {
++                    throw new Error(IDENTITY_SCOPE_ERROR);
++                }
++                const receiver = ReceiverConfig.decode(inbound.receiverSettings.value);
++                if (
++                    receiver.listen?.domain !== scope.apiSocket ||
++                    receiver.listen.ip !== undefined ||
++                    receiver.portList !== undefined
++                ) {
++                    throw new Error(IDENTITY_SCOPE_ERROR);
++                }
++                managementVerified = true;
++            } else {
++                if (inbound.proxySettings?.type !== 'xray.proxy.vless.inbound.Config') {
++                    throw new Error(IDENTITY_SCOPE_ERROR);
++                }
++                users.push(inbound.tag);
++            }
++        }
++        if (
++            !managementVerified ||
++            users.length === 0 ||
++            scope.userTags.some((tag) => !seen.has(tag))
++        ) {
++            throw new Error(IDENTITY_SCOPE_ERROR);
++        }
++        return users;
++    } catch {
++        throw new Error(IDENTITY_SCOPE_ERROR);
++    }
++}
+diff --git a/src/modules/handler/handler.service.ts b/src/modules/handler/handler.service.ts
+index d5ce4be..d78513b 100644
+--- a/src/modules/handler/handler.service.ts
++++ b/src/modules/handler/handler.service.ts
+@@ -1,7 +1,6 @@
+ import ems from 'enhanced-ms';
+-import { hasCapNetAdmin } from 'sockdestroy';
+ 
+-import { Injectable, Logger, OnModuleInit } from '@nestjs/common';
++import { Injectable, Logger } from '@nestjs/common';
+ import { EventBus } from '@nestjs/cqrs';
+ 
+ import { XtlsApi } from '@remnawave/xtls-sdk';
+@@ -13,6 +12,7 @@ import {
+ } from '@remnawave/xtls-sdk/build/src/handler/models';
+ 
+ import { fail, ok, TResult } from '@common/types';
++import { IDENTITY_SCOPE_ERROR } from '@common/utils/identity-scope';
+ import { ERRORS } from '@libs/contracts/constants/errors';
+ 
+ import { DropConnectionsEvent } from '../_plugin/events/drop-connections';
+@@ -25,12 +25,12 @@ import {
+     RemoveUserRequestDto,
+     RemoveUsersRequestDto,
+ } from './dtos';
++import { IDENTITY_CANCEL_ERROR, removeUserAndCancel } from './identity-cancel';
+ import { AddUserResponseModel, RemoveUserResponseModel, GenericResponseModel } from './models';
+ 
+ @Injectable()
+-export class HandlerService implements OnModuleInit {
++export class HandlerService {
+     private readonly logger = new Logger(HandlerService.name);
+-    private capNetAdminAvailable = false;
+ 
+     constructor(
+         @InjectXtls() private readonly xtlsApi: XtlsApi,
+@@ -38,39 +38,37 @@ export class HandlerService implements OnModuleInit {
+         private readonly eventBus: EventBus,
+     ) {}
+ 
+-    public async onModuleInit(): Promise<void> {
+-        try {
+-            if (!hasCapNetAdmin()) {
+-                this.capNetAdminAvailable = false;
+-                this.logger.warn('CAP_NET_ADMIN is not available.');
+-            } else {
+-                this.capNetAdminAvailable = true;
+-                this.logger.log('[OK] CAP_NET_ADMIN is available');
+-            }
+-        } catch (error: unknown) {
+-            this.logger.error(error);
+-        }
++    public async addUser(data: AddUserRequestDto): Promise<TResult<AddUserResponseModel>> {
++        return this.internalService.withOperation(() => this.addUserLocked(data));
+     }
+ 
+-    public async addUser(data: AddUserRequestDto): Promise<TResult<AddUserResponseModel>> {
++    private async addUserLocked(data: AddUserRequestDto): Promise<TResult<AddUserResponseModel>> {
+         try {
+             const { data: requestData, hashData } = data;
+             const response: Array<ISdkResponse<AddUserResponseModelFromSdk>> = [];
+-            const userId = requestData[0].username;
+-            let userIps: string[] | null = null;
+-
+-            for (const item of requestData) {
+-                this.internalService.addXtlsConfigInbound(item.tag);
+-            }
+-
+-            if (hashData.prevVlessUuid) {
+-                userIps = await this.getUserIps(userId);
++            const inboundTags = await this.internalService.getIdentityInboundTags(this.xtlsApi);
++            if (
++                !requestData.length ||
++                requestData.some((item) => item.type !== 'vless' || !inboundTags.includes(item.tag))
++            ) {
++                throw new Error(IDENTITY_SCOPE_ERROR);
+             }
++            const userId = requestData[0].username;
+ 
+-            for (const tag of this.internalService.getXtlsConfigInbounds()) {
++            for (const tag of inboundTags) {
+                 this.logger.debug(`Removing user: ${userId} from tag: ${tag}`);
+ 
+-                await this.xtlsApi.handler.removeUser(tag, userId);
++                if (hashData.prevVlessUuid) {
++                    const removed = await removeUserAndCancel(this.xtlsApi, tag, userId);
++                    if (!removed.isOk) {
++                        return fail({
++                            code: ERRORS.INTERNAL_SERVER_ERROR.code,
++                            message: IDENTITY_CANCEL_ERROR,
++                        });
++                    }
++                } else {
++                    await this.xtlsApi.handler.removeUser(tag, userId);
++                }
+ 
+                 if (hashData.prevVlessUuid) {
+                     await this.internalService.removeUserFromInbound(tag, hashData.prevVlessUuid);
+@@ -79,10 +77,6 @@ export class HandlerService implements OnModuleInit {
+                 }
+             }
+ 
+-            if (userIps && hashData.prevVlessUuid) {
+-                this.eventBus.publish(new DropConnectionsEvent(userIps));
+-            }
+-
+             for (const item of requestData) {
+                 let tempRes = null;
+ 
+@@ -195,37 +189,35 @@ export class HandlerService implements OnModuleInit {
+     }
+ 
+     public async removeUser(data: RemoveUserRequestDto): Promise<TResult<RemoveUserResponseModel>> {
++        return this.internalService.withOperation(() => this.removeUserLocked(data));
++    }
++
++    private async removeUserLocked(
++        data: RemoveUserRequestDto,
++    ): Promise<TResult<RemoveUserResponseModel>> {
+         try {
+             const { username, hashData } = data;
+             const response: Array<ISdkResponse<RemoveUserResponseModelFromSdk>> = [];
+ 
+-            const inboundTags = this.internalService.getXtlsConfigInbounds();
+-
+-            if (inboundTags.size === 0) {
+-                return ok(new RemoveUserResponseModel(true, null));
+-            }
+-
+-            const userIps = await this.getUserIps(username);
++            const inboundTags = await this.internalService.getIdentityInboundTags(this.xtlsApi);
+ 
+             for (const tag of inboundTags) {
+                 this.logger.debug(`Removing user: ${username} from tag: ${tag}`);
+ 
+-                const tempRes = await this.xtlsApi.handler.removeUser(tag, username);
++                const tempRes = await removeUserAndCancel(this.xtlsApi, tag, username);
+ 
+-                await this.internalService.removeUserFromInbound(tag, hashData.vlessUuid);
++                if (tempRes.isOk) {
++                    await this.internalService.removeUserFromInbound(tag, hashData.vlessUuid);
++                }
+                 response.push(tempRes);
+             }
+ 
+-            this.eventBus.publish(new DropConnectionsEvent(userIps));
+-
+-            if (response.every((res) => !res.isOk)) {
++            if (response.some((res) => !res.isOk)) {
+                 this.logger.error(JSON.stringify(response, null, 2));
+-                return ok(
+-                    new RemoveUserResponseModel(
+-                        false,
+-                        response.find((res) => !res.isOk)?.message ?? null,
+-                    ),
+-                );
++                return fail({
++                    code: ERRORS.INTERNAL_SERVER_ERROR.code,
++                    message: IDENTITY_CANCEL_ERROR,
++                });
+             }
+ 
+             return ok(new RemoveUserResponseModel(true, null));
+@@ -240,12 +232,24 @@ export class HandlerService implements OnModuleInit {
+     }
+ 
+     public async addUsers(data: AddUsersRequestDto): Promise<TResult<AddUserResponseModel>> {
++        return this.internalService.withOperation(() => this.addUsersLocked(data));
++    }
++
++    private async addUsersLocked(data: AddUsersRequestDto): Promise<TResult<AddUserResponseModel>> {
+         const tm = performance.now();
+         try {
+             const { affectedInboundTags, users } = data;
+ 
+-            for (const tag of affectedInboundTags) {
+-                this.internalService.addXtlsConfigInbound(tag);
++            const inboundTags = await this.internalService.getIdentityInboundTags(this.xtlsApi);
++            if (
++                affectedInboundTags.some((tag) => !inboundTags.includes(tag)) ||
++                users.some((user) =>
++                    user.inboundData.some(
++                        (item) => item.type !== 'vless' || !inboundTags.includes(item.tag),
++                    ),
++                )
++            ) {
++                throw new Error(IDENTITY_SCOPE_ERROR);
+             }
+ 
+             this.logger.log(
+@@ -253,7 +257,7 @@ export class HandlerService implements OnModuleInit {
+             );
+ 
+             for (const user of users) {
+-                for (const tag of this.internalService.getXtlsConfigInbounds()) {
++                for (const tag of inboundTags) {
+                     await this.xtlsApi.handler.removeUser(tag, user.userData.userId);
+ 
+                     await this.internalService.removeUserFromInbound(tag, user.userData.hashUuid);
+@@ -364,14 +368,16 @@ export class HandlerService implements OnModuleInit {
+ 
+     public async removeUsers(
+         data: RemoveUsersRequestDto,
++    ): Promise<TResult<RemoveUserResponseModel>> {
++        return this.internalService.withOperation(() => this.removeUsersLocked(data));
++    }
++
++    private async removeUsersLocked(
++        data: RemoveUsersRequestDto,
+     ): Promise<TResult<RemoveUserResponseModel>> {
+         const tm = performance.now();
+         try {
+-            const inboundTags = this.internalService.getXtlsConfigInbounds();
+-
+-            if (inboundTags.size === 0) {
+-                return ok(new RemoveUserResponseModel(true, null));
+-            }
++            const inboundTags = await this.internalService.getIdentityInboundTags(this.xtlsApi);
+ 
+             this.logger.log(
+                 `Removing ${data.users.length} users from inbounds: ${Array.from(inboundTags).join(', ')}`,
+@@ -382,28 +388,24 @@ export class HandlerService implements OnModuleInit {
+             for (const user of data.users) {
+                 const { userId, hashUuid } = user;
+ 
+-                const userIps = await this.getUserIps(userId);
+-
+                 for (const tag of inboundTags) {
+                     this.logger.debug(`Removing user: ${userId} from tag: ${tag}`);
+ 
+-                    const tempRes = await this.xtlsApi.handler.removeUser(tag, userId);
++                    const tempRes = await removeUserAndCancel(this.xtlsApi, tag, userId);
+ 
+-                    await this.internalService.removeUserFromInbound(tag, hashUuid);
++                    if (tempRes.isOk) {
++                        await this.internalService.removeUserFromInbound(tag, hashUuid);
++                    }
+                     removeUsersResponse.push(tempRes);
+                 }
+-
+-                this.eventBus.publish(new DropConnectionsEvent(userIps));
+             }
+ 
+-            if (removeUsersResponse.every((res) => !res.isOk)) {
++            if (removeUsersResponse.some((res) => !res.isOk)) {
+                 this.logger.error(JSON.stringify(removeUsersResponse, null, 2));
+-                return ok(
+-                    new RemoveUserResponseModel(
+-                        false,
+-                        removeUsersResponse.find((res) => !res.isOk)?.message ?? null,
+-                    ),
+-                );
++                return fail({
++                    code: ERRORS.INTERNAL_SERVER_ERROR.code,
++                    message: IDENTITY_CANCEL_ERROR,
++                });
+             }
+ 
+             return ok(new RemoveUserResponseModel(true, null));
+@@ -426,21 +428,14 @@ export class HandlerService implements OnModuleInit {
+     }
+ 
+     public async dropUsersConnections(
+-        data: DropUsersConnectionsRequestDto,
++        _data: DropUsersConnectionsRequestDto,
+     ): Promise<TResult<GenericResponseModel>> {
+-        try {
+-            const { userIds } = data;
+-
+-            for (const userId of userIds) {
+-                const userIps = await this.getUserIps(userId);
+-                this.eventBus.publish(new DropConnectionsEvent(userIps));
+-            }
+-
+-            return ok(new GenericResponseModel(true));
+-        } catch (error) {
+-            this.logger.error(error);
+-            return ok(new GenericResponseModel(false));
+-        }
++        // shortcut: disconnect-without-revocation needs its own precise core operation.
++        this.logger.warn('Identity-only disconnect without revocation is unsupported');
++        return fail({
++            code: ERRORS.INTERNAL_SERVER_ERROR.code,
++            message: 'Identity-only disconnect without revocation is unsupported',
++        });
+     }
+ 
+     public async dropIps(data: DropIpsRequestDto): Promise<TResult<GenericResponseModel>> {
+@@ -456,30 +451,6 @@ export class HandlerService implements OnModuleInit {
+         }
+     }
+ 
+-    private async getUserIps(userId: string): Promise<string[] | null> {
+-        try {
+-            if (!this.capNetAdminAvailable) {
+-                return null;
+-            }
+-
+-            const userIps = await this.xtlsApi.stats.rawClient.getStatsOnlineIpList({
+-                name: `user>>>${userId}>>>online`,
+-                reset: true,
+-            });
+-
+-            const ips = Object.keys(userIps.ips);
+-
+-            return ips;
+-        } catch (error) {
+-            if (error && typeof error === 'object' && 'code' in error && error.code === 5) {
+-                return null;
+-            }
+-
+-            this.logger.error(`Failed to get user IPs for user ${userId}: ${error}`);
+-            return null;
+-        }
+-    }
+-
+     public async removeOutbound(tag: string): Promise<void> {
+         try {
+             await this.xtlsApi.handler.rawClient.removeOutbound({
+diff --git a/src/modules/handler/identity-cancel.ts b/src/modules/handler/identity-cancel.ts
+new file mode 100644
+index 0000000..f68b26e
+--- /dev/null
++++ b/src/modules/handler/identity-cancel.ts
+@@ -0,0 +1,27 @@
++import type { XtlsApi } from '@remnawave/xtls-sdk';
++import type { ISdkResponse } from '@remnawave/xtls-sdk/build/src/common/types';
++import type { RemoveUserResponseModel } from '@remnawave/xtls-sdk/build/src/handler/models';
++import { RemoveUserOperation } from '@remnawave/xtls-sdk/build/src/xray-protos/app/proxyman/command/command';
++
++export const IDENTITY_CANCEL_ERROR = 'Identity cancellation failed or is unsupported';
++
++export async function removeUserAndCancel(
++    api: Pick<XtlsApi, 'handler'>,
++    tag: string,
++    email: string,
++): Promise<ISdkResponse<RemoveUserResponseModel>> {
++    try {
++        await api.handler.rawClient.alterInbound({
++            tag,
++            operation: {
++                type: 'xray.app.proxyman.command.RemoveUserAndCancelOperation',
++                // Both messages have exactly one string field, email = 1.
++                value: RemoveUserOperation.encode(RemoveUserOperation.create({ email })).finish(),
++            },
++        });
++        return { isOk: true };
++    } catch {
++        // Never fall back to IP destruction or expose the gRPC request/identity.
++        return { isOk: false, message: IDENTITY_CANCEL_ERROR };
++    }
++}
+diff --git a/src/modules/internal/internal.service.ts b/src/modules/internal/internal.service.ts
+index 06affef..3de94ac 100644
+--- a/src/modules/internal/internal.service.ts
++++ b/src/modules/internal/internal.service.ts
+@@ -5,13 +5,16 @@ import pMap from 'p-map';
+ import { Injectable, Logger } from '@nestjs/common';
+ 
+ import { HashedSet } from '@remnawave/hashed-set';
++import type { XtlsApi } from '@remnawave/xtls-sdk';
+ 
++import { IdentityScope, listIdentityInbounds } from '@common/utils/identity-scope';
+ import { StartXrayCommand } from '@libs/contracts/commands';
+ 
+ @Injectable()
+ export class InternalService {
+     private readonly logger = new Logger(InternalService.name);
+     private readonly mutex = getSemaphore();
++    private identityScope: IdentityScope | null = null;
+ 
+     private xrayConfig: null | Record<string, unknown> = null;
+     private emptyConfigHash: null | string = null;
+@@ -20,6 +23,37 @@ export class InternalService {
+ 
+     constructor() {}
+ 
++    public async withOperation<T>(operation: () => Promise<T>): Promise<T> {
++        await this.mutex.acquire();
++        try {
++            return await operation();
++        } finally {
++            this.mutex.release();
++        }
++    }
++
++    public invalidateIdentityScope(): void {
++        this.identityScope = null;
++    }
++
++    public async confirmIdentityScope(
++        scope: IdentityScope,
++        api: Pick<XtlsApi, 'handler'>,
++    ): Promise<void> {
++        this.invalidateIdentityScope();
++        await listIdentityInbounds(api, scope);
++        this.identityScope = scope;
++    }
++
++    public async getIdentityInboundTags(api: Pick<XtlsApi, 'handler'>): Promise<string[]> {
++        try {
++            return await listIdentityInbounds(api, this.identityScope);
++        } catch (error) {
++            this.invalidateIdentityScope();
++            throw error;
++        }
++    }
++
+     public async getXrayConfig(): Promise<Record<string, unknown>> {
+         if (!this.xrayConfig) {
+             return {};
+@@ -151,9 +185,8 @@ export class InternalService {
+     }
+ 
+     public async addUserToInbound(inboundTag: string, user: string): Promise<void> {
+-        await this.mutex.acquire();
+-
+         try {
++            this.xtlsConfigInbounds.add(inboundTag);
+             const usersSet = this.inboundsHashMap.get(inboundTag);
+ 
+             if (!usersSet) {
+@@ -169,14 +202,10 @@ export class InternalService {
+             usersSet.add(user);
+         } catch (error) {
+             this.logger.error(`Failed to add user to inbound ${inboundTag}: ${error}`);
+-        } finally {
+-            this.mutex.release();
+         }
+     }
+ 
+     public async removeUserFromInbound(inboundTag: string, user: string): Promise<void> {
+-        await this.mutex.acquire();
+-
+         try {
+             const usersSet = this.inboundsHashMap.get(inboundTag);
+ 
+@@ -194,8 +223,6 @@ export class InternalService {
+             }
+         } catch (error) {
+             this.logger.error(`Failed to remove user from inbound ${inboundTag}: ${error}`);
+-        } finally {
+-            this.mutex.release();
+         }
+     }
+ 
+@@ -208,6 +235,7 @@ export class InternalService {
+     }
+ 
+     public cleanup(): void {
++        this.invalidateIdentityScope();
+         this.logger.log('Cleaning up internal service.');
+ 
+         this.inboundsHashMap.clear();
+diff --git a/src/modules/xray-core/xray.service.ts b/src/modules/xray-core/xray.service.ts
+index 8934f16..eb8ff71 100644
+--- a/src/modules/xray-core/xray.service.ts
++++ b/src/modules/xray-core/xray.service.ts
+@@ -13,6 +13,7 @@ import { TypedConfigService } from '@common/config/app-config';
+ import { ok, TResult } from '@common/types';
+ import { generateApiConfig } from '@common/utils/generate-api-config';
+ import { getSystemInfo, getSystemStats } from '@common/utils/get-system-stats';
++import { createIdentityScope } from '@common/utils/identity-scope';
+ import { StartXrayCommand } from '@libs/contracts/commands';
+ import { KNOWN_ERRORS } from '@libs/contracts/constants';
+ 
+@@ -103,6 +104,14 @@ export class XrayService implements OnApplicationBootstrap {
+         body: StartXrayCommand.Request,
+         ip: string,
+     ): Promise<TResult<StartXrayResponseModel>> {
++        return this.internalService.withOperation(() => this.startXrayLocked(body, ip));
++    }
++
++    private async startXrayLocked(
++        body: StartXrayCommand.Request,
++        ip: string,
++    ): Promise<TResult<StartXrayResponseModel>> {
++        this.internalService.invalidateIdentityScope();
+         const interfaceStats = await this.queryBus.execute(new GetInterfaceStatsQuery());
+         const tm = performance.now();
+         const system = {
+@@ -129,6 +138,10 @@ export class XrayService implements OnApplicationBootstrap {
+         this.isXrayStartedProccesing = true;
+ 
+         try {
++            const identityScope = createIdentityScope(
++                body.xrayConfig,
++                this.internal.xtlsApiSocketPath,
++            );
+             const integrations = await this.integrations.sync(
+                 body.internals.integrations,
+                 body.internals.metadata,
+@@ -164,6 +177,7 @@ export class XrayService implements OnApplicationBootstrap {
+                 }
+ 
+                 if (!shouldRestart) {
++                    await this.internalService.confirmIdentityScope(identityScope, this.xtlsSdk);
+                     return ok(
+                         new StartXrayResponseModel(
+                             true,
+@@ -245,6 +259,9 @@ export class XrayService implements OnApplicationBootstrap {
+ 
+             await this.commandBus.execute(new RunPostStartCommand(body.internals.metadata));
+ 
++            // shortcut: this confirms the current process only, not ordering of later Panel configs.
++            await this.internalService.confirmIdentityScope(identityScope, this.xtlsSdk);
++
+             return ok(
+                 new StartXrayResponseModel(
+                     isStarted,
+@@ -291,6 +308,14 @@ export class XrayService implements OnApplicationBootstrap {
+         withPluginCleanup?: boolean;
+         withOnlineCheck?: boolean;
+     }): Promise<TResult<StopXrayResponseModel>> {
++        return this.internalService.withOperation(() => this.stopXrayLocked(args));
++    }
++
++    private async stopXrayLocked(args: {
++        withPluginCleanup?: boolean;
++        withOnlineCheck?: boolean;
++    }): Promise<TResult<StopXrayResponseModel>> {
++        this.internalService.invalidateIdentityScope();
+         const { withPluginCleanup = false, withOnlineCheck = false } = args;
+         try {
+             if (withPluginCleanup) {
+@@ -301,7 +326,7 @@ export class XrayService implements OnApplicationBootstrap {
+                 return ok(new StopXrayResponseModel(true));
+             }
+ 
+-            await this.killAllXrayProcesses();
++            await this.killAllXrayProcessesLocked();
+             await this.integrations.stop();
+ 
+             this.isXrayOnline = false;
+@@ -332,12 +357,18 @@ export class XrayService implements OnApplicationBootstrap {
+     }
+ 
+     public async killAllXrayProcesses(): Promise<void> {
++        return this.internalService.withOperation(() => this.killAllXrayProcessesLocked());
++    }
++
++    private async killAllXrayProcessesLocked(): Promise<void> {
++        this.internalService.invalidateIdentityScope();
+         try {
+             await this.xrayProcess.stop();
+ 
+             this.logger.log('s6: Xray process stopped.');
+         } catch (error) {
+             this.logger.log(`s6: Failed to stop Xray process. Error: ${error}`);
++            throw error;
+         }
+     }
+ 
+diff --git a/test/identity-cancel.test.cjs b/test/identity-cancel.test.cjs
+new file mode 100644
+index 0000000..cf37885
+--- /dev/null
++++ b/test/identity-cancel.test.cjs
+@@ -0,0 +1,144 @@
++const assert = require('node:assert/strict');
++const test = require('node:test');
++const { fixture, expectHttpFailure, removal, addition } = require('./identity-fixture.cjs');
++
++test('single revoke waits for precise operation on every inbound, never emits IP kill', async () => {
++    const { service, calls } = await fixture();
++    assert.equal((await service.removeUser(removal)).response.success, true);
++    assert.deepEqual(calls.precise, [
++        ['inbound-a', 'target'],
++        ['inbound-b', 'target'],
++    ]);
++    assert.equal(calls.removed.length, 2);
++    assert.equal(calls.legacy.length, 0);
++    assert.equal(calls.events.length, 0);
++});
++
++test('one unsupported inbound is failure; only confirmed removals update mapping', async () => {
++    const { service, calls } = await fixture((tag) => tag === 'inbound-b');
++    const result = await service.removeUser(removal);
++    expectHttpFailure(result);
++    assert.deepEqual(calls.removed, [['inbound-a', 'hash-target']]);
++    assert.equal(calls.precise.length, 2);
++    assert.equal(calls.events.length, 0);
++    assert.doesNotMatch(JSON.stringify(result), /private request/);
++});
++
++test('unpatched or unavailable core fails without legacy or IP fallback', async () => {
++    const { service, calls } = await fixture(() => true);
++    expectHttpFailure(await service.removeUser(removal));
++    assert.equal(calls.removed.length, 0);
++    assert.equal(calls.legacy.length, 0);
++    assert.equal(calls.events.length, 0);
++});
++
++test('bulk revoke preserves partial failure across all identities and inbounds', async () => {
++    const { service, calls } = await fixture(
++        (tag, email) => tag === 'inbound-b' && email === 'second',
++    );
++    const result = await service.removeUsers({
++        users: [
++            { userId: 'target', hashUuid: 'hash-target' },
++            { userId: 'second', hashUuid: 'hash-second' },
++        ],
++    });
++    expectHttpFailure(result);
++    assert.equal(calls.precise.length, 4);
++    assert.equal(calls.removed.length, 3);
++    assert.equal(calls.events.length, 0);
++});
++
++test('bulk revoke succeeds only after all precise operations succeed', async () => {
++    const { service, calls } = await fixture();
++    assert.equal(
++        (await service.removeUsers({ users: [{ userId: 'target', hashUuid: 'hash-target' }] }))
++            .response.success,
++        true,
++    );
++    assert.equal(calls.precise.length, 2);
++    assert.equal(calls.events.length, 0);
++});
++
++test('credential rotation uses precise revoke before add', async () => {
++    const { service, calls } = await fixture();
++    assert.equal((await service.addUser(addition(true))).response.success, true);
++    assert.equal(calls.precise.length, 2);
++    assert.equal(calls.legacy.length, 0);
++    assert.equal(calls.added.length, 1);
++    assert.equal(calls.events.length, 0);
++});
++
++test('failed rotation does not add or claim completed removal', async () => {
++    const { service, calls } = await fixture(() => true);
++    expectHttpFailure(await service.addUser(addition(true)));
++    assert.equal(calls.added.length, 0);
++    assert.equal(calls.removed.length, 0);
++    assert.equal(calls.events.length, 0);
++});
++
++test('ordinary add and bulk sync retain upstream non-disconnecting operations', async () => {
++    const { service, calls } = await fixture();
++    assert.equal((await service.addUser(addition(false))).response.success, true);
++    assert.equal(
++        (
++            await service.addUsers({
++                affectedInboundTags: ['inbound-a'],
++                users: [
++                    {
++                        userData: {
++                            userId: 'target',
++                            hashUuid: 'hash-target',
++                            vlessUuid: 'new-test-id',
++                        },
++                        inboundData: [{ tag: 'inbound-a', type: 'vless' }],
++                    },
++                ],
++            })
++        ).response.success,
++        true,
++    );
++    assert.equal(calls.legacy.length, 4);
++    assert.equal(calls.precise.length, 0);
++    assert.equal(calls.events.length, 0);
++});
++
++test('disconnect-only identity endpoint explicitly refuses unsupported operation', async () => {
++    const { service, calls } = await fixture();
++    expectHttpFailure(await service.dropUsersConnections({ userIds: ['target'] }));
++    assert.equal(calls.events.length, 0);
++    assert.equal(calls.precise.length, 0);
++});
++
++test('explicit IP maintenance endpoint remains explicit', async () => {
++    const { service, calls } = await fixture();
++    assert.equal((await service.dropIps({ ips: ['192.0.2.1'] })).response.success, true);
++    assert.deepEqual(calls.events[0].ips, ['192.0.2.1']);
++    assert.equal(calls.precise.length, 0);
++});
++
++test('last-user removal permits a verified repeat through real handler inventory', async () => {
++    const { service, internal, calls } = await fixture(() => false, ['inbound-a']);
++    assert.equal((await service.removeUser(removal)).response.success, true);
++    assert.equal(internal.getXtlsConfigInbounds().size, 0);
++    assert.equal((await service.removeUser(removal)).response.success, true);
++    assert.equal(
++        (await service.removeUsers({ users: [{ userId: 'target', hashUuid: 'hash-target' }] }))
++            .response.success,
++        true,
++    );
++    assert.deepEqual(
++        calls.precise,
++        Array.from({ length: 3 }, () => ['inbound-a', 'target']),
++    );
++});
++
++test('unconfirmed configuration fails before any cancellation', async () => {
++    const { service, internal, calls } = await fixture();
++    internal.invalidateIdentityScope();
++    expectHttpFailure(await service.removeUser(removal));
++    expectHttpFailure(
++        await service.removeUsers({ users: [{ userId: 'target', hashUuid: 'hash-target' }] }),
++    );
++    assert.equal(calls.precise.length, 0);
++    assert.equal(calls.events.length, 0);
++});
+diff --git a/test/identity-fixture.cjs b/test/identity-fixture.cjs
+new file mode 100644
+index 0000000..343635b
+--- /dev/null
++++ b/test/identity-fixture.cjs
+@@ -0,0 +1,173 @@
++const assert = require('node:assert/strict');
++const fs = require('node:fs');
++const path = require('node:path');
++const Module = require('node:module');
++const ts = require('typescript');
++
++// Exercise real service code, with only process/native boundaries replaced offline.
++const root = path.resolve(__dirname, '..');
++const originalLoad = Module._load;
++Module._load = function (request, parent, isMain) {
++    if (request === 'sockdestroy') return { hasCapNetAdmin: () => true };
++    if (request === '@common/utils/get-system-stats') {
++        return { getSystemInfo: () => ({}), getSystemStats: () => ({}) };
++    }
++    for (const [alias, directory] of [
++        ['@common/', 'src/common/'],
++        ['@libs/contracts/', 'libs/contract/'],
++        ['@integration-modules/', 'src/integration-modules/'],
++    ]) {
++        if (request.startsWith(alias))
++            request = path.join(root, directory, request.slice(alias.length));
++    }
++    return originalLoad.call(this, request, parent, isMain);
++};
++Module._extensions['.ts'] = (module, filename) => {
++    const { outputText } = ts.transpileModule(fs.readFileSync(filename, 'utf8'), {
++        compilerOptions: {
++            module: ts.ModuleKind.CommonJS,
++            target: ts.ScriptTarget.ES2022,
++            experimentalDecorators: true,
++            emitDecoratorMetadata: true,
++            esModuleInterop: true,
++        },
++    });
++    module._compile(outputText, filename);
++};
++require('@nestjs/common').Logger.overrideLogger(false);
++const { HandlerService } = require('../src/modules/handler/handler.service.ts');
++const { InternalService } = require('../src/modules/internal/internal.service.ts');
++const { errorHandler } = require('../src/common/helpers/error-handler.helper.ts');
++const { createIdentityScope } = require('../src/common/utils/identity-scope.ts');
++const { ReceiverConfig } = require('@remnawave/xtls-sdk/build/src/xray-protos/app/proxyman/config');
++const {
++    ListInboundsResponse,
++    RemoveUserOperation,
++} = require('@remnawave/xtls-sdk/build/src/xray-protos/app/proxyman/command/command');
++
++const SOCKET = 'uc2-offline-api';
++const API_TAG = 'REMNAWAVE_API_INBOUND';
++const VLESS = 'xray.proxy.vless.inbound.Config';
++function runtimeInbound(tag, type = VLESS) {
++    return { tag, proxySettings: { type, value: new Uint8Array() } };
++}
++function apiInbound(socket = `@${SOCKET}`) {
++    return {
++        ...runtimeInbound(API_TAG, 'xray.proxy.dokodemo.Config'),
++        receiverSettings: {
++            type: ReceiverConfig.$type,
++            value: ReceiverConfig.encode(
++                ReceiverConfig.create({ listen: { domain: socket } }),
++            ).finish(),
++        },
++    };
++}
++function config(tags = ['inbound-a', 'inbound-b']) {
++    return {
++        inbounds: tags.map((tag) => ({
++            tag,
++            protocol: 'vless',
++            settings: { clients: [{ id: 'hash-target' }] },
++        })),
++    };
++}
++function expectHttpFailure(result) {
++    assert.equal(result.isOk, false);
++    assert.throws(
++        () => errorHandler(result),
++        (error) => error.getStatus() === 500,
++    );
++}
++async function fixture(fail = () => false, tags = ['inbound-a', 'inbound-b']) {
++    const calls = { precise: [], legacy: [], removed: [], added: [], events: [], lists: 0 };
++    const hooks = {};
++    const state = { inbounds: [apiInbound(), ...tags.map((tag) => runtimeInbound(tag))] };
++    const internal = new InternalService();
++    for (const tag of tags) await internal.addUserToInbound(tag, 'hash-target');
++    const remove = internal.removeUserFromInbound.bind(internal);
++    internal.removeUserFromInbound = async (tag, id) => {
++        calls.removed.push([tag, id]);
++        await remove(tag, id);
++    };
++    const api = {
++        handler: {
++            rawClient: {
++                async listInbounds(request) {
++                    assert.deepEqual(request, { isOnlyTags: false });
++                    calls.lists++;
++                    await hooks.list?.();
++                    return ListInboundsResponse.decode(
++                        ListInboundsResponse.encode(ListInboundsResponse.create(state)).finish(),
++                    );
++                },
++                async alterInbound(request) {
++                    assert.equal(
++                        request.operation.type,
++                        'xray.app.proxyman.command.RemoveUserAndCancelOperation',
++                    );
++                    const email = RemoveUserOperation.decode(request.operation.value).email;
++                    calls.precise.push([request.tag, email]);
++                    await hooks.alter?.(request.tag, email);
++                    if (fail(request.tag, email)) throw new Error('private request must not leak');
++                    return {};
++                },
++            },
++            async getInboundUsers() {
++                assert.fail('admission inventory cannot prove no old streams');
++            },
++            async removeUser(tag, email) {
++                calls.legacy.push([tag, email]);
++                return { isOk: true };
++            },
++            async addVlessUser(user) {
++                calls.added.push(user);
++                await hooks.add?.(user);
++                return { isOk: true };
++            },
++        },
++        stats: {
++            async getSysStats() {
++                return { isOk: true };
++            },
++            rawClient: {
++                async getStatsOnlineIpList() {
++                    assert.fail('must not inspect IPs');
++                },
++            },
++        },
++    };
++    const service = new HandlerService(api, internal, {
++        publish: (event) => calls.events.push(event),
++    });
++    await internal.confirmIdentityScope(createIdentityScope(config(tags), SOCKET), api);
++    return { service, internal, api, calls, hooks, state, tags: internal.getXtlsConfigInbounds() };
++}
++const removal = { username: 'target', hashData: { vlessUuid: 'hash-target' } };
++const addition = (rotation = false) => ({
++    data: [{ tag: 'inbound-a', type: 'vless', username: 'target', uuid: 'new-test-id' }],
++    hashData: { vlessUuid: 'new-test-id', ...(rotation ? { prevVlessUuid: 'old-test-id' } : {}) },
++});
++const bulkAddition = () => ({
++    affectedInboundTags: ['inbound-a'],
++    users: [
++        {
++            userData: { userId: 'target', hashUuid: 'hash-target', vlessUuid: 'new-test-id' },
++            inboundData: [{ tag: 'inbound-a', type: 'vless' }],
++        },
++    ],
++});
++module.exports = {
++    fixture,
++    expectHttpFailure,
++    removal,
++    addition,
++    bulkAddition,
++    config,
++    createIdentityScope,
++    apiInbound,
++    runtimeInbound,
++    ReceiverConfig,
++    API_TAG,
++    SOCKET,
++    VLESS,
++};
+diff --git a/test/identity-scope.test.cjs b/test/identity-scope.test.cjs
+new file mode 100644
+index 0000000..12dd250
+--- /dev/null
++++ b/test/identity-scope.test.cjs
+@@ -0,0 +1,442 @@
++const assert = require('node:assert/strict');
++const test = require('node:test');
++const { setImmediate: nextTurn } = require('node:timers/promises');
++const {
++    fixture,
++    expectHttpFailure,
++    removal,
++    addition,
++    bulkAddition,
++    config,
++    createIdentityScope,
++    apiInbound,
++    runtimeInbound,
++    ReceiverConfig,
++    API_TAG,
++    SOCKET,
++} = require('./identity-fixture.cjs');
++
++function barrier() {
++    const entered = Promise.withResolvers();
++    const released = Promise.withResolvers();
++    return {
++        entered: entered.promise,
++        release: released.resolve,
++        wait: async () => {
++            entered.resolve();
++            await released.promise;
++        },
++    };
++}
++
++function xrayFixture(f) {
++    const { XrayService } = require('../src/modules/xray-core/xray.service.ts');
++    const { HashedSet } = require('@remnawave/hashed-set');
++    const calls = { starts: 0, stops: 0, prepare: 0 };
++    const hooks = {};
++    const request = (tags = ['inbound-a', 'inbound-b']) => ({
++        internals: {
++            forceRestart: true,
++            hashes: {
++                emptyConfig: 'offline-config',
++                inbounds: tags.map((tag) => ({
++                    tag,
++                    usersCount: 1,
++                    hash: new HashedSet(['hash-target']).hash64String,
++                })),
++            },
++        },
++        xrayConfig: config(tags),
++    });
++    const service = new XrayService(
++        f.api,
++        {
++            async stop() {
++                calls.stops++;
++                await hooks.stop?.();
++            },
++            async start() {
++                calls.starts++;
++                await hooks.start?.();
++                const generated = await f.internal.getXrayConfig();
++                f.state.inbounds = [
++                    apiInbound(),
++                    ...generated.inbounds
++                        .filter((i) => i.tag !== API_TAG)
++                        .map((i) => runtimeInbound(i.tag)),
++                ];
++            },
++            async getStatus() {
++                return { up: true, pid: 123, raw: '' };
++            },
++            async getCoreVersion() {
++                return { semver: '26.7.28' }.semver;
++            },
++        },
++        { async prepare() {} },
++        {
++            async prepare() {
++                calls.prepare++;
++                await hooks.prepare?.();
++            },
++        },
++        {
++            async sync() {
++                return { error: null };
++            },
++            async stop() {},
++        },
++        f.internal,
++        {
++            getOrThrow(key) {
++                return {
++                    INTERNAL_SOCKET_PATH: 'offline-node',
++                    INTERNAL_REST_TOKEN: 'offline-test-only',
++                    XTLS_API_SOCKET_PATH: SOCKET,
++                    DISABLE_HASHED_SET_CHECK: false,
++                }[key];
++            },
++        },
++        {
++            async execute(query) {
++                return query.constructor.name === 'GetTorrentBlockerStateQuery'
++                    ? { enabled: false, includeRuleTags: new Set(), rulePosition: 0 }
++                    : {};
++            },
++        },
++        { async execute() {} },
++    );
++    return { service, calls, hooks, request };
++}
++
++test('nonempty incomplete registry cannot hide a real inbound, including API-like user names', async () => {
++    const f = await fixture();
++    f.tags.delete('inbound-b');
++    f.state.inbounds.push(runtimeInbound('REMNAWAVE_API'));
++    assert.equal((await f.service.removeUser(removal)).response.success, true);
++    assert.deepEqual(
++        f.calls.precise.map(([tag]) => tag),
++        ['inbound-a', 'inbound-b', 'REMNAWAVE_API'],
++    );
++});
++
++test('empty registry still covers all real inbounds for credential rotation', async () => {
++    const f = await fixture();
++    f.tags.clear();
++    assert.equal((await f.service.addUser(addition(true))).response.success, true);
++    assert.deepEqual(
++        f.calls.precise.map(([tag]) => tag),
++        ['inbound-a', 'inbound-b'],
++    );
++});
++
++const invalidRuntime = [
++    [
++        'API protocol spoof',
++        (rows) => {
++            rows[0].proxySettings.type = 'xray.proxy.vless.inbound.Config';
++        },
++    ],
++    [
++        'API socket spoof',
++        (rows) => {
++            rows[0] = apiInbound('@wrong');
++        },
++    ],
++    [
++        'API receiver type spoof',
++        (rows) => {
++            rows[0].receiverSettings.type = 'wrong';
++        },
++    ],
++    [
++        'malformed API receiver',
++        (rows) => {
++            rows[0].receiverSettings.value = Uint8Array.of(255);
++        },
++    ],
++    [
++        'API TCP port',
++        (rows) => {
++            rows[0].receiverSettings.value = ReceiverConfig.encode(
++                ReceiverConfig.create({
++                    listen: { domain: `@${SOCKET}` },
++                    portList: { range: [{ from: 1, to: 1 }] },
++                }),
++            ).finish();
++        },
++    ],
++    [
++        'missing API',
++        (rows) => {
++            rows.shift();
++        },
++    ],
++    [
++        'unknown protocol',
++        (rows) => {
++            rows.push(runtimeInbound('unknown', 'xray.proxy.trojan.ServerConfig'));
++        },
++    ],
++    [
++        'untagged handler',
++        (rows) => {
++            rows.push(runtimeInbound(''));
++        },
++    ],
++    [
++        'duplicate handler',
++        (rows) => {
++            rows.push(runtimeInbound('inbound-a'));
++        },
++    ],
++    [
++        'missing expected user inbound',
++        (rows) => {
++            rows.pop();
++        },
++    ],
++    [
++        'only API',
++        (rows) => {
++            rows.splice(1);
++        },
++    ],
++    [
++        'empty inventory',
++        (rows) => {
++            rows.splice(0);
++        },
++    ],
++];
++for (const [name, mutate] of invalidRuntime) {
++    test(`${name} fails before any revoke and invalidates readiness`, async () => {
++        const f = await fixture();
++        mutate(f.state.inbounds);
++        expectHttpFailure(await f.service.removeUser(removal));
++        assert.equal(f.calls.precise.length, 0);
++        const lists = f.calls.lists;
++        expectHttpFailure(await f.service.addUser(addition()));
++        assert.equal(f.calls.lists, lists);
++        assert.equal(f.calls.added.length, 0);
++    });
++}
++
++test('list failure is sanitized and never falls back to local registration', async () => {
++    const f = await fixture();
++    f.hooks.list = async () => {
++        throw new Error('secret runtime payload');
++    };
++    const result = await f.service.removeUser(removal);
++    expectHttpFailure(result);
++    assert.doesNotMatch(JSON.stringify(result), /secret runtime/);
++    assert.equal(f.calls.precise.length, 0);
++});
++
++test('original profile cannot claim the injected tag, unknown protocol, duplicate or untagged scope', () => {
++    for (const inbounds of [
++        [{ tag: API_TAG, protocol: 'vless' }],
++        [{ tag: 'a', protocol: 'trojan' }],
++        [{ tag: '', protocol: 'vless' }],
++        [
++            { tag: 'a', protocol: 'vless' },
++            { tag: 'a', protocol: 'vless' },
++        ],
++        [],
++    ])
++        assert.throws(() => createIdentityScope({ inbounds }, SOCKET), /scope is unavailable/);
++});
++
++const writes = [
++    ['add', (f) => f.service.addUser(addition())],
++    ['rotate', (f) => f.service.addUser(addition(true))],
++    ['bulk add', (f) => f.service.addUsers(bulkAddition())],
++    ['remove', (f) => f.service.removeUser(removal)],
++    [
++        'bulk remove',
++        (f) => f.service.removeUsers({ users: [{ userId: 'target', hashUuid: 'hash-target' }] }),
++    ],
++];
++for (const [name, write] of writes) {
++    test(
++        `${name} cannot interleave between inventory and precise cancellation`,
++        { timeout: 5000 },
++        async () => {
++            const f = await fixture();
++            const paused = barrier();
++            f.hooks.list = paused.wait;
++            const revoke = f.service.removeUser(removal);
++            await paused.entered;
++            const lists = f.calls.lists;
++            const other = write(f);
++            try {
++                await nextTurn();
++                assert.equal(f.calls.lists, lists);
++                assert.equal(f.calls.added.length, 0);
++                assert.equal(f.calls.precise.length, 0);
++            } finally {
++                paused.release();
++            }
++            assert.equal((await revoke).response.success, true);
++            assert.equal((await other).response.success, true);
++        },
++    );
++}
++
++test('a revoke waits until an in-flight add finishes', { timeout: 5000 }, async () => {
++    const f = await fixture();
++    const paused = barrier();
++    f.hooks.add = paused.wait;
++    const add = f.service.addUser(addition());
++    await paused.entered;
++    const revoke = f.service.removeUser(removal);
++    try {
++        await nextTurn();
++        assert.equal(f.calls.precise.length, 0);
++    } finally {
++        paused.release();
++    }
++    assert.equal((await add).response.success, true);
++    assert.equal((await revoke).response.success, true);
++});
++
++test(
++    'normal explicit start, restart and no-op confirmation remain available',
++    { timeout: 5000 },
++    async () => {
++        const f = await fixture();
++        const x = xrayFixture(f);
++        const body = x.request();
++        assert.equal((await x.service.startXray(body, 'offline')).response.isStarted, true);
++        assert.equal((await x.service.startXray(body, 'offline')).response.isStarted, true);
++        body.internals.forceRestart = false;
++        assert.equal((await x.service.startXray(body, 'offline')).response.isStarted, true);
++        assert.equal(x.calls.starts, 2);
++        assert.equal((await f.service.removeUser(removal)).response.success, true);
++    },
++);
++
++test(
++    'reload waits for the entire revoke before replacing configuration',
++    { timeout: 5000 },
++    async () => {
++        const f = await fixture();
++        const x = xrayFixture(f);
++        const paused = barrier();
++        f.hooks.alter = paused.wait;
++        const revoke = f.service.removeUser(removal);
++        await paused.entered;
++        const reload = x.service.startXray(x.request(['new-inbound']), 'offline');
++        try {
++            await nextTurn();
++            assert.equal(x.calls.stops, 0);
++            assert.equal(x.calls.prepare, 0);
++        } finally {
++            paused.release();
++        }
++        assert.equal((await revoke).response.success, true);
++        assert.equal((await reload).response.isStarted, true);
++        assert.deepEqual(
++            f.calls.precise.map(([tag]) => tag),
++            ['inbound-a', 'inbound-b'],
++        );
++    },
++);
++
++test('revoke during reload waits for the confirmed new inventory', { timeout: 5000 }, async () => {
++    const f = await fixture();
++    const x = xrayFixture(f);
++    const paused = barrier();
++    x.hooks.start = paused.wait;
++    const reload = x.service.startXray(x.request(['new-inbound']), 'offline');
++    await paused.entered;
++    const lists = f.calls.lists;
++    const revoke = f.service.removeUser(removal);
++    try {
++        await nextTurn();
++        assert.equal(f.calls.lists, lists);
++        assert.equal(f.calls.precise.length, 0);
++    } finally {
++        paused.release();
++    }
++    assert.equal((await reload).response.isStarted, true);
++    assert.equal((await revoke).response.success, true);
++    assert.deepEqual(f.calls.precise, [['new-inbound', 'target']]);
++});
++
++test(
++    'failed reload stays untrusted and the gate releases for explicit recovery',
++    { timeout: 5000 },
++    async () => {
++        const f = await fixture();
++        const x = xrayFixture(f);
++        x.hooks.start = async () => {
++            throw new Error('offline start failure');
++        };
++        assert.equal((await x.service.startXray(x.request(), 'offline')).response.isStarted, false);
++        for (const [, write] of writes) expectHttpFailure(await write(f));
++        assert.equal(f.calls.precise.length, 0);
++        delete x.hooks.start;
++        assert.equal((await x.service.startXray(x.request(), 'offline')).response.isStarted, true);
++        assert.equal((await f.service.removeUser(removal)).response.success, true);
++    },
++);
++
++test('reserved tag in a full start fails before replacing or starting a core', async () => {
++    const f = await fixture();
++    const x = xrayFixture(f);
++    assert.equal(
++        (await x.service.startXray(x.request([API_TAG]), 'offline')).response.isStarted,
++        false,
++    );
++    assert.equal(x.calls.prepare, 0);
++    assert.equal(x.calls.starts, 0);
++    expectHttpFailure(await f.service.removeUser(removal));
++});
++
++test('successful process start with bad live inventory never publishes ready', async () => {
++    const f = await fixture();
++    const x = xrayFixture(f);
++    f.hooks.list = async () => {
++        f.state.inbounds[0] = apiInbound('@other-process');
++    };
++    assert.equal((await x.service.startXray(x.request(), 'offline')).response.isStarted, false);
++    expectHttpFailure(await f.service.removeUser(removal));
++    assert.equal(f.calls.precise.length, 0);
++});
++
++test(
++    'stop and shutdown wait for revoke, without reacquiring their own operation lock',
++    { timeout: 5000 },
++    async () => {
++        for (const shutdown of [false, true]) {
++            const f = await fixture();
++            const x = xrayFixture(f);
++            const paused = barrier();
++            f.hooks.alter = paused.wait;
++            const revoke = f.service.removeUser(removal);
++            await paused.entered;
++            const stop = shutdown ? x.service.killAllXrayProcesses() : x.service.stopXray({});
++            try {
++                await nextTurn();
++                assert.equal(x.calls.stops, 0);
++            } finally {
++                paused.release();
++            }
++            assert.equal((await revoke).response.success, true);
++            await stop;
++            assert.equal(x.calls.stops, 1);
++            expectHttpFailure(await f.service.removeUser(removal));
++        }
++    },
++);
++
++test('failed stop does not report success or leave identity readiness enabled', async () => {
++    const f = await fixture();
++    const x = xrayFixture(f);
++    x.hooks.stop = async () => {
++        throw new Error('offline stop failure');
++    };
++    assert.equal((await x.service.stopXray({})).response.isStopped, false);
++    expectHttpFailure(await f.service.removeUser(removal));
++});

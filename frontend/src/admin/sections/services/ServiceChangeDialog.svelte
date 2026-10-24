@@ -152,9 +152,11 @@
 
 <Dialog
   open
+  portal
   title={at("services_manage")}
   description={at("services_change_hint")}
   closeLabel={at("close")}
+  focusKey={error}
   onclose={() => {
     if (!busy) onclose();
   }}

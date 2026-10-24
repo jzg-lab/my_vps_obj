@@ -11,6 +11,7 @@ from sqlalchemy.orm import sessionmaker
 from bot.services.service_panel_state import ServiceEntitlementPanel, locked_service, owns_identity
 from bot.services.service_usage_sync import record_service_usage
 from config.service_periods import as_utc
+from db.dal.service_operations_dal import enqueue_execution, finish_execution
 from db.dal.service_periods_dal import cycle_due, prepare_period
 from db.service_models import ServiceConnection, ServiceOrder, ServiceUsagePeriod, UserService
 
@@ -75,41 +76,42 @@ async def settle_cancelled_service_period(
     service.cycle_started_at = period.next_started_at
     service.cycle_ends_at = period.next_ends_at
     connection.cycle_cutover_bytes = None
-    session.add(
-        ServiceOrder(
-            id=uuid4().hex,
-            user_id=service.user_id,
-            request_owner_id=service.user_id,
-            service_id=service.id,
-            actor_id=actor_id,
-            kind="settle_usage",
-            idempotency_key=f"settle:{service.id}:{before['cycle_started_at']}",
-            request={"service_id": service.id, "cycle_started_at": before["cycle_started_at"]},
-            snapshot={
-                "terms": dict(service.terms),
-                "plan_id": service.plan_id,
-                "plan_revision": service.plan_revision,
-                "starts_at": as_utc(service.starts_at).isoformat(),
-                "expires_at": as_utc(service.expires_at).isoformat(),
-                "quota_bytes": service.quota_bytes,
-                "desired_status": service.desired_status,
-                "before": before,
-                "change": {"action": "settle_usage"},
-                "used_bytes": service.used_bytes,
-                "usage_total_bytes": total,
-                "usage_raw_bytes": connection.usage_raw_bytes,
-                "usage_lifetime_offset": connection.usage_lifetime_offset,
-                "cutover_bytes": cutover,
-                "cycle_started_at": as_utc(service.cycle_started_at).isoformat(),
-                "cycle_ends_at": as_utc(service.cycle_ends_at).isoformat(),
-                "panel_user_uuid": connection.panel_user_uuid,
-                "panel_status": remote["status"],
-                "allowance_confirmed": False,
-                "observed_at": now.isoformat(),
-            },
-            created_at=now,
-        )
+    order = ServiceOrder(
+        id=uuid4().hex,
+        user_id=service.user_id,
+        request_owner_id=service.user_id,
+        service_id=service.id,
+        actor_id=actor_id,
+        kind="settle_usage",
+        idempotency_key=f"settle:{service.id}:{before['cycle_started_at']}",
+        request={"service_id": service.id, "cycle_started_at": before["cycle_started_at"]},
+        snapshot={
+            "terms": dict(service.terms),
+            "plan_id": service.plan_id,
+            "plan_revision": service.plan_revision,
+            "starts_at": as_utc(service.starts_at).isoformat(),
+            "expires_at": as_utc(service.expires_at).isoformat(),
+            "quota_bytes": service.quota_bytes,
+            "desired_status": service.desired_status,
+            "before": before,
+            "change": {"action": "settle_usage"},
+            "used_bytes": service.used_bytes,
+            "usage_total_bytes": total,
+            "usage_raw_bytes": connection.usage_raw_bytes,
+            "usage_lifetime_offset": connection.usage_lifetime_offset,
+            "cutover_bytes": cutover,
+            "cycle_started_at": as_utc(service.cycle_started_at).isoformat(),
+            "cycle_ends_at": as_utc(service.cycle_ends_at).isoformat(),
+            "panel_user_uuid": connection.panel_user_uuid,
+            "panel_status": remote["status"],
+            "allowance_confirmed": False,
+            "observed_at": now.isoformat(),
+        },
+        created_at=now,
     )
+    session.add(order)
+    await enqueue_execution(session, service, "usage", order=order)
+    await finish_execution(session, service, "usage", success=True)
     await session.flush()
     return True
 

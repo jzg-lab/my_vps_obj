@@ -103,6 +103,7 @@ export function serviceErrorKey(failure: unknown): string {
     invalid_renewal_date: "services_invalid_terms",
   };
   const normalized = aliases[code] || code;
+  if (code === "resource_operation_in_progress") return "resource_ops_error_busy";
   const codes = [
     "plan_changed",
     "plan_unavailable",

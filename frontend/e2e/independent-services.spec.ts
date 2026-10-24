@@ -62,16 +62,24 @@ for (const width of [1440, 390]) {
     await expect(services).toContainText("Независимых услуг пока нет.");
     for (let count = 1; count <= 2; count++) {
       await services.getByRole("button", { name: "Подключить услугу", exact: true }).click();
-      await select(page, "Выберите тариф", "Demo total");
       const dialog = page.getByRole("dialog");
-      await dialog.getByRole("button", { name: "Подключить услугу", exact: true }).click();
+      const submit = dialog.getByRole("button", { name: "Подключить услугу", exact: true });
+      await expect(submit).toBeDisabled();
+      await select(page, "Выберите тариф", "Demo total");
+      const preflight = dialog.getByRole("region", { name: "Проверка перед активацией" });
+      await expect(preflight).toContainText("Можно создать запись услуги, ожидающей выдачи.");
+      await expect(preflight).toContainText("Готовность ресурсов: Неизвестно");
+      await expect(preflight).toContainText("Готовность к выдаче не подтверждена");
+      await expect(submit).toBeEnabled();
+      await submit.click();
       await expect(dialog).toHaveCount(0);
       await expect(services.locator("tbody tr")).toHaveCount(count);
     }
     await expect(services.getByText("Ожидает настройки подключения", { exact: true })).toHaveCount(
       2
     );
-    await expect(services.getByText("100 GiB", { exact: true })).toHaveCount(2);
+    await expect(services.getByText("Неизвестно", { exact: true })).toHaveCount(2);
+    await expect(services.getByText("100 GiB", { exact: true })).toHaveCount(0);
     await services.getByRole("button", { name: "История", exact: true }).first().click();
     const historyDialog = page.getByRole("dialog");
     await expect(historyDialog.locator("tbody tr")).toHaveCount(1);

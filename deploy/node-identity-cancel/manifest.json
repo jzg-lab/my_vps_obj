@@ -1,0 +1,73 @@
+{
+  "schema": 1,
+  "revision": "isolated-poc-r3",
+  "handoff_manifest_sha256": "b5a495e8c4688598e9008599fd012c6a68e3fe93ba7a86986bbbab9a4e88b22d",
+  "independent_build_evidence_sha256": "2e61f693065a39a2a1502adb158bebbdd337fdaa246ab825d1788609a23d0a4f",
+  "base_image": "remnawave/node:3.4.2@sha256:1f97485b4bc7e4944f1ae95cc57d176376813b0022e9567b705f384f1a2e909d",
+  "sources": {
+    "xray": {
+      "version": "v26.7.28",
+      "commit": "5ca6f4b7d4dc20a881d4330e498892697627ec0c",
+      "archive": "xray.tar.gz",
+      "url": "https://codeload.github.com/XTLS/Xray-core/tar.gz/5ca6f4b7d4dc20a881d4330e498892697627ec0c",
+      "sha256": "45de3ead5186fea442b04c662c554a1ffd1d7bd9093a83410f2edabe74fb766e",
+      "root": "Xray-core-5ca6f4b7d4dc20a881d4330e498892697627ec0c",
+      "patch": "patches/xray-identity-cancel.patch",
+      "patch_sha256": "90076c5b3e6d6609b1ef1742e62e57ac4e63ff4e7fceee5c287b9226fb998abf",
+      "license": "licenses/xray-LICENSE",
+      "upstream_license": "LICENSE",
+      "license_sha256": "1f256ecad192880510e84ad60474eab7589218784b9a50bc7ceee34c2b91f1d5",
+      "locks": {
+        "go.mod": "3563a7831c81e160549561f54d1fa81aad20b915ebf39bf2164cd93866c21695",
+        "go.sum": "33d275a3eae8ea3af29807f45836c1781bceae8bc7c7a88816fcb34b54995351"
+      }
+    },
+    "node": {
+      "version": "3.4.2",
+      "commit": "ea7a835485af81ec464ebbf7acaaa7d6dd486a05",
+      "archive": "node.tar.gz",
+      "url": "https://codeload.github.com/remnawave/node/tar.gz/ea7a835485af81ec464ebbf7acaaa7d6dd486a05",
+      "sha256": "c8008efb55cc3c569ab9398302649e812711c75d3e4db73a7ad4e03203b25616",
+      "root": "node-ea7a835485af81ec464ebbf7acaaa7d6dd486a05",
+      "patch": "patches/node-identity-cancel.patch",
+      "patch_sha256": "bf1af2716ef8d800385af780d11c016245ddb670659fe5901077d9416a1548b7",
+      "license": "licenses/node-LICENCE",
+      "upstream_license": "LICENCE",
+      "license_sha256": "47917fd174abda0cdf63dbe097a6f213879c55395df0747b3e70e16eba36fad5",
+      "locks": {
+        "package-lock.json": "ee3ef36a0e6c61f3f352753e839e934ed0fdbd2983bcf7567c822640444514ad"
+      }
+    }
+  },
+  "toolchain": {
+    "host": "darwin/arm64",
+    "go": "go version go1.27.2 darwin/arm64",
+    "node": "v26.10.0",
+    "npm": "11.19.1",
+    "protoc": "libprotoc 33.0",
+    "protoc_gen_go": "protoc-gen-go v1.36.11",
+    "protoc_gen_go_module": "google.golang.org/protobuf/cmd/protoc-gen-go@v1.36.11",
+    "protoc_archive": "protoc.zip",
+    "protoc_url": "https://github.com/protocolbuffers/protobuf/releases/download/v33.0/protoc-33.0-osx-universal_binary.zip",
+    "protoc_sha256": "88c0a52f048827d6892cd3403e3ae4181208ab261f93428c86d1736f536a60ec"
+  },
+  "generated": {
+    "path": "app/proxyman/command/identity_cancel.pb.go",
+    "proto": "app/proxyman/command/identity_cancel.proto",
+    "sha256": "18624031253b6cfbbffeade01664dcc026d51740a8aa53c5d7ef11f0d7ad1658"
+  },
+  "artifacts": {
+    "main.js": {
+      "sha256": "4896c9fa350cf50fe27dda4fcf4cde883a642ef1712bcab7b48b58ea56e61f0d",
+      "destination": "/opt/app/dist/main.js",
+      "mode": 420
+    },
+    "xray-linux-arm64": {
+      "sha256": "25074e2dfad139dfab8d6f4abc89fc16c8c4b2240d78d5a117075076bc897c31",
+      "destination": "/usr/local/bin/xray",
+      "mode": 493
+    }
+  },
+  "target": "linux/arm64",
+  "scope": "Isolated forward VLESS POC only; not a patched default image or production approval"
+}

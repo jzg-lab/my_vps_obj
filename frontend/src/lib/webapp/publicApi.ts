@@ -1,9 +1,4 @@
-import { currentBootSignal } from "./bootBudget";
-import { fetchApiJson } from "./apiJsonRequest";
-import { createBlobRequester } from "./apiBlobRequest";
-import { registerEmojiApiCacheScope } from "./emojiCatalogStorage";
-import { readCookie } from "./session.js";
-import { requestSignal } from "./requestSignal.js";
+export { createApiClient } from "./apiClient";
 import type {
   ApiPathInput,
   ApiResponseFor,
@@ -70,19 +65,6 @@ export type MockApi = (
   context: MockContext
 ) => unknown | Promise<unknown>;
 
-type ApiClientOptions = {
-  csrfCookieName?: string;
-  getAuthToken?: () => string;
-  getCsrfToken?: () => string;
-  getEmojiCacheScope?: () => string;
-  getTariffAccessCode?: () => string;
-  onUnauthorized?: () => void;
-  mockApi?: MockApi | null;
-  getMockContext?: () => MockContext;
-  requestTimeoutMs?: number;
-};
-
-const DEFAULT_API_REQUEST_TIMEOUT_MS = 15000;
 const WEBAPP_API_BASE = "/api";
 
 export function buildApiUrl(path: string): string {
@@ -846,130 +828,4 @@ export function buildAdminPaymentsExportPath(): AdminPaymentsExportPath {
 export function unwrap<T extends { ok: boolean }>(response: T): Extract<T, { ok: true }> {
   if (!response.ok) throw response;
   return response as Extract<T, { ok: true }>;
-}
-
-export function createApiClient({
-  csrfCookieName = "rw_webapp_csrf",
-  getAuthToken = () => "",
-  getCsrfToken = () => "",
-  getEmojiCacheScope = () => "",
-  getTariffAccessCode = () => "",
-  onUnauthorized = () => {},
-  mockApi = null,
-  getMockContext = () => ({}),
-  requestTimeoutMs = DEFAULT_API_REQUEST_TIMEOUT_MS,
-}: ApiClientOptions = {}): ApiClient {
-  const isFormDataBody = (body: BodyInit | null | undefined) =>
-    typeof FormData !== "undefined" && body instanceof FormData;
-
-  function authenticatedHeaders(options: RequestInit): Headers {
-    const method = String(options.method || "GET").toUpperCase();
-    const headers = new Headers(options.headers);
-    headers.set("X-Billing-Period-Unit", "day");
-    const csrf = getCsrfToken() || readCookie(csrfCookieName) || "";
-    const authToken = getAuthToken();
-    const tariffAccessCode = String(getTariffAccessCode() || "")
-      .trim()
-      .toLowerCase();
-    if (authToken && !headers.has("Authorization")) {
-      headers.set("Authorization", `Bearer ${authToken}`);
-    }
-    if (/^[a-f0-9]{32}$/.test(tariffAccessCode) && !headers.has("X-Tariff-Access-Code")) {
-      headers.set("X-Tariff-Access-Code", tariffAccessCode);
-    }
-    if (csrf && ["POST", "PUT", "PATCH", "DELETE"].includes(method)) {
-      headers.set("X-CSRF-Token", csrf);
-    }
-    return headers;
-  }
-
-  async function requestJson(
-    path: string,
-    options: RequestInit = {}
-  ): Promise<Record<string, unknown>> {
-    if (mockApi) return (await mockApi(path, options, getMockContext())) as Record<string, unknown>;
-
-    const headers = authenticatedHeaders(options);
-    if (options.body && !headers.has("Content-Type") && !isFormDataBody(options.body)) {
-      headers.set("Content-Type", "application/json");
-    }
-
-    return fetchApiJson(
-      buildApiUrl(path),
-      path,
-      { ...options, headers },
-      requestTimeoutMs,
-      onUnauthorized
-    );
-  }
-
-  async function api<
-    Path extends ApiPathInput,
-    Options extends RequestInit | undefined = undefined,
-  >(path: Path, options: Options = {} as Options): Promise<ApiResponseFor<Path, Options>> {
-    return (await requestJson(path, options)) as ApiResponseFor<Path, Options>;
-  }
-
-  async function apiUnchecked(
-    path: string,
-    options: RequestInit = {}
-  ): Promise<Record<string, unknown>> {
-    return requestJson(path, options);
-  }
-
-  const apiBlob = createBlobRequester({
-    authenticatedHeaders,
-    sessionScope: () => getCsrfToken() || readCookie(csrfCookieName) || "",
-    persistentScope: getEmojiCacheScope,
-    buildApiUrl,
-    mockApi,
-    getMockContext,
-    onUnauthorized,
-    requestTimeoutMs,
-  });
-
-  async function publicApiUnchecked(
-    path: string,
-    payload: Record<string, unknown> = {},
-    options: Pick<RequestInit, "signal"> = {}
-  ): Promise<Record<string, unknown>> {
-    if (mockApi) {
-      return (await mockApi(
-        path,
-        { method: "POST", body: JSON.stringify(payload) },
-        getMockContext()
-      )) as Record<string, unknown>;
-    }
-    const { signal, cleanup } = requestSignal(
-      options.signal || currentBootSignal(),
-      requestTimeoutMs
-    );
-    try {
-      const response = await fetch(buildApiUrl(path), {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload),
-        signal,
-        credentials: "same-origin",
-      });
-      return (await response.json()) as Record<string, unknown>;
-    } finally {
-      cleanup();
-    }
-  }
-
-  async function publicApi<Path extends ApiPathInput>(
-    path: Path,
-    payload: PostPayload<Path> = {} as PostPayload<Path>,
-    options: Pick<RequestInit, "signal"> = {}
-  ): Promise<PostResponse<Path>> {
-    return (await publicApiUnchecked(path, payload, options)) as PostResponse<Path>;
-  }
-
-  registerEmojiApiCacheScope(api, () =>
-    !mockApi && (getAuthToken() || getCsrfToken() || readCookie(csrfCookieName))
-      ? getEmojiCacheScope()
-      : ""
-  );
-  return { api, apiUnchecked, apiBlob, publicApi, publicApiUnchecked } as ApiClient;
 }

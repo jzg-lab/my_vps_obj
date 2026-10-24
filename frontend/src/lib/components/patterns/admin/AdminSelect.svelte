@@ -28,6 +28,7 @@
     onValueChange?: (value: string) => void;
     class?: string;
     controlSize?: ControlSize;
+    wrapLabels?: boolean;
   };
 
   let {
@@ -43,6 +44,7 @@
     onValueChange = () => {},
     class: className = "",
     controlSize,
+    wrapLabels = false,
   }: Props = $props();
 
   const selected = $derived(items.find((item) => item.value === value));
@@ -97,7 +99,12 @@
   onValueChange={handleValueChange}
 >
   <Select.Trigger
-    class={cn("admin-select-trigger", controlSizeClass(controlSize), className)}
+    class={cn(
+      "admin-select-trigger",
+      wrapLabels && "admin-select-wrap",
+      controlSizeClass(controlSize),
+      className
+    )}
     data-control-size={controlSize}
     aria-label={ariaLabel || placeholder}
   >
@@ -110,7 +117,7 @@
   </Select.Trigger>
   <Select.Portal>
     <Select.Content
-      class="admin-select-content"
+      class={cn("admin-select-content", wrapLabels && "admin-select-wrap")}
       {side}
       {align}
       {sideOffset}
@@ -145,6 +152,21 @@
 </Select.Root>
 
 <style>
+  :global(.admin-select-trigger.admin-select-wrap) {
+    min-width: 0;
+    max-width: 100%;
+    height: auto;
+    min-height: 36px;
+    padding: 8px 12px;
+  }
+  :global(.admin-select-trigger.admin-select-wrap > span),
+  :global(.admin-select-content.admin-select-wrap .admin-select-item > span) {
+    white-space: normal;
+    overflow-wrap: anywhere;
+    overflow: visible;
+    text-overflow: clip;
+  }
+
   /* A group reads as a section: the caption is paired with a hairline that
      runs to the edge, and every group after the first is separated from the
      items above it. */

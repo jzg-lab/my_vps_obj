@@ -13,7 +13,13 @@ from bot.services.service_usage_sync import synchronize_service_usage
 from config.service_changes import ServiceChange
 from config.service_periods import monthly_period
 from db.dal.service_delivery_dal import request_service_revocation
-from db.service_models import ServiceConnection, ServiceOrder, ServiceUsagePeriod, UserService
+from db.service_models import (
+    ServiceConnection,
+    ServiceOperationExecution,
+    ServiceOrder,
+    ServiceUsagePeriod,
+    UserService,
+)
 from tests.unit.test_service_changes import ServiceChangeTestCase
 
 
@@ -168,6 +174,14 @@ class ServiceRevocationEntitlementTests(ServiceChangeTestCase):
             assert settlements[0].snapshot["allowance_confirmed"] is False
             assert settlements[0].snapshot["usage_total_bytes"] == 1100
             assert settlements[0].snapshot["used_bytes"] == 200
+            accounting_result = await session.scalar(
+                select(ServiceOperationExecution).where(
+                    ServiceOperationExecution.order_id == settlements[0].id
+                )
+            )
+            assert accounting_result and accounting_result.status == "succeeded"
+            assert accounting_result.phase == "usage" and accounting_result.completed_at is not None
+            assert accounting_result.attempt_count == 0 and accounting_result.attempted_at is None
         await revoke_service_identity(cast(sessionmaker, self.sessions), service.id, self.panel)
         async with self.sessions() as session:
             connection = await session.get(ServiceConnection, service.id)

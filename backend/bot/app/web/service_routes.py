@@ -3,6 +3,7 @@
 import re
 
 from aiohttp import web
+from sqlalchemy import select
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -38,6 +39,7 @@ from db.dal import user_dal, user_services_dal
 from db.dal.service_changes_dal import change_service
 from db.dal.user_services_dal import ServiceConflict, activate_service, save_plan
 from db.service_models import (
+    ServiceOrder,
     UserService,
 )
 
@@ -336,7 +338,26 @@ async def admin_dedicated_exits_route(request: web.Request) -> web.Response:
     limit, offset = _pagination(request)
     async with get_session_factory(request)() as session:
         rows, total = await user_services_dal.list_exits(session, limit=limit, offset=offset)
-        exits = [DedicatedExitOut.from_orm_exit(row).model_dump(mode="json") for row in rows]
+        hold_ids = {row.hold_order_id for row in rows if row.hold_order_id is not None}
+        holds = (
+            dict(
+                (
+                    await session.execute(
+                        select(ServiceOrder.id, ServiceOrder.service_id).where(
+                            ServiceOrder.id.in_(hold_ids)
+                        )
+                    )
+                ).all()
+            )
+            if hold_ids
+            else {}
+        )
+        exits = [
+            DedicatedExitOut.from_orm_exit(
+                row, hold_service_id=holds.get(row.hold_order_id)
+            ).model_dump(mode="json")
+            for row in rows
+        ]
     return _ok({"exits": exits, "total": total})
 
 

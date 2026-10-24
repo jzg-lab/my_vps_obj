@@ -44,6 +44,11 @@ from .chain_0112_service_usage import CHAIN_0112_SERVICE_USAGE
 from .chain_0113_service_entitlements import CHAIN_0113_SERVICE_ENTITLEMENTS
 from .chain_0114_service_delivery import CHAIN_0114_SERVICE_DELIVERY
 from .chain_0115_service_revocation_evidence import CHAIN_0115_SERVICE_REVOCATION_EVIDENCE
+from .chain_0116_service_operation_executions import CHAIN_0116_SERVICE_OPERATION_EXECUTIONS
+from .chain_0117_exit_replacement import CHAIN_0117_EXIT_REPLACEMENT
+from .chain_0118_resource_operations import CHAIN_0118_RESOURCE_OPERATIONS
+from .chain_0119_account_operations import CHAIN_0119_ACCOUNT_OPERATIONS
+from .chain_0120_node_assets import CHAIN_0120_NODE_ASSETS
 from .engine import Migration
 
 MIGRATIONS: list[Migration] = [
@@ -89,4 +94,9 @@ MIGRATIONS: list[Migration] = [
     *CHAIN_0113_SERVICE_ENTITLEMENTS,
     *CHAIN_0114_SERVICE_DELIVERY,
     *CHAIN_0115_SERVICE_REVOCATION_EVIDENCE,
+    *CHAIN_0116_SERVICE_OPERATION_EXECUTIONS,
+    *CHAIN_0117_EXIT_REPLACEMENT,
+    *CHAIN_0118_RESOURCE_OPERATIONS,
+    *CHAIN_0119_ACCOUNT_OPERATIONS,
+    *CHAIN_0120_NODE_ASSETS,
 ]

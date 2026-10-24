@@ -2,6 +2,11 @@ import type { components } from "$lib/api/openapi.generated.js";
 import { jsonBody } from "../demoMockRuntime.js";
 import type { ServicePlan, DedicatedExit, UserService } from "$lib/admin/servicePlans.js";
 import type { ServiceOrder } from "$lib/admin/serviceHistory";
+import { adminConsoleDemoResponse, withCustomerServiceSummaries } from "./adminConsole";
+import { createConsoleServiceOperationsDemo } from "./consoleServiceOperations";
+import { createExitReplacementDemo } from "./exitReplacement";
+import { consoleGlobalOperationsDemoResponse } from "./consoleGlobalOperations";
+import { demoAdminUserById } from "./users";
 
 const stamp = "2026-10-22T04:00:00Z";
 const uuid = "11111111-1111-4111-8111-111111111111";
@@ -52,6 +57,8 @@ const exits: DedicatedExit[] = [
     resource_pool: "demo",
     squad_uuid: uuid,
     service_id: null,
+    hold_order_id: null,
+    hold_service_id: null,
     verified_at: null,
     enabled: true,
   },
@@ -88,6 +95,7 @@ const archived: UserService[] = Array.from({ length: 26 }, (_, index) => ({
   sync_confirmed_at: null,
   exit_ip: null,
   exit_verified: false,
+  replacement_order_id: null,
 }));
 for (const service of archived)
   orders.push({
@@ -110,15 +118,22 @@ for (const service of archived)
 let historyFailureShown = false;
 let orderFailureShown = false;
 let demoOwner = 0;
+let consoleOperations = createConsoleServiceOperationsDemo();
+let exitReplacement = createExitReplacementDemo();
 const requests = new Map<string, UserService>();
 const id = () => crypto.randomUUID().replaceAll("-", "");
 
 export function seedIndependentServicesDemo(owner: number, empty = false) {
   demoOwner = owner;
+  consoleOperations = createConsoleServiceOperationsDemo();
+  exitReplacement = createExitReplacementDemo();
   services.length = 0;
   if (empty) return;
+  const trustDemo = new URLSearchParams(window.location.search).has("trust_demo");
   for (let index = 0; index < 12; index++) {
-    const monthly = index === 1;
+    const cancelledMonthly = trustDemo && index === 6;
+    const monthly = index === 1 || cancelledMonthly;
+    const expiresAtBoundary = trustDemo && index === 1;
     const delivered =
       Boolean(new URLSearchParams(window.location.search).get("delivery")) &&
       (index === 2 || index === 3);
@@ -134,30 +149,77 @@ export function seedIndependentServicesDemo(owner: number, empty = false) {
       quota_bytes: 100 * 2 ** 30,
       used_bytes: (index === 0 ? 117 : index === 1 ? 23 : 0) * 2 ** 30,
       starts_at: stamp,
-      expires_at: "2027-01-20T04:00:00Z",
+      expires_at: expiresAtBoundary ? "2026-11-22T04:00:00Z" : "2027-01-20T04:00:00Z",
       cycle_started_at: monthly ? stamp : null,
       cycle_ends_at: monthly ? "2026-11-22T04:00:00Z" : null,
       last_usage_sync_at: index < 2 || delivered ? stamp : null,
       cycle_pending: monthly && new URLSearchParams(window.location.search).has("cycle_pending"),
       usage_total_bytes: delivered ? 0 : null,
       usage_error: monthly ? "panel_usage_unavailable" : null,
-      status: delivered ? "active" : index === 0 ? "exhausted" : "pending",
-      connection_state: delivered ? "ready" : "pending",
+      status: cancelledMonthly
+        ? "cancelled"
+        : delivered
+          ? "active"
+          : index === 0
+            ? "exhausted"
+            : "pending",
+      connection_state: cancelledMonthly ? "revoked" : delivered ? "ready" : "pending",
       revision: 1,
-      desired_status: "active",
+      desired_status: cancelledMonthly ? "cancelled" : "active",
       sync_pending: false,
       sync_error: null,
       sync_confirmed_at: null,
       exit_ip: monthly ? "192.0.2.10" : null,
       exit_verified: false,
+      replacement_order_id: null,
     });
   }
+}
+
+export function independentServicesCustomerSummaries(response: unknown): unknown {
+  return withCustomerServiceSummaries(response, services);
 }
 
 export function independentServicesDemoResponse(path: string, options: RequestInit): unknown {
   const url = new URL(path, "https://example.test");
   const route = url.pathname;
   const method = options.method || "GET";
+  const account = demoAdminUserById(jsonBody(options).user_id);
+  const operationState = {
+    owner: Number(account?.user_id ?? 0),
+    banned: !account || account.is_banned === true,
+    services,
+    archived,
+    plans,
+    exits,
+    orders,
+    operations: exitReplacement.operations,
+  };
+  const replacementResponse = exitReplacement.respond(path, options, {
+    services,
+    archived,
+    exits,
+    audits: exitAudit,
+  });
+  if (replacementResponse !== undefined) return replacementResponse;
+  const operationsResponse = consoleOperations(path, options, operationState);
+  if (operationsResponse !== undefined) return operationsResponse;
+  const globalOperationsResponse = consoleGlobalOperationsDemoResponse(
+    path,
+    options,
+    operationState
+  );
+  if (globalOperationsResponse !== undefined) return globalOperationsResponse;
+  if (method === "GET") {
+    const consoleResponse = adminConsoleDemoResponse(url, {
+      services,
+      archived,
+      plans,
+      exits,
+      owner: demoOwner,
+    });
+    if (consoleResponse !== undefined) return consoleResponse;
+  }
   const offset = Number(url.searchParams.get("offset") || 0);
   const limit = Number(url.searchParams.get("limit") || 100);
   if (route === "/service-catalog" && method === "GET") {
@@ -228,6 +290,8 @@ export function independentServicesDemoResponse(path: string, options: RequestIn
       id: id(),
       enabled: true,
       service_id: null,
+      hold_order_id: null,
+      hold_service_id: null,
       verified_at: null,
     };
     exits.unshift(resource);
@@ -242,6 +306,11 @@ export function independentServicesDemoResponse(path: string, options: RequestIn
     const body = jsonBody(options) as
       components["schemas"]["ExitVerifyBody"] | components["schemas"]["ExitReclaimBody"];
     if (!resource) return { ok: false, error: "exit_not_found" };
+    if (
+      resource.hold_order_id ||
+      services.some((item) => item.id === resource.service_id && item.replacement_order_id)
+    )
+      return { ok: false, error: "exit_replacement_in_progress" };
     const key = `${resource.id}:${body.idempotency_key}`;
     const old = exitRequests.get(key);
     if (old)
@@ -286,7 +355,11 @@ export function independentServicesDemoResponse(path: string, options: RequestIn
     const resource = exits.find((item) => item.id === body.exit_id);
     if (
       plan.terms.resource_type === "dedicated" &&
-      (!resource || resource.service_id || resource.resource_pool !== plan.terms.resource_pool)
+      (!resource ||
+        !resource.enabled ||
+        resource.service_id ||
+        resource.hold_order_id ||
+        resource.resource_pool !== plan.terms.resource_pool)
     )
       return { ok: false, error: "exit_unavailable" };
     const service: UserService = {
@@ -317,6 +390,7 @@ export function independentServicesDemoResponse(path: string, options: RequestIn
       sync_confirmed_at: null,
       exit_ip: resource?.ip_address || null,
       exit_verified: false,
+      replacement_order_id: null,
     };
     if (resource) {
       resource.service_id = service.id;
@@ -367,6 +441,7 @@ export function independentServicesDemoResponse(path: string, options: RequestIn
     if (requests.has(key)) return { ok: true, service, duplicate: true };
     if (service.revision !== body.expected_revision)
       return { ok: false, error: "service_revision_changed" };
+    const changedAt = new Date().toISOString();
     const before = {
       desired_status: service.desired_status,
       expires_at: service.expires_at,
@@ -384,6 +459,7 @@ export function independentServicesDemoResponse(path: string, options: RequestIn
       service.used_bytes = body.change.verified_total_bytes!;
       service.usage_total_bytes = service.used_bytes;
       service.usage_error = null;
+      service.last_usage_sync_at = changedAt;
     } else if (body.change.action === "renew")
       service.expires_at = new Date(
         Math.max(Date.now(), Date.parse(service.expires_at)) + Number(body.change.days) * 86400000
@@ -401,7 +477,7 @@ export function independentServicesDemoResponse(path: string, options: RequestIn
       service_id: service.id,
       actor_id: 42,
       kind: body.change.action,
-      created_at: new Date().toISOString(),
+      created_at: changedAt,
       snapshot: {
         terms: { ...plan.terms, name: service.name },
         plan_id: service.plan_id,

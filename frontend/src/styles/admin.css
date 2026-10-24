@@ -5233,9 +5233,13 @@
   transform: rotate(180deg);
 }
 
-.admin-select-content {
-  /* Portaled select content lives outside .dialog and must win hit-testing over it. */
+.admin-select-content,
+[data-bits-floating-content-wrapper]:has(> .admin-select-content[data-select-content]) {
+  /* Rapid reopen can cancel the wrapper's measured z-index; keep the menu layer in CSS. */
   z-index: 260;
+}
+
+.admin-select-content {
   min-width: var(--bits-select-anchor-width);
   max-width: calc(100vw - 24px);
   max-height: min(

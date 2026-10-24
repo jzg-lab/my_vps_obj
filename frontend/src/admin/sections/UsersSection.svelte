@@ -242,7 +242,8 @@
     if (serviceModel.independent)
       return [
         { key: "user", label: at("user", {}, "User"), sort: SORT_COLUMNS.user },
-        { key: "status", label: at("status", {}, "Status") },
+        { key: "services", label: at("console_customers_services") },
+        { key: "status", label: at("console_customers_account_status") },
         {
           key: "registration",
           label: at("users_col_registration", {}, "Registered"),
@@ -377,7 +378,7 @@
   const userTableHeaders = $derived(userTableColumns().map((column) => column.label));
   const userTableWidths = $derived(
     serviceModel.independent
-      ? ["55%", "20%", "25%"]
+      ? ["24%", "46%", "15%", "15%"]
       : [
           "220px",
           ...(userBalanceEnabled ? ["118px"] : []),
@@ -442,9 +443,9 @@
     serviceModel.independent
       ? {
           label: user.is_banned
-            ? at("filter_banned", {}, "Banned")
-            : at("filter_not_banned", {}, "Not banned"),
-          variant: user.is_banned ? "danger" : "success",
+            ? at("services_status_account_banned")
+            : at("console_customers_account_not_banned"),
+          variant: user.is_banned ? "danger" : "muted",
         }
       : panelStatusBadge(user)}
   {userInitials}

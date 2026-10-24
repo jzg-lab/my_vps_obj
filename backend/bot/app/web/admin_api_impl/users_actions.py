@@ -18,6 +18,7 @@ from bot.services.subscription_reissue_access import AccessRotationBusy, reissue
 from config.settings import Settings
 from config.traffic_strategy import canonical_traffic_limit_strategy
 from db.dal import message_log_dal, subscription_dal, user_dal
+from db.dal.resource_operations_dal import coordinate_resources, require_resource_authorization
 from db.dal.service_accounts_dal import deletion_connections
 from db.dal.user_services_dal import ServiceConflict
 
@@ -68,11 +69,13 @@ async def admin_user_delete_route(request: web.Request) -> web.Response:
         panel_service = getattr(subscription_service, "panel_service", None)
     async_session_factory: sessionmaker = get_session_factory(request)
     async with async_session_factory() as session:
+        await coordinate_resources(session)
         user = await user_dal.lock_user_by_id(session, target_id)
         if not user:
             return _error(404, "not_found")
 
         try:
+            await require_resource_authorization(session)
             connections = await deletion_connections(session, target_id)
         except ServiceConflict as exc:
             await session.rollback()

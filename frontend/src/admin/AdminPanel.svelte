@@ -225,7 +225,9 @@
         section.id,
         {
           title: at(section.titleI18nKey, {}, section.fallbackTitle),
-          subtitle: at(section.subtitleI18nKey, {}, section.fallbackSubtitle),
+          subtitle: section.subtitleI18nKey
+            ? at(section.subtitleI18nKey, {}, section.fallbackSubtitle)
+            : section.fallbackSubtitle,
         },
       ])
     );
@@ -243,6 +245,7 @@
   // dashboard.
   const normalizeSection = (value: unknown): AdminSectionId => {
     const section = resolveAdminSectionId(value) || "stats";
+    if (independentServices && section === "stats") return "console-overview";
     return independentServices && RETIRED_ADMIN_SECTIONS.has(section) ? "service-plans" : section;
   };
   const settingsPathKey = (path: unknown): string => (Array.isArray(path) ? path : []).join("/");
@@ -377,6 +380,7 @@
     if (active === next && !usersStore.openedUser) return;
     userReturnPath = "";
     userReturnScrollTop = 0;
+    userReturnState = null;
     active = next;
     settingsPath = [];
     usersStore.closeUser();
@@ -692,6 +696,7 @@
   }
 
   let userReturnPath = $state("");
+  let userReturnState: unknown = null;
   let userReturnScrollTop = 0;
 
   function openLogsUserCard(userId: unknown): void {
@@ -708,20 +713,24 @@
     if (!identifier || (typeof identifier === "number" && !Number.isFinite(identifier))) return;
     if (!usersStore.openedUser && typeof window !== "undefined") {
       userReturnPath = `${window.location.pathname}${window.location.search}${window.location.hash}`;
+      userReturnState = window.history.state;
       userReturnScrollTop = document.querySelector(".admin-main")?.scrollTop || 0;
     }
     sidebarOpen = false;
     paymentsStore.closePayment({ skipPush: true });
-    if (active !== "users") {
+    const switchingSection = active !== "users";
+    if (switchingSection) {
       active = "users";
-      onSectionChange("users");
     }
     usersStore.setActive("users");
     void usersStore.openUser(user || identifier);
+    // The detail path must exist before section sync, or it pushes an extra users-list entry.
+    if (switchingSection) onSectionChange("users");
     window.history.replaceState(
       {
         ...window.history.state,
         adminUserReturnPath: userReturnPath,
+        adminUserReturnState: userReturnState,
         adminUserReturnScrollTop: userReturnScrollTop,
       },
       "",
@@ -746,10 +755,15 @@
       `${withRoutePrefix("/admin/users", routePrefix)}${window.location.search}`;
     const scrollTop =
       userReturnScrollTop || Number(window.history.state?.adminUserReturnScrollTop || 0);
-    window.history.replaceState(null, "", target);
+    window.history.replaceState(
+      userReturnState || window.history.state?.adminUserReturnState || null,
+      "",
+      target
+    );
     window.dispatchEvent(new PopStateEvent("popstate"));
     userReturnPath = "";
     userReturnScrollTop = 0;
+    userReturnState = null;
     window.setTimeout(() => document.querySelector(".admin-main")?.scrollTo({ top: scrollTop }), 0);
   }
 
@@ -810,6 +824,7 @@
       if (typeof window !== "undefined") window.removeEventListener("popstate", onPopState);
       if (healthTimer !== null) window.clearInterval(healthTimer);
       supportStore.stopStatsPolling();
+      adminQueryClient.clear();
       adminQueryClient.unmount();
     };
   });

@@ -135,6 +135,7 @@ class UserServiceOut(HttpResponseModel):
     sync_pending: bool
     sync_error: str | None
     sync_confirmed_at: datetime | None
+    replacement_order_id: str | None = None
     user_id: int | None
     plan_id: str
     plan_revision: int
@@ -175,6 +176,7 @@ class UserServiceOut(HttpResponseModel):
             desired_status=service.desired_status,
             sync_pending=bool(connection and connection.sync_pending),
             sync_error=connection.sync_error if connection else None,
+            replacement_order_id=connection.replacement_order_id if connection else None,
             sync_confirmed_at=(
                 as_utc(connection.sync_confirmed_at)
                 if connection and connection.sync_confirmed_at
@@ -237,11 +239,15 @@ class DedicatedExitOut(HttpResponseModel):
     resource_pool: str
     squad_uuid: str
     service_id: str | None
+    hold_order_id: str | None = None
+    hold_service_id: str | None = None
     verified_at: datetime | None
     enabled: bool
 
     @classmethod
-    def from_orm_exit(cls, resource: DedicatedExit) -> "DedicatedExitOut":
+    def from_orm_exit(
+        cls, resource: DedicatedExit, *, hold_service_id: str | None = None
+    ) -> "DedicatedExitOut":
         return cls(
             id=resource.id,
             revision=resource.revision,
@@ -250,6 +256,8 @@ class DedicatedExitOut(HttpResponseModel):
             resource_pool=resource.resource_pool,
             squad_uuid=resource.squad_uuid,
             service_id=resource.service_id,
+            hold_order_id=resource.hold_order_id,
+            hold_service_id=hold_service_id,
             verified_at=as_utc(resource.verified_at) if resource.verified_at else None,
             enabled=resource.enabled,
         )

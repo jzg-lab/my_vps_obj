@@ -12,6 +12,7 @@ from bot.services.service_change_sync import (
     synchronize_service_change,
     synchronize_service_entitlement_locked,
 )
+from bot.services.service_operations import enabling_block
 from bot.services.service_panel_state import (
     locked_service,
     matches_service_terms,
@@ -20,6 +21,8 @@ from bot.services.service_panel_state import (
 )
 from bot.services.service_usage_sync import record_service_usage
 from bot.services.user_service_access import service_ready_for_delivery
+from db.dal.resource_operations_dal import require_resource_authorization, resource_gate_active
+from db.dal.service_operations_dal import begin_execution, finish_execution
 from db.dal.user_services_dal import ServiceConflict, get_service_resource
 from db.service_models import ServiceOrder
 
@@ -33,6 +36,9 @@ async def service_subscription(
     user, service, connection = locked
     if user.is_banned:
         raise ServiceConflict("account_banned", 403)
+    await require_resource_authorization(session)
+    if connection.replacement_order_id is not None:
+        raise ServiceConflict("exit_replacement_in_progress")
     _, resource = await get_service_resource(session, service_id)
     if (
         connection.state != "ready"
@@ -95,30 +101,47 @@ async def deliver_service_identity(
         locked = await locked_service(session, service_id)
         if locked is None or locked[2].state != "pending":
             return
-        _user, _service, connection = locked
+        _user, service, connection = locked
+        if await resource_gate_active(session):
+            connection.sync_error = "resource_operation_in_progress"
+            await session.commit()
+            return
         requested = await session.scalar(
             select(ServiceOrder.id)
             .where(ServiceOrder.service_id == service_id, ServiceOrder.kind == "deliver")
             .limit(1)
         )
-        if requested is None or connection.revoke_requested_at is not None:
+        if (
+            requested is None
+            or connection.revoke_requested_at is not None
+            or connection.replacement_order_id is not None
+        ):
             return
-        connection.attempted_at = datetime.now(UTC)
+        if connection.panel_user_uuid is not None:
+            connection.attempted_at = datetime.now(UTC)
+            await begin_execution(session, service, "delivery", create=True)
         connection.sync_pending = True
         connection.sync_error = "service_delivery_pending"
+        intent = (service.user_id, service.revision)
         await session.commit()
     async with session_factory() as session:
-        locked = await locked_service(session, service_id)
+        locked = await locked_service(session, service_id, expected_intent=intent)
         if locked is None or locked[2].state != "pending":
             return
         user, service, connection = locked
-        if connection.revoke_requested_at is not None:
+        if (
+            connection.revoke_requested_at is not None
+            or connection.replacement_order_id is not None
+        ):
             return
         try:
             confirmed = await synchronize_service_entitlement_locked(
                 session, user, service, connection, panel
             )
         except Exception:
+            await finish_execution(
+                session, service, "delivery", success=False, error="service_delivery_pending"
+            )
             await session.commit()
             return
         _, resource = await get_service_resource(session, service_id)
@@ -129,6 +152,16 @@ async def deliver_service_identity(
                 service, connection, resource, banned=bool(user.is_banned)
             )
         ):
+            await finish_execution(
+                session,
+                service,
+                "delivery",
+                success=False,
+                error=connection.usage_error
+                or connection.sync_error
+                or enabling_block(user, service)
+                or "service_not_deliverable",
+            )
             await session.commit()
             return
         # Ready only means prerequisites are established. Persist the next sync before

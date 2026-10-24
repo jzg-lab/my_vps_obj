@@ -225,6 +225,7 @@ async def _merge_reports_the_conflicting_external_provider(provider: str) -> Non
         execute=AsyncMock(
             side_effect=[_Result(), _Result(), _Result([provider]), _Result([provider])]
         ),
+        scalar=AsyncMock(return_value=None),
     )
     with (
         patch.object(
@@ -336,7 +337,10 @@ def test_merge_cancels_source_recurrence_and_keeps_target_recurrence() -> None:
 async def _merge_stops_when_secondary_recurrence_cannot_be_cancelled() -> None:
     source = _user(-10)
     target = _user(42, telegram_id=42)
-    session = SimpleNamespace(execute=AsyncMock(return_value=_Result()))
+    session = SimpleNamespace(
+        execute=AsyncMock(return_value=_Result()),
+        scalar=AsyncMock(return_value=None),
+    )
     source_sub = SimpleNamespace(subscription_id=10)
     target_sub = SimpleNamespace(subscription_id=20)
     cancel_source_recurring = AsyncMock(return_value=False)

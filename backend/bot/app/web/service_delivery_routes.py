@@ -1,9 +1,14 @@
 """Service-scoped credentials and auditable administrator resource operations."""
 
 from aiohttp import web
+from pydantic import RootModel
 
 from bot.app.web.admin_api_impl.auth import _require_admin_user_id
 from bot.app.web.admin_api_impl.common import _error, _ok
+from bot.app.web.admin_console_exit_replacement_schemas import (
+    ExitReplacementReclaimBody,
+    ExitReplacementVerifyBody,
+)
 from bot.app.web.context import get_panel_service, get_session_factory
 from bot.app.web.request_parsing import parse_body_or_400
 from bot.app.web.route_contracts import (
@@ -30,6 +35,7 @@ from bot.app.web.service_routes import _pagination, _service_out
 from bot.app.web.service_schemas import DedicatedExitOut, ServiceOrderOut, UserServiceOut
 from bot.app.web.webapp.common import _require_user_id
 from bot.services.service_delivery import service_subscription
+from bot.services.service_exit_replacement_evidence import scoped_exit_evidence
 from config.subscription_guides_config import (
     APP_ROOT,
     SubscriptionGuidesConfigError,
@@ -44,6 +50,14 @@ from db.dal.service_delivery_dal import (
 from db.dal.user_services_dal import ServiceConflict
 
 SERVICE_GUIDES_PATH = APP_ROOT / "deploy/examples/independent-services-guides.json"
+
+
+class ExitVerifyCommand(RootModel[ExitVerifyBody | ExitReplacementVerifyBody]):
+    pass
+
+
+class ExitReclaimCommand(RootModel[ExitReclaimBody | ExitReplacementReclaimBody]):
+    pass
 
 
 async def user_service_guides_route(request: web.Request) -> web.Response:
@@ -90,19 +104,31 @@ async def user_service_subscription_route(request: web.Request) -> web.Response:
 
 
 async def _exit_evidence(request: web.Request, action: str) -> web.Response:
-    actor_id = _require_admin_user_id(request)
-    body = await parse_body_or_400(
-        request, ExitVerifyBody if action == "verify" else ExitReclaimBody
-    )
     try:
+        actor_id = _require_admin_user_id(request)
+        command = await parse_body_or_400(
+            request,
+            ExitVerifyCommand if action == "verify" else ExitReclaimCommand,
+            validation_error_response_factory=lambda _: _error(400, "invalid_exit_evidence"),
+        )
+        body = command.root
         async with get_session_factory(request)() as session:
-            resource, audit, duplicate = await record_exit_evidence(
-                session,
-                exit_id=request.match_info["exit_id"],
-                actor_id=actor_id,
-                action=action,
-                command=body.model_dump(mode="json"),
-            )
+            if isinstance(body, (ExitReplacementVerifyBody, ExitReplacementReclaimBody)):
+                resource, audit, duplicate = await scoped_exit_evidence(
+                    session,
+                    get_panel_service(request),
+                    exit_id=request.match_info["exit_id"],
+                    actor_id=actor_id,
+                    body=body,
+                )
+            else:
+                resource, audit, duplicate = await record_exit_evidence(
+                    session,
+                    exit_id=request.match_info["exit_id"],
+                    actor_id=actor_id,
+                    action=action,
+                    command=body.model_dump(mode="json"),
+                )
             response = _ok(
                 {
                     "exit": DedicatedExitOut.from_orm_exit(resource).model_dump(mode="json"),
@@ -111,9 +137,17 @@ async def _exit_evidence(request: web.Request, action: str) -> web.Response:
                 }
             )
             await session.commit()
+            response.headers["Cache-Control"] = "private, no-store"
             return response
     except ServiceConflict as exc:
-        return _error(exc.status, exc.code)
+        response = _error(exc.status, exc.code)
+    except web.HTTPException as exc:
+        exc.headers["Cache-Control"] = "private, no-store"
+        raise
+    except Exception:
+        response = _error(503, "exit_replacement_sources_incomplete")
+    response.headers["Cache-Control"] = "private, no-store"
+    return response
 
 
 async def admin_exit_verify_route(request: web.Request) -> web.Response:
@@ -189,8 +223,8 @@ async def admin_service_deliver_route(request: web.Request) -> web.Response:
 
 def setup_service_delivery_admin_routes(app: web.Application) -> None:
     for name, body in (
-        ("admin_exit_verify_route", ExitVerifyBody),
-        ("admin_exit_reclaim_route", ExitReclaimBody),
+        ("admin_exit_verify_route", ExitVerifyCommand),
+        ("admin_exit_reclaim_route", ExitReclaimCommand),
     ):
         register_contract(
             name,

@@ -56,6 +56,7 @@
 
 <Dialog
   open
+  portal
   title={at("services_deliver")}
   description={at("services_deliver_hint")}
   closeLabel={at("close")}

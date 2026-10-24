@@ -1128,6 +1128,487 @@ export interface paths {
     patch?: never;
     trace?: never;
   };
+  "/api/admin/console/account-operations": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** 查询账号封禁操作与待核对结果 */
+    get: operations["get_admin_console_account_operations_route"];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/api/admin/console/account-operations/{operation_id}": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** 读取账号操作的持久审计记录 */
+    get: operations["get_admin_console_account_operation_route"];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/api/admin/console/maintenance": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** 读取高级维护的安全公开入口 */
+    get: operations["get_admin_console_maintenance_route"];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/api/admin/console/node-assets": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** 查询手工登记的待接入节点 */
+    get: operations["get_admin_console_node_assets_route"];
+    put?: never;
+    /** 手工登记待接入节点 */
+    post: operations["post_admin_console_node_asset_create_route"];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/api/admin/console/node-assets/{asset_id}": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** 读取待接入节点登记 */
+    get: operations["get_admin_console_node_asset_route"];
+    /** 修改待接入节点登记 */
+    put: operations["put_admin_console_node_asset_update_route"];
+    post?: never;
+    /** 删除本地待接入节点登记 */
+    delete: operations["delete_admin_console_node_asset_delete_route"];
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/api/admin/console/nodes": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** 查询节点库存与运行状态 */
+    get: operations["get_admin_console_nodes_route"];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/api/admin/console/nodes/onboarding/deployment": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /** 获取节点部署凭据与受支持版本说明 */
+    post: operations["post_admin_console_node_onboarding_deployment_route"];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/api/admin/console/nodes/{node_id}": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** 获取节点详情与潜在影响范围 */
+    get: operations["get_admin_console_node_route"];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/api/admin/console/operations": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** 跨客户查询服务操作与待核对结果 */
+    get: operations["get_admin_console_global_operations_route"];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/api/admin/console/resources/catalog": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** 读取资源变更草稿的脱敏目录 */
+    get: operations["get_admin_console_resource_catalog_route"];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/api/admin/console/resources/operations": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** 查询资源操作记录与核对结果 */
+    get: operations["get_admin_console_resource_operations_route"];
+    put?: never;
+    /** 确认资源影响并提交操作意图 */
+    post: operations["post_admin_console_resource_operation_start_route"];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/api/admin/console/resources/operations/{operation_id}": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** 读取单项资源操作详情 */
+    get: operations["get_admin_console_resource_operation_route"];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/api/admin/console/resources/operations/{operation_id}/evidence": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /** 提交资源操作的人工核验记录 */
+    post: operations["post_admin_console_resource_operation_evidence_route"];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/api/admin/console/resources/operations/{operation_id}/reconcile": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /** 读取核对资源操作的远端结果 */
+    post: operations["post_admin_console_resource_operation_reconcile_route"];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/api/admin/console/resources/operations/{operation_id}/retry": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /** 重新排队已明确拒绝的资源操作 */
+    post: operations["post_admin_console_resource_operation_retry_route"];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/api/admin/console/resources/preview": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /** 预览共享资源变更的潜在影响 */
+    post: operations["post_admin_console_resource_preview_route"];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/api/admin/console/resources/revalidate": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /** 重新核对共享资源变更预览 */
+    post: operations["post_admin_console_resource_revalidate_route"];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/api/admin/console/service-preflight": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /** 预检独立服务开通与资源条件 */
+    post: operations["post_admin_console_service_preflight_route"];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/api/admin/console/services": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** 跨客户查询独立服务 */
+    get: operations["get_admin_console_services_route"];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/api/admin/console/services/{service_id}": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** 获取独立服务及客户归属 */
+    get: operations["get_admin_console_service_route"];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/api/admin/console/services/{service_id}/diagnostics": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** 读取独立服务的脱敏诊断证据 */
+    get: operations["get_admin_console_service_diagnostics_route"];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/api/admin/console/services/{service_id}/exit-replacement": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** 读取专用出口更换草稿与执行进度 */
+    get: operations["get_admin_console_service_exit_replacement_route"];
+    put?: never;
+    /** 申请更换独立服务的专用出口 */
+    post: operations["post_admin_console_service_exit_replacement_start_route"];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/api/admin/console/services/{service_id}/exit-replacement/confirm": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /** 确认出口更换并申请按原权益恢复 */
+    post: operations["post_admin_console_service_exit_replacement_confirm_route"];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/api/admin/console/services/{service_id}/exit-replacement/evidence": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /** 提交出口更换的人工核验记录 */
+    post: operations["post_admin_console_service_exit_replacement_evidence_route"];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/api/admin/console/services/{service_id}/operations": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** 查询独立服务的操作与执行结果 */
+    get: operations["get_admin_console_service_operations_route"];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/api/admin/console/services/{service_id}/operations/{operation_id}/retry": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /** 重新排队独立服务的既有执行意图 */
+    post: operations["post_admin_console_service_retry_route"];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/api/admin/console/services/{service_id}/resources": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** 获取独立服务的授权资源关联 */
+    get: operations["get_admin_console_service_resources_route"];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/api/admin/console/summary": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** 获取统一管理台业务指标 */
+    get: operations["get_admin_console_summary_route"];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
   "/api/admin/dedicated-exits": {
     parameters: {
       query?: never;
@@ -9153,6 +9634,1744 @@ export interface components {
        */
       theme_api: number;
     };
+    /** ConsoleAccountOperationOut */
+    ConsoleAccountOperationOut: {
+      /** Actor Id */
+      actor_id: number | null;
+      /** Archived */
+      archived: boolean;
+      /** Attempt Count */
+      attempt_count: number;
+      /** Attempted At */
+      attempted_at: string | null;
+      /** Before Banned */
+      before_banned: boolean | null;
+      /** Completed At */
+      completed_at: string | null;
+      /**
+       * Created At
+       * Format: date-time
+       */
+      created_at: string;
+      /** Desired Banned */
+      desired_banned: boolean;
+      /** Error Code */
+      error_code: string | null;
+      /** First Failed At */
+      first_failed_at: string | null;
+      /** Id */
+      id: string;
+      /** Needs Attention */
+      needs_attention: boolean;
+      /**
+       * Source
+       * @enum {string}
+       */
+      source: "administrator" | "worker";
+      /**
+       * Status
+       * @enum {string}
+       */
+      status: "pending" | "unknown" | "failed" | "succeeded" | "superseded";
+      /** Target Id */
+      target_id: number;
+      /** User Id */
+      user_id: number | null;
+    };
+    /** ConsoleAccountOperationsOut */
+    ConsoleAccountOperationsOut: {
+      /**
+       * Observed At
+       * Format: date-time
+       */
+      observed_at: string;
+      /** Operations */
+      operations: components["schemas"]["ConsoleAccountOperationOut"][];
+      /** Page */
+      page: number;
+      /** Page Size */
+      page_size: number;
+      /** Total */
+      total: number;
+    };
+    /** ConsoleConnectionOut */
+    ConsoleConnectionOut: {
+      /** Attempted At */
+      attempted_at: string | null;
+      /** Last Error */
+      last_error: string | null;
+      /** Panel User Uuid */
+      panel_user_uuid: string | null;
+      /** Revoked At */
+      revoked_at: string | null;
+      /** Sync Attempted At */
+      sync_attempted_at: string | null;
+      /** Usage Attempted At */
+      usage_attempted_at: string | null;
+    };
+    /** ConsoleCustomerOut */
+    ConsoleCustomerOut: {
+      /** Email */
+      email: string | null;
+      /** First Name */
+      first_name: string | null;
+      /** Is Banned */
+      is_banned: boolean | null;
+      /** Last Name */
+      last_name: string | null;
+      /** Minishop Id */
+      minishop_id: string | null;
+      /** User Id */
+      user_id: number | null;
+      /** Username */
+      username: string | null;
+    };
+    /** ConsoleCustomerServicesOut */
+    ConsoleCustomerServicesOut: {
+      /**
+       * Activity
+       * @description 尚未采集可靠的账号级在线状态或最近活跃观测。
+       * @default not_collected
+       * @constant
+       */
+      activity: "not_collected";
+      /**
+       * By Status
+       * @description 按全局服务列表规则划分的互斥业务状态计数，所有状态均返回，无对应服务时为零。account_banned 表示账号限制而非单份服务故障；active 不代表已验证实时连通性。
+       */
+      by_status: {
+        [key: string]: number;
+      };
+      /**
+       * Cycle Pending
+       * @description 等待月度周期切换的服务数。
+       */
+      cycle_pending: number;
+      /** Latest Sync Confirmed At */
+      latest_sync_confirmed_at: string | null;
+      /** Latest Usage Sync At */
+      latest_usage_sync_at: string | null;
+      /**
+       * Observed At
+       * Format: date-time
+       * @description 本次本地聚合读取的 UTC 时间，复用客户列表缓存时保留原值。成功时间戳表示已持久化的历史证据，不代表即时远端读取或客户活跃；空值表示本账号统计范围内无成功观测。
+       */
+      observed_at: string;
+      /** Oldest Sync Confirmed At */
+      oldest_sync_confirmed_at: string | null;
+      /** Oldest Usage Sync At */
+      oldest_usage_sync_at: string | null;
+      /**
+       * Scope
+       * @default current_owner_excludes_archived
+       * @constant
+       */
+      scope: "current_owner_excludes_archived";
+      /**
+       * Source
+       * @default local_independent_service_records
+       * @constant
+       */
+      source: "local_independent_service_records";
+      /**
+       * Sync Error
+       * @description 存在交付、权益同步、用量采样错误或连接状态为错误的服务数，与全局 sync_error 筛选口径一致。各同步及未观测集合可能重叠，不可相加为总异常数。
+       */
+      sync_error: number;
+      /**
+       * Sync Pending
+       * @description 权益同步待处理的服务数，待处理不等同于失败。
+       */
+      sync_pending: number;
+      /**
+       * Sync Unobserved
+       * @description 本地尚无成功权益同步确认记录的服务数。
+       */
+      sync_unobserved: number;
+      /**
+       * Total
+       * @description 当前归属此账号的独立服务总数，包含已取消服务，不包含已解除归属的归档服务。同一套餐多次开通的服务分别计数。
+       */
+      total: number;
+      /**
+       * Usage Unobserved
+       * @description 本地尚无成功用量采样记录的服务数。
+       */
+      usage_unobserved: number;
+    };
+    /** ConsoleCustomersMetric */
+    ConsoleCustomersMetric: {
+      /** Banned */
+      banned: number;
+      /**
+       * Source
+       * @default business_accounts
+       * @constant
+       */
+      source: "business_accounts";
+      /** Total */
+      total: number;
+      /** With Services */
+      with_services: number;
+    };
+    /** ConsoleExitReplacementAcceptedOut */
+    ConsoleExitReplacementAcceptedOut: {
+      /**
+       * Accepted
+       * @default true
+       * @constant
+       */
+      accepted: true;
+      /** Duplicate */
+      duplicate: boolean;
+      replacement: components["schemas"]["ConsoleExitReplacementOut"];
+    };
+    /** ConsoleExitReplacementConfirmBody */
+    ConsoleExitReplacementConfirmBody: {
+      /** Candidate Verify Audit Id */
+      candidate_verify_audit_id: string;
+      /**
+       * Confirm Replace And Request Restore
+       * @constant
+       */
+      confirm_replace_and_request_restore: true;
+      /** Expected New Exit Revision */
+      expected_new_exit_revision: number;
+      /** Expected Old Exit Revision */
+      expected_old_exit_revision: number;
+      /** Expected Operation Version */
+      expected_operation_version: number;
+      /** Expected Resource Fingerprint */
+      expected_resource_fingerprint: string;
+      /** Expected Revision */
+      expected_revision: number;
+      /** Idempotency Key */
+      idempotency_key: string;
+      /** Old Stop Audit Id */
+      old_stop_audit_id: string;
+      /** Operation Id */
+      operation_id: string;
+      /** User Id */
+      user_id: number;
+    };
+    /** ConsoleExitReplacementDraftOut */
+    ConsoleExitReplacementDraftOut: {
+      /** Allowed To Start */
+      allowed_to_start: boolean;
+      /** Block Reasons */
+      block_reasons: string[];
+      candidate_exit: components["schemas"]["ReplacementExitOut"];
+      /**
+       * Coverage
+       * @enum {string}
+       */
+      coverage: "complete" | "partial";
+      /** Impacts */
+      impacts?: components["schemas"]["ReplacementImpactOut"][];
+      /**
+       * Observed At
+       * Format: date-time
+       */
+      observed_at: string;
+      old_exit: components["schemas"]["ReplacementExitOut"];
+      /** Resource Fingerprint */
+      resource_fingerprint: string | null;
+      /** Sources */
+      sources: components["schemas"]["ResourceSourceOut"][];
+    };
+    /** ConsoleExitReplacementEvidenceBody */
+    ConsoleExitReplacementEvidenceBody: {
+      /**
+       * Action
+       * @default null
+       */
+      action: ("stop_old" | "set_target_group" | "restore" | "close_access") | null;
+      /**
+       * Attempt
+       * @default null
+       */
+      attempt: number | null;
+      /**
+       * Authorization Removed
+       * @default null
+       */
+      authorization_removed: true | null;
+      /**
+       * Checked At
+       * Format: date-time
+       */
+      checked_at: string;
+      /**
+       * Connections Stopped
+       * @default null
+       */
+      connections_stopped: true | null;
+      /** Evidence Digest */
+      evidence_digest: string;
+      /** Expected Operation Version */
+      expected_operation_version: number;
+      /** Idempotency Key */
+      idempotency_key: string;
+      /**
+       * Old Config Rejected
+       * @default null
+       */
+      old_config_rejected: true | null;
+      /** Operation Id */
+      operation_id: string;
+      /**
+       * Purpose
+       * @enum {string}
+       */
+      purpose: "stop" | "close" | "resolve_write";
+      /** Resource Fingerprint */
+      resource_fingerprint: string;
+      /**
+       * Result
+       * @default null
+       */
+      result: ("applied" | "not_applied") | null;
+      /**
+       * Usage Evidence Digest
+       * @default null
+       */
+      usage_evidence_digest: string | null;
+      /**
+       * Usage Lifetime Offset
+       * @default null
+       */
+      usage_lifetime_offset: number | null;
+      /**
+       * Usage Observed At
+       * @default null
+       */
+      usage_observed_at: string | null;
+      /**
+       * Usage Raw Bytes
+       * @default null
+       */
+      usage_raw_bytes: number | null;
+      /**
+       * Usage Total Bytes
+       * @default null
+       */
+      usage_total_bytes: number | null;
+    };
+    /** ConsoleExitReplacementOut */
+    ConsoleExitReplacementOut: {
+      accounting: components["schemas"]["ReplacementAccountingOut"];
+      /** Allowed Actions */
+      allowed_actions: (
+        | "stop_evidence"
+        | "resolve_write"
+        | "verify"
+        | "confirm"
+        | "retry"
+        | "reclaim"
+        | "candidate_cleanup"
+        | "close_evidence"
+      )[];
+      /** Block Reasons */
+      block_reasons: string[];
+      candidate_exit: components["schemas"]["ReplacementExitOut"];
+      candidate_verification: components["schemas"]["ReplacementEvidenceOut"] | null;
+      /**
+       * Coverage
+       * @enum {string}
+       */
+      coverage: "complete" | "partial";
+      /** Current Exit Id */
+      current_exit_id: string | null;
+      /** Gate Active */
+      gate_active: boolean;
+      /** Impacts */
+      impacts?: components["schemas"]["ReplacementImpactOut"][];
+      /**
+       * Observed At
+       * Format: date-time
+       */
+      observed_at: string;
+      old_exit: components["schemas"]["ReplacementExitOut"];
+      /**
+       * Old Resource State
+       * @enum {string}
+       */
+      old_resource_state: "current" | "held" | "released";
+      old_stop: components["schemas"]["ReplacementEvidenceOut"] | null;
+      operation: components["schemas"]["ConsoleServiceOperationOut"];
+      progress: components["schemas"]["ReplacementProgress"];
+      /** Requested Resource Fingerprint */
+      requested_resource_fingerprint: string;
+      /** Resource Fingerprint */
+      resource_fingerprint: string | null;
+      /** Restore Requested */
+      restore_requested: boolean;
+      /** Sources */
+      sources: components["schemas"]["ResourceSourceOut"][];
+      /**
+       * Switch Result
+       * @enum {string}
+       */
+      switch_result: "not_started" | "pending" | "confirmed" | "unknown" | "interrupted";
+    };
+    /** ConsoleExitReplacementStartBody */
+    ConsoleExitReplacementStartBody: {
+      /** Expected New Exit Revision */
+      expected_new_exit_revision: number;
+      /** Expected Old Exit Revision */
+      expected_old_exit_revision: number;
+      /** Expected Resource Fingerprint */
+      expected_resource_fingerprint: string;
+      /** Expected Revision */
+      expected_revision: number;
+      /** Idempotency Key */
+      idempotency_key: string;
+      /** New Exit Id */
+      new_exit_id: string;
+      /** Old Exit Id */
+      old_exit_id: string;
+      /** Reason */
+      reason: string;
+      /** User Id */
+      user_id: number;
+    };
+    /** ConsoleExitReplacementStateOut */
+    ConsoleExitReplacementStateOut: {
+      /** @default null */
+      draft: components["schemas"]["ConsoleExitReplacementDraftOut"] | null;
+      /**
+       * Observed At
+       * Format: date-time
+       */
+      observed_at: string;
+      /** @default null */
+      replacement: components["schemas"]["ConsoleExitReplacementOut"] | null;
+      /** Service Id */
+      service_id: string;
+      /** Service Revision */
+      service_revision: number;
+    };
+    /** ConsoleExitsMetric */
+    ConsoleExitsMetric: {
+      /** Available */
+      available: number;
+      /** Disabled */
+      disabled: number;
+      /** Occupied */
+      occupied: number;
+      /**
+       * Overlap
+       * @default pending_reclaim_subset_of_occupied_disabled_may_overlap
+       * @constant
+       */
+      overlap: "pending_reclaim_subset_of_occupied_disabled_may_overlap";
+      /** Pending Reclaim */
+      pending_reclaim: number;
+      /** Pending Verification */
+      pending_verification: number;
+      /**
+       * Source
+       * @default dedicated_exit_inventory
+       * @constant
+       */
+      source: "dedicated_exit_inventory";
+      /** Total */
+      total: number;
+      /** Unverified Total */
+      unverified_total: number;
+    };
+    /** ConsoleGlobalOperationOut */
+    ConsoleGlobalOperationOut: {
+      /** Actor Id */
+      actor_id: number | null;
+      /** Archived */
+      archived: boolean;
+      /** Attempt Count */
+      attempt_count: number | null;
+      /** Attempted At */
+      attempted_at: string | null;
+      /** Completed At */
+      completed_at: string | null;
+      /**
+       * Created At
+       * Format: date-time
+       */
+      created_at: string;
+      customer: components["schemas"]["ConsoleCustomerOut"];
+      /** Error Code */
+      error_code: string | null;
+      /** First Failed At */
+      first_failed_at: string | null;
+      /** Id */
+      id: string;
+      /** Kind */
+      kind: string;
+      /** Last Success At */
+      last_success_at: string | null;
+      /** Needs Attention */
+      needs_attention: boolean;
+      /** Order Id */
+      order_id: string | null;
+      /** Phase */
+      phase:
+        ("prepare" | "delivery" | "entitlement" | "revocation" | "usage" | "exit_replace") | null;
+      /**
+       * Record Type
+       * @enum {string}
+       */
+      record_type: "execution" | "order";
+      /** @default null */
+      replacement_progress: components["schemas"]["ReplacementProgress"] | null;
+      /** Retry Block Reason */
+      retry_block_reason: string | null;
+      /** Retryable */
+      retryable: boolean;
+      /** Service Id */
+      service_id: string;
+      /** Service Name */
+      service_name: string;
+      /** Service Revision */
+      service_revision: number;
+      /**
+       * Source
+       * @enum {string}
+       */
+      source: "administrator" | "worker" | "unknown";
+      /**
+       * Status
+       * @enum {string}
+       */
+      status: "pending" | "unknown" | "failed" | "succeeded" | "superseded";
+      /** Target Revision */
+      target_revision: number | null;
+    };
+    /** ConsoleGlobalOperationsOut */
+    ConsoleGlobalOperationsOut: {
+      /** Limit */
+      limit: number;
+      /** Next Cursor */
+      next_cursor: string | null;
+      /**
+       * Observed At
+       * Format: date-time
+       */
+      observed_at: string;
+      /** Operations */
+      operations: components["schemas"]["ConsoleGlobalOperationOut"][];
+      /** Total */
+      total: number;
+    };
+    /** ConsoleHealthMetric */
+    ConsoleHealthMetric: {
+      /** Account Sync Failed */
+      account_sync_failed: number;
+      /** Account Sync Pending */
+      account_sync_pending: number;
+      /** Cycle Pending */
+      cycle_pending: number;
+      /** Delivery Failed */
+      delivery_failed: number;
+      /** Delivery Pending */
+      delivery_pending: number;
+      /** Latest Attempt At */
+      latest_attempt_at: string | null;
+      /**
+       * Latest Success At
+       * @description 最近持久化的服务权益同步确认时间；不是用量采样或账号同步成功时间，也不证明所有服务同步成功。
+       */
+      latest_success_at: string | null;
+      /**
+       * Oldest Pending Since
+       * @default null
+       */
+      oldest_pending_since: string | null;
+      /**
+       * Pending Time Unavailable Reason
+       * @default enqueue_time_not_recorded
+       * @constant
+       */
+      pending_time_unavailable_reason: "enqueue_time_not_recorded";
+      /**
+       * Scope
+       * @default including_archived_services
+       * @constant
+       */
+      scope: "including_archived_services";
+      /**
+       * Source
+       * @default local_service_and_account_sync_records
+       * @constant
+       */
+      source: "local_service_and_account_sync_records";
+      /** Sync Failed */
+      sync_failed: number;
+      /** Sync Pending */
+      sync_pending: number;
+      /** Usage Failed */
+      usage_failed: number;
+      /** Usage Unobserved */
+      usage_unobserved: number;
+    };
+    /** ConsoleHostOut */
+    ConsoleHostOut: {
+      /** Id */
+      id: string;
+      /** Inbound Id */
+      inbound_id: string;
+      /** Is Disabled */
+      is_disabled: boolean | null;
+      /** Is Hidden */
+      is_hidden: boolean | null;
+      /** Name */
+      name: string | null;
+      /** Node Ids */
+      node_ids: string[];
+    };
+    /** ConsoleMaintenanceOut */
+    ConsoleMaintenanceOut: {
+      /** Destination */
+      destination: string | null;
+    };
+    /** ConsoleNodeAssetBody */
+    ConsoleNodeAssetBody: {
+      /** Address */
+      address: string;
+      /** Name */
+      name: string;
+      /**
+       * Notes
+       * @default
+       */
+      notes: string;
+    };
+    /** ConsoleNodeAssetDeletedOut */
+    ConsoleNodeAssetDeletedOut: {
+      /**
+       * Deleted
+       * @constant
+       */
+      deleted: true;
+      /** Id */
+      id: string;
+    };
+    /** ConsoleNodeAssetOut */
+    ConsoleNodeAssetOut: {
+      /** Address */
+      address: string;
+      /**
+       * Created At
+       * Format: date-time
+       */
+      created_at: string;
+      /** Id */
+      id: string;
+      /**
+       * Management State
+       * @constant
+       */
+      management_state: "unmanaged";
+      /** Name */
+      name: string;
+      /** Notes */
+      notes: string;
+      /**
+       * Updated At
+       * Format: date-time
+       */
+      updated_at: string;
+    };
+    /** ConsoleNodeAssetsListOut */
+    ConsoleNodeAssetsListOut: {
+      /** Items */
+      items: components["schemas"]["ConsoleNodeAssetOut"][];
+      /** Page */
+      page: number;
+      /** Page Size */
+      page_size: number;
+      /** Total */
+      total: number;
+    };
+    /** ConsoleNodeDeploymentBody */
+    ConsoleNodeDeploymentBody: {
+      /** Management Port */
+      management_port: number;
+    };
+    /** ConsoleNodeDeploymentOut */
+    ConsoleNodeDeploymentOut: {
+      /**
+       * Credential Semantics
+       * @default new_node_certificate_existing_panel_ca
+       * @constant
+       */
+      credential_semantics: "new_node_certificate_existing_panel_ca";
+      /**
+       * Installation Performed
+       * @default false
+       * @constant
+       */
+      installation_performed: false;
+      /** Management Port */
+      management_port: number;
+      /**
+       * Panel Version
+       * @default 3.4.5
+       * @constant
+       */
+      panel_version: "3.4.5";
+      /**
+       * Recorded Node Version
+       * @default 3.4.2
+       * @constant
+       */
+      recorded_node_version: "3.4.2";
+      /** Secret Key */
+      secret_key: string;
+    };
+    /** ConsoleNodeDetailOut */
+    ConsoleNodeDetailOut: {
+      /**
+       * Association Basis
+       * @default persisted_service_scope_not_live_connections
+       * @constant
+       */
+      association_basis: "persisted_service_scope_not_live_connections";
+      /** Associations Complete */
+      associations_complete: boolean;
+      coverage: components["schemas"]["ConsoleNodesCoverage"];
+      /**
+       * Current Connections
+       * @default null
+       */
+      current_connections: null;
+      /** Customer Total */
+      customer_total: number | null;
+      /** Groups */
+      groups: components["schemas"]["ConsoleResourceRefOut"][];
+      /** Hosts */
+      hosts: components["schemas"]["ConsoleHostOut"][];
+      /**
+       * Local Observed At
+       * Format: date-time
+       */
+      local_observed_at: string;
+      node: components["schemas"]["ConsoleNodeOut"];
+      /** Page */
+      page: number;
+      /** Page Size */
+      page_size: number;
+      /** Service Total */
+      service_total: number | null;
+      /** Services */
+      services: components["schemas"]["ConsoleNodeServiceOut"][];
+      /** Sources */
+      sources: components["schemas"]["ConsoleNodeSourceOut"][];
+      /** @default null */
+      traffic: components["schemas"]["ConsoleNodeTrafficWindowOut"] | null;
+    };
+    /** ConsoleNodeOut */
+    ConsoleNodeOut: {
+      /** Address */
+      address: string | null;
+      /** Country Code */
+      country_code: string | null;
+      /** Groups */
+      groups: components["schemas"]["ConsoleResourceRefOut"][];
+      /** Id */
+      id: string;
+      /** Inbound Ids */
+      inbound_ids: string[];
+      /** Is Connecting */
+      is_connecting: boolean | null;
+      /** Is Disabled */
+      is_disabled: boolean | null;
+      /** Last Status Change At */
+      last_status_change_at: string | null;
+      /** Name */
+      name: string;
+      /**
+       * Observation Basis
+       * @default panel_read_time_sample_time_unavailable
+       * @constant
+       */
+      observation_basis: "panel_read_time_sample_time_unavailable";
+      /**
+       * Observed At
+       * @description Panel 清单成功读取时间，不是源采样时间
+       */
+      observed_at: string | null;
+      /**
+       * Online Scope
+       * @default panel_reported_identities_not_unique_customers
+       * @constant
+       */
+      online_scope: "panel_reported_identities_not_unique_customers";
+      /** Profile Id */
+      profile_id: string | null;
+      /** @description 管理连接状态，不证明真实代理路径可用 */
+      status: components["schemas"]["ConsoleNodeStatus"];
+      system?: components["schemas"]["ConsoleNodeSystemOut"];
+      /** Traffic Reset Day */
+      traffic_reset_day: number | null;
+      /**
+       * Traffic Scope
+       * @default panel_node_tracking_period_not_service_billing
+       * @constant
+       */
+      traffic_scope: "panel_node_tracking_period_not_service_billing";
+      /** Traffic Tracking Enabled */
+      traffic_tracking_enabled: boolean | null;
+      /**
+       * Traffic Unit
+       * @default bytes
+       * @constant
+       */
+      traffic_unit: "bytes";
+      /** Traffic Used Bytes */
+      traffic_used_bytes: number | null;
+      /**
+       * Traffic Window
+       * @default panel_tracking_counter_boundaries_unavailable
+       * @constant
+       */
+      traffic_window: "panel_tracking_counter_boundaries_unavailable";
+      /**
+       * Users Online
+       * @description Panel 最近流量采集报告的身份数，不是实时客户、设备或连接数；零值无法核实
+       */
+      users_online: number | null;
+      /**
+       * Users Online Quality
+       * @description 上游零值也可能来自采集失败或缺缓存；系统指标存在不能证明身份统计成功
+       * @default missing
+       * @enum {string}
+       */
+      users_online_quality: "reported" | "missing" | "unverified_zero";
+      /**
+       * Window Traffic Bytes
+       * @default null
+       */
+      window_traffic_bytes: number | null;
+      /**
+       * Window Traffic Quality
+       * @default missing
+       * @enum {string}
+       */
+      window_traffic_quality: "reported" | "missing" | "invalid";
+    };
+    /** ConsoleNodeServiceOut */
+    ConsoleNodeServiceOut: {
+      /** Connection State */
+      connection_state: string | null;
+      /** Currently Eligible */
+      currently_eligible: boolean;
+      /** Id */
+      id: string;
+      /** Name */
+      name: string;
+      /** Status */
+      status: string;
+      /** User Id */
+      user_id: number;
+    };
+    /** ConsoleNodeSourceOut */
+    ConsoleNodeSourceOut: {
+      /**
+       * Attempted At
+       * Format: date-time
+       */
+      attempted_at: string;
+      /**
+       * Availability
+       * @enum {string}
+       */
+      availability:
+        "available" | "partial" | "stale" | "unavailable" | "unsupported" | "unconfigured";
+      /**
+       * Error
+       * @default null
+       */
+      error: ("request_failed" | "invalid_response" | "not_supported" | "not_configured") | null;
+      /**
+       * Last Success At
+       * @default null
+       */
+      last_success_at: string | null;
+      /**
+       * Source
+       * @enum {string}
+       */
+      source: "nodes" | "hosts" | "internal_squads";
+    };
+    /** @enum {string} */
+    ConsoleNodeStatus: "online" | "offline" | "unknown";
+    /** @enum {string} */
+    ConsoleNodeSystemField:
+      | "cpu_cores"
+      | "cpu_model"
+      | "memory_total_bytes"
+      | "memory_free_bytes"
+      | "memory_used_bytes"
+      | "load_1m"
+      | "load_5m"
+      | "load_15m"
+      | "uptime_seconds"
+      | "interface_name"
+      | "rx_bytes_per_second"
+      | "tx_bytes_per_second"
+      | "rx_total_bytes"
+      | "tx_total_bytes";
+    /**
+     * ConsoleNodeSystemOut
+     * @description Node 所见系统与默认网卡；不是 Panel 主机或服务计费指标。
+     */
+    ConsoleNodeSystemOut: {
+      /**
+       * Cpu Cores
+       * @default null
+       */
+      cpu_cores: number | null;
+      /**
+       * Cpu Model
+       * @default null
+       */
+      cpu_model: string | null;
+      /**
+       * Interface Name
+       * @default null
+       */
+      interface_name: string | null;
+      /**
+       * Invalid Fields
+       * @description 非法字段已置空；其他空值表示未提供，零值保持为零
+       */
+      invalid_fields?: components["schemas"]["ConsoleNodeSystemField"][];
+      /**
+       * @description 15 分钟系统负载，不是 CPU 百分比
+       * @default null
+       */
+      load_15m: components["schemas"]["_SystemNumber"] | null;
+      /**
+       * @description 1 分钟系统负载，不是 CPU 百分比
+       * @default null
+       */
+      load_1m: components["schemas"]["_SystemNumber"] | null;
+      /**
+       * @description 5 分钟系统负载，不是 CPU 百分比
+       * @default null
+       */
+      load_5m: components["schemas"]["_SystemNumber"] | null;
+      /** @default null */
+      memory_free_bytes: components["schemas"]["_SystemNumber"] | null;
+      /** @default null */
+      memory_total_bytes: components["schemas"]["_SystemNumber"] | null;
+      /** @default null */
+      memory_used_bytes: components["schemas"]["_SystemNumber"] | null;
+      /**
+       * @description 默认网卡接收 B/s，名义 1 秒差分，实际窗口未提供
+       * @default null
+       */
+      rx_bytes_per_second: components["schemas"]["_SystemNumber"] | null;
+      /** @default null */
+      rx_total_bytes: components["schemas"]["_SystemNumber"] | null;
+      /**
+       * Sampled At
+       * @description 上游未提供样本时间，不使用 Panel 读取时间替代
+       * @default null
+       */
+      sampled_at: null;
+      /**
+       * @description 默认网卡发送 B/s，名义 1 秒差分，实际窗口未提供
+       * @default null
+       */
+      tx_bytes_per_second: components["schemas"]["_SystemNumber"] | null;
+      /** @default null */
+      tx_total_bytes: components["schemas"]["_SystemNumber"] | null;
+      /**
+       * @description 操作系统运行秒数
+       * @default null
+       */
+      uptime_seconds: components["schemas"]["_SystemNumber"] | null;
+    };
+    /** @enum {string} */
+    ConsoleNodeTrafficPreset: "today" | "7d" | "30d";
+    /**
+     * ConsoleNodeTrafficWindowOut
+     * @description UTC 日范围；完整 UUID 覆盖不证明历史采样连续，也不改变北京时间服务账期。
+     */
+    ConsoleNodeTrafficWindowOut: {
+      /**
+       * Attempted At
+       * Format: date-time
+       */
+      attempted_at: string;
+      /**
+       * Availability
+       * @enum {string}
+       */
+      availability: "available" | "partial" | "stale" | "unavailable" | "unconfigured";
+      /**
+       * Boundaries
+       * @default inclusive_start_and_end
+       * @constant
+       */
+      boundaries: "inclusive_start_and_end";
+      /** Cache Ttl Seconds */
+      cache_ttl_seconds: number;
+      /**
+       * Direction
+       * @description 3.4.5 历史统计为 Node outbound 上传加下载，未乘消费倍率，不等同跟踪累计计数
+       * @default outbound_upload_plus_download_unmultiplied
+       * @constant
+       */
+      direction: "outbound_upload_plus_download_unmultiplied";
+      /**
+       * End At
+       * Format: date-time
+       */
+      end_at: string;
+      /**
+       * End Date
+       * Format: date
+       */
+      end_date: string;
+      /**
+       * Error
+       * @default null
+       */
+      error: ("request_failed" | "invalid_response" | "not_configured") | null;
+      /**
+       * History Completeness
+       * @default unknown_not_service_billing
+       * @constant
+       */
+      history_completeness: "unknown_not_service_billing";
+      /** Inventory Nodes */
+      inventory_nodes: number | null;
+      /**
+       * Last Success At
+       * @description 统计接口成功读取时间，不是最后流量样本时间；含今天的窗口尚未结束
+       */
+      last_success_at: string | null;
+      /** Matched Nodes */
+      matched_nodes: number;
+      preset: components["schemas"]["ConsoleNodeTrafficPreset"];
+      /**
+       * Source
+       * @default remnawave_bandwidth_stats_nodes_series
+       * @constant
+       */
+      source: "remnawave_bandwidth_stats_nodes_series";
+      /**
+       * Start At
+       * Format: date-time
+       */
+      start_at: string;
+      /**
+       * Start Date
+       * Format: date
+       */
+      start_date: string;
+      /**
+       * Timezone
+       * @default UTC
+       * @constant
+       */
+      timezone: "UTC";
+      /**
+       * Unit
+       * @default bytes
+       * @constant
+       */
+      unit: "bytes";
+    };
+    /** @enum {string} */
+    ConsoleNodesCoverage: "complete" | "partial" | "stale" | "unavailable";
+    /** ConsoleNodesListOut */
+    ConsoleNodesListOut: {
+      /** Cache Ttl Seconds */
+      cache_ttl_seconds: number;
+      coverage: components["schemas"]["ConsoleNodesCoverage"];
+      /** Nodes */
+      nodes: components["schemas"]["ConsoleNodeOut"][];
+      /** Page */
+      page: number;
+      /** Page Size */
+      page_size: number;
+      /** Sources */
+      sources: components["schemas"]["ConsoleNodeSourceOut"][];
+      /** Total */
+      total: number | null;
+      /** @default null */
+      traffic: components["schemas"]["ConsoleNodeTrafficWindowOut"] | null;
+    };
+    /** ConsolePreflightCheckOut */
+    ConsolePreflightCheckOut: {
+      /** Code */
+      code: string;
+      /**
+       * Reason
+       * @default null
+       */
+      reason: string | null;
+      /**
+       * Status
+       * @enum {string}
+       */
+      status: "passed" | "blocked" | "unknown";
+    };
+    /**
+     * ConsoleResourceCatalogOut
+     * @description 仅用于生成草稿的资源目录，不包含服务影响确认或执行授权。
+     */
+    ConsoleResourceCatalogOut: {
+      /** Blockers */
+      blockers: string[];
+      /**
+       * Coverage
+       * @enum {string}
+       */
+      coverage: "complete" | "partial";
+      /**
+       * Draft Available
+       * @description 目录完整时才允许生成草稿；预览和重核仍会重新读取资源。
+       */
+      draft_available: boolean;
+      /**
+       * Execution Available
+       * @default false
+       */
+      execution_available: boolean;
+      /** Groups */
+      groups: components["schemas"]["ResourceValuesOut"][];
+      /** Hosts */
+      hosts: components["schemas"]["ResourceValuesOut"][];
+      /** Nodes */
+      nodes: components["schemas"]["ResourceValuesOut"][];
+      /**
+       * Observed At
+       * Format: date-time
+       */
+      observed_at: string;
+      /** Observed Panel Version */
+      observed_panel_version: string | null;
+      /** Profiles */
+      profiles: components["schemas"]["ResourceCatalogProfileOut"][];
+      /**
+       * Reviewed Panel Version
+       * @default 3.4.5
+       * @constant
+       */
+      reviewed_panel_version: "3.4.5";
+      /** Sources */
+      sources: components["schemas"]["ResourceSourceOut"][];
+    };
+    /** ConsoleResourceOperationAcceptedOut */
+    ConsoleResourceOperationAcceptedOut: {
+      /** Duplicate */
+      duplicate: boolean;
+      operation: components["schemas"]["ConsoleResourceOperationOut"];
+    };
+    /** ConsoleResourceOperationEvidenceBody */
+    ConsoleResourceOperationEvidenceBody: {
+      /** Attempt */
+      attempt: number;
+      /**
+       * Checked At
+       * Format: date-time
+       */
+      checked_at: string;
+      /** Evidence Digest */
+      evidence_digest: string;
+      /** Expected Version */
+      expected_version: number;
+      /**
+       * Original Request Terminated
+       * @default null
+       */
+      original_request_terminated: boolean | null;
+      /**
+       * Result
+       * @enum {string}
+       */
+      result: "applied" | "not_applied" | "partial" | "externally_removed";
+      /**
+       * Target Id
+       * @default null
+       */
+      target_id: string | null;
+    };
+    /** ConsoleResourceOperationListOut */
+    ConsoleResourceOperationListOut: {
+      /** Items */
+      items: components["schemas"]["ConsoleResourceOperationOut"][];
+      /** Total */
+      total: number;
+    };
+    /** ConsoleResourceOperationOut */
+    ConsoleResourceOperationOut: {
+      /** Actor Id */
+      actor_id: number;
+      /** Attempts */
+      attempts: components["schemas"]["ResourceAttemptOut"][];
+      /** Can Retry */
+      can_retry: boolean;
+      change: components["schemas"]["ResourceChange"];
+      /** Completed At */
+      completed_at: string | null;
+      /**
+       * Created At
+       * Format: date-time
+       */
+      created_at: string;
+      /** Error Code */
+      error_code: string | null;
+      /** Evidence */
+      evidence: components["schemas"]["ResourceEvidenceOut"][];
+      /** Gate Active */
+      gate_active: boolean;
+      /** Id */
+      id: string;
+      observation: components["schemas"]["ResourceObservationOut"] | null;
+      preview: components["schemas"]["ConsoleResourcePreviewOut"];
+      /** Recovery Of */
+      recovery_of: string | null;
+      /** Requires Manual Reconciliation */
+      requires_manual_reconciliation: boolean;
+      status: components["schemas"]["ResourceOperationStatus"];
+      /** Target Id */
+      target_id: string | null;
+      /** Version */
+      version: number;
+    };
+    /** ConsoleResourceOperationReconcileBody */
+    ConsoleResourceOperationReconcileBody: {
+      /** Expected Version */
+      expected_version: number;
+    };
+    /** ConsoleResourceOperationRetryBody */
+    ConsoleResourceOperationRetryBody: {
+      /** Expected Fingerprint */
+      expected_fingerprint: string;
+      /** Expected Version */
+      expected_version: number;
+    };
+    /** ConsoleResourceOperationStartBody */
+    ConsoleResourceOperationStartBody: {
+      change: components["schemas"]["ResourceChange"];
+      /** Expected Fingerprint */
+      expected_fingerprint: string;
+      /** Idempotency Key */
+      idempotency_key: string;
+      /**
+       * Recovery Of
+       * @default null
+       */
+      recovery_of: string | null;
+    };
+    /** ConsoleResourcePreviewBody */
+    ConsoleResourcePreviewBody: {
+      change: components["schemas"]["ResourceChange"];
+    };
+    /** ConsoleResourcePreviewOut */
+    ConsoleResourcePreviewOut: {
+      /** Affected Customer Ids */
+      affected_customer_ids: number[];
+      /** Affected Service Ids */
+      affected_service_ids: string[];
+      /**
+       * Association Basis
+       * @default configured_and_observed_scope_not_live_connections
+       * @constant
+       */
+      association_basis: "configured_and_observed_scope_not_live_connections";
+      /** Blockers */
+      blockers: string[];
+      change: components["schemas"]["ResourceChange"];
+      /**
+       * Coverage
+       * @enum {string}
+       */
+      coverage: "complete" | "partial";
+      current: components["schemas"]["ResourceValuesOut"] | null;
+      direct: components["schemas"]["ResourceImpactOut"];
+      /**
+       * Execution Available
+       * @default false
+       */
+      execution_available: boolean;
+      /** Fingerprint */
+      fingerprint: string | null;
+      /**
+       * Observed At
+       * Format: date-time
+       */
+      observed_at: string;
+      /** Observed Panel Version */
+      observed_panel_version: string | null;
+      possible_reload: components["schemas"]["ResourceImpactOut"];
+      proposed: components["schemas"]["ResourceValuesOut"] | null;
+      /**
+       * Recovery
+       * @enum {string}
+       */
+      recovery:
+        | "restore_previous_inbounds_and_recheck_profile_nodes"
+        | "restore_previous_host_and_refresh_subscription"
+        | "inverse_node_action_requires_fresh_preview"
+        | "restart_has_no_automatic_rollback"
+        | "creation_requires_explicit_reconciliation_no_automatic_delete";
+      /** Remote Authorization Verified */
+      remote_authorization_verified: boolean;
+      /**
+       * Reviewed Panel Version
+       * @default 3.4.5
+       * @constant
+       */
+      reviewed_panel_version: "3.4.5";
+      /** Sources */
+      sources: components["schemas"]["ResourceSourceOut"][];
+    };
+    /** ConsoleResourceRefOut */
+    ConsoleResourceRefOut: {
+      /** Id */
+      id: string;
+      /** Name */
+      name: string | null;
+    };
+    /** ConsoleResourceRevalidateBody */
+    ConsoleResourceRevalidateBody: {
+      change: components["schemas"]["ResourceChange"];
+      /** Expected Fingerprint */
+      expected_fingerprint: string;
+    };
+    /** ConsoleResourceRevalidateOut */
+    ConsoleResourceRevalidateOut: {
+      preview: components["schemas"]["ConsoleResourcePreviewOut"];
+      /**
+       * Reason
+       * @enum {string}
+       */
+      reason: "unchanged" | "changed" | "incomplete";
+      /** Valid */
+      valid: boolean;
+    };
+    /** ConsoleServiceDetailOut */
+    ConsoleServiceDetailOut: {
+      connection: components["schemas"]["ConsoleConnectionOut"] | null;
+      customer: components["schemas"]["ConsoleCustomerOut"];
+      service: components["schemas"]["UserServiceOut"];
+      terms: components["schemas"]["ServicePlanTerms"];
+    };
+    /** ConsoleServiceDiagnosticsOut */
+    ConsoleServiceDiagnosticsOut: {
+      /** Connection State */
+      connection_state: string | null;
+      /**
+       * Data Plane Verified
+       * @description 面板读取不能验证客户端连接或旧连接已停止。
+       * @default false
+       * @constant
+       */
+      data_plane_verified: false;
+      /** Desired Status */
+      desired_status: string;
+      /** Errors */
+      errors: {
+        [key: string]: string | null;
+      };
+      /** Last Usage Sync At */
+      last_usage_sync_at: string | null;
+      /**
+       * Local Observed At
+       * Format: date-time
+       */
+      local_observed_at: string;
+      /** Next Steps */
+      next_steps: string[];
+      remote: components["schemas"]["ConsoleServiceRemoteObservationOut"];
+      /** Service Id */
+      service_id: string;
+      /** Service Revision */
+      service_revision: number;
+      /** Status */
+      status: string;
+      /** Sync Confirmed At */
+      sync_confirmed_at: string | null;
+      /** Sync Pending */
+      sync_pending: boolean | null;
+      /**
+       * Target Access
+       * @enum {string}
+       */
+      target_access: "enabled" | "disabled" | "unknown";
+      /** User Id */
+      user_id: number | null;
+    };
+    /** ConsoleServiceListOut */
+    ConsoleServiceListOut: {
+      /** Expiring Within Days */
+      expiring_within_days: number;
+      /**
+       * Observed At
+       * Format: date-time
+       */
+      observed_at: string;
+      /** Page */
+      page: number;
+      /** Page Size */
+      page_size: number;
+      /** Services */
+      services: components["schemas"]["ConsoleServiceOut"][];
+      /** Total */
+      total: number;
+    };
+    /** ConsoleServiceOperationOut */
+    ConsoleServiceOperationOut: {
+      /** Actor Id */
+      actor_id: number | null;
+      /** Attempt Count */
+      attempt_count: number | null;
+      /** Attempted At */
+      attempted_at: string | null;
+      /** Completed At */
+      completed_at: string | null;
+      /**
+       * Created At
+       * Format: date-time
+       */
+      created_at: string;
+      /** Error Code */
+      error_code: string | null;
+      /** First Failed At */
+      first_failed_at: string | null;
+      /** Id */
+      id: string;
+      /** Kind */
+      kind: string;
+      /** Order Id */
+      order_id: string | null;
+      /** Phase */
+      phase:
+        ("prepare" | "delivery" | "entitlement" | "revocation" | "usage" | "exit_replace") | null;
+      /** @default null */
+      replacement_progress: components["schemas"]["ReplacementProgress"] | null;
+      /** Retry Block Reason */
+      retry_block_reason: string | null;
+      /** Retryable */
+      retryable: boolean;
+      /** Service Id */
+      service_id: string;
+      /**
+       * Source
+       * @enum {string}
+       */
+      source: "administrator" | "worker" | "unknown";
+      /**
+       * Status
+       * @enum {string}
+       */
+      status: "pending" | "unknown" | "failed" | "succeeded" | "superseded";
+      /** Target Revision */
+      target_revision: number | null;
+    };
+    /** ConsoleServiceOperationsOut */
+    ConsoleServiceOperationsOut: {
+      /** Limit */
+      limit: number;
+      /** Offset */
+      offset: number;
+      /** Operations */
+      operations: components["schemas"]["ConsoleServiceOperationOut"][];
+      /** Service Id */
+      service_id: string;
+      /** Service Revision */
+      service_revision: number;
+      /** Total */
+      total: number;
+    };
+    /** ConsoleServiceOut */
+    ConsoleServiceOut: {
+      customer: components["schemas"]["ConsoleCustomerOut"];
+      service: components["schemas"]["UserServiceOut"];
+    };
+    /** ConsoleServicePreflightBody */
+    ConsoleServicePreflightBody: {
+      /**
+       * Exit Id
+       * @default null
+       */
+      exit_id: string | null;
+      /** Expected Revision */
+      expected_revision: number;
+      /** Plan Id */
+      plan_id: string;
+      /** User Id */
+      user_id: number;
+    };
+    /** ConsoleServicePreflightOut */
+    ConsoleServicePreflightOut: {
+      /**
+       * Allow Pending Creation
+       * @description 本地开通条件；提交时仍须事务内重核。
+       */
+      allow_pending_creation: boolean;
+      /** Checks */
+      checks: components["schemas"]["ConsolePreflightCheckOut"][];
+      /** Configured Group Ids */
+      configured_group_ids: string[];
+      /** Exit Id */
+      exit_id: string | null;
+      /** Exit Revision */
+      exit_revision: number | null;
+      /** Hosts */
+      hosts: components["schemas"]["ConsoleHostOut"][];
+      /**
+       * Local Observed At
+       * Format: date-time
+       */
+      local_observed_at: string;
+      /** Nodes */
+      nodes: components["schemas"]["ConsoleNodeOut"][];
+      /** Plan Id */
+      plan_id: string;
+      /** Plan Revision */
+      plan_revision: number | null;
+      /**
+       * Ready For Delivery
+       * @description 预检没有已准备身份与计量证据，不能作为交付完成证明。
+       * @default false
+       * @constant
+       */
+      ready_for_delivery: false;
+      /**
+       * Resource Readiness
+       * @enum {string}
+       */
+      resource_readiness: "ready" | "blocked" | "unknown";
+      /** Sources */
+      sources: components["schemas"]["ConsoleNodeSourceOut"][];
+      terms: components["schemas"]["ServicePlanTerms"] | null;
+      /** User Id */
+      user_id: number;
+    };
+    /** ConsoleServiceRemoteObservationOut */
+    ConsoleServiceRemoteObservationOut: {
+      /**
+       * Attempted At
+       * @default null
+       */
+      attempted_at: string | null;
+      /**
+       * Availability
+       * @enum {string}
+       */
+      availability:
+        | "available"
+        | "unavailable"
+        | "unconfigured"
+        | "not_prepared"
+        | "unconfirmed"
+        | "not_found"
+        | "conflict";
+      /**
+       * Error
+       * @default null
+       */
+      error: string | null;
+      /**
+       * Identity Matches
+       * @default null
+       */
+      identity_matches: boolean | null;
+      /**
+       * Observed At
+       * @default null
+       */
+      observed_at: string | null;
+      /**
+       * Raw Used Bytes
+       * @default null
+       */
+      raw_used_bytes: number | null;
+      /**
+       * Status
+       * @default null
+       */
+      status: ("ACTIVE" | "DISABLED" | "EXPIRED" | "LIMITED") | null;
+      /**
+       * Terms Match
+       * @default null
+       */
+      terms_match: boolean | null;
+      /**
+       * Usage Readable
+       * @default null
+       */
+      usage_readable: boolean | null;
+    };
+    /** ConsoleServiceResourcesOut */
+    ConsoleServiceResourcesOut: {
+      /**
+       * Association Basis
+       * @default persisted_service_scope_not_live_connections
+       * @constant
+       */
+      association_basis: "persisted_service_scope_not_live_connections";
+      /** Configured Group Ids */
+      configured_group_ids: string[];
+      /** Connection State */
+      connection_state: string | null;
+      coverage: components["schemas"]["ConsoleNodesCoverage"];
+      /** Currently Eligible */
+      currently_eligible: boolean;
+      /** Groups */
+      groups: components["schemas"]["ConsoleResourceRefOut"][];
+      /** Hosts */
+      hosts: components["schemas"]["ConsoleHostOut"][];
+      /**
+       * Local Observed At
+       * Format: date-time
+       */
+      local_observed_at: string;
+      /** Nodes */
+      nodes: components["schemas"]["ConsoleNodeOut"][];
+      /**
+       * Remote Authorization Verified
+       * @default false
+       * @constant
+       */
+      remote_authorization_verified: false;
+      /** Service Id */
+      service_id: string;
+      /** Sources */
+      sources: components["schemas"]["ConsoleNodeSourceOut"][];
+      /** Status */
+      status: string;
+    };
+    /** ConsoleServiceRetryBody */
+    ConsoleServiceRetryBody: {
+      /** Expected Revision */
+      expected_revision: number;
+      /** Idempotency Key */
+      idempotency_key: string;
+      /** User Id */
+      user_id: number;
+    };
+    /** ConsoleServiceRetryOut */
+    ConsoleServiceRetryOut: {
+      /**
+       * Accepted
+       * @description 已保存重试意图，不代表远端已经生效。
+       * @default true
+       * @constant
+       */
+      accepted: true;
+      /** Duplicate */
+      duplicate: boolean;
+      operation: components["schemas"]["ConsoleServiceOperationOut"];
+      /** Retry Order Id */
+      retry_order_id: string;
+    };
+    /** ConsoleServicesMetric */
+    ConsoleServicesMetric: {
+      /** Archived */
+      archived: number;
+      /** By Status */
+      by_status: {
+        [key: string]: number;
+      };
+      /**
+       * Delivery Ready
+       * @description 本地权益有效、连接身份已就绪且已观测，且没有待同步或同步错误；不代表实时连通性探测通过。
+       */
+      delivery_ready: number;
+      /** Entitlement Valid */
+      entitlement_valid: number;
+      /**
+       * Source
+       * @default nonarchived_services
+       * @constant
+       */
+      source: "nonarchived_services";
+      /** Total */
+      total: number;
+    };
+    /** ConsoleSummaryOut */
+    ConsoleSummaryOut: {
+      customers: components["schemas"]["ConsoleCustomersMetric"];
+      exits: components["schemas"]["ConsoleExitsMetric"];
+      health: components["schemas"]["ConsoleHealthMetric"];
+      /**
+       * Observed At
+       * Format: date-time
+       */
+      observed_at: string;
+      /**
+       * Refresh Mode
+       * @default read_only_local_records
+       * @constant
+       */
+      refresh_mode: "read_only_local_records";
+      services: components["schemas"]["ConsoleServicesMetric"];
+      /**
+       * Timezone
+       * @default Asia/Shanghai
+       * @constant
+       */
+      timezone: "Asia/Shanghai";
+      usage: components["schemas"]["ConsoleUsageMetric"];
+    };
+    /** ConsoleUsageMetric */
+    ConsoleUsageMetric: {
+      /**
+       * Availability
+       * @description 确认样本覆盖和采集错误状态，不代表样本实时或采样连续
+       * @enum {string}
+       */
+      availability: "available" | "partial" | "unknown";
+      /**
+       * Confirmed Used Bytes
+       * @description 现存账号服务有确认样本的各自当前周期用量之和，可能混合月度与总量周期；不是全站本月或今日流量，采集失败时仍可包含上次确认值
+       */
+      confirmed_used_bytes: number | null;
+      /**
+       * Freshness
+       * @default last_confirmed_observation
+       * @constant
+       */
+      freshness: "last_confirmed_observation";
+      /** Latest Sample At */
+      latest_sample_at: string | null;
+      /** Oldest Sample At */
+      oldest_sample_at: string | null;
+      /**
+       * Scope
+       * @default current_period_upload_plus_download_business_payload
+       * @constant
+       */
+      scope: "current_period_upload_plus_download_business_payload";
+      /**
+       * Services Sampled
+       * @description 具有最后确认用量时间的服务数，不保证当前采集成功
+       */
+      services_sampled: number;
+      /** Services Total */
+      services_total: number;
+      /** Services With Errors */
+      services_with_errors: number;
+      /**
+       * Source
+       * @default persisted_service_usage
+       * @constant
+       */
+      source: "persisted_service_usage";
+      /**
+       * Unit
+       * @default bytes
+       * @constant
+       */
+      unit: "bytes";
+    };
     /** CreateTicketPayload */
     CreateTicketPayload: {
       /** Body */
@@ -9196,6 +11415,16 @@ export interface components {
     DedicatedExitOut: {
       /** Enabled */
       enabled: boolean;
+      /**
+       * Hold Order Id
+       * @default null
+       */
+      hold_order_id: string | null;
+      /**
+       * Hold Service Id
+       * @default null
+       */
+      hold_service_id: string | null;
       /** Id */
       id: string;
       /** Ip Address */
@@ -9406,6 +11635,81 @@ export interface components {
       /** Service Id */
       service_id: string;
     };
+    /** ExitReclaimCommand */
+    ExitReclaimCommand:
+      | components["schemas"]["ExitReclaimBody"]
+      | components["schemas"]["ExitReplacementReclaimBody"];
+    /** ExitReplacementReclaimBody */
+    ExitReplacementReclaimBody: {
+      /**
+       * Checked At
+       * Format: date-time
+       */
+      checked_at: string;
+      /**
+       * Connections Stopped
+       * @constant
+       */
+      connections_stopped: true;
+      /** Evidence Digest */
+      evidence_digest: string;
+      /** Expected Operation Version */
+      expected_operation_version: number;
+      /** Expected Revision */
+      expected_revision: number;
+      /** Idempotency Key */
+      idempotency_key: string;
+      /**
+       * Old Config Rejected
+       * @constant
+       */
+      old_config_rejected: true;
+      /**
+       * Reclaim Purpose
+       * @enum {string}
+       */
+      reclaim_purpose: "retained_old" | "candidate_cleanup";
+      /** Replacement Operation Id */
+      replacement_operation_id: string;
+      /** Scope Fingerprint */
+      scope_fingerprint: string;
+      /** Service Id */
+      service_id: string;
+    };
+    /** ExitReplacementVerifyBody */
+    ExitReplacementVerifyBody: {
+      /**
+       * Checked At
+       * Format: date-time
+       */
+      checked_at: string;
+      /** Evidence Digest */
+      evidence_digest: string;
+      /**
+       * Exclusive
+       * @constant
+       */
+      exclusive: true;
+      /** Expected Operation Version */
+      expected_operation_version: number;
+      /** Expected Revision */
+      expected_revision: number;
+      /**
+       * Fixed
+       * @constant
+       */
+      fixed: true;
+      /** Idempotency Key */
+      idempotency_key: string;
+      /** Observed Ip */
+      observed_ip: string;
+      /** Replacement Operation Id */
+      replacement_operation_id: string;
+      /** Scope Fingerprint */
+      scope_fingerprint: string;
+      /** Service Id */
+      service_id: string;
+    };
     /** ExitVerifyBody */
     ExitVerifyBody: {
       /**
@@ -9434,6 +11738,9 @@ export interface components {
       /** Service Id */
       service_id: string | null;
     };
+    /** ExitVerifyCommand */
+    ExitVerifyCommand:
+      components["schemas"]["ExitVerifyBody"] | components["schemas"]["ExitReplacementVerifyBody"];
     /** ExportRequest */
     ExportRequest: {
       /**
@@ -11703,6 +14010,149 @@ export interface components {
       /** @default null */
       subscription: components["schemas"]["PublicSubscriptionContextOut"] | null;
     };
+    /** ReplacementAccountingOut */
+    ReplacementAccountingOut: {
+      /** Cycle Pending */
+      cycle_pending: boolean;
+      /** Error Code */
+      error_code: string | null;
+      /** Observed At */
+      observed_at: string | null;
+      /** Usage Lifetime Offset */
+      usage_lifetime_offset: number;
+      /** Usage Raw Bytes */
+      usage_raw_bytes: number | null;
+      /** Usage Total Bytes */
+      usage_total_bytes: number | null;
+    };
+    /** ReplacementEvidenceOut */
+    ReplacementEvidenceOut: {
+      /** Audit Id */
+      audit_id: string;
+      /**
+       * Observed At
+       * Format: date-time
+       */
+      observed_at: string;
+      /**
+       * Provenance
+       * @enum {string}
+       */
+      provenance: "administrator" | "machine";
+      /** Valid */
+      valid: boolean;
+    };
+    /** ReplacementExitOut */
+    ReplacementExitOut: {
+      /** Enabled */
+      enabled: boolean;
+      /** Hold Order Id */
+      hold_order_id: string | null;
+      /** Id */
+      id: string;
+      /** Ip Address */
+      ip_address: string;
+      /** Label */
+      label: string;
+      /** Resource Pool */
+      resource_pool: string;
+      /** Revision */
+      revision: number;
+      /** Scope Fingerprint */
+      scope_fingerprint: string | null;
+      /** Service Id */
+      service_id: string | null;
+      /** Squad Uuid */
+      squad_uuid: string;
+      /** Verified At */
+      verified_at: string | null;
+    };
+    /** ReplacementImpactOut */
+    ReplacementImpactOut: {
+      /**
+       * Customer Id
+       * @default null
+       */
+      customer_id: number | null;
+      /** Group Ids */
+      group_ids: string[];
+      /**
+       * Kind
+       * @enum {string}
+       */
+      kind: "direct_authorization" | "possible_reload";
+      /** Service Id */
+      service_id: string | null;
+      /**
+       * Service Name
+       * @default null
+       */
+      service_name: string | null;
+    };
+    /** ReplacementProgress */
+    ReplacementProgress: {
+      /**
+       * Binding Audit Id
+       * @default null
+       */
+      binding_audit_id: string | null;
+      /**
+       * Confirmation Audit Id
+       * @default null
+       */
+      confirmation_audit_id: string | null;
+      /**
+       * Pending Action
+       * @default null
+       */
+      pending_action: ("stop_old" | "set_target_group" | "restore" | "close_access") | null;
+      /** Restore Block Reasons */
+      restore_block_reasons?: (
+        | "account_banned"
+        | "service_expired"
+        | "service_exhausted"
+        | "service_paused"
+        | "service_cancelled"
+        | "service_not_started"
+        | "service_not_deliverable"
+        | "exit_unavailable"
+      )[];
+      /**
+       * Restore Result
+       * @default not_requested
+       * @enum {string}
+       */
+      restore_result:
+        "not_requested" | "pending" | "enabled" | "restricted" | "unknown" | "interrupted";
+      /**
+       * Stage
+       * @default stopping_old
+       * @enum {string}
+       */
+      stage:
+        | "stopping_old"
+        | "awaiting_confirmation"
+        | "switching"
+        | "restoring"
+        | "closing"
+        | "completed"
+        | "closed";
+      /**
+       * Stop Audit Id
+       * @default null
+       */
+      stop_audit_id: string | null;
+      /**
+       * Verification Audit Id
+       * @default null
+       */
+      verification_audit_id: string | null;
+      /**
+       * Version
+       * @default 1
+       */
+      version: number;
+    };
     /** RepositoryRequest */
     RepositoryRequest: {
       /**
@@ -11723,6 +14173,398 @@ export interface components {
       subdir: string;
       /** Url */
       url: string;
+    };
+    /** ResourceAttemptOut */
+    ResourceAttemptOut: {
+      /** Number */
+      number: number;
+      /**
+       * Receipt
+       * @enum {string}
+       */
+      receipt: "unknown" | "accepted" | "rejected";
+      /**
+       * Started At
+       * Format: date-time
+       */
+      started_at: string;
+    };
+    /** ResourceCatalogInboundOut */
+    ResourceCatalogInboundOut: {
+      /** Id */
+      id: string;
+      /** Profile Id */
+      profile_id: string;
+      /**
+       * Tag
+       * @description Remnawave 返回的入站标签，不是推断出的名称。
+       */
+      tag: string;
+    };
+    /** ResourceCatalogProfileOut */
+    ResourceCatalogProfileOut: {
+      /** Config Digest */
+      config_digest: string;
+      /** Id */
+      id: string;
+      /** Inbounds */
+      inbounds: components["schemas"]["ResourceCatalogInboundOut"][];
+      /** Name */
+      name: string;
+      /** Node Ids */
+      node_ids: string[];
+    };
+    ResourceChange:
+      | components["schemas"]["ResourceGroupChange"]
+      | components["schemas"]["ResourceHostChange"]
+      | components["schemas"]["ResourceNodeChange"]
+      | components["schemas"]["ResourceGroupCreate"]
+      | components["schemas"]["ResourceHostCreate"]
+      | components["schemas"]["ResourceNodeCreate"];
+    /** ResourceEvidenceOut */
+    ResourceEvidenceOut: {
+      /** Actor Id */
+      actor_id: number;
+      /** Attempt */
+      attempt: number;
+      /** Evidence Digest */
+      evidence_digest: string;
+      /**
+       * Observed At
+       * Format: date-time
+       */
+      observed_at: string;
+      /**
+       * Original Request Terminated
+       * @default null
+       */
+      original_request_terminated: boolean | null;
+      /**
+       * Provenance
+       * @default administrator_attestation
+       * @constant
+       */
+      provenance: "administrator_attestation";
+      /**
+       * Recorded At
+       * Format: date-time
+       */
+      recorded_at: string;
+      /**
+       * Result
+       * @enum {string}
+       */
+      result: "applied" | "not_applied" | "partial" | "externally_removed";
+      /** Target Id */
+      target_id: string | null;
+    };
+    /** ResourceGroupChange */
+    ResourceGroupChange: {
+      /** Inbound Ids */
+      inbound_ids: string[];
+      /**
+       * @description discriminator enum property added by openapi-typescript
+       * @enum {string}
+       */
+      operation: "group_inbounds";
+      /**
+       * Target Id
+       * Format: uuid
+       */
+      target_id: string;
+    };
+    /** ResourceGroupCreate */
+    ResourceGroupCreate: {
+      /** Inbound Ids */
+      inbound_ids: string[];
+      /** Name */
+      name: string;
+      /**
+       * @description discriminator enum property added by openapi-typescript
+       * @enum {string}
+       */
+      operation: "group_create";
+    };
+    /** ResourceHostChange */
+    ResourceHostChange: {
+      /**
+       * @description discriminator enum property added by openapi-typescript
+       * @enum {string}
+       */
+      operation: "host_update";
+      patch: components["schemas"]["ResourceHostPatch"];
+      /**
+       * Target Id
+       * Format: uuid
+       */
+      target_id: string;
+    };
+    /** ResourceHostCreate */
+    ResourceHostCreate: {
+      /** Address */
+      address: string;
+      /** Group Ids */
+      group_ids: string[];
+      /**
+       * Group Mode
+       * @enum {string}
+       */
+      group_mode: "EXCLUDE" | "ALLOW_ONLY";
+      /**
+       * Inbound Id
+       * Format: uuid
+       */
+      inbound_id: string;
+      /** Is Disabled */
+      is_disabled: boolean;
+      /** Is Hidden */
+      is_hidden: boolean;
+      /** Name */
+      name: string;
+      /** Node Ids */
+      node_ids: string[];
+      /**
+       * @description discriminator enum property added by openapi-typescript
+       * @enum {string}
+       */
+      operation: "host_create";
+      /** Port */
+      port: number;
+      /**
+       * Profile Id
+       * Format: uuid
+       */
+      profile_id: string;
+    };
+    /** ResourceHostPatch */
+    ResourceHostPatch: {
+      /**
+       * Address
+       * @default null
+       */
+      address: string | null;
+      /**
+       * Group Ids
+       * @default null
+       */
+      group_ids: string[] | null;
+      /**
+       * Group Mode
+       * @default null
+       */
+      group_mode: ("EXCLUDE" | "ALLOW_ONLY") | null;
+      /**
+       * Inbound Id
+       * @default null
+       */
+      inbound_id: string | null;
+      /**
+       * Is Disabled
+       * @default null
+       */
+      is_disabled: boolean | null;
+      /**
+       * Is Hidden
+       * @default null
+       */
+      is_hidden: boolean | null;
+      /**
+       * Node Ids
+       * @default null
+       */
+      node_ids: string[] | null;
+      /**
+       * Port
+       * @default null
+       */
+      port: number | null;
+      /**
+       * Profile Id
+       * @default null
+       */
+      profile_id: string | null;
+    };
+    /** ResourceImpactOut */
+    ResourceImpactOut: {
+      /** Customer Ids */
+      customer_ids: number[];
+      /** Customer Total */
+      customer_total: number;
+      /** Group Ids */
+      group_ids: string[];
+      /** Node Ids */
+      node_ids: string[];
+      /** Profile Ids */
+      profile_ids: string[];
+      /** Service Total */
+      service_total: number;
+      /** Services */
+      services: components["schemas"]["ResourceImpactServiceOut"][];
+    };
+    /** ResourceImpactServiceOut */
+    ResourceImpactServiceOut: {
+      /** Configured Group Ids */
+      configured_group_ids: string[];
+      /** Connection State */
+      connection_state: string | null;
+      /** Customer Id */
+      customer_id: number;
+      /** Group Ids */
+      group_ids: string[];
+      /** Name */
+      name: string;
+      /** Observed Group Ids */
+      observed_group_ids: string[];
+      /** Service Id */
+      service_id: string;
+    };
+    /** ResourceNodeChange */
+    ResourceNodeChange: {
+      /**
+       * Force Restart
+       * @default false
+       */
+      force_restart: boolean;
+      /**
+       * @description discriminator enum property added by openapi-typescript
+       * @enum {string}
+       */
+      operation: "node_disable" | "node_enable" | "node_restart";
+      /**
+       * Target Id
+       * Format: uuid
+       */
+      target_id: string;
+    };
+    /** ResourceNodeCreate */
+    ResourceNodeCreate: {
+      /** Address */
+      address: string;
+      /** Inbound Ids */
+      inbound_ids: string[];
+      /** Name */
+      name: string;
+      /**
+       * @description discriminator enum property added by openapi-typescript
+       * @enum {string}
+       */
+      operation: "node_create";
+      /** Port */
+      port: number;
+      /**
+       * Profile Id
+       * Format: uuid
+       */
+      profile_id: string;
+    };
+    /** ResourceObservationOut */
+    ResourceObservationOut: {
+      /**
+       * Configuration
+       * @enum {string}
+       */
+      configuration: "matched" | "different" | "missing" | "unavailable";
+      /**
+       * Correlation
+       * @enum {string}
+       */
+      correlation:
+        | "response_uuid"
+        | "creation_marker"
+        | "administrator_attestation"
+        | "known_uuid"
+        | "unresolved";
+      /**
+       * Observed At
+       * Format: date-time
+       */
+      observed_at: string;
+      /**
+       * Restart
+       * @enum {string}
+       */
+      restart: "not_requested" | "accepted_unverified" | "may_be_noop" | "unknown";
+      /**
+       * Runtime
+       * @default unverified
+       * @constant
+       */
+      runtime: "unverified";
+      values: components["schemas"]["ResourceValuesOut"] | null;
+    };
+    /** @enum {string} */
+    ResourceOperationStatus: "pending" | "unknown" | "failed" | "succeeded" | "superseded";
+    /** ResourceSourceOut */
+    ResourceSourceOut: {
+      /**
+       * Availability
+       * @enum {string}
+       */
+      availability: "available" | "unavailable" | "invalid" | "unsupported";
+      /**
+       * Observed At
+       * Format: date-time
+       */
+      observed_at: string;
+      /**
+       * Source
+       * @enum {string}
+       */
+      source:
+        "metadata" | "nodes" | "hosts" | "groups" | "profiles" | "services" | "authorizations";
+    };
+    /** ResourceValuesOut */
+    ResourceValuesOut: {
+      /**
+       * Address
+       * @default null
+       */
+      address: string | null;
+      /**
+       * Force Restart
+       * @default null
+       */
+      force_restart: boolean | null;
+      /** Group Ids */
+      group_ids?: string[];
+      /**
+       * Group Mode
+       * @default null
+       */
+      group_mode: ("EXCLUDE" | "ALLOW_ONLY") | null;
+      /** Id */
+      id: string | null;
+      /** Inbound Ids */
+      inbound_ids: string[];
+      /**
+       * Is Disabled
+       * @default null
+       */
+      is_disabled: boolean | null;
+      /**
+       * Is Hidden
+       * @default null
+       */
+      is_hidden: boolean | null;
+      /**
+       * Kind
+       * @enum {string}
+       */
+      kind: "group" | "host" | "node";
+      /** Name */
+      name: string;
+      /** Node Ids */
+      node_ids?: string[];
+      /**
+       * Port
+       * @default null
+       */
+      port: number | null;
+      /**
+       * Profile Id
+       * @default null
+       */
+      profile_id: string | null;
     };
     /** ServerStatus */
     ServerStatus: {
@@ -13068,6 +15910,11 @@ export interface components {
       /** Quota Bytes */
       quota_bytes: number;
       /**
+       * Replacement Order Id
+       * @default null
+       */
+      replacement_order_id: string | null;
+      /**
        * Resource Type
        * @enum {string}
        */
@@ -13993,6 +16840,7 @@ export interface components {
       /** Themes */
       themes?: components["schemas"]["WebappTheme"][];
     };
+    _SystemNumber: number;
   };
   responses: never;
   parameters: never;
@@ -15917,6 +18765,859 @@ export interface operations {
       };
     };
   };
+  get_admin_console_account_operations_route: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description JSON 响应 */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": {
+            /** @constant */
+            ok: true;
+          } & components["schemas"]["ConsoleAccountOperationsOut"];
+        };
+      };
+    };
+  };
+  get_admin_console_account_operation_route: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        operation_id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description JSON 响应 */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": {
+            /** @constant */
+            ok: true;
+            operation: components["schemas"]["ConsoleAccountOperationOut"];
+          };
+        };
+      };
+    };
+  };
+  get_admin_console_maintenance_route: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description JSON 响应 */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": {
+            /** @constant */
+            ok: true;
+          } & components["schemas"]["ConsoleMaintenanceOut"];
+        };
+      };
+    };
+  };
+  get_admin_console_node_assets_route: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description JSON 响应 */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": {
+            /** @constant */
+            ok: true;
+          } & components["schemas"]["ConsoleNodeAssetsListOut"];
+        };
+      };
+    };
+  };
+  post_admin_console_node_asset_create_route: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["ConsoleNodeAssetBody"];
+      };
+    };
+    responses: {
+      /** @description JSON 响应 */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": {
+            /** @constant */
+            ok: true;
+          } & components["schemas"]["ConsoleNodeAssetOut"];
+        };
+      };
+    };
+  };
+  get_admin_console_node_asset_route: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        asset_id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description JSON 响应 */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": {
+            /** @constant */
+            ok: true;
+          } & components["schemas"]["ConsoleNodeAssetOut"];
+        };
+      };
+    };
+  };
+  put_admin_console_node_asset_update_route: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        asset_id: string;
+      };
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["ConsoleNodeAssetBody"];
+      };
+    };
+    responses: {
+      /** @description JSON 响应 */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": {
+            /** @constant */
+            ok: true;
+          } & components["schemas"]["ConsoleNodeAssetOut"];
+        };
+      };
+    };
+  };
+  delete_admin_console_node_asset_delete_route: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        asset_id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description JSON 响应 */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": {
+            /** @constant */
+            ok: true;
+          } & components["schemas"]["ConsoleNodeAssetDeletedOut"];
+        };
+      };
+    };
+  };
+  get_admin_console_nodes_route: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description JSON 响应 */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": {
+            /** @constant */
+            ok: true;
+          } & components["schemas"]["ConsoleNodesListOut"];
+        };
+      };
+    };
+  };
+  post_admin_console_node_onboarding_deployment_route: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["ConsoleNodeDeploymentBody"];
+      };
+    };
+    responses: {
+      /** @description JSON 响应 */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": {
+            /** @constant */
+            ok: true;
+          } & components["schemas"]["ConsoleNodeDeploymentOut"];
+        };
+      };
+    };
+  };
+  get_admin_console_node_route: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        node_id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description JSON 响应 */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": {
+            /** @constant */
+            ok: true;
+          } & components["schemas"]["ConsoleNodeDetailOut"];
+        };
+      };
+    };
+  };
+  get_admin_console_global_operations_route: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description JSON 响应 */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": {
+            /** @constant */
+            ok: true;
+          } & components["schemas"]["ConsoleGlobalOperationsOut"];
+        };
+      };
+    };
+  };
+  get_admin_console_resource_catalog_route: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description JSON 响应 */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": {
+            /** @constant */
+            ok: true;
+          } & components["schemas"]["ConsoleResourceCatalogOut"];
+        };
+      };
+    };
+  };
+  get_admin_console_resource_operations_route: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description JSON 响应 */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": {
+            /** @constant */
+            ok: true;
+          } & components["schemas"]["ConsoleResourceOperationListOut"];
+        };
+      };
+    };
+  };
+  post_admin_console_resource_operation_start_route: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["ConsoleResourceOperationStartBody"];
+      };
+    };
+    responses: {
+      /** @description JSON 响应 */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": {
+            /** @constant */
+            ok: true;
+          } & components["schemas"]["ConsoleResourceOperationAcceptedOut"];
+        };
+      };
+    };
+  };
+  get_admin_console_resource_operation_route: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        operation_id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description JSON 响应 */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": {
+            /** @constant */
+            ok: true;
+          } & components["schemas"]["ConsoleResourceOperationOut"];
+        };
+      };
+    };
+  };
+  post_admin_console_resource_operation_evidence_route: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        operation_id: string;
+      };
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["ConsoleResourceOperationEvidenceBody"];
+      };
+    };
+    responses: {
+      /** @description JSON 响应 */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": {
+            /** @constant */
+            ok: true;
+          } & components["schemas"]["ConsoleResourceOperationAcceptedOut"];
+        };
+      };
+    };
+  };
+  post_admin_console_resource_operation_reconcile_route: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        operation_id: string;
+      };
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["ConsoleResourceOperationReconcileBody"];
+      };
+    };
+    responses: {
+      /** @description JSON 响应 */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": {
+            /** @constant */
+            ok: true;
+          } & components["schemas"]["ConsoleResourceOperationAcceptedOut"];
+        };
+      };
+    };
+  };
+  post_admin_console_resource_operation_retry_route: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        operation_id: string;
+      };
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["ConsoleResourceOperationRetryBody"];
+      };
+    };
+    responses: {
+      /** @description JSON 响应 */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": {
+            /** @constant */
+            ok: true;
+          } & components["schemas"]["ConsoleResourceOperationAcceptedOut"];
+        };
+      };
+    };
+  };
+  post_admin_console_resource_preview_route: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["ConsoleResourcePreviewBody"];
+      };
+    };
+    responses: {
+      /** @description JSON 响应 */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": {
+            /** @constant */
+            ok: true;
+          } & components["schemas"]["ConsoleResourcePreviewOut"];
+        };
+      };
+    };
+  };
+  post_admin_console_resource_revalidate_route: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["ConsoleResourceRevalidateBody"];
+      };
+    };
+    responses: {
+      /** @description JSON 响应 */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": {
+            /** @constant */
+            ok: true;
+          } & components["schemas"]["ConsoleResourceRevalidateOut"];
+        };
+      };
+    };
+  };
+  post_admin_console_service_preflight_route: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["ConsoleServicePreflightBody"];
+      };
+    };
+    responses: {
+      /** @description JSON 响应 */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": {
+            /** @constant */
+            ok: true;
+          } & components["schemas"]["ConsoleServicePreflightOut"];
+        };
+      };
+    };
+  };
+  get_admin_console_services_route: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description JSON 响应 */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": {
+            /** @constant */
+            ok: true;
+          } & components["schemas"]["ConsoleServiceListOut"];
+        };
+      };
+    };
+  };
+  get_admin_console_service_route: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        service_id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description JSON 响应 */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": {
+            /** @constant */
+            ok: true;
+          } & components["schemas"]["ConsoleServiceDetailOut"];
+        };
+      };
+    };
+  };
+  get_admin_console_service_diagnostics_route: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        service_id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description JSON 响应 */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": {
+            /** @constant */
+            ok: true;
+          } & components["schemas"]["ConsoleServiceDiagnosticsOut"];
+        };
+      };
+    };
+  };
+  get_admin_console_service_exit_replacement_route: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        service_id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description JSON 响应 */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": {
+            /** @constant */
+            ok: true;
+          } & components["schemas"]["ConsoleExitReplacementStateOut"];
+        };
+      };
+    };
+  };
+  post_admin_console_service_exit_replacement_start_route: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        service_id: string;
+      };
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["ConsoleExitReplacementStartBody"];
+      };
+    };
+    responses: {
+      /** @description JSON 响应 */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": {
+            /** @constant */
+            ok: true;
+          } & components["schemas"]["ConsoleExitReplacementAcceptedOut"];
+        };
+      };
+    };
+  };
+  post_admin_console_service_exit_replacement_confirm_route: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        service_id: string;
+      };
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["ConsoleExitReplacementConfirmBody"];
+      };
+    };
+    responses: {
+      /** @description JSON 响应 */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": {
+            /** @constant */
+            ok: true;
+          } & components["schemas"]["ConsoleExitReplacementAcceptedOut"];
+        };
+      };
+    };
+  };
+  post_admin_console_service_exit_replacement_evidence_route: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        service_id: string;
+      };
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["ConsoleExitReplacementEvidenceBody"];
+      };
+    };
+    responses: {
+      /** @description JSON 响应 */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": {
+            /** @constant */
+            ok: true;
+          } & components["schemas"]["ConsoleExitReplacementAcceptedOut"];
+        };
+      };
+    };
+  };
+  get_admin_console_service_operations_route: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        service_id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description JSON 响应 */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": {
+            /** @constant */
+            ok: true;
+          } & components["schemas"]["ConsoleServiceOperationsOut"];
+        };
+      };
+    };
+  };
+  post_admin_console_service_retry_route: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        service_id: string;
+        operation_id: string;
+      };
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["ConsoleServiceRetryBody"];
+      };
+    };
+    responses: {
+      /** @description JSON 响应 */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": {
+            /** @constant */
+            ok: true;
+          } & components["schemas"]["ConsoleServiceRetryOut"];
+        };
+      };
+    };
+  };
+  get_admin_console_service_resources_route: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        service_id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description JSON 响应 */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": {
+            /** @constant */
+            ok: true;
+          } & components["schemas"]["ConsoleServiceResourcesOut"];
+        };
+      };
+    };
+  };
+  get_admin_console_summary_route: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description JSON 响应 */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": {
+            /** @constant */
+            ok: true;
+          } & components["schemas"]["ConsoleSummaryOut"];
+        };
+      };
+    };
+  };
   get_admin_dedicated_exits_route: {
     parameters: {
       query?: never;
@@ -16008,7 +19709,7 @@ export interface operations {
     };
     requestBody: {
       content: {
-        "application/json": components["schemas"]["ExitReclaimBody"];
+        "application/json": components["schemas"]["ExitReclaimCommand"];
       };
     };
     responses: {
@@ -16040,7 +19741,7 @@ export interface operations {
     };
     requestBody: {
       content: {
-        "application/json": components["schemas"]["ExitVerifyBody"];
+        "application/json": components["schemas"]["ExitVerifyCommand"];
       };
     };
     responses: {
@@ -20035,6 +23736,7 @@ export interface operations {
             total: number;
             user_balance_enabled: boolean;
             users: (components["schemas"]["AdminUserWithAvatarOut"] & {
+              independent_services: components["schemas"]["ConsoleCustomerServicesOut"];
               invited_users_count: number;
               panel_status: string | null;
               panel_status_expired_at?: string | null;

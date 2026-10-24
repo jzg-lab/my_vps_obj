@@ -91,7 +91,7 @@
   }
   .admin-list-toolbar :global(.input),
   .admin-list-toolbar :global(.admin-btn),
-  .admin-list-toolbar :global(.admin-select-trigger) {
+  .admin-list-toolbar :global(.admin-select-trigger:not(.admin-select-wrap)) {
     height: 36px;
     min-height: 36px;
   }

@@ -25,6 +25,7 @@
   }
   .admin-field :global(.admin-field-label) {
     display: grid;
+    grid-template-columns: minmax(0, 1fr);
     gap: 6px;
     min-width: 0;
     align-content: start;

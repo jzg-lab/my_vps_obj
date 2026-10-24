@@ -1,5 +1,26 @@
 from aiohttp import web
 
+from bot.app.web.admin_console_account_operations_routes import (
+    setup_admin_console_account_operations_routes,
+)
+from bot.app.web.admin_console_exit_replacement_routes import (
+    setup_admin_console_exit_replacement_routes,
+)
+from bot.app.web.admin_console_global_operations_routes import (
+    setup_admin_console_global_operations_routes,
+)
+from bot.app.web.admin_console_maintenance_routes import setup_admin_console_maintenance_routes
+from bot.app.web.admin_console_node_assets_routes import setup_admin_console_node_assets_routes
+from bot.app.web.admin_console_node_onboarding_routes import (
+    setup_admin_console_node_onboarding_routes,
+)
+from bot.app.web.admin_console_nodes_routes import setup_admin_console_nodes_routes
+from bot.app.web.admin_console_operations_routes import setup_admin_console_operations_routes
+from bot.app.web.admin_console_resource_operation_routes import (
+    setup_admin_console_resource_operation_routes,
+)
+from bot.app.web.admin_console_resource_routes import setup_admin_console_resource_routes
+from bot.app.web.admin_console_services_routes import setup_admin_console_services_routes
 from bot.app.web.service_routes import setup_service_admin_routes
 
 from .ads import (
@@ -195,6 +216,17 @@ from .users_merge_context import admin_user_merge_context_route
 
 
 def setup_admin_routes(app: web.Application) -> None:
+    setup_admin_console_exit_replacement_routes(app)
+    setup_admin_console_account_operations_routes(app)
+    setup_admin_console_global_operations_routes(app)
+    setup_admin_console_maintenance_routes(app)
+    setup_admin_console_node_assets_routes(app)
+    setup_admin_console_nodes_routes(app)
+    setup_admin_console_node_onboarding_routes(app)
+    setup_admin_console_operations_routes(app)
+    setup_admin_console_resource_routes(app)
+    setup_admin_console_resource_operation_routes(app)
+    setup_admin_console_services_routes(app)
     setup_service_admin_routes(app)
     from .plugin_packages import setup_plugin_packages
     from .theme_library import setup_theme_jobs, setup_theme_library

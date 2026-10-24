@@ -20,11 +20,16 @@ for (const width of [1440, 390]) {
     await expect(region).toContainText("Независимых услуг пока нет.");
     for (let count = 1; count <= 2; count++) {
       await region.getByRole("button", { name: "Подключить услугу", exact: true }).click();
+      const activation = page.getByRole("dialog");
+      const submit = activation.getByRole("button", { name: "Подключить услугу", exact: true });
+      await expect(submit).toBeDisabled();
       await choose(page, "Выберите тариф", "Demo total");
-      await page
-        .getByRole("dialog")
-        .getByRole("button", { name: "Подключить услугу", exact: true })
-        .click();
+      const preflight = activation.getByRole("region", { name: "Проверка перед активацией" });
+      await expect(preflight).toContainText("Можно создать запись услуги, ожидающей выдачи.");
+      await expect(preflight).toContainText("Готовность ресурсов: Неизвестно");
+      await expect(preflight).toContainText("Готовность к выдаче не подтверждена");
+      await expect(submit).toBeEnabled();
+      await submit.click();
       await expect(page.getByRole("dialog")).toHaveCount(0);
       await expect(region.locator("tbody tr")).toHaveCount(count);
     }
@@ -56,7 +61,9 @@ for (const width of [1440, 390]) {
     await dialog.getByRole("button", { name: "Сохранить", exact: true }).click();
     await expect(dialog).toHaveCount(0);
     await expect(first).toContainText("Изменение сохранено; ожидается подтверждение панели.");
-    await expect(first).toContainText("0 B / 100 GiB");
+    await expect(first).toContainText("Неизвестно / 100 GiB");
+    await expect(first).toContainText("Ещё не синхронизировано");
+    await expect(first).not.toContainText("0 B / 100 GiB");
     expect(await other.innerText()).toBe(originalOther);
     for (const action of ["Приостановить", "Возобновить"]) {
       await first.getByRole("button", { name: "Управление", exact: true }).click();

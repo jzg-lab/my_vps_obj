@@ -8,6 +8,8 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from config.service_changes import ServiceChange
 from config.service_periods import as_utc
+from db.dal.resource_operations_dal import coordinate_resources, require_resource_authorization
+from db.dal.service_operations_dal import enqueue_execution
 from db.dal.user_dal import lock_user_by_id
 from db.dal.user_services_dal import ServiceConflict
 from db.service_models import ServiceConnection, ServiceOrder, UserService
@@ -25,6 +27,7 @@ async def change_service(
     now: datetime | None = None,
     usage_observation: tuple[int, int] | None = None,
 ) -> tuple[UserService, ServiceOrder, bool]:
+    await coordinate_resources(session)
     now = as_utc(now or datetime.now(UTC))
     user = await lock_user_by_id(session, user_id)
     if user is None:
@@ -58,6 +61,8 @@ async def change_service(
         raise ServiceConflict("service_not_editable")
     if service.revision != expected_revision:
         raise ServiceConflict("service_revision_changed")
+    if change.action not in {"pause", "reconcile_usage"}:
+        await require_resource_authorization(session)
     before: dict[str, object] = {
         "desired_status": service.desired_status,
         "expires_at": as_utc(service.expires_at).isoformat(),
@@ -137,5 +142,6 @@ async def change_service(
         created_at=now,
     )
     session.add(order)
+    await enqueue_execution(session, service, "entitlement", order=order, source="administrator")
     await session.flush()
     return service, order, False

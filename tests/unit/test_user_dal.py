@@ -204,10 +204,13 @@ class UserDalMergeTests(unittest.IsolatedAsyncioTestCase):
     async def test_delete_user_and_relations_cleans_dependent_tables_before_parents(self):
         user = SimpleNamespace(user_id=42)
         session = SimpleNamespace(
+            info={},
+            in_transaction=lambda: True,
+            get_bind=lambda: SimpleNamespace(dialect=postgresql.dialect()),
             get=AsyncMock(return_value=None),
             scalar=AsyncMock(return_value=None),
             scalars=AsyncMock(return_value=[]),
-            execute=AsyncMock(side_effect=lambda stmt: FakeResult()),
+            execute=AsyncMock(side_effect=lambda stmt, params=None: FakeResult()),
             delete=AsyncMock(),
             flush=AsyncMock(),
         )
@@ -360,6 +363,7 @@ class UserDalMergeTests(unittest.IsolatedAsyncioTestCase):
         session = SimpleNamespace(
             get=AsyncMock(return_value=None),
             execute=AsyncMock(side_effect=lambda stmt: FakeResult()),
+            scalar=AsyncMock(return_value=None),
             add=Mock(),
             delete=AsyncMock(),
             flush=AsyncMock(side_effect=_flush),
@@ -476,6 +480,7 @@ class UserDalMergeTests(unittest.IsolatedAsyncioTestCase):
         session = SimpleNamespace(
             get=AsyncMock(return_value=None),
             execute=AsyncMock(side_effect=_execute),
+            scalar=AsyncMock(return_value=None),
             add=Mock(),
             delete=AsyncMock(side_effect=_delete),
             flush=AsyncMock(),
@@ -644,6 +649,7 @@ class UserDalMergeTests(unittest.IsolatedAsyncioTestCase):
         session = SimpleNamespace(
             get=AsyncMock(return_value=None),
             execute=AsyncMock(side_effect=lambda stmt: FakeResult()),
+            scalar=AsyncMock(return_value=None),
             add=Mock(),
             delete=AsyncMock(),
             flush=AsyncMock(),

@@ -22,12 +22,24 @@ class UserMergeLockingTests(IsolatedAsyncioTestCase):
     async def test_lock_users_for_merge_uses_stable_row_locks(self):
         source = SimpleNamespace(user_id=7)
         target = SimpleNamespace(user_id=42)
-        session = SimpleNamespace(execute=AsyncMock(return_value=_ListResult([target, source])))
+        session = SimpleNamespace(
+            info={},
+            in_transaction=lambda: True,
+            get_bind=lambda: SimpleNamespace(dialect=postgresql.dialect()),
+            scalar=AsyncMock(return_value=None),
+            execute=AsyncMock(return_value=_ListResult([target, source])),
+        )
 
         locked_source, locked_target = await user_merge_dal._lock_users_for_merge(session, 7, 42)
 
         self.assertIs(locked_source, source)
         self.assertIs(locked_target, target)
+        self.assertEqual(session.execute.await_count, 2)
+        self.assertIn(
+            "pg_advisory_xact_lock_shared",
+            str(session.execute.await_args_list[0].args[0]),
+        )
+        session.scalar.assert_awaited_once()
         stmt = session.execute.await_args.args[0]
         sql = str(
             stmt.compile(

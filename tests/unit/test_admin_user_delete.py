@@ -1,7 +1,7 @@
 import json
 import unittest
 from types import SimpleNamespace
-from unittest.mock import AsyncMock, patch
+from unittest.mock import AsyncMock, Mock, patch
 
 from bot.app.web.admin_api_impl import users as admin_users
 from bot.app.web.admin_api_impl import users_actions
@@ -11,6 +11,13 @@ class FakeSession:
     def __init__(self):
         self.committed = False
         self.rolled_back = False
+        self.info: dict[str, object] = {}
+        self.in_transaction = Mock(return_value=True)
+        self.get_bind = Mock(
+            return_value=SimpleNamespace(dialect=SimpleNamespace(name="postgresql"))
+        )
+        self.execute = AsyncMock()
+        self.scalar = AsyncMock(return_value=None)
 
     async def __aenter__(self):
         return self

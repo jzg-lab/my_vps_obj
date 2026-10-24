@@ -1,6 +1,13 @@
 ﻿<script lang="ts">
-  import { ArrowLeft, Check, ChevronsUpDown, Globe2, Menu } from "$components/ui/icons.js";
-  import { onDestroy, onMount, setContext } from "svelte";
+  import {
+    ArrowLeft,
+    Check,
+    ChevronRight,
+    ChevronsUpDown,
+    Globe2,
+    Menu,
+  } from "$components/ui/icons.js";
+  import { onDestroy, onMount, setContext, untrack } from "svelte";
   import { ADMIN_COMPOSITION, type AdminCompositionContext } from "./sections/compositionContext";
   import { MediaQuery } from "svelte/reactivity";
   import { prefersReducedMotion } from "svelte/motion";
@@ -206,6 +213,16 @@
   } = $props();
 
   const usersStore = getUsersStore();
+  const navigationId = $props.id();
+  let collapsedGroups = $state<string[]>([]);
+  $effect(() => {
+    const section = active;
+    // Only navigation reopens a group, not a toggle or a translated label update.
+    untrack(() => {
+      const group = NAV_GROUPS.find((group) => group.items.some((item) => item.id === section));
+      if (group) collapsedGroups = collapsedGroups.filter((id) => id !== group.id);
+    });
+  });
   let UserDetailPageComponent = $state<DynamicComponent | null>(null);
   $effect(() => {
     if (usersStore.openedUser) {
@@ -219,6 +236,7 @@
 
   const compactQuery = new MediaQuery("max-width: 720px", false);
   const isCompact = $derived(compactQuery.current);
+  let sidebarToggle = $state<HTMLButtonElement>();
   let adminLanguageMenuOpen = $state(false);
   let adminLanguageClickGuard = $state(false);
   let adminLanguageClickGuardArmed = $state(false);
@@ -362,6 +380,15 @@
   });
 </script>
 
+<svelte:window
+  onkeydown={(event) => {
+    if (event.key !== "Escape" || event.defaultPrevented || !sidebarOpen) return;
+    event.preventDefault();
+    sidebarOpen = false;
+    sidebarToggle?.focus();
+  }}
+/>
+
 <div
   class="admin-screen-wrap"
   class:is-sidebar-open={sidebarOpen}
@@ -387,7 +414,11 @@
       onclick={closeAdminLanguageFromGuard}
     ></button>
   {/if}
-  <aside class="admin-sidebar" aria-label={at("sidebar_navigation", {}, "Admin navigation")}>
+  <aside
+    id={`${navigationId}-sidebar`}
+    class="admin-sidebar"
+    aria-label={at("sidebar_navigation", {}, "Admin navigation")}
+  >
     <div class="admin-sidebar-brand">
       <BrandMark class="admin-brand-mark" {brand} />
       <div>
@@ -404,15 +435,35 @@
       </AdminButton>
     </div>
 
-    {#each NAV_GROUPS as group}
-      <div class="admin-sidebar-section-label">{group.label}</div>
-      <nav class="admin-nav" aria-label={group.label}>
+    {#each NAV_GROUPS as group (group.id)}
+      {@const expanded = !collapsedGroups.includes(group.id)}
+      {@const contentId = `${navigationId}-nav-${group.id}`}
+      <AdminButton
+        variant="ghost"
+        size="sm"
+        class="admin-sidebar-group-toggle"
+        data-admin-nav-group={group.id}
+        aria-expanded={expanded}
+        aria-controls={contentId}
+        aria-label={expanded
+          ? at("nav_group_collapse", { group: group.label }, "Collapse {group} group")
+          : at("nav_group_expand", { group: group.label }, "Expand {group} group")}
+        onclick={() =>
+          (collapsedGroups = expanded
+            ? [...collapsedGroups, group.id]
+            : collapsedGroups.filter((id) => id !== group.id))}
+      >
+        <span>{group.label}</span>
+        <ChevronRight size={14} class={expanded ? "nav-group-expanded" : ""} aria-hidden="true" />
+      </AdminButton>
+      <nav id={contentId} class="admin-nav" aria-label={group.label} hidden={!expanded}>
         {#each group.items as item}
           {@const NavIcon = dynamicComponent(item.icon)}
           <button
             type="button"
             class="admin-nav-item"
             class:active={active === item.id}
+            aria-current={active === item.id ? "page" : undefined}
             data-admin-section={item.id}
             onfocus={() => warmSectionComponent(item)}
             onpointerenter={() => warmSectionComponent(item)}
@@ -501,10 +552,13 @@
     <header class="admin-header" class:is-user-detail={Boolean(usersStore.openedUser)}>
       <div style="display:flex; align-items:center; gap:12px; min-width:0;">
         <button
+          bind:this={sidebarToggle}
           type="button"
           class="admin-mobile-toggle"
           onclick={() => (sidebarOpen = !sidebarOpen)}
           aria-label={at("menu", {}, "Menu")}
+          aria-expanded={sidebarOpen}
+          aria-controls={`${navigationId}-sidebar`}
         >
           <Menu size={18} />
         </button>
@@ -673,3 +727,40 @@
   {onOpenPartnerCard}
   {routePrefix}
 />
+
+<style>
+  .admin-nav[hidden] {
+    display: none;
+  }
+
+  .admin-sidebar :global(.admin-sidebar-group-toggle) {
+    width: 100%;
+    min-height: 34px;
+    height: auto;
+    margin-top: 8px;
+    padding: 7px 10px;
+    justify-content: space-between;
+    text-align: left;
+    white-space: normal;
+    font-size: 11px;
+    font-weight: 700;
+  }
+
+  .admin-sidebar :global(.admin-sidebar-group-toggle:focus-visible) {
+    outline: 2px solid var(--accent);
+    outline-offset: -2px;
+  }
+
+  .admin-sidebar :global(.admin-sidebar-group-toggle > span) {
+    min-width: 0;
+    overflow-wrap: anywhere;
+  }
+
+  .admin-sidebar :global(.admin-sidebar-group-toggle > svg) {
+    flex-shrink: 0;
+  }
+
+  .admin-sidebar :global(.nav-group-expanded) {
+    transform: rotate(90deg);
+  }
+</style>

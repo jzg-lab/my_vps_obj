@@ -3,8 +3,9 @@ import { requestSignal } from "./requestSignal";
 import { EmojiMediaBlobCache, emojiMediaCacheTtl } from "./emojiMediaCache";
 import { EmojiPreviewBatch } from "./emojiPreviewBatch";
 import { persistentEmojiKey, readEmojiPreview, writeEmojiPreview } from "./emojiPreviewStorage";
-import type { ApiClient, MockApi } from "./publicApi";
+import type { MockApi } from "./publicApi";
 import { catalogEmojiPreviewUrl } from "./emojiCatalogStorage";
+import { isAdminRequest } from "./adminAccess";
 
 type Options = {
   authenticatedHeaders: (options: RequestInit) => Headers;
@@ -14,15 +15,16 @@ type Options = {
   mockApi: MockApi | null;
   getMockContext: () => Parameters<MockApi>[2];
   onUnauthorized: () => void;
+  onForbidden?: (version: number) => Promise<void>;
   requestTimeoutMs: number;
 };
 
 /** Keep binary exports/attachments unchanged; only authenticated emoji previews share data. */
-export function createBlobRequester(config: Options): ApiClient["apiBlob"] {
+export function createBlobRequester(config: Options) {
   const cache = new EmojiMediaBlobCache();
   const batches = new EmojiPreviewBatch();
   const transient = new WeakSet<Blob>();
-  return async (path, options = {}) => {
+  return async (path: string, options: RequestInit = {}, version = 0): Promise<Blob> => {
     if (config.mockApi) {
       const value = await config.mockApi(path, options, config.getMockContext());
       if (typeof Blob !== "undefined" && value instanceof Blob) return value;
@@ -64,6 +66,7 @@ export function createBlobRequester(config: Options): ApiClient["apiBlob"] {
           signal,
         });
         if (response.status === 401) config.onUnauthorized();
+        if (response.status === 403 && isAdminRequest(path)) await config.onForbidden?.(version);
         if (!response.ok) {
           const payload = await response.json().catch(() => ({
             ok: false,
@@ -109,6 +112,7 @@ export function createBlobRequester(config: Options): ApiClient["apiBlob"] {
                 signal,
               });
               if (response.status === 401) config.onUnauthorized();
+              if (response.status === 403) await config.onForbidden?.(version);
               if (!response.ok) throw { status: response.status };
               if (Number(response.headers.get("Content-Length") || "0") > 6 * 1024 * 1024)
                 throw new Error("emoji_preview_batch_too_large");

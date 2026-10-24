@@ -4,6 +4,7 @@
   import { AdminBadge, AdminUserCell } from "$components/patterns/admin/index.js";
   import type { AdminUser } from "$lib/admin/stores/usersStore";
   import type { AdminBadgeVariant } from "$components/patterns/admin/types";
+  import CustomerServiceSummary from "./CustomerServiceSummary.svelte";
 
   const serviceModel = getAdminServiceModel();
 
@@ -55,6 +56,7 @@
   const badge = $derived(panelStatusBadge(user));
 
   function handleKeydown(event: KeyboardEvent): void {
+    if (event.target instanceof Element && event.target.closest("summary, details[open]")) return;
     if (event.key !== "Enter" && event.key !== " ") return;
     event.preventDefault();
     onopen();
@@ -67,7 +69,10 @@
     role="button"
     tabindex="0"
     data-mobile-user-id={user.user_id}
-    onclick={onopen}
+    onclick={(event) => {
+      if (event.target instanceof Element && event.target.closest("summary, details[open]")) return;
+      onopen();
+    }}
     onkeydown={handleKeydown}
   >
     <div class="admin-user-mobile-head">
@@ -78,10 +83,12 @@
         initials={userInitials(user)}
         avatarUrl={avatar}
       />
-      <AdminBadge variant={badge.variant}>{badge.label}</AdminBadge>
+      <AdminBadge wrap={serviceModel.independent} variant={badge.variant}>{badge.label}</AdminBadge>
     </div>
 
-    {#if !serviceModel.independent}<dl class="admin-user-mobile-metrics">
+    {#if serviceModel.independent}
+      <CustomerServiceSummary {at} summary={user.independent_services} />
+    {:else}<dl class="admin-user-mobile-metrics">
         {#if userBalanceEnabled}
           <div>
             <dt>{at("users_col_user_balance", {}, "Balance")}</dt>
@@ -180,6 +187,11 @@
 
   .admin-user-mobile-head :global(.admin-user-cell) {
     flex: 1 1 auto;
+  }
+
+  .admin-user-mobile-head :global(.admin-user-cell-id) {
+    white-space: normal;
+    overflow-wrap: anywhere;
   }
 
   .admin-user-mobile-head :global(.admin-badge) {

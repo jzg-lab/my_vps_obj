@@ -1,3 +1,4 @@
+from bot.app.web.admin_console_customers_schemas import ConsoleCustomerServicesOut
 from bot.app.web.route_contracts import (
     BINARY_RESPONSE_SCHEMA,
     BOOLEAN_SCHEMA,
@@ -95,7 +96,7 @@ from .users_squad_overrides import (
 register_contract(
     "admin_users_list_route",
     RouteContract(
-        models=(AdminUserWithAvatarOut,),
+        models=(AdminUserWithAvatarOut, ConsoleCustomerServicesOut),
         response_schema=ok_envelope_with(
             {
                 "users": {
@@ -109,6 +110,7 @@ register_contract(
                             {
                                 "type": "object",
                                 "properties": {
+                                    "independent_services": schema_ref(ConsoleCustomerServicesOut),
                                     "panel_status": NULLABLE_STRING_SCHEMA,
                                     "subscription_expires_at": NULLABLE_STRING_SCHEMA,
                                     "panel_status_expired_at": NULLABLE_STRING_SCHEMA,
@@ -121,6 +123,7 @@ register_contract(
                                     "partner_balance_amount_minor": INTEGER_SCHEMA,
                                 },
                                 "required": [
+                                    "independent_services",
                                     "panel_status",
                                     "subscription_expires_at",
                                     "premium_traffic",

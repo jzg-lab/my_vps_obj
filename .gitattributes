@@ -15,3 +15,6 @@ graphify-out/graph.json -diff linguist-generated=true
 frontend/src/**/*.svelte text eol=lf
 frontend/scripts/*.mjs text eol=lf
 frontend/scripts/**/*.mjs text eol=lf
+
+# Unified patches preserve blank context lines and context prefixes before Go tabs.
+deploy/node-identity-cancel/patches/*.patch whitespace=-blank-at-eol,-space-before-tab

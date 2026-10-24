@@ -20,6 +20,7 @@
   import type { AdminUser } from "$lib/admin/stores/usersStore";
   import type { AdminBadgeVariant } from "$components/patterns/admin/types";
   import UserMobileCard from "./UserMobileCard.svelte";
+  import CustomerServiceSummary from "./CustomerServiceSummary.svelte";
 
   const serviceModel = getAdminServiceModel();
 
@@ -336,6 +337,10 @@
   </div>
 </Dialog>
 
+{#if serviceModel.independent}
+  <p class="customer-summary-scope">{at("console_customers_scope")}</p>
+{/if}
+
 <div
   class="admin-users-table-wrap"
   class:independent-services={serviceModel.independent}
@@ -357,6 +362,11 @@
     >
   {:else}
     <AdminTable class="admin-users-table">
+      {#if serviceModel.independent}
+        <colgroup>
+          {#each userTableWidths as width, index (index)}<col style:width />{/each}
+        </colgroup>
+      {/if}
       <thead>
         <tr>
           {#each userTableColumns() as column (column.key)}
@@ -389,8 +399,12 @@
             role="button"
             tabindex="0"
             data-user-id={user.user_id}
-            onclick={() => onOpenUserCard(user)}
+            onclick={(e) => {
+              if (e.target instanceof Element && e.target.closest("summary, details[open]")) return;
+              onOpenUserCard(user);
+            }}
             onkeydown={(e) => {
+              if (e.target instanceof Element && e.target.closest("summary, details[open]")) return;
               if (e.key === "Enter" || e.key === " ") {
                 e.preventDefault();
                 onOpenUserCard(user);
@@ -409,7 +423,11 @@
                 avatarUrl={avatar}
               />
             </td>
-            {#if !serviceModel.independent}
+            {#if serviceModel.independent}
+              <td data-label={at("console_customers_services")}>
+                <CustomerServiceSummary {at} summary={user.independent_services} />
+              </td>
+            {:else}
               {#if userBalanceEnabled}
                 <td
                   class="admin-users-cell-money"
@@ -469,8 +487,14 @@
                   <span>{user.invited_users_count ?? 0}</span>
                 </span>
               </td>
-            {/if}<td data-label={at("status", {}, "Status")}>
-              <AdminBadge variant={badge.variant}>{badge.label}</AdminBadge>
+            {/if}<td
+              data-label={serviceModel.independent
+                ? at("console_customers_account_status")
+                : at("status", {}, "Status")}
+            >
+              <AdminBadge wrap={serviceModel.independent} variant={badge.variant}
+                >{badge.label}</AdminBadge
+              >
             </td>
             {#if !serviceModel.independent}<td
                 class="admin-users-cell-date admin-cell-mono"
@@ -532,6 +556,27 @@
 />
 
 <style>
+  .customer-summary-scope {
+    margin: 10px 0;
+    color: var(--admin-muted);
+    font-size: 12px;
+    line-height: 1.5;
+  }
+
+  .independent-services :global(.admin-users-table) {
+    width: 100%;
+    table-layout: fixed;
+  }
+
+  .independent-services :global(.admin-users-table td) {
+    vertical-align: top;
+  }
+
+  .independent-services :global(.admin-user-cell-id) {
+    white-space: normal;
+    overflow-wrap: anywhere;
+  }
+
   :global(.admin-users-search-button) {
     min-width: 82px;
   }

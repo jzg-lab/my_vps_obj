@@ -7,9 +7,12 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import sessionmaker
 
 from bot.services.panel_api_service import PanelApiService
+from bot.services.service_change_sync import synchronize_service_entitlement_locked
+from bot.services.service_operations import record_revocation_result
 from bot.services.service_panel_state import locked_service, owns_identity
 from bot.services.service_period_sync import settle_cancelled_service_period
 from bot.services.service_usage_sync import RECONCILIATION_ERRORS, record_service_usage
+from db.dal.service_operations_dal import begin_execution
 from db.service_models import ServiceConnection, ServiceOrder, UserService
 
 
@@ -43,9 +46,44 @@ async def revoke_service_identity(
 ) -> None:
     async with session_factory() as session:
         locked = await locked_service(session, service_id)
+        if (
+            locked is None
+            or locked[2].revoke_requested_at is None
+            or locked[1].desired_status != "cancelled"
+        ):
+            return
+        if locked[2].replacement_order_id is not None:
+            await synchronize_service_entitlement_locked(session, *locked, panel)
+            await session.commit()
+            return
+        await begin_execution(session, locked[1], "revocation", create=True)
+        intent = (locked[1].user_id, locked[1].revision)
+        await session.commit()
+    await _revoke_service_identity(session_factory, service_id, panel, intent)
+    async with session_factory() as session:
+        locked = await locked_service(
+            session, service_id, include_revoked=True, expected_intent=intent
+        )
+        if locked is not None:
+            await record_revocation_result(session, locked[1], locked[2])
+            await session.commit()
+
+
+async def _revoke_service_identity(
+    session_factory: sessionmaker,
+    service_id: str,
+    panel: PanelApiService,
+    intent: tuple[int | None, int],
+) -> None:
+    async with session_factory() as session:
+        locked = await locked_service(session, service_id, expected_intent=intent)
         if locked is None:
             return
         _user, service, connection = locked
+        if connection.replacement_order_id is not None:
+            await synchronize_service_entitlement_locked(session, *locked, panel)
+            await session.commit()
+            return
         if (
             connection.state == "revoked"
             or connection.revoke_requested_at is None
@@ -108,12 +146,13 @@ async def revoke_service_identity(
                         return
                     # A crash after DELETE must not discard the final accepted observation.
                     await session.commit()
-                    locked = await locked_service(session, service_id)
+                    locked = await locked_service(session, service_id, expected_intent=intent)
                     if locked is None:
                         return
                     _user, service, connection = locked
                     if (
                         service.desired_status != "cancelled"
+                        or connection.replacement_order_id is not None
                         or connection.panel_user_uuid != reference
                     ):
                         return
@@ -136,12 +175,13 @@ async def revoke_service_identity(
                         # Commit the deletion intent together with its accepted counters.
                         connection.revoke_delete_requested_at = datetime.now(UTC)
                         await session.commit()
-                        locked = await locked_service(session, service_id)
+                        locked = await locked_service(session, service_id, expected_intent=intent)
                         if locked is None:
                             return
                         _user, service, connection = locked
                         if (
                             service.desired_status != "cancelled"
+                            or connection.replacement_order_id is not None
                             or connection.panel_user_uuid != reference
                             or connection.usage_error is not None
                             or connection.cycle_cutover_bytes is not None
@@ -183,4 +223,5 @@ async def revoke_service_identity(
         except Exception:
             # Persist intent; don't log exception text or remote credentials.
             pass
+        await record_revocation_result(session, service, connection)
         await session.commit()

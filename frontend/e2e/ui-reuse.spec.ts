@@ -3,6 +3,84 @@ import { expect, test, type Locator, type Page } from "@playwright/test";
 const adminUrl = (route: string) =>
   `/demo/runtime/admin/${route}?theme_preview=dark&mock=checkout-addons`;
 
+for (const width of [1440, 390]) {
+  for (const consumer of ["activation", "gift"] as const) {
+    test(`admin select rapid Escape and reopen stays above ${consumer} dialog at ${width}px`, async ({
+      page,
+    }, info) => {
+      const errors: string[] = [];
+      page.on("pageerror", (error) => errors.push(error.message));
+      await page.addInitScript(() => localStorage.setItem("rw_minishop_demo_language", "en"));
+      await page.setViewportSize({ width, height: 1000 });
+      await page.goto(
+        consumer === "activation"
+          ? "/demo/runtime/admin/users/910001?theme_preview=dark&mock=services"
+          : adminUrl("gifts")
+      );
+      const title = consumer === "activation" ? "Activate service" : "Create gift";
+      await page.getByRole("button", { name: title, exact: true }).click();
+      const dialog = page.getByRole("dialog", { name: title, exact: true });
+      const trigger = dialog.getByRole("button", {
+        name: consumer === "activation" ? "Choose a plan" : "Plan",
+        exact: true,
+      });
+      await expect(trigger).toBeEnabled();
+      // Reopen before the exit animation finishes, without waiting for a measurement frame.
+      await trigger.press("Enter");
+      await page.keyboard.press("Escape");
+      await trigger.press("Enter");
+      await expect(dialog).toBeVisible();
+      await expect(trigger).toBeFocused();
+      const menu = page.getByRole("listbox");
+      await expect(menu).toBeVisible();
+      await expect
+        .poll(() =>
+          menu.evaluate((node) => {
+            const wrapper = node.closest("[data-bits-floating-content-wrapper]");
+            return wrapper && getComputedStyle(wrapper).zIndex === getComputedStyle(node).zIndex;
+          })
+        )
+        .toBe(true);
+      await page.keyboard.press("ArrowDown");
+      await page.keyboard.press("Enter");
+      await expect(menu).toHaveCount(0);
+      await expect(dialog).toBeVisible();
+      await expect(trigger).toBeFocused();
+      await expect(trigger).not.toHaveText("");
+
+      await trigger.click();
+      const option = menu.getByRole("option").first();
+      await expect(option).toBeVisible();
+      await expect
+        .poll(() =>
+          option.evaluate((node) => {
+            const box = node.getBoundingClientRect();
+            return node.contains(
+              document.elementFromPoint(box.x + box.width / 2, box.y + box.height / 2)
+            );
+          })
+        )
+        .toBe(true);
+      const selected = await option.innerText();
+      await noOverflow(menu);
+      const bounds = await menu.boundingBox();
+      expect(bounds!.x).toBeGreaterThanOrEqual(0);
+      expect(bounds!.x + bounds!.width).toBeLessThanOrEqual(width);
+      await page.screenshot({
+        path: info.outputPath(`${consumer}-reopened-menu.png`),
+        animations: "disabled",
+      });
+      await option.click();
+      await expect(menu).toHaveCount(0);
+      await expect(trigger).toHaveText(selected);
+      await expect(dialog).toBeVisible();
+      await page.keyboard.press("Escape");
+      await expect(dialog).toHaveCount(0);
+      expect(errors).toEqual([]);
+    });
+  }
+}
+
 for (const width of [1440, 768, 390]) {
   test(`hosted payment methods stay inside provider cards at ${width}px`, async ({
     page,

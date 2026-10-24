@@ -192,7 +192,7 @@
     asWebappRecordOrNull(shellState.data) as WebappData | null
   );
   const user: UserProfile = $derived(asWebappRecord(data?.user) as UserProfile);
-  const isAdmin = $derived(Boolean(user?.is_admin));
+  const isAdmin = $derived(Boolean(user?.is_admin) && !shellState.adminAccessRevoked);
   const themePreviewKey = $derived(mode === "app" && isAdmin ? requestedThemePreviewKey : "");
   const themePreviewDraft = $derived(
     themePreviewKey ? readThemePreviewDraft(themePreviewKey) : null
@@ -713,6 +713,10 @@
     t,
   });
 
+  function showAdminToast(message: unknown): void {
+    if (!shellState.adminAccessRevoked) showToast(message);
+  }
+
   const adminPanelProps: AdminPanelProps = $derived(
     buildAppAdminPanelProps({
       adminActiveSection,
@@ -728,7 +732,7 @@
       routePathnameFromLocation,
       routePrefix,
       screen,
-      showToast,
+      showToast: showAdminToast,
       t,
     })
   );

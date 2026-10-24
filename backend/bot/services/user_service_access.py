@@ -30,6 +30,7 @@ def service_status(
     if (
         as_utc(service.starts_at) > now
         or connection is None
+        or connection.replacement_order_id is not None
         or (require_ready and connection.state != "ready")
     ):
         return "pending"
@@ -56,6 +57,7 @@ def service_ready_for_delivery(
     """Local preconditions only; the caller must also verify remote identity/terms."""
     return (
         connection.state in {"pending", "ready"}
+        and connection.replacement_order_id is None
         and connection.panel_user_uuid is not None
         and connection.last_error is None
         and connection.usage_total_bytes is not None

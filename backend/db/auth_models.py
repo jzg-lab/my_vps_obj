@@ -1,4 +1,4 @@
-"""External login, WebAuthn and QR sign-in persistence models."""
+"""External account identities, avatars, WebAuthn and QR sign-in persistence."""
 
 from sqlalchemy import (
     BigInteger,
@@ -18,6 +18,29 @@ from sqlalchemy.orm import relationship
 from sqlalchemy.sql import func
 
 from db.base import Base
+
+
+class UserTelegramAvatar(Base):
+    __tablename__ = "user_telegram_avatars"
+
+    user_id = Column(
+        BigInteger,
+        ForeignKey("users.user_id"),
+        primary_key=True,
+        index=True,
+    )
+    file_unique_id = Column(String, nullable=True, index=True)
+    content_type = Column(String(64), nullable=False, default="image/jpeg")
+    image_bytes = Column(LargeBinary, nullable=False)
+    size_bytes = Column(Integer, nullable=False)
+    updated_at = Column(
+        DateTime(timezone=True),
+        server_default=func.now(),
+        onupdate=func.now(),
+        nullable=False,
+    )
+
+    user = relationship("User")
 
 
 class UserExternalIdentity(Base):

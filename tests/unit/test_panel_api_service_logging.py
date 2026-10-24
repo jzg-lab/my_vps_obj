@@ -1,4 +1,5 @@
 import asyncio
+import json
 import time
 import unittest
 from datetime import UTC, datetime
@@ -7,6 +8,7 @@ from typing import ClassVar
 from unittest.mock import AsyncMock, call, patch
 
 import aiohttp
+from aiohttp.client_reqrep import ConnectionKey
 
 from bot.services.panel_api_compat import PanelApiCompatibility
 from bot.services.panel_api_contracts import PanelApiCapability, PanelApiOperation
@@ -64,6 +66,137 @@ class PanelApiServiceLoggingTests(unittest.IsolatedAsyncioTestCase):
                         )
                     self.assertNotIn("secret.example", "\n".join(logs.output))
                     self.assertNotIn("subscriptionUrl", "\n".join(logs.output))
+
+    async def test_sensitive_resource_bodies_never_reach_logs(self) -> None:
+        payload = {"config": {"privateKey": "fake-private-key", "password": "fake-password"}}
+
+        class Response:
+            status: int
+            body: str
+            headers: ClassVar[dict[str, str]] = {"Content-Type": "application/json"}
+
+            async def __aenter__(self) -> "Response":
+                return self
+
+            async def __aexit__(self, *_args: object) -> None:
+                return None
+
+            async def text(self) -> str:
+                return self.body
+
+        for endpoint in (
+            "/config-profiles",
+            "/config-profiles/profile-id/config",
+            "config-profiles/profile-id?token=fake-query-secret",
+            "/nodes",
+            "/nodes/node-id/actions/restart",
+            "/hosts/host-id",
+            "/internal-squads/group-id",
+            "/keygen/node",
+            "users/user-id?token=fake-query-secret",
+        ):
+            for method in ("GET", "POST", "PATCH", "PUT", "DELETE"):
+                for status in (200, 500):
+                    for full in (False, True):
+                        for body in (json.dumps(payload), "fake-private-key: not JSON"):
+                            with self.subTest(
+                                endpoint=endpoint,
+                                method=method,
+                                status=status,
+                                full=full,
+                                is_json=body.startswith("{"),
+                            ):
+                                service = self._make_service()
+                                response = Response()
+                                response.status, response.body = status, body
+                                transport = SimpleNamespace(
+                                    request=unittest.mock.Mock(return_value=response)
+                                )
+                                service._get_session = AsyncMock(return_value=transport)
+                                with self.assertLogs(
+                                    "bot.services.panel_api_core", level="DEBUG"
+                                ) as logs:
+                                    result = await service._request_once(
+                                        method, endpoint, log_full_response=full, json=payload
+                                    )
+                                output = "\n".join(logs.output)
+                                for secret in (
+                                    "fake-private-key",
+                                    "fake-password",
+                                    "fake-query-secret",
+                                    "privateKey",
+                                    "Payload:",
+                                    "Full Response",
+                                    "Body Preview",
+                                ):
+                                    self.assertNotIn(secret, output)
+                                self.assertIn(f"method={method}", output)
+                                self.assertIn(f"status={status}", output)
+                                self.assertIn("panel_latency_seconds=", output)
+                                self.assertEqual(
+                                    transport.request.call_args.kwargs["json"], payload
+                                )
+                                if status == 200 and body.startswith("{"):
+                                    self.assertEqual(result, payload)
+                                elif status == 500 and not endpoint.startswith("users"):
+                                    self.assertNotIn("fake-private-key", str(result))
+
+    async def test_sensitive_transport_exceptions_do_not_log_secrets(self) -> None:
+        for endpoint in ("/config-profiles/profile-id", "/nodes/node-id", "/users/user-id"):
+            for error, status_code in (
+                (
+                    aiohttp.ClientConnectorError(
+                        ConnectionKey("fake-private-key", 443, True, True, None, None, None),
+                        OSError("fake-private-key"),
+                    ),
+                    -1,
+                ),
+                (aiohttp.ServerTimeoutError("fake-private-key"), -3),
+                (aiohttp.ClientError("fake-private-key"), -2),
+                (RuntimeError("fake-private-key"), -4),
+            ):
+                with self.subTest(endpoint=endpoint, error_type=type(error).__name__):
+                    service = self._make_service()
+                    service._get_session = AsyncMock(
+                        return_value=SimpleNamespace(request=unittest.mock.Mock(side_effect=error))
+                    )
+                    with self.assertLogs("bot.services.panel_api_core", level="DEBUG") as logs:
+                        result = await service._request_once(
+                            "POST", endpoint, json={"config": {"privateKey": "fake-private-key"}}
+                        )
+                    self.assertNotIn("fake-private-key", "\n".join(logs.output))
+                    self.assertNotIn("fake-private-key", str(result))
+                    self.assertIsNotNone(result)
+                    assert result is not None
+                    self.assertEqual(result["status_code"], status_code)
+
+    async def test_resource_error_cannot_leak_through_callers(self) -> None:
+        service = self._make_service()
+
+        class Response:
+            status = 400
+            headers: ClassVar[dict[str, str]] = {"Content-Type": "application/json"}
+
+            async def __aenter__(self) -> "Response":
+                return self
+
+            async def __aexit__(self, *_args: object) -> None:
+                return None
+
+            async def text(self) -> str:
+                return '{"message":"fake-private-key","config":{"privateKey":"fake-private-key"}}'
+
+        service._get_session = AsyncMock(
+            return_value=SimpleNamespace(request=unittest.mock.Mock(return_value=Response()))
+        )
+        with self.assertLogs("bot.services", level="DEBUG") as logs:
+            self.assertIsNone(await service._get_hosts_uncached())
+            self.assertIsNone(await service._get_internal_squads_uncached())
+        output = "\n".join(logs.output)
+        self.assertIn("Failed to get hosts", output)
+        self.assertIn("Failed to get internal squads", output)
+        self.assertNotIn("fake-private-key", output)
+        self.assertNotIn("privateKey", output)
 
     async def test_client_timeout_uses_panel_settings(self):
         service = PanelApiService(

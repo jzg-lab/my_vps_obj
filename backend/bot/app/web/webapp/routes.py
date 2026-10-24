@@ -271,7 +271,8 @@ def setup_subscription_webapp_routes(app: web.Application) -> None:
         (
             "/admin/{section:stats|users|payments|gifts|promos|ads|broadcast|logs|tariffs|"
             "appearance|settings|translations|support|backups|partners|documents|plugins|"
-            "service-plans|dedicated-exits|service-history}"
+            "service-plans|dedicated-exits|service-history|console-overview|"
+            "console-operations|services|nodes|node-resources|advanced-maintenance}"
         ),
         index_route,
     )

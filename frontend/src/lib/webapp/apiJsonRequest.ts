@@ -6,7 +6,8 @@ export async function fetchApiJson(
   path: string,
   options: RequestInit,
   requestTimeoutMs: number,
-  onUnauthorized: () => void
+  onUnauthorized: () => void,
+  onForbidden?: () => Promise<void>
 ): Promise<Record<string, unknown>> {
   const { signal, cleanup } = requestSignal(
     options.signal || currentBootSignal(),
@@ -37,6 +38,7 @@ export async function fetchApiJson(
       });
     }
     if (response.status === 401) onUnauthorized();
+    if (response.status === 403) await onForbidden?.();
     return payload as Record<string, unknown>;
   } finally {
     recordClientTiming(

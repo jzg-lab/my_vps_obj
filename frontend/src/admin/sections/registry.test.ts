@@ -52,10 +52,12 @@ describe("admin extension feature metadata", () => {
 });
 
 describe("admin navigation groups", () => {
-  it("orders neutral groups overview, operations, marketing, support, system", () => {
+  it("places customer and node workflows before secondary operations", () => {
     const coreGroupIds = ADMIN_SECTION_GROUPS.map((group) => group.id);
-    expect(coreGroupIds.slice(0, 5)).toEqual([
+    expect(coreGroupIds.slice(0, 7)).toEqual([
       "overview",
+      "customers",
+      "nodes",
       "operations",
       "marketing",
       "support",
@@ -73,6 +75,10 @@ describe("admin navigation groups", () => {
       )
         .sort((a, b) => a.order - b.order)
         .map((section) => section.id);
+    expect(byGroup("customers")).toEqual(["users", "services", "service-plans", "service-history"]);
+    expect(byGroup("nodes")).toEqual(["nodes", "node-resources", "dedicated-exits"]);
+    expect(byGroup("overview")).toEqual(["console-overview", "stats"]);
+    expect(byGroup("operations")[0]).toBe("console-operations");
     expect(byGroup("marketing")).toEqual(["broadcast", "partners", "promos", "ads"]);
     expect(byGroup("support")).toEqual(["support", "logs"]);
     // Core itself no longer populates the legacy group.
@@ -84,6 +90,7 @@ describe("admin section route resolution", () => {
   it("resolves registered core section ids case-insensitively", () => {
     expect(resolveAdminSectionId("stats")).toBe("stats");
     expect(resolveAdminSectionId(" Users ")).toBe("users");
+    expect(resolveAdminSectionId("console-operations")).toBe("console-operations");
   });
 
   it("returns an empty id for slugs unknown to the registry", () => {

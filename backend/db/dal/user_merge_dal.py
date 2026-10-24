@@ -136,6 +136,15 @@ async def _lock_users_for_merge(
     account merging must be idempotent under concurrent requests.  Ordering
     the row locks also prevents two opposite-direction merges from deadlocking.
     """
+    from .resource_operations_dal import coordinate_resources, resource_gate_active
+
+    await coordinate_resources(session)
+    if await resource_gate_active(session):
+        raise UserMergeConflictError(
+            "Resource operation is in progress.",
+            message_key="wa_auth_access_denied",
+            code="resource_operation_in_progress",
+        )
     user_ids = sorted({int(source_user_id), int(target_user_id)})
     stmt = (
         select(User)
@@ -169,12 +178,23 @@ async def merge_users(
     source, target = await _lock_users_for_merge(session, source_user_id, target_user_id)
     if not source or not target:
         raise ValueError("Both source and target users are required for merge.")
-    source_minishop_id = getattr(source, "minishop_id", None)
     if bool(getattr(source, "is_banned", False)) or bool(getattr(target, "is_banned", False)):
         raise UserMergeConflictError(
             "Access denied",
             message_key="wa_auth_access_denied",
         )
+    from .service_accounts_dal import guard_replacement_merge
+    from .user_services_dal import ServiceConflict
+
+    try:
+        await guard_replacement_merge(session, source_user_id, target_user_id)
+    except ServiceConflict:
+        raise UserMergeConflictError(
+            "Exit replacement is in progress.",
+            message_key="wa_auth_access_denied",
+            code="exit_replacement_in_progress",
+        ) from None
+    source_minishop_id = getattr(source, "minishop_id", None)
 
     # A merge must not silently move privileges or erase the audit trail of a
     # privileged account. Such accounts require a separate reviewed procedure.

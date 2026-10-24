@@ -34,6 +34,7 @@ from ..models import (
     WebAuthnChallenge,
 )
 from ..partner_models import PartnerApplication, PartnerClient, PartnerProfile
+from .resource_operations_dal import coordinate_resources, require_resource_authorization
 from .service_accounts_dal import detach_history
 
 
@@ -41,10 +42,12 @@ async def delete_user_and_relations(session: AsyncSession, user_id: int) -> bool
     """Remove login data while retaining detached service and financial history."""
     from .user_dal import lock_user_by_id
 
+    await coordinate_resources(session)
     user = await lock_user_by_id(session, user_id)
     if not user:
         return False
 
+    await require_resource_authorization(session)
     await detach_history(session, user_id)
 
     # Ensure referral pointers do not block deletion

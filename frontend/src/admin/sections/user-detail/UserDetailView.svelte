@@ -268,11 +268,14 @@
         {/if}
       {/snippet}
     </UserDetailHero>
-    {#key openedUser.user_id}<UserServices
-        {at}
-        userId={openedUser.user_id}
-        banned={Boolean(openedUser.is_banned)}
-      />{/key}
+    {#if openedUser.user_id !== 0}
+      {#key openedUser.user_id}<UserServices
+          {at}
+          userId={openedUser.user_id}
+          {routePrefix}
+          banned={Boolean(openedUser.is_banned)}
+        />{/key}
+    {/if}
     {#if openedUserDetail && !serviceModel.independent}
       <UserDetailLinks {at} {usersStore} {openedUserDetail} />
     {/if}

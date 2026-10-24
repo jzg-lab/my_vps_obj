@@ -16,7 +16,12 @@ export const demoUserRoutes = [
 
 export const demoAdminRoutes = [
   "stats",
+  "console-overview",
+  "console-operations",
   "users",
+  "services",
+  "nodes",
+  "node-resources",
   "service-plans",
   "dedicated-exits",
   "service-history",
@@ -34,6 +39,7 @@ export const demoAdminRoutes = [
   "translations",
   "backups",
   "plugins",
+  "advanced-maintenance",
   "settings",
 ];
 

@@ -72,6 +72,9 @@ describe("independent plan forms", () => {
     expect(serviceErrorKey({ error: "plan_revision_changed" })).toBe("services_plan_changed");
     expect(serviceErrorKey({ error: "plan_disabled" })).toBe("services_plan_unavailable");
     expect(serviceErrorKey(new Error("network"))).toBe("services_request_failed");
+    expect(serviceErrorKey({ error: "resource_operation_in_progress" })).toBe(
+      "resource_ops_error_busy"
+    );
   });
   it("does not cap usage at the quota or round tiny usage to zero GiB", () => {
     expect(serviceBytes(117 * GIB)).toBe("117 GiB");

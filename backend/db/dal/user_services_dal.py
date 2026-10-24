@@ -8,6 +8,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from config.service_periods import as_utc, monthly_period
 from config.service_plans import ServicePlanTerms
+from db.dal.resource_operations_dal import coordinate_resources, require_resource_authorization
 from db.service_models import (
     DedicatedExit,
     ServiceConnection,
@@ -38,6 +39,7 @@ async def save_plan(
     expected_revision: int | None = None,
     quota_change_reason: str | None = None,
 ) -> ServicePlan:
+    await coordinate_resources(session)
     now = datetime.now(UTC)
     if plan_id is None:
         plan = ServicePlan(id=uuid4().hex, revision=1, created_at=now)
@@ -88,6 +90,7 @@ async def activate_service(
     now = as_utc(now or datetime.now(UTC))
     from .user_dal import lock_user_by_id
 
+    await coordinate_resources(session)
     # Serialize activation/replays with bans and account merges on the same owner row.
     user = await lock_user_by_id(session, user_id)
     if user is None:
@@ -117,6 +120,7 @@ async def activate_service(
     )
     if plan is None:
         raise ServiceConflict("plan_not_found", 404)
+    await require_resource_authorization(session)
     if not plan.enabled:
         raise ServiceConflict("plan_disabled")
     if plan.revision != expected_revision:
@@ -127,13 +131,17 @@ async def activate_service(
         if exit_id is None:
             raise ServiceConflict("dedicated_exit_required", 400)
         resource = await session.scalar(
-            select(DedicatedExit).where(DedicatedExit.id == exit_id).with_for_update()
+            select(DedicatedExit)
+            .where(DedicatedExit.id == exit_id)
+            .with_for_update()
+            .execution_options(populate_existing=True)
         )
         if resource is None:
             raise ServiceConflict("exit_not_found", 404)
         if (
             not resource.enabled
             or resource.service_id is not None
+            or resource.hold_order_id is not None
             or resource.resource_pool != terms.resource_pool
         ):
             raise ServiceConflict("exit_unavailable")
@@ -185,6 +193,9 @@ async def activate_service(
         created_at=now,
     )
     session.add(order)
+    from .service_operations_dal import enqueue_execution
+
+    await enqueue_execution(session, service, "prepare", order=order, source="administrator")
     await session.flush()
     return service, order, False
 

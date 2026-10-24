@@ -8,6 +8,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from config.service_periods import as_utc
 from config.service_plans import ServicePlanTerms
+from db.dal.resource_operations_dal import coordinate_resources
 from db.dal.user_dal import lock_user_by_id
 from db.models import User
 from db.service_models import DedicatedExit, ServiceConnection, UserService
@@ -43,8 +44,13 @@ def panel_traffic_limit(service: UserService, connection: ServiceConnection | No
 
 
 async def locked_service(
-    session: AsyncSession, service_id: str
+    session: AsyncSession,
+    service_id: str,
+    *,
+    include_revoked: bool = False,
+    expected_intent: tuple[int | None, int] | None = None,
 ) -> tuple[User, UserService, ServiceConnection] | None:
+    await coordinate_resources(session)
     owner_id = await session.scalar(select(UserService.user_id).where(UserService.id == service_id))
     if owner_id is None:
         return None
@@ -54,12 +60,17 @@ async def locked_service(
     # A merge may have moved ownership while we waited for the original account lock.
     if user is None or service is None or service.user_id != owner_id or connection is None:
         return None
-    if connection.state == "revoked":
+    if connection.state == "revoked" and not include_revoked:
+        return None
+    if expected_intent is not None and (service.user_id, service.revision) != expected_intent:
         return None
     return user, service, connection
 
 
 async def service_squads(session: AsyncSession, service: UserService) -> list[str] | None:
+    connection = await session.get(ServiceConnection, service.id)
+    if connection is not None and connection.replacement_order_id is not None:
+        return None
     terms = ServicePlanTerms.model_validate(service.terms)
     if terms.resource_type == "shared":
         return [str(value) for value in terms.squad_uuids]

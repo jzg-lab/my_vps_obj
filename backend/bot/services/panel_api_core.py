@@ -446,6 +446,7 @@ class PanelApiCoreMixin:
         log_full_response: bool = False,
         *,
         operation: PanelApiOperation | None = None,
+        preserve_http_status: bool = False,
         **kwargs: Any,
     ) -> dict[str, Any] | None:
         if not self.base_url:
@@ -465,8 +466,15 @@ class PanelApiCoreMixin:
         # usernames, emails, user ids, or UUIDs. The operation registry label is
         # deliberately identifier-free.
         log_prefix = f"Panel API Req: {method.upper()} {endpoint_label}"
-        sensitive_user_request = endpoint.split("?", 1)[0].startswith("/users")
-        if json_payload_for_log and not sensitive_user_request:
+        path = "/" + endpoint.split("?", 1)[0].strip("/")
+        # Profiles and related resources can embed raw inbounds, proxy credentials
+        # or arbitrary protocol options, so field-by-field redaction is unsafe.
+        sensitive_config_request = any(
+            path == prefix or path.startswith(prefix + "/")
+            for prefix in ("/config-profiles", "/nodes", "/hosts", "/internal-squads", "/keygen")
+        )
+        sensitive_request = path.startswith("/users") or sensitive_config_request
+        if json_payload_for_log and not sensitive_request:
             try:
                 payload_str = json.dumps(json_payload_for_log)
                 log_prefix += (
@@ -495,8 +503,8 @@ class PanelApiCoreMixin:
 
                 log_suffix = f"| Status: {response_status}"
 
-                if sensitive_user_request:
-                    logger.debug("%s %s | User response redacted", log_prefix, log_suffix)
+                if sensitive_request:
+                    logger.debug("%s %s | Sensitive response redacted", log_prefix, log_suffix)
                 elif log_full_response or not (200 <= response_status < 300):
                     try:
                         parsed_json_for_log = json.loads(response_text)
@@ -547,6 +555,7 @@ class PanelApiCoreMixin:
                             "response": None,
                         }
                     content_type = response.headers.get("Content-Type", "").lower()
+                    safe_content_type = "redacted" if sensitive_request else content_type
                     media_type = content_type.split(";", 1)[0].strip()
                     is_json_response = media_type == "application/json" or media_type.endswith(
                         "+json"
@@ -556,17 +565,24 @@ class PanelApiCoreMixin:
                             "%s %s | Panel API protocol error: expected JSON, got %s.",
                             log_prefix,
                             log_suffix,
-                            content_type or "an unspecified content type",
+                            safe_content_type or "an unspecified content type",
                         )
                         return {
                             "error": True,
                             "status_code": response_status,
                             "message": "Panel API returned an unexpected non-JSON response.",
-                            "details": {"content_type": content_type or None},
+                            "details": {"content_type": safe_content_type or None},
                         }
                     try:
                         data = json.loads(response_text)
                         if isinstance(data, dict):
+                            if preserve_http_status:
+                                if data.get("error"):
+                                    return {"status_code": response_status, "error": True}
+                                return {
+                                    "status_code": response_status,
+                                    "response": data.get("response"),
+                                }
                             return data
                         return {"status": "success", "code": response_status, "data": data}
                     except json.JSONDecodeError as e_json_ok:
@@ -581,11 +597,22 @@ class PanelApiCoreMixin:
                             "status_code": response_status,
                             "message": "Panel API returned invalid JSON.",
                             "details": {
-                                "content_type": content_type,
+                                "content_type": safe_content_type,
                                 "parse_error": str(e_json_ok),
                             },
                         }
                 else:
+                    if sensitive_config_request:
+                        # Callers also log failed responses; do not pass raw config
+                        # through the diagnostic error envelope to those loggers.
+                        return {
+                            "error": True,
+                            "status_code": response_status,
+                            "details": {
+                                "message": f"Request failed with status {response_status}",
+                                "response_redacted": True,
+                            },
+                        }
                     error_details = {
                         "message": f"Request failed with status {response_status}",
                         "raw_response_text": response_text,
@@ -600,6 +627,7 @@ class PanelApiCoreMixin:
                     return {"error": True, "status_code": response_status, "details": error_details}
 
         except aiohttp.ClientConnectorError as e:
+            error_message = type(e).__name__ if sensitive_request else str(e)
             logger.info(
                 "metric panel_latency_seconds=%.3f method=%s endpoint=%s status=connect_error",
                 time.monotonic() - started,
@@ -610,10 +638,15 @@ class PanelApiCoreMixin:
                 "Panel API ClientConnectorError method=%s endpoint=%s: %s",
                 method.upper(),
                 endpoint_label,
-                e,
+                error_message,
             )
-            return {"error": True, "status_code": -1, "message": f"Connection error: {e!s}"}
+            return {
+                "error": True,
+                "status_code": -1,
+                "message": f"Connection error: {error_message}",
+            }
         except aiohttp.ServerTimeoutError as e:
+            error_message = type(e).__name__ if sensitive_request else str(e)
             logger.info(
                 "metric panel_latency_seconds=%.3f method=%s endpoint=%s status=timeout",
                 time.monotonic() - started,
@@ -621,20 +654,32 @@ class PanelApiCoreMixin:
                 endpoint_label,
             )
             logger.warning(
-                "Panel API timeout method=%s endpoint=%s: %s", method.upper(), endpoint_label, e
+                "Panel API timeout method=%s endpoint=%s: %s",
+                method.upper(),
+                endpoint_label,
+                error_message,
             )
-            return {"error": True, "status_code": -3, "message": f"Request timed out: {e!s}"}
+            return {
+                "error": True,
+                "status_code": -3,
+                "message": f"Request timed out: {error_message}",
+            }
         except aiohttp.ClientError as e:
+            error_message = type(e).__name__ if sensitive_request else str(e)
             logger.info(
                 "metric panel_latency_seconds=%.3f method=%s endpoint=%s status=client_error",
                 time.monotonic() - started,
                 method.upper(),
                 endpoint_label,
             )
-            logger.exception(
-                "Panel API ClientError method=%s endpoint=%s.", method.upper(), endpoint_label
+            logger.error(
+                "Panel API ClientError method=%s endpoint=%s error=%s.",
+                method.upper(),
+                endpoint_label,
+                error_message,
+                exc_info=not sensitive_request,
             )
-            return {"error": True, "status_code": -2, "message": f"Client error: {e!s}"}
+            return {"error": True, "status_code": -2, "message": f"Client error: {error_message}"}
         except TimeoutError:
             logger.info(
                 "metric panel_latency_seconds=%.3f method=%s endpoint=%s status=timeout",
@@ -649,16 +694,22 @@ class PanelApiCoreMixin:
             )
             return {"error": True, "status_code": -3, "message": "Request timed out"}
         except Exception as e:
+            error_message = type(e).__name__ if sensitive_request else str(e)
             logger.info(
                 "metric panel_latency_seconds=%.3f method=%s endpoint=%s status=unexpected_error",
                 time.monotonic() - started,
                 method.upper(),
                 endpoint_label,
             )
-            logger.exception(
+            logger.error(
                 "Unexpected Panel API request error method=%s endpoint=%s: %s",
                 method.upper(),
                 endpoint_label,
-                e,
+                error_message,
+                exc_info=not sensitive_request,
             )
-            return {"error": True, "status_code": -4, "message": f"Unexpected error: {e!s}"}
+            return {
+                "error": True,
+                "status_code": -4,
+                "message": f"Unexpected error: {error_message}",
+            }

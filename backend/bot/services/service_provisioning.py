@@ -4,12 +4,13 @@ import asyncio
 import logging
 from datetime import UTC, datetime
 
-from sqlalchemy import or_, select
+from sqlalchemy import or_, select, true
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import sessionmaker
 
 from bot.services.panel_api_service import PanelApiService
 from bot.services.service_delivery import deliver_service_identity
+from bot.services.service_operations import enabling_block
 from bot.services.service_panel_state import (
     locked_service,
     matches_service_terms,
@@ -19,8 +20,10 @@ from bot.services.service_panel_state import (
 )
 from bot.services.service_revocation import revoke_service_identity
 from config.service_periods import as_utc
+from db.dal.resource_operations_dal import resource_gate_active
+from db.dal.service_operations_dal import begin_execution, finish_execution
 from db.models import User
-from db.service_models import ServiceConnection, ServiceOrder, UserService
+from db.service_models import DedicatedExit, ServiceConnection, ServiceOrder, UserService
 
 logger = logging.getLogger(__name__)
 
@@ -41,37 +44,66 @@ async def provision_service_identity(
         if locked is None:
             return
         user, service, connection = locked
-        if connection.revoke_requested_at is not None:
+        if await resource_gate_active(session):
+            connection.last_error = "resource_operation_in_progress"
+            await session.commit()
+            return
+        if (
+            connection.revoke_requested_at is not None
+            or connection.replacement_order_id is not None
+        ):
             return
         if connection.state == "ready" or (
             connection.panel_user_uuid is not None and connection.state == "pending"
         ):
             return
-        connection.attempted_at = datetime.now(UTC)
         if connection.state == "pending" and (
             not _can_prepare(user, service) or await service_squads(session, service) is None
         ):
+            await finish_execution(
+                session,
+                service,
+                "prepare",
+                success=False,
+                error=enabling_block(user, service) or "service_not_deliverable",
+            )
             await session.commit()
             return
+        connection.attempted_at = datetime.now(UTC)
         # Commit uncertainty before the first remote call. Deletion cannot mistake a
         # crashed create request for an identity that has never been submitted.
         connection.state = "error"
         connection.last_error = "panel_identity_unconfirmed"
+        await begin_execution(session, service, "prepare", create=True)
+        intent = (service.user_id, service.revision)
         await session.commit()
 
     async with session_factory() as session:
-        locked = await locked_service(session, service_id)
+        locked = await locked_service(session, service_id, expected_intent=intent)
         if locked is None:
             return
         user, service, connection = locked
-        if connection.state != "error" or connection.revoke_requested_at is not None:
+        if (
+            connection.state != "error"
+            or connection.revoke_requested_at is not None
+            or connection.replacement_order_id is not None
+        ):
             return
         try:
             await _prepare_locked(session, user, service, connection, panel)
         except Exception:
             # Keep the durable uncertainty marker, never credentials or API responses.
-            logger.exception("Service identity preparation needs retry for %s", service_id)
+            logger.warning("Service identity preparation needs retry for %s", service_id)
             connection.last_error = "panel_identity_unconfirmed"
+        await finish_execution(
+            session,
+            service,
+            "prepare",
+            success=connection.state == "pending"
+            and connection.panel_user_uuid is not None
+            and connection.last_error is None,
+            error=connection.last_error,
+        )
         await session.commit()
 
 
@@ -82,6 +114,11 @@ async def _prepare_locked(
     connection: ServiceConnection,
     panel: PanelApiService,
 ) -> None:
+    if connection.replacement_order_id is not None:
+        return
+    if await resource_gate_active(session):
+        connection.last_error = "resource_operation_in_progress"
+        return
     squads = await service_squads(session, service)
     if connection.panel_user_uuid is not None:
         lookup = await panel.get_user_by_uuid_lookup(connection.panel_user_uuid)
@@ -148,12 +185,27 @@ class ServiceProvisioningWorker:
 
     async def tick(self) -> None:
         async with self.session_factory() as session:
+            gate_active = await resource_gate_active(session)
+            prepared_resource = (
+                UserService.terms["resource_type"].as_string() == "shared"
+            ) | select(DedicatedExit.id).where(
+                DedicatedExit.service_id == UserService.id,
+                DedicatedExit.enabled.is_(True),
+                DedicatedExit.verified_at.is_not(None),
+                DedicatedExit.resource_pool == UserService.terms["resource_pool"].as_string(),
+            ).exists()
             service_ids = list(
                 await session.scalars(
                     select(ServiceConnection.service_id)
                     .join(UserService, UserService.id == ServiceConnection.service_id)
+                    .join(User, User.user_id == UserService.user_id)
                     .where(
                         UserService.user_id.is_not(None),
+                        ServiceConnection.replacement_order_id.is_(None),
+                        # Blocked grants cannot consume every slot ahead of revocation.
+                        ServiceConnection.revoke_requested_at.is_not(None)
+                        if gate_active
+                        else true(),
                         or_(
                             (ServiceConnection.revoke_requested_at.is_not(None))
                             & (ServiceConnection.state != "revoked"),
@@ -166,7 +218,11 @@ class ServiceProvisioningWorker:
                             .exists(),
                             ServiceConnection.state == "error",
                             (ServiceConnection.state == "pending")
-                            & ServiceConnection.panel_user_uuid.is_(None),
+                            & ServiceConnection.panel_user_uuid.is_(None)
+                            & User.is_banned.is_(False)
+                            & (UserService.desired_status == "active")
+                            & (UserService.expires_at > datetime.now(UTC))
+                            & prepared_resource,
                         ),
                     )
                     .order_by(

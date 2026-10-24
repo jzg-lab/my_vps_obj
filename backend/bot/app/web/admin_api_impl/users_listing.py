@@ -8,6 +8,7 @@ from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import sessionmaker
 
+from bot.app.web.admin_console_customers_schemas import ConsoleCustomerServicesOut
 from bot.app.web.context import (
     get_session_factory,
     get_settings,
@@ -17,7 +18,7 @@ from bot.infra.redis import cache_delete_pattern, redis_key
 from bot.services.partner_common import currency_scale
 from bot.utils.ttl_cache import AsyncTTLCache
 from config.settings import Settings
-from db.dal import partner_dal, user_balance_dal
+from db.dal import admin_console_customers_dal, partner_dal, user_balance_dal
 from db.models import Subscription
 
 from .auth import _require_admin_user_id
@@ -96,6 +97,7 @@ async def _load_admin_users_list_payload(
         balance_enabled=balance_enabled,
         partner_balance_enabled=partner_balance_enabled,
         balance_currency=balance_currency,
+        customer_summary_version=1,
     )
     if cache is None:
         return await _load_admin_users_list_payload_uncached(
@@ -166,6 +168,9 @@ async def _load_admin_users_list_payload_uncached(
         )
 
         user_ids = [int(user.user_id) for user in users]
+        service_summaries = await admin_console_customers_dal.summaries_for_customers(
+            session, user_ids, now=datetime.now(UTC)
+        )
         statuses = await _bulk_user_statuses(session, user_ids)
         cached_avatar_ids = await _bulk_user_avatar_keys(session, user_ids)
         active_subs = await _bulk_active_subscriptions_for_users(session, user_ids)
@@ -193,6 +198,9 @@ async def _load_admin_users_list_payload_uncached(
     serialized = []
     for user in users:
         payload = _serialize_user(user)
+        payload["independent_services"] = ConsoleCustomerServicesOut.model_validate(
+            service_summaries[user.user_id]
+        ).model_dump(mode="json")
         status_payload = statuses.get(user.user_id) or {"status": "bot_only", "end_date": None}
         payload["panel_status"] = status_payload.get("status")
         payload["subscription_expires_at"] = status_payload.get("end_date")

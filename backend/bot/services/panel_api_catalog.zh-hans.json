@@ -42,6 +42,7 @@
   },
   "empty_success_body": "；空 2xx 正文视为成功",
   "compatibility_notes": {
+    "Pinned 3.4.5 resource operations; acknowledgement is not runtime verification.": "限定 3.4.5 的资源操作；受理回执不代表实际运行已经验证。",
     "Stable across the certified API generations.": "全部已认证 API 代保持稳定。",
     "Stable version probe; failures are not treated as a capability result.": "稳定的版本探测，失败不视为能力结论。",
     "3.x is the canonical cursor stream and supports lookup filters; a 2.8 stream may expose UUID users or ignore the new filters, so Core validates results.": "3.x 以游标流为标准并支持查找过滤；2.8 可能返回 UUID 或忽略新过滤器，Core 因此校验结果。",

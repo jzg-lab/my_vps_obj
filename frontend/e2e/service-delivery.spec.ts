@@ -88,12 +88,17 @@ for (const width of [1440, 390]) {
     const region = page.getByRole("region", { name: "Независимые услуги" });
     for (let index = 0; index < 2; index++) {
       await region.getByRole("button", { name: "Подключить услугу", exact: true }).click();
+      const activation = page.getByRole("dialog");
+      const submit = activation.getByRole("button", { name: "Подключить услугу", exact: true });
+      await expect(submit).toBeDisabled();
       await page.getByRole("button", { name: "Выберите тариф", exact: true }).click();
       await page.getByRole("option", { name: "Demo total", exact: true }).click();
-      await page
-        .getByRole("dialog")
-        .getByRole("button", { name: "Подключить услугу", exact: true })
-        .click();
+      const preflight = activation.getByRole("region", { name: "Проверка перед активацией" });
+      await expect(preflight).toContainText("Можно создать запись услуги, ожидающей выдачи.");
+      await expect(preflight).toContainText("Готовность ресурсов: Неизвестно");
+      await expect(preflight).toContainText("Готовность к выдаче не подтверждена");
+      await expect(submit).toBeEnabled();
+      await submit.click();
       await expect(page.getByRole("dialog")).toHaveCount(0);
     }
     const first = region.locator("tbody tr").first();

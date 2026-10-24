@@ -39,6 +39,8 @@ export type ShellState = {
   adminBundleError: string;
   adminMountTarget: HTMLElement | null;
   adminActiveSection: string;
+  adminAccessRevoked: boolean;
+  adminAccessVersion: number;
   tg: TelegramWebApp | null;
   demoAuthLogin: unknown;
   appActions: AppActionRuntime | null;
@@ -82,6 +84,8 @@ export function createInitialShellState(overrides: ShellStateInit = {}): ShellSt
     adminBundleError: "",
     adminMountTarget: null,
     adminActiveSection: "stats",
+    adminAccessRevoked: false,
+    adminAccessVersion: 0,
     tg: null,
     demoAuthLogin: false,
     appActions: null,

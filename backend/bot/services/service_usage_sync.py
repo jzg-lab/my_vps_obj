@@ -10,6 +10,7 @@ from sqlalchemy.orm import sessionmaker
 
 from bot.services.panel_api_service import PanelApiService
 from bot.services.service_panel_state import locked_service, owns_identity
+from db.dal.service_operations_dal import begin_execution, finish_execution
 from db.service_models import ServiceConnection, UserService
 
 logger = logging.getLogger(__name__)
@@ -39,17 +40,37 @@ async def synchronize_service_usage(
 ) -> None:
     async with session_factory() as session:
         locked = await locked_service(session, service_id)
+        if locked is None or locked[2].panel_user_uuid is None:
+            return
+        if locked[2].usage_error not in RECONCILIATION_ERRORS:
+            await begin_execution(session, locked[1], "usage")
+        intent = (locked[1].user_id, locked[1].revision)
+        await session.commit()
+    await _synchronize_service_usage(session_factory, service_id, panel, intent)
+
+
+async def _synchronize_service_usage(
+    session_factory: sessionmaker,
+    service_id: str,
+    panel: PanelApiService,
+    intent: tuple[int | None, int],
+) -> None:
+    async with session_factory() as session:
+        locked = await locked_service(session, service_id, expected_intent=intent)
         if locked is None:
             return
         _user, service, connection = locked
         reference = connection.panel_user_uuid
         if reference is None:
             return
-        connection.usage_attempted_at = datetime.now(UTC)
         if connection.usage_error in RECONCILIATION_ERRORS:
             # A higher later value cannot distinguish a stale sample from lost history.
+            await finish_execution(
+                session, service, "usage", success=False, error=connection.usage_error
+            )
             await session.commit()
             return
+        connection.usage_attempted_at = datetime.now(UTC)
         connection.usage_error = "panel_usage_unavailable"
         try:
             lookup = await panel.get_user_by_uuid_lookup(reference)
@@ -64,7 +85,15 @@ async def synchronize_service_usage(
                 else:
                     record_service_usage(service, connection, remote)
         except Exception:
-            logger.exception("Service usage observation needs retry for %s", service_id)
+            logger.warning("Service usage observation needs retry for %s", service_id)
+        await finish_execution(
+            session,
+            service,
+            "usage",
+            success=connection.usage_error is None and connection.usage_total_bytes is not None,
+            error=connection.usage_error,
+            attempted_at=connection.usage_attempted_at,
+        )
         await session.commit()
 
 

@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { onDestroy } from "svelte";
+  import { onDestroy, tick } from "svelte";
   import ServiceSubscription from "../ServiceSubscription.svelte";
   import BrandMark from "$lib/webapp/BrandMark.svelte";
   import { RefreshCw, ArrowRight } from "$components/ui/icons.js";
@@ -13,6 +13,7 @@
   import {
     serviceDate,
     serviceUsage,
+    serviceResetState,
     serviceStatusKey,
     type UserService,
     type CatalogPlan,
@@ -43,6 +44,7 @@
   let detailLoading = $state(false);
   let detailFailed = $state(false);
   let detailController: AbortController | undefined;
+  let detailTrigger: HTMLElement | null = null;
   const pageSize = 10;
 
   $effect(() => {
@@ -85,7 +87,8 @@
     return () => controller.abort();
   });
 
-  async function openDetail(id: string) {
+  async function openDetail(id: string, trigger?: EventTarget | null) {
+    if (trigger instanceof HTMLElement) detailTrigger = trigger;
     detailController?.abort();
     const controller = new AbortController();
     detailController = controller;
@@ -109,10 +112,12 @@
       if (!controller.signal.aborted) detailLoading = false;
     }
   }
-  function closeDetail() {
+  async function closeDetail() {
     detailController?.abort();
     selectedId = "";
     detail = null;
+    await tick();
+    if (!selectedId && detailTrigger?.isConnected) detailTrigger.focus();
   }
   onDestroy(() => detailController?.abort());
 </script>
@@ -125,14 +130,22 @@
 
 {#snippet serviceFacts(service: UserService)}
   {@const usage = serviceUsage(service)}
+  {@const reset = serviceResetState(service)}
   <dl class="service-facts">
     <div>
       <dt>{t("wa_services_used")}</dt>
-      <dd>{serviceBytes(service.used_bytes)} / {serviceBytes(service.quota_bytes)}</dd>
+      <dd data-service-usage>
+        {usage.remaining === null
+          ? t("wa_services_usage_unknown")
+          : serviceBytes(service.used_bytes)} /
+        {serviceBytes(service.quota_bytes)}
+      </dd>
     </div>
     <div>
       <dt>{t("wa_services_remaining")}</dt>
-      <dd>{serviceBytes(usage.remaining)}</dd>
+      <dd data-service-remaining>
+        {usage.remaining === null ? t("wa_services_usage_unknown") : serviceBytes(usage.remaining)}
+      </dd>
     </div>
     <div>
       <dt>{t("wa_services_expires")}</dt>
@@ -141,12 +154,24 @@
     {#if service.traffic_rule === "monthly"}
       <div>
         <dt>{t("wa_services_next_reset")}</dt>
-        <dd>{serviceDate(service.cycle_ends_at)}</dd>
+        <dd data-service-reset>
+          {reset === "ended"
+            ? t("wa_services_no_further_reset")
+            : reset === "expires_first"
+              ? t("wa_services_expires_before_reset")
+              : reset === "scheduled"
+                ? serviceDate(service.cycle_ends_at)
+                : t("wa_services_usage_unknown")}
+        </dd>
       </div>
     {/if}
   </dl>
-  <progress value={usage.percent} max="100" aria-label={t("wa_services_used")}></progress>
-  {#if usage.overage > 0}<p class="service-warning">
+  {#if usage.percent !== null}<progress
+      value={usage.percent}
+      max="100"
+      aria-label={t("wa_services_used")}
+    ></progress>{/if}
+  {#if usage.overage !== null && usage.overage > 0}<p class="service-warning">
       {t("wa_services_overage", { amount: serviceBytes(usage.overage) })}
     </p>{/if}
   <p class="service-sync">
@@ -154,6 +179,9 @@
       ? serviceDate(service.last_usage_sync_at)
       : t("wa_services_not_synced")}
   </p>
+  {#if usage.remaining === null}<p class="service-sync" role="status">
+      {t("wa_services_usage_missing")}
+    </p>{/if}
   {#if service.cycle_pending}<p class="service-sync" role="status">
       {t("wa_services_cycle_pending")}
     </p>{/if}
@@ -161,7 +189,7 @@
       {t("wa_services_change_pending")}
     </p>{/if}
   {#if service.usage_error}<p class="service-sync" role="status">
-      {t("wa_services_usage_unconfirmed")}
+      {t(service.last_usage_sync_at ? "wa_services_usage_stale" : "wa_services_usage_unconfirmed")}
     </p>{/if}
 {/snippet}
 
@@ -221,7 +249,9 @@
             {@render terms(service)}
             <p class="service-id">{t("wa_services_id")}: {service.id}</p>
             {@render serviceFacts(service)}
-            <Button variant="secondary" onclick={() => openDetail(service.id)}
+            <Button
+              variant="secondary"
+              onclick={(event: MouseEvent) => openDetail(service.id, event.currentTarget)}
               >{t("wa_services_details")}<ArrowRight size={16} /></Button
             >
           </Card>
@@ -279,12 +309,14 @@
   open={Boolean(selectedId)}
   title={detail?.name || t("wa_services_details")}
   closeLabel={t("wa_close")}
+  focusKey={`${detailLoading}:${detailFailed}`}
   onclose={closeDetail}
 >
   {#if detailLoading}<p role="status">{t("wa_loading")}</p>
   {:else if detailFailed}<p role="alert">{t("wa_services_load_failed")}</p>
     <Button onclick={() => openDetail(selectedId)}>{t("wa_services_retry")}</Button>
   {:else if detail}
+    {@const reset = serviceResetState(detail)}
     <div class="service-detail">
       <Badge wrap variant={detail.status === "active" ? "success" : "muted"}
         >{t(serviceStatusKey(detail.status))}</Badge
@@ -317,9 +349,13 @@
           )}
         </p>
       {/if}
-      {#if detail.traffic_rule === "monthly"}<p class="service-sync">
+      {#if detail.traffic_rule === "monthly" && reset !== "expires_first" && reset !== "ended"}<p
+          class="service-sync"
+        >
           {t("wa_services_monthly_hint")}
         </p>{/if}
+      <p class="service-sync">{t("wa_services_connection_unmeasured")}</p>
+      <p class="service-sync">{t("wa_services_help_evidence")}</p>
       <p class="service-sync">{t("wa_services_timezone")}</p>
     </div>
   {/if}

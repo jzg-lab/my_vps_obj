@@ -1,5 +1,12 @@
 <script lang="ts">
   import { onMount } from "svelte";
+  import ServicePreflight from "./ServicePreflight.svelte";
+  import { exitAvailable } from "../dedicated-exits/availability";
+  import {
+    preflightSelectionKey,
+    type ServicePreflight as PreflightResult,
+    type ServicePreflightBody,
+  } from "$lib/admin/consoleServiceOperations";
   import Dialog from "$components/ui/dialog.svelte";
   import { AdminButton, AdminField, AdminSelect } from "$components/patterns/admin/index.js";
   import { builtApiPath, unwrap, type ApiClient } from "$lib/webapp/publicApi.js";
@@ -38,13 +45,37 @@
   let error = $state("");
   let storageFailed = $state(false);
   let pending = $state<ServiceActivation | null>(null);
+  let preflight = $state<PreflightResult | null>(null);
+  let checkedSelection = $state("");
   const plan = $derived(plans.find((item) => item.id === planId));
   const availableExits = $derived(
-    exits.filter(
-      (item) => item.enabled && !item.service_id && item.resource_pool === plan?.terms.resource_pool
-    )
+    exits.filter((item) => exitAvailable(item, plan?.terms.resource_pool))
+  );
+  const selectedExit = $derived(availableExits.find((item) => item.id === exitId));
+  const preflightBody = $derived<ServicePreflightBody | null>(
+    !pending && plan && !loading && (plan.terms.resource_type !== "dedicated" || selectedExit)
+      ? {
+          user_id: userId,
+          plan_id: plan.id,
+          expected_revision: plan.revision,
+          exit_id: plan.terms.resource_type === "dedicated" ? exitId : null,
+        }
+      : null
+  );
+  const selection = $derived(
+    preflightBody
+      ? preflightSelectionKey(
+          preflightBody,
+          exits.find((item) => item.id === preflightBody.exit_id)?.revision ?? null
+        )
+      : ""
+  );
+  const creationAllowed = $derived(
+    Boolean(preflightBody && checkedSelection === selection && preflight?.allow_pending_creation)
   );
   async function load() {
+    preflight = null;
+    checkedSelection = "";
     loading = true;
     error = "";
     try {
@@ -104,7 +135,7 @@
   });
   async function activate(event: SubmitEvent) {
     event.preventDefault();
-    if (busy || storageFailed || (!pending && !plan)) return;
+    if (busy || storageFailed || (!pending && (!plan || !creationAllowed))) return;
     const body =
       pending ||
       (plan
@@ -139,9 +170,11 @@
 
 <Dialog
   open
+  portal
   title={at("services_activate")}
   description={at("services_activation_hint")}
   closeLabel={at("close")}
+  focusKey={error}
   onclose={() => {
     if (!busy) onclose();
   }}
@@ -157,6 +190,8 @@
           items={plans.map((item) => ({ value: item.id, label: item.terms.name }))}
           disabled={busy || Boolean(pending) || storageFailed}
           onValueChange={(id) => {
+            preflight = null;
+            checkedSelection = "";
             planId = id;
             exitId = "";
           }}
@@ -178,7 +213,12 @@
         {#if plan.terms.resource_type === "dedicated"}
           <AdminField label={at("services_choose_exit")}
             ><AdminSelect
-              bind:value={exitId}
+              value={exitId}
+              onValueChange={(id) => {
+                preflight = null;
+                checkedSelection = "";
+                exitId = id;
+              }}
               ariaLabel={at("services_choose_exit")}
               items={availableExits.map((item) => ({
                 value: item.id,
@@ -190,6 +230,26 @@
           {#if !availableExits.length && !pending}<p>{at("services_no_matching_exit")}</p>{/if}
         {/if}
       {:else if !plans.length && !error}<p>{at("services_no_plans")}</p>{/if}
+      {#if preflightBody}
+        {#key selection}
+          {@const checked = selection}
+          <ServicePreflight
+            {api}
+            {at}
+            body={preflightBody}
+            disabled={busy}
+            onresult={(result) => {
+              if (checked === selection) {
+                preflight = result;
+                checkedSelection = checked;
+              }
+            }}
+          />
+        {/key}
+      {/if}
+      <AdminButton disabled={busy || Boolean(pending) || storageFailed} onclick={load}
+        >{at("console_preflight_reload_choices")}</AdminButton
+      >
     {/if}
     {#if error}<p role="alert">{at(error)}</p>
       {#if !pending && !storageFailed}<AdminButton disabled={busy} onclick={load}
@@ -199,10 +259,7 @@
       <AdminButton disabled={busy} onclick={onclose}>{at("cancel")}</AdminButton><AdminButton
         type="submit"
         variant="primary"
-        disabled={busy ||
-          loading ||
-          storageFailed ||
-          (!pending && (!plan || (plan.terms.resource_type === "dedicated" && !exitId)))}
+        disabled={busy || loading || storageFailed || (!pending && !creationAllowed)}
         >{at(busy ? "services_activating" : "services_activate")}</AdminButton
       >
     </div>

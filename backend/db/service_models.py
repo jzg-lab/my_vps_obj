@@ -9,6 +9,7 @@ from sqlalchemy import (
     CheckConstraint,
     DateTime,
     ForeignKey,
+    Index,
     Integer,
     String,
     UniqueConstraint,
@@ -27,6 +28,9 @@ class AccountAccessSync(Base):
     pending: Mapped[bool] = mapped_column(Boolean, nullable=False, default=True, index=True)
     last_error: Mapped[str | None] = mapped_column(String(64))
     attempted_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+    operation_id: Mapped[str | None] = mapped_column(
+        String(32), ForeignKey("account_operations.id", ondelete="RESTRICT")
+    )
 
 
 class ServicePlan(Base):
@@ -123,6 +127,9 @@ class ServiceConnection(Base):
     sync_error: Mapped[str | None] = mapped_column(String(128))
     sync_attempted_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
     sync_confirmed_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+    replacement_order_id: Mapped[str | None] = mapped_column(
+        String(32), ForeignKey("service_orders.id", ondelete="RESTRICT"), unique=True
+    )
 
     usage_total_bytes: Mapped[int | None] = mapped_column(BigInteger)
     usage_attempted_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
@@ -134,6 +141,52 @@ class ServiceConnection(Base):
     revoke_requested_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
     revoke_delete_requested_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
     revoked_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+
+
+class ServiceOperationExecution(Base):
+    __tablename__ = "service_operation_executions"
+    __table_args__ = (
+        CheckConstraint(
+            "phase IN ('prepare','delivery','entitlement','revocation','usage','exit_replace')",
+            name="ck_service_execution_phase",
+        ),
+        CheckConstraint(
+            "status IN ('pending','unknown','failed','succeeded','superseded')",
+            name="ck_service_execution_status",
+        ),
+        CheckConstraint("source IN ('administrator','worker')", name="ck_service_execution_source"),
+        CheckConstraint(
+            "target_revision > 0 AND attempt_count >= 0", name="ck_service_execution_counts"
+        ),
+        Index("ix_service_executions_history", "service_id", "created_at", "id"),
+        CheckConstraint(
+            "(phase = 'exit_replace' AND replacement_progress IS NOT NULL) OR "
+            "(phase != 'exit_replace' AND replacement_progress IS NULL)",
+            name="ck_service_execution_replacement",
+        ),
+    )
+
+    id: Mapped[str] = mapped_column(String(32), primary_key=True)
+    service_id: Mapped[str] = mapped_column(
+        String(32), ForeignKey("user_services.id", ondelete="RESTRICT")
+    )
+    order_id: Mapped[str | None] = mapped_column(
+        String(32), ForeignKey("service_orders.id", ondelete="RESTRICT"), unique=True
+    )
+    # Ownership at enqueue time must survive merges and account deletion.
+    request_owner_id: Mapped[int] = mapped_column(BigInteger, nullable=False)
+    phase: Mapped[str] = mapped_column(String(16), nullable=False)
+    target_revision: Mapped[int] = mapped_column(Integer, nullable=False)
+    source: Mapped[str] = mapped_column(String(16), nullable=False)
+    actor_id: Mapped[int | None] = mapped_column(BigInteger)
+    status: Mapped[str] = mapped_column(String(16), nullable=False)
+    attempt_count: Mapped[int] = mapped_column(Integer, nullable=False, default=0)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
+    attempted_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+    first_failed_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+    completed_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+    error_code: Mapped[str | None] = mapped_column(String(64))
+    replacement_progress: Mapped[dict[str, object] | None] = mapped_column(JSON(none_as_null=True))
 
 
 class ServiceUsagePeriod(Base):
@@ -155,6 +208,11 @@ class ServiceUsagePeriod(Base):
 
 class DedicatedExit(Base):
     __tablename__ = "dedicated_exits"
+    __table_args__ = (
+        CheckConstraint(
+            "service_id IS NULL OR hold_order_id IS NULL", name="ck_dedicated_exit_binding_hold"
+        ),
+    )
 
     id: Mapped[str] = mapped_column(String(32), primary_key=True)
     revision: Mapped[int] = mapped_column(Integer, nullable=False, default=1)
@@ -166,6 +224,9 @@ class DedicatedExit(Base):
         String(32), ForeignKey("user_services.id", ondelete="RESTRICT"), unique=True
     )
     verified_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+    hold_order_id: Mapped[str | None] = mapped_column(
+        String(32), ForeignKey("service_orders.id", ondelete="RESTRICT"), index=True
+    )
     enabled: Mapped[bool] = mapped_column(Boolean, nullable=False, default=True)
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
 

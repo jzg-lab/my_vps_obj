@@ -8,6 +8,8 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from bot.services.user_service_access import service_ready_for_delivery
 from config.service_periods import as_utc
+from db.dal.resource_operations_dal import coordinate_resources, require_resource_authorization
+from db.dal.service_operations_dal import enqueue_execution
 from db.dal.user_dal import lock_user_by_id
 from db.dal.user_services_dal import ServiceConflict, get_service_resource
 from db.service_models import (
@@ -27,6 +29,7 @@ async def record_exit_evidence(
     action: str,
     command: dict[str, object],
 ) -> tuple[DedicatedExit, DedicatedExitAudit, bool]:
+    await coordinate_resources(session)
     service_id = command["service_id"]
     # Same lock order as activation, bans and deletion: account, then resource.
     if service_id is not None:
@@ -43,6 +46,15 @@ async def record_exit_evidence(
     )
     if resource is None:
         raise ServiceConflict("exit_not_found", 404)
+    connection = (
+        await session.get(ServiceConnection, resource.service_id, populate_existing=True)
+        if resource.service_id
+        else None
+    )
+    if resource.hold_order_id is not None or (
+        connection is not None and connection.replacement_order_id is not None
+    ):
+        raise ServiceConflict("exit_replacement_in_progress")
     key = str(command["idempotency_key"])
     previous = await session.scalar(
         select(DedicatedExitAudit).where(
@@ -60,6 +72,7 @@ async def record_exit_evidence(
     if checked.tzinfo is None or checked > now:
         raise ServiceConflict("exit_evidence_invalid", 400)
     if action == "verify":
+        await require_resource_authorization(session)
         if command.get("observed_ip") != resource.ip_address or not resource.enabled:
             raise ServiceConflict("exit_evidence_mismatch")
         if command.get("fixed") is not True or command.get("exclusive") is not True:
@@ -125,6 +138,7 @@ async def request_service_revocation(
     idempotency_key: str,
     reason: str,
 ) -> tuple[UserService, ServiceOrder, bool]:
+    await coordinate_resources(session)
     user = await lock_user_by_id(session, user_id)
     service = await session.get(UserService, service_id, populate_existing=True)
     if user is None or service is None or service.user_id != user_id:
@@ -176,6 +190,7 @@ async def request_service_revocation(
         created_at=now,
     )
     session.add(order)
+    await enqueue_execution(session, service, "revocation", order=order, source="administrator")
     await session.flush()
     return service, order, False
 
@@ -189,6 +204,7 @@ async def request_service_delivery(
     expected_revision: int,
     idempotency_key: str,
 ) -> tuple[UserService, ServiceOrder, bool]:
+    await coordinate_resources(session)
     user = await lock_user_by_id(session, user_id)
     service = await session.get(UserService, service_id, populate_existing=True)
     if user is None or service is None or service.user_id != user_id:
@@ -206,6 +222,7 @@ async def request_service_delivery(
         return service, previous, True
     if service.revision != expected_revision:
         raise ServiceConflict("service_revision_changed")
+    await require_resource_authorization(session)
     connection, resource = await get_service_resource(session, service_id)
     if (
         connection is None
@@ -237,5 +254,6 @@ async def request_service_delivery(
         created_at=datetime.now(UTC),
     )
     session.add(order)
+    await enqueue_execution(session, service, "delivery", order=order, source="administrator")
     await session.flush()
     return service, order, False

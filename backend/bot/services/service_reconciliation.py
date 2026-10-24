@@ -6,6 +6,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from bot.services.service_panel_state import ServiceEntitlementPanel, owns_identity
 from bot.services.service_usage_sync import usage_counters
 from config.service_changes import ServiceChange
+from db.dal.resource_operations_dal import coordinate_resources
 from db.dal.service_changes_dal import change_service
 from db.dal.user_dal import lock_user_by_id
 from db.dal.user_services_dal import ServiceConflict
@@ -23,6 +24,7 @@ async def reconcile_service_usage(
     change: ServiceChange,
     panel: ServiceEntitlementPanel | None,
 ) -> tuple[UserService, ServiceOrder, bool]:
+    await coordinate_resources(session)
     user = await lock_user_by_id(session, user_id)
     service = await session.get(UserService, service_id, populate_existing=True)
     if user is None or service is None or service.user_id != user_id:

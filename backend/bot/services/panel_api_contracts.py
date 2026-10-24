@@ -95,6 +95,14 @@ class PanelApiOperation(StrEnum):
     INTERNAL_SQUAD_ADD_USERS = "internal-squads.add-users"
     INTERNAL_SQUAD_REMOVE_USERS = "internal-squads.remove-users"
     HOSTS_LIST = "hosts.list"
+    NODE_CREATE = "nodes.create"
+    NODE_ENABLE = "nodes.enable"
+    NODE_DISABLE = "nodes.disable"
+    GROUP_CREATE = "internal-squads.create"
+    GROUP_UPDATE = "internal-squads.update"
+    HOST_CREATE = "hosts.create"
+    HOST_UPDATE = "hosts.update"
+    NODE_KEYGEN = "keygen.node"
 
 
 class PanelApiCoverage(StrEnum):
@@ -535,6 +543,57 @@ PANEL_API_OPERATION_CONTRACTS: tuple[PanelApiOperationContract, ...] = (
         coverage=WRITE_COVERAGE,
     ),
     _contract(PanelApiOperation.HOSTS_LIST, "GET", "/hosts", "/hosts"),
+    *(
+        _contract(
+            operation,
+            method,
+            path,
+            label,
+            generations=RW3_ONLY,
+            success_statuses=statuses,
+            mutation=True,
+            idempotent=False,
+            identity_sensitive=True,
+            coverage=(PanelApiCoverage.UNIT,),
+            compatibility_note=(
+                "Pinned 3.4.5 resource operations; acknowledgement is not runtime verification."
+            ),
+        )
+        for operation, method, path, label, statuses in (
+            (PanelApiOperation.NODE_CREATE, "POST", "/nodes", "/nodes", (201,)),
+            (
+                PanelApiOperation.NODE_ENABLE,
+                "POST",
+                "/nodes/{uuid}/actions/enable",
+                "/nodes/actions/enable",
+                (200,),
+            ),
+            (
+                PanelApiOperation.NODE_DISABLE,
+                "POST",
+                "/nodes/{uuid}/actions/disable",
+                "/nodes/actions/disable",
+                (200,),
+            ),
+            (
+                PanelApiOperation.GROUP_CREATE,
+                "POST",
+                "/internal-squads",
+                "/internal-squads",
+                (201,),
+            ),
+            (
+                PanelApiOperation.GROUP_UPDATE,
+                "PATCH",
+                "/internal-squads",
+                "/internal-squads",
+                (200,),
+            ),
+            (PanelApiOperation.HOST_CREATE, "POST", "/hosts", "/hosts", (201,)),
+            (PanelApiOperation.HOST_UPDATE, "PATCH", "/hosts", "/hosts", (200,)),
+            (PanelApiOperation.NODE_KEYGEN, "GET", "/keygen", "/keygen", (200,)),
+        )
+    ),
 )
 
 

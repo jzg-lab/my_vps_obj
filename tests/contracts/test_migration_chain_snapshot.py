@@ -132,6 +132,11 @@ EXPECTED_CORE_MIGRATION_IDS = [
     "0113_service_entitlements",
     "0114_service_delivery",
     "0115_service_revocation_evidence",
+    "0116_service_operation_executions",
+    "0117_exit_replacement",
+    "0118_resource_operations",
+    "0119_account_operations",
+    "0120_node_assets",
 ]
 
 

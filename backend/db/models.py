@@ -8,7 +8,6 @@ from sqlalchemy import (
     ForeignKey,
     Index,
     Integer,
-    LargeBinary,
     Numeric,
     String,
     Text,
@@ -16,7 +15,7 @@ from sqlalchemy import (
     and_,
     text,
 )
-from sqlalchemy.orm import relationship
+from sqlalchemy.orm import Mapped, mapped_column, relationship
 from sqlalchemy.sql import func
 
 from db import provider_mandate_models, subscription_notification_models
@@ -45,7 +44,7 @@ class User(UserAccountIdentityColumns, UserNotificationPreferenceColumns, Base):
     last_name = Column(String, nullable=True)
     language_code = Column(String, default="ru")
     registration_date = Column(DateTime(timezone=True), server_default=func.now())
-    is_banned = Column(Boolean, default=False)
+    is_banned: Mapped[bool | None] = mapped_column(Boolean, default=False, nullable=True)
     panel_user_uuid = Column(String, nullable=True, unique=True, index=True)
     managed_panel_tariff_tag = Column(String(255), nullable=True)
     referral_code = Column(String(64), nullable=True, unique=True, index=True)
@@ -87,29 +86,6 @@ class User(UserAccountIdentityColumns, UserNotificationPreferenceColumns, Base):
 
     def __repr__(self) -> str:
         return f"<User(user_id={self.user_id}, username='{self.username}')>"
-
-
-class UserTelegramAvatar(Base):
-    __tablename__ = "user_telegram_avatars"
-
-    user_id = Column(
-        BigInteger,
-        ForeignKey("users.user_id"),
-        primary_key=True,
-        index=True,
-    )
-    file_unique_id = Column(String, nullable=True, index=True)
-    content_type = Column(String(64), nullable=False, default="image/jpeg")
-    image_bytes = Column(LargeBinary, nullable=False)
-    size_bytes = Column(Integer, nullable=False)
-    updated_at = Column(
-        DateTime(timezone=True),
-        server_default=func.now(),
-        onupdate=func.now(),
-        nullable=False,
-    )
-
-    user = relationship("User")
 
 
 class UserPanelSquadOverride(Base):
@@ -952,6 +928,7 @@ class PromoCodeActivation(Base):
     )
 
 
+from db import account_operation_models as account_operation_models  # noqa: E402
 from db import activity_models as activity_models  # noqa: E402
 from db import advertising_models as advertising_models  # noqa: E402
 from db import auth_models as auth_models  # noqa: E402
@@ -962,8 +939,10 @@ from db import extension_models as extension_models  # noqa: E402
 from db import gift_models as gift_models  # noqa: E402
 from db import legacy_import_models as legacy_import_models  # noqa: E402
 from db import message_image_models as message_image_models  # noqa: E402
+from db import node_asset_models as node_asset_models  # noqa: E402
 from db import partner_models as partner_models  # noqa: E402
 from db import referral_accrual_models as referral_accrual_models  # noqa: E402
+from db import resource_operation_models as resource_operation_models  # noqa: E402
 from db import service_models as service_models  # noqa: E402
 from db import subscription_access_rotation_models as access_rotation_models  # noqa: E402
 from db import wata_models as wata_models  # noqa: E402
@@ -977,6 +956,7 @@ PanelSyncStatus = activity_models.PanelSyncStatus
 SupportTicket = activity_models.SupportTicket
 SupportTicketMessage = activity_models.SupportTicketMessage
 UserExternalIdentity = auth_models.UserExternalIdentity
+UserTelegramAvatar = auth_models.UserTelegramAvatar
 AccountRole = auth_models.AccountRole
 AccountRoleEvent = auth_models.AccountRoleEvent
 AccountAlias = auth_models.AccountAlias

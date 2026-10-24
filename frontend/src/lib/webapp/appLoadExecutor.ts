@@ -126,6 +126,14 @@ export function createAppLoadExecutor({
         ? adminRuntime.preloadAdminBundle().catch(() => false)
         : null;
     const payload = await dataClientLoadData({ fresh: options.fresh === true });
+    const accessVersion = shellState.adminAccessVersion;
+    const checkAccess = () => {
+      if (
+        accessVersion !== shellState.adminAccessVersion ||
+        (shellState.adminAccessRevoked && recordField(payload.user).is_admin)
+      )
+        throw new DOMException("admin_access_changed", "AbortError");
+    };
     perfProbe.mark("data");
     if (!payload.ok) throw new Error(String(payload.error || "load_failed"));
     const userLanguage = String(recordField(payload.user).language_code || "");
@@ -137,6 +145,7 @@ export function createAppLoadExecutor({
       }
       rememberLanguage(userLanguage);
     }
+    checkAccess();
     shellState.data = payload;
     if (!getModalState().paymentModalOpen) {
       resetBillingSelection(defaultPaymentMethodId(payload));
@@ -175,12 +184,14 @@ export function createAppLoadExecutor({
           adminRuntime.ensureI18nScope("admin"),
           adminRuntime.ensureAdminBundle(),
         ]);
+        checkAccess();
         shellState.activeTab = "settings";
         shellState.adminActiveSection = initialAdminSection || "stats";
         shellState.mode = "app";
         shellState.screen = "admin";
       } catch (_error) {
         void _error;
+        checkAccess();
         section = "settings";
         shellState.activeTab = "settings";
         shellState.mode = "app";
@@ -188,6 +199,7 @@ export function createAppLoadExecutor({
         showAdminUnavailable();
       }
     }
+    checkAccess();
     perfProbe.mark("admin");
 
     if (independentServices) section = independentServiceScreen(section);

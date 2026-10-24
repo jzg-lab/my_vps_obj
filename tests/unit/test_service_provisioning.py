@@ -2,7 +2,8 @@
 
 from datetime import UTC, datetime, timedelta
 from typing import Any, cast
-from unittest.mock import AsyncMock
+from unittest.mock import AsyncMock, patch
+from uuid import UUID
 
 from sqlalchemy import select
 from sqlalchemy.orm import sessionmaker
@@ -48,6 +49,33 @@ def panel_fixture() -> tuple[AsyncMock, dict[str, dict[str, Any]]]:
 
 
 class ServiceProvisioningTests(ServiceDatabaseTestCase):
+    async def test_local_refusals_cannot_starve_the_next_remote_candidate(self) -> None:
+        with patch(
+            "db.dal.user_services_dal.uuid4",
+            side_effect=[UUID(int=index) for index in range(1, 107)],
+        ):
+            for index in range(51):
+                await self.activate(f"blocked:{index}", user_id=2)
+            service, _, _ = await self.activate("eligible")
+        async with self.sessions.begin() as session:
+            user = await session.get(User, 2)
+            assert user
+            user.is_banned = True
+        panel, users = panel_fixture()
+        worker = ServiceProvisioningWorker(cast(sessionmaker, self.sessions), panel)
+        await worker.tick()
+        assert list(users) == [f"svc_{service.id}"]
+        panel.create_panel_user.assert_awaited_once()
+        async with self.sessions() as session:
+            blocked = list(
+                await session.scalars(
+                    select(ServiceConnection)
+                    .join(UserService, UserService.id == ServiceConnection.service_id)
+                    .where(UserService.user_id == 2)
+                )
+            )
+            assert len(blocked) == 51 and all(row.attempted_at is None for row in blocked)
+
     async def provision(self, service_id: str, panel: AsyncMock) -> ServiceConnection:
         await provision_service_identity(cast(sessionmaker, self.sessions), service_id, panel)
         async with self.sessions() as session:
@@ -177,12 +205,17 @@ class ServiceProvisioningTests(ServiceDatabaseTestCase):
         panel, users = panel_fixture()
         waiting = await self.provision(service.id, panel)
         assert waiting.state == "pending" and waiting.panel_user_uuid is None
+        worker = ServiceProvisioningWorker(cast(sessionmaker, self.sessions), panel)
+        await worker.tick()
         assert not panel.mock_calls
         async with self.sessions.begin() as session:
             allocation = await session.get(DedicatedExit, resource.id)
             assert allocation is not None
             allocation.verified_at = datetime.now(UTC)
-        prepared = await self.provision(service.id, panel)
+        await worker.tick()
+        async with self.sessions() as session:
+            prepared = await session.get(ServiceConnection, service.id)
+            assert prepared is not None
         assert prepared.panel_user_uuid == "1" and prepared.state == "pending"
         assert users[prepared.username]["activeInternalSquads"] == [{"uuid": squad}]
 
@@ -241,8 +274,9 @@ class ServiceProvisioningTests(ServiceDatabaseTestCase):
         assert list(users) == [f"svc_{valid.id}"]
         panel.create_panel_user.assert_awaited_once()
         async with self.sessions() as session:
-            records = list(await session.scalars(select(ServiceConnection)))
-            assert all(c.attempted_at is not None for c in records)
+            records = {c.service_id: c for c in await session.scalars(select(ServiceConnection))}
+            assert records[valid.id].attempted_at is not None
+            assert records[expired.id].attempted_at is records[paused.id].attempted_at is None
 
 
 def test_worker_does_not_provision_in_dry_run() -> None:

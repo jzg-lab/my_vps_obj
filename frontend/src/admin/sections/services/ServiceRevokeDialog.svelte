@@ -59,6 +59,7 @@
 
 <Dialog
   open
+  portal
   title={at("services_revoke")}
   description={at("services_revoke_hint")}
   closeLabel={at("close")}

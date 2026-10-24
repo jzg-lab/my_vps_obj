@@ -1,10 +1,12 @@
 <script lang="ts">
   import { onDestroy } from "svelte";
-  import { serviceDate as date } from "$lib/webapp/independentServices";
-  import { serviceChangeActions } from "$lib/admin/serviceChanges";
-  import ServiceDeliverDialog from "./ServiceDeliverDialog.svelte";
-  import ServiceRevokeDialog from "./ServiceRevokeDialog.svelte";
-  import ServiceOrdersDialog from "./ServiceOrdersDialog.svelte";
+  import {
+    serviceDate as date,
+    serviceResetState,
+    serviceUsage,
+  } from "$lib/webapp/independentServices";
+  import ServiceActions from "./ServiceActions.svelte";
+  import ServiceActivationAction from "./ServiceActivationAction.svelte";
   import { getAdminApi } from "$lib/admin/context.js";
   import {
     AdminBadge,
@@ -14,30 +16,35 @@
     AdminPagination,
     AdminTable,
   } from "$components/patterns/admin/index.js";
+  import { readServicesRoute, servicesRouteUrl } from "$lib/admin/consoleServices";
   import { builtApiPath, unwrap } from "$lib/webapp/publicApi.js";
   import {
     serviceBytes,
     type UserService,
     type ServiceTranslate,
   } from "$lib/admin/servicePlans.js";
-  import ServiceActivationDialog from "./ServiceActivationDialog.svelte";
-  import ServiceChangeDialog from "./ServiceChangeDialog.svelte";
   let {
     at,
     userId,
     banned = false,
-  }: { at: ServiceTranslate; userId: number | null; banned?: boolean } = $props();
+    routePrefix = "",
+  }: {
+    at: ServiceTranslate;
+    userId: number | null;
+    banned?: boolean;
+    routePrefix?: string;
+  } = $props();
   const api = getAdminApi();
+  function openService(serviceId: string) {
+    const route = { ...readServicesRoute(""), serviceId, userId: String(userId) };
+    window.history.pushState(null, "", servicesRouteUrl(window.location.href, route, routePrefix));
+    window.dispatchEvent(new PopStateEvent("popstate"));
+  }
   let services = $state<UserService[]>([]);
   let total = $state<number | undefined>();
   let page = $state(0);
   let loading = $state(true);
   let failed = $state(false);
-  let activationOpen = $state(false);
-  let selected = $state<UserService | null>(null);
-  let delivering = $state<UserService | null>(null);
-  let revoking = $state<UserService | null>(null);
-  let editing = $state<UserService | null>(null);
   let controller: AbortController | null = null;
   let request = 0;
   async function load(currentPage: number, owner: number | null) {
@@ -69,11 +76,6 @@
     void userId;
     page = 0;
     total = undefined;
-    selected = null;
-    editing = null;
-    revoking = null;
-    delivering = null;
-    activationOpen = false;
   });
   $effect(() => {
     void banned;
@@ -96,13 +98,18 @@
   <AdminListToolbar {total} totalLabel={at("services_count")}>
     {#snippet actions()}<AdminButton disabled={loading} onclick={() => load(page, userId)}
         >{at("refresh")}</AdminButton
-      >{#if userId !== null}<AdminButton
-          variant="primary"
-          disabled={banned || loading || failed}
-          onclick={() => {
-            activationOpen = true;
-          }}>{at("services_activate")}</AdminButton
-        >{/if}{/snippet}
+      >{#if userId !== null}{#key userId}<ServiceActivationAction
+            {api}
+            {at}
+            {userId}
+            {banned}
+            disabled={loading || failed}
+            onrefresh={() => void load(page, userId)}
+            oncreated={() => {
+              page = 0;
+              void load(0, userId);
+            }}
+          />{/key}{/if}{/snippet}
   </AdminListToolbar>
   {#if failed}<p role="alert">{at("services_load_failed")}</p>{:else if loading}<p role="status">
       {at("loading")}
@@ -117,7 +124,10 @@
             >{/each}</tr
         ></thead
       ><tbody>
-        {#each services as service (service.id)}<tr>
+        {#each services as service (service.id)}
+          {@const usage = serviceUsage(service)}
+          {@const reset = serviceResetState(service)}
+          <tr>
             <td data-label={at("services_name")}
               ><div>
                 <strong>{service.name}</strong><small
@@ -144,29 +154,46 @@
             >
             <td data-label={at("services_used")}
               ><div>
-                {serviceBytes(service.used_bytes)} / {serviceBytes(service.quota_bytes)}<small
+                {usage.remaining === null
+                  ? at("console_unknown")
+                  : serviceBytes(service.used_bytes)} / {serviceBytes(service.quota_bytes)}<small
                   >{at("services_last_sync")}: {service.last_usage_sync_at
                     ? date(service.last_usage_sync_at)
                     : at("services_never_synced")}</small
                 >
                 {#if service.usage_error}<small role="status"
                     >{at(
-                      ["panel_usage_regressed", "panel_usage_reset"].includes(service.usage_error)
-                        ? "services_usage_reconcile"
+                      service.last_usage_sync_at
+                        ? "services_usage_stale"
                         : "services_usage_unconfirmed"
                     )}</small
-                  >{/if}
+                  >
+                  {#if ["panel_usage_regressed", "panel_usage_reset"].includes(service.usage_error)}<small
+                      >{at("services_usage_reconcile")}</small
+                    >{/if}
+                {/if}
               </div></td
             >
             <td data-label={at("services_remaining")}
-              ><div>{serviceBytes(Math.max(0, service.quota_bytes - service.used_bytes))}</div></td
+              ><div>
+                {usage.remaining === null ? at("console_unknown") : serviceBytes(usage.remaining)}
+                {#if usage.overage !== null && usage.overage > 0}<small
+                    >{at("services_usage_overage", { amount: serviceBytes(usage.overage) })}</small
+                  >{/if}
+              </div></td
             >
             <td data-label={at("services_expires")}><div>{date(service.expires_at)}</div></td>
             <td data-label={at("services_next_reset")}
               ><div>
-                {service.cycle_ends_at
-                  ? date(service.cycle_ends_at)
-                  : "—"}{#if service.cycle_pending}<small role="status"
+                {reset === "ended"
+                  ? at("services_no_further_reset")
+                  : reset === "expires_first"
+                    ? at("services_expires_before_reset")
+                    : reset === "scheduled"
+                      ? date(service.cycle_ends_at)
+                      : reset === "not_monthly"
+                        ? "—"
+                        : at("console_unknown")}{#if service.cycle_pending}<small role="status"
                     >{at("services_cycle_pending")}</small
                   >{/if}
               </div></td
@@ -181,30 +208,16 @@
               </div></td
             >
             <td data-label={at("services_order_history")}
-              ><div class="service-actions">
-                {#if userId !== null && service.status === "pending" && service.connection_state === "pending" && service.last_usage_sync_at && !service.usage_error && !service.sync_pending && (service.resource_type === "shared" || service.exit_verified)}<AdminButton
-                    size="sm"
-                    variant="primary"
-                    onclick={() => (delivering = service)}>{at("services_deliver")}</AdminButton
-                  >{/if}
-                <AdminButton
-                  size="sm"
-                  onclick={() => {
-                    selected = service;
-                  }}>{at("services_view_history")}</AdminButton
-                >{#if userId !== null && serviceChangeActions(service).length}<AdminButton
-                    size="sm"
-                    onclick={() => {
-                      editing = service;
-                    }}>{at("services_manage")}</AdminButton
-                  >{/if}{#if userId !== null && service.desired_status !== "cancelled" && service.connection_state !== "revoked"}<AdminButton
-                    size="sm"
-                    variant="danger"
-                    onclick={() => {
-                      revoking = service;
-                    }}>{at("services_revoke")}</AdminButton
-                  >{/if}
-              </div></td
+              ><ServiceActions
+                {api}
+                {at}
+                {service}
+                {routePrefix}
+                {banned}
+                readonly={userId === null}
+                onOpenDetail={userId === null ? undefined : () => openService(service.id)}
+                onrefresh={() => load(page, userId)}
+              /></td
             >
           </tr>{/each}
       </tbody></AdminTable
@@ -228,70 +241,6 @@
       goLabel={at("services_go_page")}
     />{/if}
 </section>
-{#if activationOpen && userId !== null}<ServiceActivationDialog
-    {api}
-    {at}
-    {userId}
-    onclose={() => {
-      activationOpen = false;
-    }}
-    oncreated={() => {
-      activationOpen = false;
-      page = 0;
-      void load(0, userId);
-    }}
-  />{/if}
-
-{#if selected}{#key selected.id}<ServiceOrdersDialog
-      {api}
-      {at}
-      service={selected}
-      onclose={() => {
-        selected = null;
-      }}
-    />{/key}{/if}
-
-{#if editing}{#key editing.id}<ServiceChangeDialog
-      {api}
-      {at}
-      service={editing}
-      onclose={() => {
-        editing = null;
-        void load(page, userId);
-      }}
-      onsaved={() => {
-        editing = null;
-        void load(page, userId);
-      }}
-    />{/key}{/if}
-
-{#if revoking}{#key revoking.id}<ServiceRevokeDialog
-      {api}
-      {at}
-      service={revoking}
-      onclose={() => {
-        revoking = null;
-        void load(page, userId);
-      }}
-      onsaved={() => {
-        revoking = null;
-        void load(page, userId);
-      }}
-    />{/key}{/if}
-
-{#if delivering}{#key delivering.id}<ServiceDeliverDialog
-      {api}
-      {at}
-      service={delivering}
-      onclose={() => {
-        delivering = null;
-        void load(page, userId);
-      }}
-      onsaved={() => {
-        delivering = null;
-        void load(page, userId);
-      }}
-    />{/key}{/if}
 
 <style>
   .user-services {
@@ -311,10 +260,5 @@
     display: block;
     color: var(--admin-muted);
     overflow-wrap: anywhere;
-  }
-  .service-actions {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 8px;
   }
 </style>

@@ -119,6 +119,43 @@ function createDeps(overrides: TestOverrides = {}) {
 }
 
 describe("createAppLoadExecutor", () => {
+  it.each(["language", "admin bundle"])(
+    "does not restore administrator state after revocation during %s loading",
+    async (stage) => {
+      let finish!: () => void;
+      const delayed = new Promise<void>((resolve) => {
+        finish = resolve;
+      });
+      const payload = createPayload({ user: { is_admin: true, language_code: "en" } });
+      const { deps, adminRuntime, executor } = createDeps({
+        state: { screen: "admin", pathname: "/admin/users" },
+        deps: { dataClientLoadData: vi.fn(async () => payload) },
+      });
+      if (stage === "language") deps.ensureWebappLanguage.mockImplementation(() => delayed);
+      else
+        adminRuntime.ensureAdminBundle.mockImplementation(async () => {
+          await delayed;
+          return {};
+        });
+      const pending = expect(executor.loadData()).rejects.toMatchObject({ name: "AbortError" });
+      await vi.waitFor(() =>
+        expect(
+          stage === "language" ? deps.ensureWebappLanguage : adminRuntime.ensureAdminBundle
+        ).toHaveBeenCalled()
+      );
+      shellState.adminAccessVersion += 1;
+      shellState.adminAccessRevoked = true;
+      shellState.data = { ...payload, user: { is_admin: false } };
+      shellState.screen = "settings";
+      finish();
+      await pending;
+      expect(shellState.screen).toBe("settings");
+      expect(shellState.data.user).toEqual({ is_admin: false });
+      expect(deps.syncLoadedRoute).not.toHaveBeenCalled();
+      expect(deps.showAdminUnavailable).not.toHaveBeenCalled();
+    }
+  );
+
   it("loads app data and applies route, billing, support, and section effects", async () => {
     const payload = createPayload();
     const { billingState, deps, executor } = createDeps({

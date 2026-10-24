@@ -72,6 +72,7 @@
 
 <Dialog
   open
+  portal
   size="wide"
   title={at("services_order_history")}
   description={at("services_order_history_hint")}

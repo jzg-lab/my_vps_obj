@@ -43,12 +43,17 @@ for (const width of [1440, 390]) {
     await page.setViewportSize({ width, height: 1000 });
     const region = page.getByRole("region", { name: "Независимые услуги" });
     await region.getByRole("button", { name: "Подключить услугу", exact: true }).click();
+    const activation = page.getByRole("dialog");
+    const submit = activation.getByRole("button", { name: "Подключить услугу", exact: true });
+    await expect(submit).toBeDisabled();
     await page.getByRole("button", { name: "Выберите тариф", exact: true }).click();
     await page.getByRole("option", { name: "Demo total", exact: true }).click();
-    await page
-      .getByRole("dialog")
-      .getByRole("button", { name: "Подключить услугу", exact: true })
-      .click();
+    const preflight = activation.getByRole("region", { name: "Проверка перед активацией" });
+    await expect(preflight).toContainText("Можно создать запись услуги, ожидающей выдачи.");
+    await expect(preflight).toContainText("Готовность ресурсов: Неизвестно");
+    await expect(preflight).toContainText("Готовность к выдаче не подтверждена");
+    await expect(submit).toBeEnabled();
+    await submit.click();
     await expect(page.getByRole("dialog")).toHaveCount(0);
     await region.getByRole("button", { name: "Управление", exact: true }).click();
     await page.getByRole("button", { name: "Операция", exact: true }).click();
@@ -75,6 +80,8 @@ for (const width of [1440, 390]) {
     await dialog.getByRole("button", { name: "Сохранить", exact: true }).click();
     await expect(dialog).toHaveCount(0);
     await expect(region).toContainText("600 B");
+    await expect(region).not.toContainText("Неизвестно / 100 GiB");
+    await expect(region).not.toContainText("Ещё не синхронизировано");
     await expect(region).toContainText("Приостановлена");
     await region.getByRole("button", { name: "История", exact: true }).click();
     await expect(dialog).toContainText("Exact per-identity ledger, incident 42");

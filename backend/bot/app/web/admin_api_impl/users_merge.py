@@ -17,6 +17,7 @@ from bot.app.web.webapp.auth_panel import (
 )
 from bot.services.account_roles import is_admin
 from db.dal import message_log_dal, user_dal
+from db.dal.resource_operations_dal import coordinate_resources
 from db.dal.user_merge_dal import UserMergeConflictError
 
 from .auth import _require_admin_user_id
@@ -65,6 +66,7 @@ async def admin_user_merge_route(request: web.Request) -> web.Response:
     pending = False
     async with get_session_factory(request)() as session:
         try:
+            await coordinate_resources(session)
             # Serialize with role grants/revocations, then recheck authority.
             await session.execute(
                 text("SELECT pg_advisory_xact_lock(:lock)"), {"lock": 68533712981372}
