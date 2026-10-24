@@ -113,7 +113,7 @@ RUN useradd -u 10001 -m appuser
 COPY backend/requirements.txt backend/requirements.txt
 COPY deploy/docker/refresh_pip_vendor.py /tmp/refresh_pip_vendor.py
 RUN --mount=type=cache,target=/root/.cache/pip \
-    pip install --upgrade "pip==26.2.1" && \
+    pip install --upgrade "pip==26.2.2" && \
     pip install --no-deps --only-binary=:all: --target /tmp/pip-vendor-fixes \
       "urllib3==2.8.0" "msgpack==1.2.1" "setuptools==80.9.0" && \
     pip install --no-cache-dir -r backend/requirements.txt && \
@@ -226,7 +226,7 @@ LABEL org.opencontainers.image.source="https://gitlab.com/3252a8/remnawave-minis
 CMD ["python", "backend/plugin_launcher.py", "worker"]
 
 
-FROM nginx:1.30.5-alpine@sha256:0985e772fb9f729e6fa0980da05fca5d9c468e870eed43071545afa9d2e27d94 AS nginx-brotli-builder
+FROM nginx:1.30.6-alpine@sha256:47928bf67eb62a1863cb08d9ecb52d3e704304ba614eaee17884204677702951 AS nginx-brotli-builder
 
 # Refresh Alpine packages for every published source revision.
 ARG REMNAWAVE_MINISHOP_APK_REFRESH=""
@@ -258,7 +258,7 @@ RUN set -eu; \
     cp objs/ngx_http_brotli_static_module.so /brotli-modules/
 
 
-FROM nginx:1.30.5-alpine@sha256:0985e772fb9f729e6fa0980da05fca5d9c468e870eed43071545afa9d2e27d94 AS frontend
+FROM nginx:1.30.6-alpine@sha256:47928bf67eb62a1863cb08d9ecb52d3e704304ba614eaee17884204677702951 AS frontend
 
 ARG REMNAWAVE_MINISHOP_APK_REFRESH=""
 COPY deploy/docker/retry_apk.sh /tmp/retry_apk.sh
