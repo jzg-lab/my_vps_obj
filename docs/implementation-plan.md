@@ -79,6 +79,14 @@
 
 **主分支合入检查（2026-10-27）：** 在独立检出目录仅组合本轮管理台、客户界面及节点／服务历史契约的 110 个文件，未纳入本地备份恢复、启动器及独立 CI/CD 分支。根完整 npm run check 各阶段全部通过：后端 **6655 passed／100 skipped／1750 subtests**，架构、Ruff／格式、**1507 文件 mypy**，前端静态检查、**257 文件／2199 单测**、正式构建及完整 **725 项浏览器回归（13.2 分钟）**。数量差异来自排除其他本地工作，并非删减本轮测试。日志 data/qa/console-publish-20261027/full-check.log；条件跳过仍不代表实际环境通过。此记录是合入前本地证据，服务器拉取、备份、迁移及上线验证另行记录。
 
+<a id="production-console-20261027"></a>
+
+**管理台生产部署（2026-10-27）：** 用户明确授权合并主分支、推送及服务器拉取部署。`a3c0437676d9603c467666218fa1b7412c03833b` 已推送 `origin/main`，服务器从该远程拉取准确提交，在 `/opt/my-vps-obj/releases/a3c04376-console-20261027` 使用仓库完整 Dockerfile 构建 backend／worker／frontend，镜像与构建标签均记录该提交。停止业务写入后，在 `/opt/my-vps-obj/backups/pre-a3c04376-20261027` 保存应用文件、Compose／部署摘要和 PostgreSQL custom dump；校验 SHA-256 及 `pg_restore --list` 后执行追加迁移 0116～0121，用户、服务、连接与订单记录数在迁移前后相同。未运行 seed，未重建 Postgres／Redis／Remnawave／Node／Caddy；原生产配置及挂载保留。
+
+上线后 backend／frontend 健康、worker 运行，启动日志未见 ERROR／CRITICAL／Traceback。公网已登录会话验证新版本标记、3 个在线节点、总览与节点流量、组／线路卡片和按入站展开的关系，以及客户详情的服务／节点关系和用量。对应 F02／F03／F07、UA-03／04／07／08／13／18／19 的本轮只读上线范围；没有执行客户权益或资源变更，不构成真实客户端、邮件、代理连通或公网独享的新验收。私有部署日志位于服务器本次源码目录的 `release-logs/`，实际镜像摘要见 `/opt/my-vps-obj/last-deployment.json`。
+
+上线验收发现网速历史表为空：实际 Remnawave 3.4.5 的 `/system/stats/nodes` 仅返回 `lastSevenDays` 汇总，实时速率位于 `/nodes` 的 `system.stats.interface`。修正采集来源并补充实际响应结构及同一分钟重复采样的回归测试；保留首份样本，拒绝非有限速率值。修复后根 `npm run check` 退出 0：后端 **6658 passed／100 skipped／1750 subtests**、Ruff／格式／架构、**1507 文件 mypy**，前端静态检查、**257 文件／2199 单测**、正式构建及 **725 项浏览器回归（13.1 分钟）**通过；五项网速专项测试通过。文档构建 124 页、路由 41／39 与 `check:docs`、36 个本地链接路径及 `git diff --check` 通过。日志 `data/qa/console-publish-20261027/speed-fix-full-check.log`。补丁上线结果待实际证据补齐，不把当前速率回填成过去的历史。
+
 | 工作包 | 状态 | 本地验收证据与保留边界 |
 | --- | --- | --- |
 | UC-01：统一入口与服务查询 | 本地集成已验证 | 入口、查询、客户摘要、返回与折叠导航通过完整门禁及真实本地站点验证；未上线。 |

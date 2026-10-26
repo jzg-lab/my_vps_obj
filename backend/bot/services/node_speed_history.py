@@ -2,11 +2,14 @@
 
 import asyncio
 import logging
+import math
 from datetime import UTC, datetime, timedelta
 from typing import Any
 
 from sqlalchemy import delete
+from sqlalchemy.dialects.postgresql import insert
 
+from bot.services.panel_api_contracts import PanelApiOperation
 from bot.services.panel_api_service import PanelApiService
 from db.node_speed_models import NodeSpeedSample
 
@@ -27,7 +30,12 @@ def _rows(payload: object) -> list[dict[str, Any]]:
 
 
 def _number(value: object) -> float | None:
-    if isinstance(value, (int, float)) and not isinstance(value, bool) and value >= 0:
+    if (
+        isinstance(value, (int, float))
+        and not isinstance(value, bool)
+        and math.isfinite(value)
+        and value >= 0
+    ):
         return float(value)
     return None
 
@@ -38,9 +46,11 @@ def parse_speed_rows(payload: object, sampled_at: datetime) -> list[NodeSpeedSam
         node_id = row.get("uuid") or row.get("nodeUuid") or row.get("node_id") or row.get("id")
         if not isinstance(node_id, str) or not node_id.strip():
             continue
-        interface = row.get("interface")
+        system = row.get("system")
+        metrics = system if isinstance(system, dict) else row
+        interface = metrics.get("interface")
         if not isinstance(interface, dict):
-            stats = row.get("stats")
+            stats = metrics.get("stats")
             interface = stats.get("interface") if isinstance(stats, dict) else None
         result.append(
             NodeSpeedSample(
@@ -64,14 +74,35 @@ class NodeSpeedHistoryWorker:
 
     async def tick(self) -> None:
         sampled_at = datetime.now(UTC).replace(second=0, microsecond=0)
-        payload = await self.panel.get_nodes_statistics()
-        samples = parse_speed_rows(payload, sampled_at)
+        payload = await self.panel._request(
+            "GET", "/nodes", operation=PanelApiOperation.NODES_LIST, log_full_response=False
+        )
+        samples = parse_speed_rows(
+            payload.get("response") if payload and not payload.get("error") else None, sampled_at
+        )
         cutoff = sampled_at - RETENTION
         async with self.session_factory() as session:
             await session.execute(
                 delete(NodeSpeedSample).where(NodeSpeedSample.sampled_at < cutoff)
             )
-            session.add_all(samples)
+            if samples:
+                await session.execute(
+                    insert(NodeSpeedSample)
+                    .values(
+                        [
+                            {
+                                "node_id": sample.node_id,
+                                "sampled_at": sample.sampled_at,
+                                "rx_bytes_per_second": sample.rx_bytes_per_second,
+                                "tx_bytes_per_second": sample.tx_bytes_per_second,
+                            }
+                            for sample in samples
+                        ]
+                    )
+                    .on_conflict_do_nothing(
+                        index_elements=[NodeSpeedSample.node_id, NodeSpeedSample.sampled_at]
+                    )
+                )
             await session.commit()
 
     async def run(self) -> None:

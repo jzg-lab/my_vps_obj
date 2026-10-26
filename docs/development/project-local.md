@@ -124,16 +124,20 @@ npm run project:down
 | 本机专用私钥 | `~/.ssh/my_vps_obj_prod_ed25519`，权限 `0600`；公钥已加入服务器 `authorized_keys` |
 | 网站 Compose 目录 | `/opt/remnawave-minishop`；使用 `docker-compose.yml` 与 `docker-compose.override.yml` |
 | 线上配置与应用文件 | `/opt/remnawave-minishop/.env`、`/opt/remnawave-minishop/data` |
-| 本次源码与构建材料 | `/opt/my-vps-obj/releases/b70eb48e-simple-home-20261023`；首次替换材料另保留于 `releases/32185a16` |
+| 本次源码与构建材料 | `/opt/my-vps-obj/releases/a3c04376-console-20261027`；旧发布目录保留 |
 | 当前部署摘要 | `/opt/my-vps-obj/last-deployment.json` |
-| 切换前备份 | `/opt/my-vps-obj/backups/pre-32185a16-20261023T091750Z` |
+| 切换前备份 | `/opt/my-vps-obj/backups/pre-a3c04376-20261027`；旧备份保留 |
 | 面板 / HTTPS / Node 目录 | `/opt/remnawave`、`/opt/remnawave-edge`、`/opt/remnawave-node` |
 
 SSH 公钥认证原本关闭，本轮已启用并通过不复用旧连接的密钥登录验证；保留原密码登录方式。密码不存入本文、Git 或服务器资料。换电脑时需另行配置密钥，不能假设本机别名自动同步。
 
-### 当前版本与配置
+### 当前发布（2026-10-27）
 
-当前镜像为 `my-vps-obj/backend:b70eb48e-simple-home-20261023`、`my-vps-obj/worker:b70eb48e-simple-home-20261023`、`my-vps-obj/frontend:b70eb48e-simple-home-20261023`，迁移任务引用同一 backend 镜像。本次发布以 `b70eb48ed8596d90baffb71beeeb1b71deb3ff3b` 为基线，包含首页与独立套餐菜单的工作区源码快照，不是该提交的原样构建；发布归档 SHA-256 为 `11785e3b58e91072a71f6d1464f26c3aaf4b4b6ff3b0148f7586a3e6086f12a2`。首次替换产品为 `32185a1631438c9997747bf7f103cf53436789b4`。面板 **3.4.5**、Node **3.4.2**、数据库、Redis 与 Caddy 沿用原部署，没有随业务程序升级。本次无数据库迁移。
+当前应用源码为远程 `origin/main` 的准确提交 `a3c0437676d9603c467666218fa1b7412c03833b`，backend／worker／frontend 镜像标签均为 `a3c04376-console-20261027`，由仓库完整 Dockerfile 在服务器构建。环境配置和基础服务沿用原部署，新增迁移已应用到 `0121_node_speed_samples`。实际镜像摘要与源码／备份目录以 `/opt/my-vps-obj/last-deployment.json` 为准；上线验收、后续修复及保留边界见[本次生产部署证据](../implementation-plan.md#production-console-20261027)。下方 10 月 23 日的镜像和构建过程为历史记录。
+
+### 首次替换与配置基线（2026-10-23，历史）
+
+当时镜像为 `my-vps-obj/backend:b70eb48e-simple-home-20261023`、`my-vps-obj/worker:b70eb48e-simple-home-20261023`、`my-vps-obj/frontend:b70eb48e-simple-home-20261023`，迁移任务引用同一 backend 镜像。本次发布以 `b70eb48ed8596d90baffb71beeeb1b71deb3ff3b` 为基线，包含首页与独立套餐菜单的工作区源码快照，不是该提交的原样构建；发布归档 SHA-256 为 `11785e3b58e91072a71f6d1464f26c3aaf4b4b6ff3b0148f7586a3e6086f12a2`。首次替换产品为 `32185a1631438c9997747bf7f103cf53436789b4`。面板 **3.4.5**、Node **3.4.2**、数据库、Redis 与 Caddy 沿用原部署，没有随业务程序升级。本次无数据库迁移。
 
 为降低 4 GB 服务器上的构建负载，前端在本机按正式构建脚本生成，再在服务器重建三个应用镜像。Python 依赖文件与服务器原固定摘要镜像逐字节一致（SHA-256 `ad6edf1a019a9d1f3dfff1e46a4d41552c607afa5a93cf782db536ea8452b8ec`）；前端 package/lock 和运行入口相对 v3.8.2 未变。因此本轮使用原固定摘要运行环境，完整替换 backend/locales 和前端静态文件，并加入服务教程。构建文件 `Dockerfile.redeploy`、对应 ignore、元数据和前端产物留在本次源码目录；该做法仅适用于这次依赖相同的提交，后续依赖变化应使用仓库完整 Dockerfile 构建。
 
