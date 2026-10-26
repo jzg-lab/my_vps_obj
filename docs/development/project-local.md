@@ -124,16 +124,16 @@ npm run project:down
 | 本机专用私钥 | `~/.ssh/my_vps_obj_prod_ed25519`，权限 `0600`；公钥已加入服务器 `authorized_keys` |
 | 网站 Compose 目录 | `/opt/remnawave-minishop`；使用 `docker-compose.yml` 与 `docker-compose.override.yml` |
 | 线上配置与应用文件 | `/opt/remnawave-minishop/.env`、`/opt/remnawave-minishop/data` |
-| 本次源码与构建材料 | `/opt/my-vps-obj/releases/a3c04376-console-20261027`；旧发布目录保留 |
+| 本次源码与构建材料 | 网站 `/opt/my-vps-obj/releases/a3c04376-console-20261027`；worker `/opt/my-vps-obj/releases/307641d8-speed-20261027`；旧发布目录保留 |
 | 当前部署摘要 | `/opt/my-vps-obj/last-deployment.json` |
-| 切换前备份 | `/opt/my-vps-obj/backups/pre-a3c04376-20261027`；旧备份保留 |
+| 切换前备份 | 首次发布 `/opt/my-vps-obj/backups/pre-a3c04376-20261027`；worker 补丁 `/opt/my-vps-obj/backups/pre-307641d8-speed-20261027`；旧备份保留 |
 | 面板 / HTTPS / Node 目录 | `/opt/remnawave`、`/opt/remnawave-edge`、`/opt/remnawave-node` |
 
 SSH 公钥认证原本关闭，本轮已启用并通过不复用旧连接的密钥登录验证；保留原密码登录方式。密码不存入本文、Git 或服务器资料。换电脑时需另行配置密钥，不能假设本机别名自动同步。
 
 ### 当前发布（2026-10-27）
 
-当前应用源码为远程 `origin/main` 的准确提交 `a3c0437676d9603c467666218fa1b7412c03833b`，backend／worker／frontend 镜像标签均为 `a3c04376-console-20261027`，由仓库完整 Dockerfile 在服务器构建。环境配置和基础服务沿用原部署，新增迁移已应用到 `0121_node_speed_samples`。实际镜像摘要与源码／备份目录以 `/opt/my-vps-obj/last-deployment.json` 为准；上线验收、后续修复及保留边界见[本次生产部署证据](../implementation-plan.md#production-console-20261027)。下方 10 月 23 日的镜像和构建过程为历史记录。
+网站 backend／frontend 为远程 `origin/main` 的准确提交 `a3c0437676d9603c467666218fa1b7412c03833b`，镜像标签为 `a3c04376-console-20261027`；网速采集 worker 已单独更新为准确提交 `307641d8890586c54a2a3e09fc668ad31d491991`，镜像标签为 `307641d8-speed-20261027`。各镜像均由仓库完整 Dockerfile 在服务器构建，worker 补丁未重启网站、未增加迁移。环境配置和基础服务沿用原部署，新增迁移已应用到 `0121_node_speed_samples`。实际镜像摘要与源码／备份目录以 `/opt/my-vps-obj/last-deployment.json` 为准；上线验收、后续修复及保留边界见[本次生产部署证据](../implementation-plan.md#production-console-20261027)。下方 10 月 23 日的镜像和构建过程为历史记录。
 
 ### 首次替换与配置基线（2026-10-23，历史）
 

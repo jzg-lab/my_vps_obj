@@ -85,7 +85,7 @@
 
 上线后 backend／frontend 健康、worker 运行，启动日志未见 ERROR／CRITICAL／Traceback。公网已登录会话验证新版本标记、3 个在线节点、总览与节点流量、组／线路卡片和按入站展开的关系，以及客户详情的服务／节点关系和用量。对应 F02／F03／F07、UA-03／04／07／08／13／18／19 的本轮只读上线范围；没有执行客户权益或资源变更，不构成真实客户端、邮件、代理连通或公网独享的新验收。私有部署日志位于服务器本次源码目录的 `release-logs/`，实际镜像摘要见 `/opt/my-vps-obj/last-deployment.json`。
 
-上线验收发现网速历史表为空：实际 Remnawave 3.4.5 的 `/system/stats/nodes` 仅返回 `lastSevenDays` 汇总，实时速率位于 `/nodes` 的 `system.stats.interface`。修正采集来源并补充实际响应结构及同一分钟重复采样的回归测试；保留首份样本，拒绝非有限速率值。修复后根 `npm run check` 退出 0：后端 **6658 passed／100 skipped／1750 subtests**、Ruff／格式／架构、**1507 文件 mypy**，前端静态检查、**257 文件／2199 单测**、正式构建及 **725 项浏览器回归（13.1 分钟）**通过；五项网速专项测试通过。文档构建 124 页、路由 41／39 与 `check:docs`、36 个本地链接路径及 `git diff --check` 通过。日志 `data/qa/console-publish-20261027/speed-fix-full-check.log`。补丁上线结果待实际证据补齐，不把当前速率回填成过去的历史。
+上线验收发现网速历史表为空：实际 Remnawave 3.4.5 的 `/system/stats/nodes` 仅返回 `lastSevenDays` 汇总，实时速率位于 `/nodes` 的 `system.stats.interface`。修正采集来源并补充实际响应结构及同一分钟重复采样的回归测试；保留首份样本，拒绝非有限速率值。修复后根 `npm run check` 退出 0：后端 **6658 passed／100 skipped／1750 subtests**、Ruff／格式／架构、**1507 文件 mypy**，前端静态检查、**257 文件／2199 单测**、正式构建及 **725 项浏览器回归（13.1 分钟）**通过；五项网速专项测试通过。文档构建 124 页、路由 41／39 与 `check:docs`、36 个本地链接路径及 `git diff --check` 通过。日志 `data/qa/console-publish-20261027/speed-fix-full-check.log`。补丁 `307641d8890586c54a2a3e09fc668ad31d491991` 已推送主分支并在服务器完整构建 worker，07:22（北京时间）完成单独替换。补丁前保存应用文件、配置、部署摘要和 PostgreSQL custom dump 并校验归档；目录 `/opt/my-vps-obj/backups/pre-307641d8-speed-20261027`。本次无新增迁移，backend／frontend 保持 `a3c04376` 运行且健康；worker 启动日志未见异常。数据库已读回 3 个节点共 3 条样本，RX／TX 均有值，首次采样时间为 2026-10-27 07:22（北京时间）。只确认首轮真实采样成功，十分钟周期和 24 小时覆盖仍需随运行积累，不把当前速率回填成过去的历史。部署日志位于 `/opt/my-vps-obj/releases/307641d8-speed-20261027/release-logs/`；摘要分别记录各组件提交。
 
 | 工作包 | 状态 | 本地验收证据与保留边界 |
 | --- | --- | --- |
