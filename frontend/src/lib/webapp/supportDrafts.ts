@@ -1,3 +1,5 @@
+import { escapeHtml } from "$lib/richtext/escape.js";
+
 const SUPPORT_DRAFT_STORAGE_PREFIX = "rw_webapp_support_draft_v1";
 const SUPPORT_DRAFT_TTL_MS = 14 * 24 * 60 * 60 * 1000;
 const DEFAULT_SCOPE = "anonymous";
@@ -100,4 +102,20 @@ export function clearSupportDraft(kind: unknown, scope: unknown, id: unknown = "
   } catch (_error) {
     void _error;
   }
+}
+
+export function prepareServiceSupportDraft(scope: string, serviceId: string, label: string): void {
+  if (!/^[0-9a-f]{32}$/.test(serviceId)) return;
+  const previous = readSupportDraft("new", scope) ?? {};
+  const body = typeof previous.body === "string" ? previous.body : "";
+  const reference = escapeHtml(label + ": " + serviceId);
+  writeSupportDraft("new", scope, "new", {
+    ...previous,
+    subject:
+      typeof previous.subject === "string" && previous.subject.trim()
+        ? previous.subject
+        : label + ": " + serviceId,
+    body: body.includes(serviceId) ? body : [body, reference].filter(Boolean).join("\n\n"),
+    open: true,
+  });
 }

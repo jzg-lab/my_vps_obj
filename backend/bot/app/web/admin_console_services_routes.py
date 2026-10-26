@@ -8,6 +8,7 @@ from pydantic import BaseModel, ConfigDict, Field, ValidationError
 
 from bot.app.web.admin_api_impl.auth import _require_admin_user_id
 from bot.app.web.admin_api_impl.common import _error, _ok
+from bot.app.web.admin_console_service_traffic import ConsoleServiceTrafficOut, ServiceTrafficReader
 from bot.app.web.admin_console_services_schemas import (
     ConsoleConnectionOut,
     ConsoleServiceDetailOut,
@@ -15,7 +16,7 @@ from bot.app.web.admin_console_services_schemas import (
     ConsoleServiceOut,
     ConsoleSummaryOut,
 )
-from bot.app.web.context import get_session_factory
+from bot.app.web.context import get_panel_service, get_session_factory
 from bot.app.web.route_contracts import (
     ADMIN_SECURITY,
     RouteContract,
@@ -26,6 +27,8 @@ from config.service_plans import ServicePlanTerms
 from db.dal import admin_console_services_dal
 from db.dal.admin_console_services_dal import ConsoleSort, ConsoleStatus
 from db.dal.admin_console_summary_dal import read_console_summary
+
+_TRAFFIC_READER = web.AppKey("console_service_traffic", ServiceTrafficReader)
 
 
 class ConsoleServicesQuery(BaseModel):
@@ -85,6 +88,26 @@ async def admin_console_service_route(request: web.Request) -> web.Response:
     return response
 
 
+async def admin_console_service_traffic_route(request: web.Request) -> web.Response:
+    _require_admin_user_id(request)
+    service_id = request.match_info["service_id"]
+    if re.fullmatch(r"[0-9a-f]{32}", service_id) is None:
+        return _error(400, "invalid_service_id")
+    if request.query:
+        return _error(400, "invalid_service_traffic_query")
+    async with get_session_factory(request)() as session:
+        row = await admin_console_services_dal.get_service(session, service_id)
+        if row is None:
+            return _error(404, "service_not_found")
+        identity = row[1].panel_user_uuid if row[1] and row[0].user_id is not None else None
+    result = await request.app[_TRAFFIC_READER].read(
+        get_panel_service(request), service_id, identity
+    )
+    response = _ok(result.model_dump(mode="json"))
+    response.headers["Cache-Control"] = "private, no-store"
+    return response
+
+
 async def admin_console_summary_route(request: web.Request) -> web.Response:
     _require_admin_user_id(request)
     async with get_session_factory(request)() as session:
@@ -97,10 +120,12 @@ async def admin_console_summary_route(request: web.Request) -> web.Response:
 
 
 def setup_admin_console_services_routes(app: web.Application) -> None:
+    app[_TRAFFIC_READER] = ServiceTrafficReader()
     for handler, model in (
         (admin_console_services_route, ConsoleServiceListOut),
         (admin_console_service_route, ConsoleServiceDetailOut),
         (admin_console_summary_route, ConsoleSummaryOut),
+        (admin_console_service_traffic_route, ConsoleServiceTrafficOut),
     ):
         register_contract(
             handler.__name__,
@@ -111,5 +136,8 @@ def setup_admin_console_services_routes(app: web.Application) -> None:
             ),
         )
     app.router.add_get("/api/admin/console/services", admin_console_services_route)
+    app.router.add_get(
+        "/api/admin/console/services/{service_id}/traffic", admin_console_service_traffic_route
+    )
     app.router.add_get("/api/admin/console/services/{service_id}", admin_console_service_route)
     app.router.add_get("/api/admin/console/summary", admin_console_summary_route)

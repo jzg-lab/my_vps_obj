@@ -4,11 +4,32 @@ import {
   independentServiceScreen,
   serviceDate,
   serviceStatusKey,
+  serviceNextStepKey,
   serviceUsage,
   serviceResetState,
 } from "./independentServices.js";
 
 describe("independent service presentation", () => {
+  it("only offers import guidance for an active confirmed service", () => {
+    expect(serviceNextStepKey({ status: "pending", sync_pending: false })).toBe(
+      "wa_services_next_pending"
+    );
+    expect(serviceNextStepKey({ status: "active", sync_pending: true })).toBe(
+      "wa_services_next_sync"
+    );
+    expect(serviceNextStepKey({ status: "active", sync_pending: false })).toBe(
+      "wa_services_next_import"
+    );
+    expect(serviceNextStepKey({ status: "exhausted", sync_pending: false })).toBe(
+      "wa_services_next_exhausted"
+    );
+    expect(serviceNextStepKey({ status: "expired", sync_pending: false })).toBe(
+      "wa_services_next_expired"
+    );
+    expect(serviceNextStepKey({ status: "paused", sync_pending: false })).toBe(
+      "wa_services_next_review"
+    );
+  });
   it("shows real overage while bounding only the progress indicator", () => {
     expect(
       serviceUsage({

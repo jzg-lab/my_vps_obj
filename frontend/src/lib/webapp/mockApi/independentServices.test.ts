@@ -67,13 +67,27 @@ describe("activation preflight uses the selected demo customer", () => {
       checks: expect.arrayContaining([{ code: "account", status: "passed", reason: null }]),
     });
     expect(await mockApi(servicesPath)).toEqual(before);
-    expect(
-      await post("/admin/services", { ...selection, idempotency_key: crypto.randomUUID() })
-    ).toMatchObject({
+    const created = (await post("/admin/services", {
+      ...selection,
+      idempotency_key: crypto.randomUUID(),
+    })) as { service: UserService };
+    expect(created).toMatchObject({
       ok: true,
       service: { user_id: userId, status: "pending", connection_state: "pending" },
     });
     expect(await mockApi(servicesPath)).toMatchObject({ total: 1 });
+    const customer = {
+      user_id: userId,
+      minishop_id: "ms_100000000000400080000000000de422",
+      username: "new_wave_login",
+    };
+    expect(await mockApi(`/admin/console/services/${created.service.id}`)).toMatchObject({
+      service: { id: created.service.id, user_id: userId },
+      customer,
+    });
+    expect(
+      await mockApi(`/admin/console/services?user_id=${userId}&q=${customer.minishop_id}`)
+    ).toMatchObject({ total: 1, services: [{ customer }] });
   });
 
   it("records successful exact reconciliation time once and preserves it on replay", async () => {

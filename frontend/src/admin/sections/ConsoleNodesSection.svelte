@@ -3,6 +3,7 @@
   import Input from "$components/ui/input.svelte";
   import {
     AdminButton,
+    AdminBadge,
     AdminEmptyState,
     AdminField,
     AdminListToolbar,
@@ -25,7 +26,8 @@
   } from "$lib/admin/consoleNodesTypes";
   import ConsoleNodeDetail from "./nodes/ConsoleNodeDetail.svelte";
   import ConsoleNodeSources from "./nodes/ConsoleNodeSources.svelte";
-  import ConsoleNodeTable from "./nodes/ConsoleNodeTable.svelte";
+  import ConsoleNodeInventory from "./nodes/ConsoleNodeInventory.svelte";
+  import ConsoleNodeTrafficChart from "./nodes/ConsoleNodeTrafficChart.svelte";
   import NodeTrafficWindow from "./nodes/NodeTrafficWindow.svelte";
   import ResourceCreateDialog from "./nodes/ResourceCreateDialog.svelte";
   import { resourceOperationsUrl } from "$lib/admin/resourceOperations";
@@ -163,22 +165,37 @@
 </script>
 
 <section class="console-nodes" aria-busy={loading} aria-label={at("console_nodes")}>
-  <Tabs.Root
-    class="admin-tabs-root"
-    value={assetRoute.view}
-    onValueChange={(value) => {
-      if (value === "managed" || value === "unmanaged") navigateAssets(value);
-    }}
-  >
-    <Tabs.List class="admin-tabs-list" aria-label={at("console_node_assets_views")}>
-      <Tabs.Trigger class="admin-tabs-trigger" value="managed"
-        >{at("console_node_assets_managed")}</Tabs.Trigger
+  {#if !route.nodeId}<div class="nodes-navigation">
+      <Tabs.Root
+        class="admin-tabs-root"
+        value={assetRoute.view}
+        onValueChange={(value) => {
+          if (value === "managed" || value === "unmanaged") navigateAssets(value);
+        }}
       >
-      <Tabs.Trigger class="admin-tabs-trigger" value="unmanaged"
-        >{at("console_node_assets_pending")}</Tabs.Trigger
-      >
-    </Tabs.List>
-  </Tabs.Root>
+        <Tabs.List class="admin-tabs-list" aria-label={at("console_node_assets_views")}>
+          <Tabs.Trigger class="admin-tabs-trigger" value="managed"
+            >{at("console_node_assets_managed")}</Tabs.Trigger
+          >
+          <Tabs.Trigger class="admin-tabs-trigger" value="unmanaged"
+            >{at("console_node_assets_pending")}</Tabs.Trigger
+          >
+        </Tabs.List>
+      </Tabs.Root>
+      {#if assetRoute.view === "managed"}<div class="node-actions">
+          <AdminButton
+            size="sm"
+            onclick={(event) => {
+              onboardingTrigger =
+                event.currentTarget instanceof HTMLElement ? event.currentTarget : null;
+              onboarding = true;
+            }}>{at("resource_ops_action_node_create")}</AdminButton
+          >
+          <a href={resourceOperationsUrl(currentUrl, routePrefix).href}
+            >{at("resource_ops_title")}</a
+          >
+        </div>{/if}
+    </div>{/if}
   {#if assetRoute.view === "unmanaged"}
     <ConsoleNodeAssets
       {api}
@@ -187,16 +204,6 @@
       onPageChange={(page) => navigateAssets("unmanaged", page)}
     />
   {:else}
-    <div>
-      <AdminButton
-        onclick={(event) => {
-          onboardingTrigger =
-            event.currentTarget instanceof HTMLElement ? event.currentTarget : null;
-          onboarding = true;
-        }}>{at("resource_ops_action_node_create")}</AdminButton
-      >
-    </div>
-    <a href={resourceOperationsUrl(currentUrl, routePrefix).href}>{at("resource_ops_title")}</a>
     {#if route.serviceId}<p>
         <a href={nodeRelatedUrl(currentUrl, { serviceId: route.serviceId }, routePrefix).href}
           >{at("console_nodes_return_service")}: {route.serviceId}</a
@@ -205,6 +212,7 @@
       </p>{/if}
     {#if !route.nodeId}
       <AdminListToolbar
+        compact
         total={data?.total ?? undefined}
         totalLabel={at("console_nodes_count")}
         columns={1}
@@ -229,15 +237,19 @@
             >{at("refresh")}</AdminButton
           >{/snippet}
       </AdminListToolbar>
-      <p class="admin-muted">{at("console_nodes_inventory_scope")}</p>
     {/if}
-    <NodeTrafficWindow
-      value={route.trafficWindow}
-      traffic={detail?.traffic ?? data?.traffic ?? null}
-      {at}
-      {loading}
-      onChange={(trafficWindow) => navigate({ trafficWindow })}
-    />
+    <div class="node-controls">
+      <NodeTrafficWindow
+        value={route.trafficWindow}
+        traffic={detail?.traffic ?? data?.traffic ?? null}
+        {at}
+        {loading}
+        onChange={(trafficWindow) => navigate({ trafficWindow })}
+      />
+      {#if detail}<AdminButton size="sm" disabled={loading} onclick={() => load(route)}
+          >{at("refresh")}</AdminButton
+        >{/if}
+    </div>
     {#if loading}<p role="status">{at("loading")}</p>
     {:else if failed}
       <p role="alert">{at("console_nodes_load_failed")}</p>
@@ -248,7 +260,6 @@
           >
         </div>{/if}
     {:else if detail}
-      <div><AdminButton onclick={() => load(route)}>{at("refresh")}</AdminButton></div>
       <ConsoleNodeDetail
         {api}
         {detail}
@@ -262,11 +273,10 @@
         onBack={() => navigate({ nodeId: "", relatedPage: 0 })}
       />
     {:else if data}
-      <ConsoleNodeSources coverage={data.coverage} sources={data.sources} {at} />
       {#if data.nodes.length}
-        <ConsoleNodeTable
+        <ConsoleNodeInventory
           nodes={data.nodes}
-          traffic={data.traffic ?? null}
+          traffic={data.traffic}
           source={data.sources.find((source) => source.source === "nodes")}
           {at}
           onOpenNode={(nodeId) => navigate({ nodeId, relatedPage: 0 })}
@@ -280,6 +290,12 @@
                 : "console_nodes_no_known_matches"
           )}</AdminEmptyState
         >{/if}
+      <ConsoleNodeTrafficChart
+        nodes={data}
+        comparison
+        {at}
+        onNode={(nodeId) => navigate({ nodeId, relatedPage: 0 })}
+      />
       <AdminPagination
         page={route.page}
         total={data.total}
@@ -298,6 +314,21 @@
         jumpAriaLabel={at("services_go_page")}
         goLabel={at("services_go_page")}
       />
+      <details class="inventory-evidence">
+        <summary
+          >{at("console_ops_chart_evidence")} · <AdminBadge
+            variant={data.coverage === "complete" ? "muted" : "warning"}
+            >{at(`console_nodes_coverage_${data.coverage}`)}</AdminBadge
+          ></summary
+        >
+        <p class="admin-muted">{at("console_nodes_inventory_scope")}</p>
+        <ConsoleNodeSources
+          coverage={data.coverage}
+          sources={data.sources}
+          {at}
+          showCoverage={false}
+        />
+      </details>
     {/if}
   {/if}
 </section>
@@ -316,6 +347,34 @@
     display: grid;
     gap: 16px;
     min-width: 0;
+  }
+  .nodes-navigation,
+  .node-actions {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex-wrap: wrap;
+  }
+  .nodes-navigation {
+    justify-content: space-between;
+  }
+  .node-controls {
+    display: flex;
+    align-items: end;
+    gap: 12px;
+    flex-wrap: wrap;
+  }
+  .node-controls :global(.node-traffic-window) {
+    flex: 1 1 400px;
+  }
+  .node-actions {
+    font-size: 12px;
+  }
+  .inventory-evidence summary {
+    cursor: pointer;
+  }
+  .inventory-evidence p {
+    margin-block: 12px;
   }
   p {
     margin: 0;

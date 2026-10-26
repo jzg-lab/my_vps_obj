@@ -1592,6 +1592,23 @@ export interface paths {
     patch?: never;
     trace?: never;
   };
+  "/api/admin/console/services/{service_id}/traffic": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** 读取独立服务近七日流量观测 */
+    get: operations["get_admin_console_service_traffic_route"];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
   "/api/admin/console/summary": {
     parameters: {
       query?: never;
@@ -10374,6 +10391,8 @@ export interface components {
       address: string | null;
       /** Country Code */
       country_code: string | null;
+      /** Daily Traffic */
+      daily_traffic?: components["schemas"]["ConsoleTrafficDayOut"][];
       /** Groups */
       groups: components["schemas"]["ConsoleResourceRefOut"][];
       /** Id */
@@ -10407,6 +10426,8 @@ export interface components {
       online_scope: "panel_reported_identities_not_unique_customers";
       /** Profile Id */
       profile_id: string | null;
+      /** Speed History */
+      speed_history?: components["schemas"]["ConsoleSpeedSampleOut"][];
       /** @description 管理连接状态，不证明真实代理路径可用 */
       status: components["schemas"]["ConsoleNodeStatus"];
       system?: components["schemas"]["ConsoleNodeSystemOut"];
@@ -11272,6 +11293,60 @@ export interface components {
       /** Retry Order Id */
       retry_order_id: string;
     };
+    /** ConsoleServiceTrafficNodeOut */
+    ConsoleServiceTrafficNodeOut: {
+      /** Bytes */
+      bytes: number;
+      /** Node Id */
+      node_id: string;
+    };
+    /** ConsoleServiceTrafficOut */
+    ConsoleServiceTrafficOut: {
+      /**
+       * Availability
+       * @enum {string}
+       */
+      availability: "available" | "partial" | "unavailable" | "unconfigured";
+      /** Days */
+      days?: components["schemas"]["ConsoleTrafficDayOut"][];
+      /**
+       * End Date
+       * Format: date
+       */
+      end_date: string;
+      /**
+       * History Completeness
+       * @default unknown
+       * @constant
+       */
+      history_completeness: "unknown";
+      /** Nodes */
+      nodes?: components["schemas"]["ConsoleServiceTrafficNodeOut"][];
+      /**
+       * Observed At
+       * @default null
+       */
+      observed_at: string | null;
+      /** Service Id */
+      service_id: string;
+      /**
+       * Source
+       * @default panel_service_identity_raw_traffic_not_billing
+       * @constant
+       */
+      source: "panel_service_identity_raw_traffic_not_billing";
+      /**
+       * Start Date
+       * Format: date
+       */
+      start_date: string;
+      /**
+       * Timezone
+       * @default UTC
+       * @constant
+       */
+      timezone: "UTC";
+    };
     /** ConsoleServicesMetric */
     ConsoleServicesMetric: {
       /** Archived */
@@ -11295,6 +11370,24 @@ export interface components {
       source: "nonarchived_services";
       /** Total */
       total: number;
+    };
+    /** ConsoleSpeedSampleOut */
+    ConsoleSpeedSampleOut: {
+      /**
+       * Rx Bytes Per Second
+       * @default null
+       */
+      rx_bytes_per_second: number | null;
+      /**
+       * Sampled At
+       * Format: date-time
+       */
+      sampled_at: string;
+      /**
+       * Tx Bytes Per Second
+       * @default null
+       */
+      tx_bytes_per_second: number | null;
     };
     /** ConsoleSummaryOut */
     ConsoleSummaryOut: {
@@ -11320,6 +11413,19 @@ export interface components {
        */
       timezone: "Asia/Shanghai";
       usage: components["schemas"]["ConsoleUsageMetric"];
+    };
+    /** ConsoleTrafficDayOut */
+    ConsoleTrafficDayOut: {
+      /**
+       * Bytes
+       * @default null
+       */
+      bytes: number | null;
+      /**
+       * Date
+       * Format: date
+       */
+      date: string;
     };
     /** ConsoleUsageMetric */
     ConsoleUsageMetric: {
@@ -19591,6 +19697,31 @@ export interface operations {
             /** @constant */
             ok: true;
           } & components["schemas"]["ConsoleServiceResourcesOut"];
+        };
+      };
+    };
+  };
+  get_admin_console_service_traffic_route: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        service_id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description JSON 响应 */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": {
+            /** @constant */
+            ok: true;
+          } & components["schemas"]["ConsoleServiceTrafficOut"];
         };
       };
     };

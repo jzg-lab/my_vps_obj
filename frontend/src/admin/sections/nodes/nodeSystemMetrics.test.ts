@@ -7,6 +7,8 @@ import {
   nodeMetricQuality,
   nodeMetricRows,
   nodeMetricText,
+  bytesPerSecondToMbps,
+  nodeSpeedSummary,
   type MetricsNode,
   type MetricsSource,
   type NodeMetricField,
@@ -78,11 +80,89 @@ function rowHtml(html: string, field: NodeMetricField) {
 }
 
 describe("node system metric values", () => {
+  it("converts byte rates to decimal Mbps and summarizes observed RX/TX peaks separately", () => {
+    const samples = [
+      {
+        sampled_at: "2026-10-26T08:00:00Z",
+        rx_bytes_per_second: 1_000_000,
+        tx_bytes_per_second: 500_000,
+      },
+      {
+        sampled_at: "2026-10-26T08:10:00Z",
+        rx_bytes_per_second: 2_000_000,
+        tx_bytes_per_second: 3_000_000,
+      },
+      {
+        sampled_at: "2026-10-26T08:20:00Z",
+        rx_bytes_per_second: null,
+        tx_bytes_per_second: 1_000_000,
+      },
+    ];
+    const summary = nodeSpeedSummary(samples);
+    expect(bytesPerSecondToMbps(2_000_000)).toBe(16);
+    expect(bytesPerSecondToMbps(-1)).toBeNull();
+    expect(summary.latest).toBe(samples[2]);
+    expect(summary.rxPeakBytesPerSecond).toBe(2_000_000);
+    expect(summary.txPeakBytesPerSecond).toBe(3_000_000);
+  });
+
+  it("labels historical speed with the latest sample and peak in Mbps", () => {
+    const html = render(NodeSystemMetrics, {
+      props: {
+        node: {
+          ...node,
+          speed_history: [
+            {
+              sampled_at: "2026-10-26T08:00:00Z",
+              rx_bytes_per_second: 1_000_000,
+              tx_bytes_per_second: 500_000,
+            },
+            {
+              sampled_at: "2026-10-26T08:10:00Z",
+              rx_bytes_per_second: 2_000_000,
+              tx_bytes_per_second: 3_000_000,
+            },
+          ],
+        },
+        source,
+        at,
+      },
+    }).body;
+    expect(html).toContain("data-speed-summary");
+    expect(html).toContain("console_node_speed_latest");
+    expect(html).toContain("console_node_speed_peak");
+    expect(html).toContain("16 Mbps");
+    expect(html).toContain("24 Mbps");
+    expect(html).toContain("RX 16 Mbps · TX 24 Mbps");
+    expect(html).toContain("2026-10-26 16:10");
+  });
+
+  it("shows daily traffic before technical rows and keeps missing days distinct from zero", () => {
+    const html = render(NodeSystemMetrics, {
+      props: {
+        node: {
+          ...node,
+          daily_traffic: [
+            { date: "2026-10-23", bytes: 0 },
+            { date: "2026-10-24", bytes: null },
+          ],
+        },
+        source,
+        at,
+      },
+    }).body;
+    expect(html).toContain("console_node_daily_traffic");
+    expect(html).toContain("console_node_daily_scope");
+    expect(html).toContain("console_nodes_window_traffic: console_unknown");
+    expect(html.indexOf("data-node-daily-traffic")).toBeLessThan(html.indexOf("data-node-metric="));
+    expect(html).toContain("10-23");
+    expect(html).toContain("10-24");
+    expect(html).toContain("console_visual_history_missing");
+  });
+
   it("preserves known zeros and displays the actual units", () => {
     const html = render(NodeSystemMetrics, { props: { node, source, at } }).body;
     expect((html.match(/data-node-metric=/g) ?? []).length).toBe(14);
-    expect(html).toContain(node.name);
-    expect(html).toContain(node.id);
     expect(rowHtml(html, "memory_used_bytes")).toContain("0 B");
     expect(rowHtml(html, "rx_bytes_per_second")).toContain("console_node_metrics_rate_value[0 B]");
     expect(rowHtml(html, "tx_bytes_per_second")).toContain(
@@ -245,7 +325,8 @@ describe("observation quality and management boundaries", () => {
     expect(html).toContain("console_node_metrics_probe_missing");
     expect((html.match(/console_node_metrics_not_collected/g) ?? []).length).toBe(2);
     expect(html).not.toContain("0 ms");
-    expect(html).not.toContain("0%");
+    const connectivity = html.slice(html.indexOf('aria-label="console_node_metrics_connectivity"'));
+    expect(connectivity).not.toContain("0%");
     expect(html).not.toContain("<button");
   });
 

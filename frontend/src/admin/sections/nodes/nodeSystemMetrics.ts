@@ -6,6 +6,7 @@ export type NodeSystemMetrics = components["schemas"]["ConsoleNodeSystemOut"];
 export type NodeMetricField = components["schemas"]["ConsoleNodeSystemField"];
 export type MetricsNode = components["schemas"]["ConsoleNodeOut"];
 export type MetricsSource = components["schemas"]["ConsoleNodeSourceOut"];
+export type NodeSpeedSample = components["schemas"]["ConsoleSpeedSampleOut"];
 type MetricFormat = "number" | "text" | "bytes" | "rate" | "seconds";
 
 export const nodeMetricRows = [
@@ -64,4 +65,25 @@ export function nodeControlStatus(node: MetricsNode, source: MetricsSource | und
     (source.availability === "available" || source.availability === "partial")
     ? node.status
     : "unknown";
+}
+
+export function nodeSpeedSummary(samples: NodeSpeedSample[]) {
+  const latest = samples.at(-1);
+  const rxRates = samples.map((sample) => sample.rx_bytes_per_second).filter(validRate);
+  const txRates = samples.map((sample) => sample.tx_bytes_per_second).filter(validRate);
+  return {
+    latest,
+    rxPeakBytesPerSecond: rxRates.length ? Math.max(...rxRates) : null,
+    txPeakBytesPerSecond: txRates.length ? Math.max(...txRates) : null,
+  };
+}
+
+function validRate(value: number | null | undefined): value is number {
+  return typeof value === "number" && Number.isFinite(value) && value >= 0;
+}
+
+export function bytesPerSecondToMbps(value: number | null): number | null {
+  return typeof value === "number" && Number.isFinite(value) && value >= 0
+    ? (value * 8) / 1_000_000
+    : null;
 }

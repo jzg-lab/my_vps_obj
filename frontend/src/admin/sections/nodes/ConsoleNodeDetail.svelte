@@ -5,7 +5,6 @@
     AdminButton,
     AdminEntityLink,
     AdminPagination,
-    AdminTable,
   } from "$components/patterns/admin/index.js";
   import { nodeRelatedUrl } from "$lib/admin/consoleNodesNavigation";
   import type { ConsoleNodeDetail, ConsoleNodesTranslate } from "$lib/admin/consoleNodesTypes";
@@ -54,11 +53,88 @@
   onMount(() => heading?.focus());
 </script>
 
+{#snippet related()}
+  <section class="node-related-panel" aria-label={at("console_nodes_potential")}>
+    <h4>{at("console_nodes_potential")}</h4>
+    <p>{at("console_nodes_association_scope")}</p>
+    <p>
+      {at("console_nodes_service_total")}: {detail.service_total ?? at("console_unknown")} · {at(
+        "console_nodes_customer_total"
+      )}: {detail.customer_total ?? at("console_unknown")}
+    </p>
+    {#if !detail.associations_complete}<p role="status">
+        {at("console_nodes_incomplete_relations")}
+      </p>{/if}
+    {#if detail.services.length}
+      <div class="related-services">
+        {#each detail.services as service (service.id)}
+          <article>
+            <a href={nodeRelatedUrl(currentUrl, { serviceId: service.id }, routePrefix).href}
+              ><AdminEntityLink kind="code" label={service.name} idText={service.id} /></a
+            >
+            <a
+              href={nodeRelatedUrl(currentUrl, { userId: service.user_id }, routePrefix).href}
+              onclick={(event) => {
+                if (
+                  event.button !== 0 ||
+                  event.metaKey ||
+                  event.ctrlKey ||
+                  event.shiftKey ||
+                  event.altKey
+                )
+                  return;
+                event.preventDefault();
+                onOpenUserCard(service.user_id);
+              }}><AdminEntityLink label={String(service.user_id)} /></a
+            >
+            <div>
+              <AdminBadge>{at(`services_status_${service.status}`)}</AdminBadge><small
+                >{at(
+                  service.currently_eligible ? "console_nodes_eligible" : "console_nodes_ineligible"
+                )}</small
+              >
+            </div>
+          </article>
+        {/each}
+      </div>
+    {:else}<p>
+        {at(
+          detail.associations_complete
+            ? "console_nodes_no_services"
+            : "console_nodes_no_known_services"
+        )}
+      </p>{/if}
+    <AdminPagination
+      {page}
+      total={detail.service_total}
+      pageCount={detail.service_total === null
+        ? null
+        : Math.ceil(detail.service_total / detail.page_size)}
+      disabled={loading}
+      onPageChange={detail.service_total === null ? null : onPageChange}
+      onPrev={() => onPageChange(page - 1)}
+      onNext={() => onPageChange(page + 1)}
+      prevDisabled={page === 0}
+      nextDisabled={detail.services.length < detail.page_size}
+      prevLabel={at("services_previous")}
+      nextLabel={at("services_next")}
+      pageLabel={at("services_page")}
+      ofLabel={at("services_of")}
+      totalLabel={at("services_count")}
+      jumpLabel={at("services_page")}
+      jumpAriaLabel={at("services_go_page")}
+      goLabel={at("services_go_page")}
+    />
+  </section>
+{/snippet}
+
 <section class="node-detail" aria-label={at("console_nodes_detail")}>
   <div><AdminButton onclick={onBack}>{at("console_nodes_back")}</AdminButton></div>
-  <h3 bind:this={heading} tabindex="-1">{detail.node.name}</h3>
-  <p class="node-id">{detail.node.id}</p>
-  <div>
+  <header class="node-heading">
+    <div>
+      <h3 bind:this={heading} tabindex="-1">{detail.node.name}</h3>
+      <p class="node-id">{detail.node.id}</p>
+    </div>
     <ConsoleNodeResourcePreview
       {api}
       node={detail.node}
@@ -67,15 +143,27 @@
       {routePrefix}
       {onOpenUserCard}
     />
-  </div>
+  </header>
+  <dl class="node-facts">
+    <div>
+      <dt>{at("console_nodes_address")}</dt>
+      <dd>{detail.node.address ?? at("console_unknown")}</dd>
+    </div>
+    <div>
+      <dt>{at("console_node_metrics_cpu_model")}</dt>
+      <dd>{detail.node.system?.cpu_model ?? at("console_unknown")}</dd>
+    </div>
+  </dl>
+  <NodeSystemMetrics
+    node={detail.node}
+    traffic={detail.traffic}
+    source={detail.sources.find((source) => source.source === "nodes")}
+    {at}
+    {related}
+  />
   <ConsoleNodeTable
     nodes={[detail.node]}
     traffic={detail.traffic ?? null}
-    source={detail.sources.find((source) => source.source === "nodes")}
-    {at}
-  />
-  <NodeSystemMetrics
-    node={detail.node}
     source={detail.sources.find((source) => source.source === "nodes")}
     {at}
   />
@@ -109,88 +197,6 @@
       </dd>
     </div>
   </dl>
-  <h4>{at("console_nodes_potential")}</h4>
-  <p>{at("console_nodes_association_scope")}</p>
-  <p>
-    {at("console_nodes_service_total")}: {detail.service_total ?? at("console_unknown")} · {at(
-      "console_nodes_customer_total"
-    )}: {detail.customer_total ?? at("console_unknown")}
-  </p>
-  {#if !detail.associations_complete}<p role="status">
-      {at("console_nodes_incomplete_relations")}
-    </p>{/if}
-  {#if detail.services.length}
-    <AdminTable
-      ><thead
-        ><tr
-          >{#each ["services_name", "console_customer", "status", "console_nodes_eligibility"] as key}<th
-              >{at(key)}</th
-            >{/each}</tr
-        ></thead
-      >
-      <tbody
-        >{#each detail.services as service (service.id)}<tr>
-            <td data-label={at("services_name")}
-              ><a href={nodeRelatedUrl(currentUrl, { serviceId: service.id }, routePrefix).href}
-                ><AdminEntityLink kind="code" label={service.name} idText={service.id} /></a
-              ></td
-            >
-            <td data-label={at("console_customer")}
-              ><a
-                href={nodeRelatedUrl(currentUrl, { userId: service.user_id }, routePrefix).href}
-                onclick={(event) => {
-                  if (
-                    event.button !== 0 ||
-                    event.metaKey ||
-                    event.ctrlKey ||
-                    event.shiftKey ||
-                    event.altKey
-                  )
-                    return;
-                  event.preventDefault();
-                  onOpenUserCard(service.user_id);
-                }}><AdminEntityLink label={String(service.user_id)} /></a
-              ></td
-            >
-            <td data-label={at("status")}
-              ><AdminBadge>{at(`services_status_${service.status}`)}</AdminBadge></td
-            >
-            <td data-label={at("console_nodes_eligibility")}
-              >{at(
-                service.currently_eligible ? "console_nodes_eligible" : "console_nodes_ineligible"
-              )}</td
-            >
-          </tr>{/each}</tbody
-      >
-    </AdminTable>
-  {:else}<p>
-      {at(
-        detail.associations_complete
-          ? "console_nodes_no_services"
-          : "console_nodes_no_known_services"
-      )}
-    </p>{/if}
-  <AdminPagination
-    {page}
-    total={detail.service_total}
-    pageCount={detail.service_total === null
-      ? null
-      : Math.ceil(detail.service_total / detail.page_size)}
-    disabled={loading}
-    onPageChange={detail.service_total === null ? null : onPageChange}
-    onPrev={() => onPageChange(page - 1)}
-    onNext={() => onPageChange(page + 1)}
-    prevDisabled={page === 0}
-    nextDisabled={detail.services.length < detail.page_size}
-    prevLabel={at("services_previous")}
-    nextLabel={at("services_next")}
-    pageLabel={at("services_page")}
-    ofLabel={at("services_of")}
-    totalLabel={at("services_count")}
-    jumpLabel={at("services_page")}
-    jumpAriaLabel={at("services_go_page")}
-    goLabel={at("services_go_page")}
-  />
   <ConsoleNodeSources coverage={detail.coverage} sources={detail.sources} {at} />
 </section>
 
@@ -209,6 +215,51 @@
 {/if}
 
 <style>
+  .related-services {
+    display: grid;
+    gap: 12px;
+    min-width: 0;
+  }
+  .related-services article {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    gap: 6px 12px;
+    padding: 8px 0;
+    border-bottom: 1px solid var(--admin-border);
+    min-width: 0;
+  }
+  .related-services a {
+    color: var(--admin-text);
+    text-decoration: none;
+    min-width: 0;
+  }
+  .related-services a:hover {
+    text-decoration: underline;
+  }
+  .related-services article > div {
+    grid-column: 1 / -1;
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    flex-wrap: wrap;
+  }
+  .related-services small,
+  .node-related-panel > p {
+    font-size: 12px;
+    color: var(--admin-muted);
+    line-height: 1.6;
+  }
+  .related-services :global(.admin-entity-link-id) {
+    white-space: normal;
+    overflow-wrap: anywhere;
+  }
+
+  .node-related-panel {
+    display: grid;
+    gap: 8px;
+    min-width: 0;
+  }
+
   .node-detail {
     display: grid;
     gap: 16px;
@@ -238,6 +289,25 @@
   .node-id {
     overflow-wrap: anywhere;
     color: var(--admin-muted);
+    font-size: 12px;
+    margin-top: 6px;
+  }
+  .node-heading {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    flex-wrap: wrap;
+  }
+  .node-heading h3 {
+    font-size: 24px;
+  }
+  .node-facts {
+    padding: 16px;
+    background: var(--admin-surface);
+    border: 1px solid var(--admin-border);
+    border-radius: 12px;
+    font-size: 13px;
   }
   a {
     color: var(--accent);

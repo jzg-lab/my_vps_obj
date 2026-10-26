@@ -7,9 +7,10 @@
   import type { components } from "$lib/api/openapi.generated";
   import { serviceBytes, type ServiceTranslate } from "$lib/admin/servicePlans";
   import { serviceDate, serviceResetState, serviceUsage } from "$lib/webapp/independentServices";
+  import { isTemporaryServiceReadFailure } from "$lib/webapp/serviceReadFailure";
   import ServiceActions from "./ServiceActions.svelte";
   import ServiceActivationAction from "./ServiceActivationAction.svelte";
-  import ConsoleServiceResources from "../nodes/ConsoleServiceResources.svelte";
+  import ServiceUsageVisual from "./ServiceUsageVisual.svelte";
 
   let {
     api,
@@ -29,6 +30,9 @@
   let row = $state<components["schemas"]["ConsoleServiceDetailOut"] | null>(null);
   let failed = $state(false);
   let loading = $state(true);
+  let readAt = $state("");
+  let scope = "";
+  let scopeApi: ApiClient["api"] | undefined;
   let actionOpen = $state(false);
   let activationOpen = $state(false);
   const ownerId = $derived(row?.service.user_id == null ? null : (row?.customer.user_id ?? null));
@@ -46,7 +50,12 @@
     controller = new AbortController();
     loading = true;
     failed = false;
-    row = null;
+    if (scope !== id || scopeApi !== api) {
+      scope = id;
+      scopeApi = api;
+      row = null;
+      readAt = "";
+    }
     try {
       const result = unwrap(
         await api(
@@ -56,9 +65,18 @@
           { signal: controller.signal }
         )
       );
-      if (request === token) row = result;
-    } catch {
-      if (request === token) failed = true;
+      if (request === token) {
+        row = result;
+        readAt = new Date().toISOString();
+      }
+    } catch (error) {
+      if (request === token) {
+        failed = true;
+        if (!isTemporaryServiceReadFailure(error)) {
+          row = null;
+          readAt = "";
+        }
+      }
     } finally {
       if (request === token) loading = false;
     }
@@ -83,10 +101,16 @@
   class="admin-dialog"
 >
   <div class="console-service-detail" aria-busy={loading}>
-    {#if failed}<p role="alert">{at("console_detail_failed")}</p>
-      <AdminButton onclick={() => load(serviceId)}>{at("refresh")}</AdminButton>
+    {#if failed}<p role="alert">
+        {at("console_detail_failed")}
+        {readAt
+          ? at("services_snapshot_stale", { time: serviceDate(readAt) })
+          : at("services_snapshot_unknown")}
+      </p>
+      {#if !row}<AdminButton onclick={() => load(serviceId)}>{at("refresh")}</AdminButton>{/if}
     {:else if loading}<p role="status">{at("loading")}</p>
-    {:else if row}
+    {/if}
+    {#if row}
       {@const service = row.service}
       {@const customer = row.customer}
       {@const usage = serviceUsage(service)}
@@ -243,7 +267,7 @@
           {routePrefix}
           readonly={ownerId === null}
           banned={customer.is_banned === true}
-          disabled={activationOpen}
+          disabled={loading || failed || activationOpen}
           bind:dialogOpen={actionOpen}
           onrefresh={() => load(serviceId)}
         />
@@ -252,22 +276,23 @@
           {at}
           userId={ownerId}
           banned={customer.is_banned === true}
-          disabled={actionOpen}
+          disabled={loading || failed || actionOpen}
           bind:dialogOpen={activationOpen}
           oncreated={() => {
             if (ownerId !== null) onOpenUserCard(ownerId);
           }}
           onrefresh={() => void load(serviceId)}
         />
-        <AdminButton disabled={actionOpen || activationOpen} onclick={() => load(serviceId)}
-          >{at("refresh")}</AdminButton
+        <AdminButton
+          disabled={loading || actionOpen || activationOpen}
+          onclick={() => load(serviceId)}>{at("refresh")}</AdminButton
         >{#if ownerId !== null}<AdminButton
             disabled={actionOpen || activationOpen}
             onclick={() => onOpenUserCard(ownerId)}>{at("console_manage_customer")}</AdminButton
           >{/if}
       </div>
       <p class="admin-muted">{at("console_period_scope")}</p>
-      <ConsoleServiceResources {api} {at} {serviceId} {routePrefix} />
+      <ServiceUsageVisual {api} {at} {service} {routePrefix} />
     {/if}
   </div>
 </Dialog>

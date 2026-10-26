@@ -49,6 +49,7 @@ from .chain_0117_exit_replacement import CHAIN_0117_EXIT_REPLACEMENT
 from .chain_0118_resource_operations import CHAIN_0118_RESOURCE_OPERATIONS
 from .chain_0119_account_operations import CHAIN_0119_ACCOUNT_OPERATIONS
 from .chain_0120_node_assets import CHAIN_0120_NODE_ASSETS
+from .chain_0121_node_speed_samples import CHAIN_0121_NODE_SPEED_SAMPLES
 from .engine import Migration
 
 MIGRATIONS: list[Migration] = [
@@ -99,4 +100,5 @@ MIGRATIONS: list[Migration] = [
     *CHAIN_0118_RESOURCE_OPERATIONS,
     *CHAIN_0119_ACCOUNT_OPERATIONS,
     *CHAIN_0120_NODE_ASSETS,
+    *CHAIN_0121_NODE_SPEED_SAMPLES,
 ]

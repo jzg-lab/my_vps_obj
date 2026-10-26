@@ -1,6 +1,7 @@
 import { render } from "svelte/server";
 import { describe, expect, it } from "vitest";
 import ConsoleNodeTable from "../../admin/sections/nodes/ConsoleNodeTable.svelte";
+import ConsoleNodeCardGrid from "../../admin/sections/nodes/ConsoleNodeCardGrid.svelte";
 import ConsoleNodeDetail from "../../admin/sections/nodes/ConsoleNodeDetail.svelte";
 import ConsoleNodeSources from "../../admin/sections/nodes/ConsoleNodeSources.svelte";
 import ConsoleServiceResourcesView from "../../admin/sections/nodes/ConsoleServiceResourcesView.svelte";
@@ -64,6 +65,29 @@ describe("node inventory presentation", () => {
     }).body;
     expect(html).toMatch(/data-label="console_nodes_online">console_unknown/);
     expect(html).not.toMatch(/data-label="console_nodes_online">0/);
+  });
+
+  it("renders node visual cards without turning missing history into a fake chart", () => {
+    const html = render(ConsoleNodeCardGrid, {
+      props: {
+        nodes: [
+          {
+            ...consoleNodeFixture,
+            users_online: 0,
+            users_online_quality: "unverified_zero",
+            system: undefined,
+          },
+        ],
+        traffic: null,
+        source: consoleNodeDetailFixture.sources[0],
+        at,
+        onOpenNode: () => {},
+      },
+    }).body;
+    expect(html).toContain("data-node-card-id");
+    expect(html).not.toContain("console_node_visuals_history");
+    expect(html).toContain("console_unknown");
+    expect(html).not.toContain("admin-chart-empty");
   });
 
   it.each(["source_stale", "request_failed"])(
@@ -185,5 +209,30 @@ describe("node inventory presentation", () => {
           : "console_nodes_no_known_resource_nodes"
       );
     }
+  });
+
+  it("explains pending delivery and unconfigured sources without a duplicate top-level inventory warning", () => {
+    const html = render(ConsoleServiceResourcesView, {
+      props: {
+        resources: {
+          ...consoleServiceResourcesFixture,
+          status: "pending",
+          currently_eligible: false,
+          nodes: [],
+          coverage: "unavailable",
+          sources: consoleServiceResourcesFixture.sources.map((source) => ({
+            ...source,
+            availability: "unconfigured" as const,
+          })),
+        },
+        service: { ...consoleNodeServiceFixture.service, status: "pending" },
+        at,
+        currentUrl,
+      },
+    }).body;
+    expect(html).toContain("console_nodes_pending_configuration");
+    expect(html).toContain("console_nodes_resources_unconfigured");
+    expect(html).not.toContain("console_nodes_ineligible");
+    expect(html.split("<details")[0]).not.toContain("console_nodes_coverage_unavailable");
   });
 });

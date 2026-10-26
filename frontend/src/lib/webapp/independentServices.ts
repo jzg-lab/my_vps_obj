@@ -67,3 +67,12 @@ export function serviceStatusKey(status: string): string {
       : "unknown"
   }`;
 }
+
+export function serviceNextStepKey(service: Pick<UserService, "status" | "sync_pending">): string {
+  if (service.status === "active")
+    return service.sync_pending ? "wa_services_next_sync" : "wa_services_next_import";
+  if (service.status === "pending") return "wa_services_next_pending";
+  if (service.status === "exhausted") return "wa_services_next_exhausted";
+  if (service.status === "expired") return "wa_services_next_expired";
+  return "wa_services_next_review";
+}

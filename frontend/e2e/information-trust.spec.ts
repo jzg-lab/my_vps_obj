@@ -98,7 +98,7 @@ for (const width of [320, 390, 1440]) {
       await expect(unknown).toContainText(copy.wa_services_usage_missing);
       const old = cards.nth(1);
       await expect(old).toContainText("23 GiB / 100 GiB");
-      await expect(old.locator("[data-service-remaining]")).toHaveText("77 GiB");
+      await expect(old.locator("[data-service-remaining]")).toContainText("77 GiB");
       await expect(old).toContainText(copy.wa_services_usage_stale);
       await expect(old).toContainText("2026-10-22 12:00");
       await expect(old.locator("[data-service-reset]")).toHaveText(
@@ -141,6 +141,7 @@ for (const width of [320, 390, 1440]) {
       await page.setViewportSize({ width, height: 1000 });
       await page.goto(`/demo/runtime/admin/console-overview${query}`);
       const overview = page.locator(".console-overview");
+      await overview.locator(".overview-details > summary").click();
       await expect(overview.locator("[data-summary-observed-at]")).toBeVisible();
       const stamp = (await overview.locator("[data-summary-observed-at]").innerText()).match(
         /\d{4}-\d{2}-\d{2} \d{2}:\d{2}/
@@ -149,6 +150,9 @@ for (const width of [320, 390, 1440]) {
       await expect(overview).toContainText(at("console_usage_aggregate_scope"));
       await expect(overview).toContainText(at("console_health_links_scope"));
       await expect(overview).toContainText(at("console_latest_any_success"));
+      await overview
+        .getByRole("button", { name: at("console_nodes_view_table"), exact: true })
+        .click();
       const row = overview.locator(`[data-node-id="${consoleNodeDetailFixture.node.id}"]`);
       await expect(row).toContainText(at("console_nodes_status_online"));
       await overview.getByRole("button", { name: at("refresh"), exact: true }).click();
@@ -160,6 +164,8 @@ for (const width of [320, 390, 1440]) {
       );
       await expect(row).toContainText("2026-10-24 16:00");
       await expect(row).toContainText(at("console_stale"));
+      await overview.locator("[data-console-metric=nodes] > details > summary").click();
+      await overview.locator(".node-provenance summary").click();
       for (const [target, filename] of [
         [overview.locator("[data-summary-observed-at]"), "overview-old-evidence.png"],
         [overview.locator(".node-sources li").first(), "overview-old-source.png"],
@@ -278,7 +284,8 @@ test("failed service detail retries and returns keyboard focus to its original c
   await trigger.focus();
   await page.keyboard.press("Enter");
   const dialog = page.getByRole("dialog");
-  await expect(dialog.getByRole("alert")).toHaveText(copy.wa_services_load_failed);
+  await expect(dialog.getByRole("alert")).toContainText(copy.wa_services_load_failed);
+  await expect(dialog.getByRole("alert")).toContainText(copy.wa_services_snapshot_unknown);
   expect(detailReads).toBe(1);
   await dialog.getByRole("button", { name: copy.wa_services_retry, exact: true }).focus();
   await page.keyboard.press("Enter");

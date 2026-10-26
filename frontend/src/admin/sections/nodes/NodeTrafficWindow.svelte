@@ -48,28 +48,31 @@
         <AdminBadge variant={traffic.availability === "available" ? "muted" : "warning"}>
           {at(`console_nodes_availability_${traffic.availability}`)}
         </AdminBadge>
-        <p data-traffic-boundaries>
-          {at("console_nodes_window_boundaries", {
-            start: nodeTrafficDate(traffic.start_at, at),
-            end: nodeTrafficDate(traffic.end_at, at),
-          })}
-        </p>
-        <p data-traffic-coverage>
-          {at("console_nodes_window_coverage", {
-            matched: traffic.matched_nodes,
-            total: traffic.inventory_nodes ?? at("console_unknown"),
-          })}
-        </p>
-        <p data-traffic-read-time>
-          {at("console_nodes_last_success")}: {nodeTrafficDate(traffic.last_success_at, at)}
-          · {at("console_nodes_attempted")}: {nodeTrafficDate(traffic.attempted_at, at)}
-        </p>
+        <details>
+          <summary>{at("console_ops_chart_evidence")}</summary>
+          <p data-traffic-coverage>
+            {at("console_nodes_window_coverage", {
+              matched: traffic.matched_nodes,
+              total: traffic.inventory_nodes ?? at("console_unknown"),
+            })}
+          </p>
+          <p data-traffic-boundaries>
+            {at("console_nodes_window_boundaries", {
+              start: nodeTrafficDate(traffic.start_at, at),
+              end: nodeTrafficDate(traffic.end_at, at),
+            })}
+          </p>
+          <p data-traffic-read-time>
+            {at("console_nodes_last_success")}: {nodeTrafficDate(traffic.last_success_at, at)}
+            · {at("console_nodes_attempted")}: {nodeTrafficDate(traffic.attempted_at, at)}
+          </p>
+          <p>{at("console_nodes_window_source")}</p>
+          <p>{at("console_nodes_window_history")}</p>
+        </details>
         {#if traffic.error}<p>{at(`console_nodes_window_${traffic.error}`)}</p>{/if}
       {:else}
         <p>{at("console_nodes_window_missing")}</p>
       {/if}
-      <p>{at("console_nodes_window_source")}</p>
-      <p>{at("console_nodes_window_history")}</p>
     </div>
   {/if}
 </section>
@@ -80,6 +83,31 @@
     display: grid;
     gap: 8px;
     min-width: 0;
+  }
+  .node-traffic-window {
+    grid-template-columns: minmax(180px, 320px) minmax(0, 1fr);
+    align-items: end;
+  }
+  .window-evidence {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+  }
+  details[open] {
+    flex-basis: 100%;
+  }
+  details p {
+    margin-top: 8px;
+    line-height: 1.6;
+  }
+  summary {
+    cursor: pointer;
+    padding-block: 6px;
+  }
+  @media (max-width: 720px) {
+    .node-traffic-window {
+      grid-template-columns: minmax(0, 1fr);
+    }
   }
   .window-selector {
     width: 100%;

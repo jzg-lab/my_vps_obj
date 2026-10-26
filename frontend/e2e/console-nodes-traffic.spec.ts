@@ -184,7 +184,10 @@ for (const language of ["en", "ru", "zh-hans"]) {
       expect(Object.fromEntries(new URL(listRequest, "https://fixture.test").searchParams)).toEqual(
         { q: "node", status: "all", page: "1", page_size: "25", traffic_window: "7d" }
       );
-      await section.getByRole("button", { name: /Window node 25/ }).click();
+      await section
+        .locator("[data-node-card-id]")
+        .getByRole("button", { name: /Window node 25/ })
+        .click();
       const detail = page.getByRole("region", { name: label("console_nodes_detail"), exact: true });
       await expect(detail).toBeVisible();
       await expect(detail.locator("td[data-window-quality]")).toHaveText("7 KiB");

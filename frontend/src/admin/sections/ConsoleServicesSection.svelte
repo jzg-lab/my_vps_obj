@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { onDestroy, onMount } from "svelte";
+  import { onDestroy, onMount, tick } from "svelte";
   import Input from "$components/ui/input.svelte";
   import {
     AdminBadge,
@@ -15,6 +15,7 @@
   import { builtApiPath, unwrap, type ApiClient } from "$lib/webapp/publicApi";
   import { serviceBytes, type ServiceTranslate } from "$lib/admin/servicePlans";
   import { serviceDate } from "$lib/webapp/independentServices";
+  import { isTemporaryServiceReadFailure } from "$lib/webapp/serviceReadFailure";
   import {
     consoleSorts,
     consoleStatuses,
@@ -48,6 +49,12 @@
   let observedAt = $state("");
   let loading = $state(true);
   let failed = $state(false);
+  let scope = "";
+  let scopeApi: ApiClient["api"] | undefined;
+  let root: HTMLElement;
+  let detailTrigger: HTMLElement | null = null;
+  let detailScope = "";
+  let triggeredServiceId = "";
   let request = 0;
   let controller: AbortController | null = null;
   const statusItems = $derived(
@@ -64,13 +71,33 @@
     route = { ...route, ...patch };
     window.history.pushState(null, "", servicesRouteUrl(window.location.href, route, routePrefix));
   }
+  function openDetail(serviceId: string) {
+    detailTrigger = document.activeElement instanceof HTMLElement ? document.activeElement : null;
+    detailScope = scope;
+    triggeredServiceId = serviceId;
+    navigate({ serviceId });
+  }
+  async function closeDetail() {
+    const id = route.serviceId;
+    navigate({ serviceId: "" });
+    await tick();
+    if (route.serviceId || !root?.isConnected) return;
+    if (
+      id === triggeredServiceId &&
+      detailScope === scope &&
+      detailTrigger?.isConnected &&
+      !detailTrigger.matches(":disabled") &&
+      root.contains(detailTrigger)
+    )
+      detailTrigger.focus();
+    else root.querySelector<HTMLElement>("input, button:not(:disabled)")?.focus();
+  }
   async function load(current: ServicesRoute) {
     const id = ++request;
     controller?.abort();
     controller = new AbortController();
     loading = true;
     failed = false;
-    total = undefined;
     const params = new URLSearchParams({
       q: current.q,
       status: current.status,
@@ -80,6 +107,17 @@
       expiring_within_days: "7",
     });
     if (current.userId) params.set("user_id", current.userId);
+    const nextScope = params.toString();
+    if (scope !== nextScope || scopeApi !== api) {
+      const changedScope = scope !== "";
+      scope = nextScope;
+      scopeApi = api;
+      rows = [];
+      total = undefined;
+      observedAt = "";
+      detailTrigger = null;
+      if (changedScope && route.serviceId) void closeDetail();
+    }
     try {
       const result = unwrap(
         await api(
@@ -93,8 +131,17 @@
       observedAt = result.observed_at;
       if (current.page > 0 && current.page * result.page_size >= result.total)
         navigate({ page: Math.max(0, Math.ceil(result.total / result.page_size) - 1) });
-    } catch {
-      if (id === request) failed = true;
+    } catch (error) {
+      if (id === request) {
+        failed = true;
+        if (!isTemporaryServiceReadFailure(error)) {
+          rows = [];
+          total = undefined;
+          observedAt = "";
+          detailTrigger = null;
+          if (route.serviceId) void closeDetail();
+        }
+      }
     } finally {
       if (id === request) loading = false;
     }
@@ -117,7 +164,12 @@
   });
 </script>
 
-<section class="console-services" aria-busy={loading} aria-label={at("console_services")}>
+<section
+  bind:this={root}
+  class="console-services"
+  aria-busy={loading}
+  aria-label={at("console_services")}
+>
   <AdminListToolbar
     {total}
     totalLabel={at("services_count")}
@@ -160,10 +212,18 @@
         >{at("console_clear_customer")}</AdminButton
       >
     </p>{/if}
-  {#if failed}<p role="alert">{at("services_load_failed")}</p>
+  {#if failed}<p role="alert">
+      {at("services_load_failed")}
+      {observedAt
+        ? at("services_snapshot_observed_stale", { time: serviceDate(observedAt) })
+        : at("services_snapshot_unknown")}
+    </p>
   {:else if loading}<p role="status">{at("loading")}</p>
-  {:else if !rows.length}<AdminEmptyState tone="card">{at("console_no_services")}</AdminEmptyState>
-  {:else}
+  {/if}
+  {#if observedAt && !rows.length}<AdminEmptyState tone="card"
+      >{at("console_no_services")}</AdminEmptyState
+    >
+  {:else if rows.length}
     <AdminTable
       ><thead
         ><tr
@@ -189,7 +249,7 @@
                 kind="code"
                 label={row.service.name}
                 idText={row.service.id}
-                onclick={() => navigate({ serviceId: row.service.id })}
+                onclick={() => openDetail(row.service.id)}
               /></td
             >
             <td data-label={at("status")}
@@ -252,7 +312,7 @@
       {routePrefix}
       serviceId={route.serviceId}
       {onOpenUserCard}
-      onclose={() => navigate({ serviceId: "" })}
+      onclose={closeDetail}
     />{/key}{/if}
 
 <style>

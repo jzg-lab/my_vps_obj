@@ -123,6 +123,8 @@ async function installConsoleApi(
         },
       };
       let summaryRequests = 0;
+      const feedbackHarness = { fail: mode === "failure" };
+      Object.defineProperty(window, "feedbackHarness", { value: feedbackHarness });
       let bundle: Bundle | undefined;
       Object.defineProperty(window, "SubscriptionWebAppAdmin", {
         configurable: true,
@@ -134,6 +136,21 @@ async function installConsoleApi(
               ...props,
               api: async (path, options) => {
                 const request = new URL(path, "https://fixture.test");
+                if (request.pathname === "/admin/support/stats") {
+                  if (feedbackHarness.fail) throw new Error("fixture_feedback_unavailable");
+                  return {
+                    ok: true,
+                    stats: {
+                      active: 4,
+                      awaiting_admin: 2,
+                      awaiting_user: 1,
+                      open: 1,
+                      closed: 4,
+                      total: 8,
+                      total_unread_admin: 3,
+                    },
+                  };
+                }
                 if (request.pathname === "/admin/console/summary") {
                   if (mode === "revoked" && summaryRequests++ > 0)
                     return { ok: false, error: "forbidden" };
@@ -292,7 +309,7 @@ for (const width of [1440, 390]) {
       const terms = detail.getByRole("region", { name: label("console_terms_snapshot") });
       await expect(terms.getByText("1 GiB", { exact: true })).toBeVisible();
       await expect(terms.getByText("Original description", { exact: true })).toBeVisible();
-      await expect(detail.getByText("0 B / 2 GiB", { exact: true })).toBeVisible();
+      await expect(detail.getByRole("definition").filter({ hasText: "0 B / 2 GiB" })).toBeVisible();
       await expect(
         terms.getByText("22222222-2222-4222-8222-222222222222", { exact: true })
       ).toBeVisible();
@@ -318,7 +335,9 @@ for (const width of [1440, 390]) {
       await expect(
         detail.getByText(label("console_filter_sync_error"), { exact: true })
       ).toBeVisible();
-      await expect(detail.getByText(label("services_usage_stale"), { exact: true })).toBeVisible();
+      await expect(
+        detail.locator(".service-visual").getByText(label("services_usage_stale"), { exact: true })
+      ).toBeVisible();
       await terms.screenshot({
         path: testInfo.outputPath(`service-terms-${width}-${language}.png`),
       });
@@ -365,6 +384,7 @@ for (const width of [1440, 390]) {
         .click();
       await expect(page).toHaveURL(/admin\/users\/ms_/);
       const customerUrl = page.url();
+      await page.locator(".user-services > details > summary").click();
       await page
         .locator(".user-services tbody tr")
         .first()
@@ -408,6 +428,7 @@ for (const width of [1440, 390]) {
       await installConsoleApi(page, "normal", language);
       await page.goto(url("stats"));
       await expect(page.locator('[data-admin-active-section="console-overview"]')).toBeVisible();
+      await page.locator(".overview-details > summary").click();
       const usage = page.locator('[data-console-metric="usage"]');
       await expect(usage.getByText("0 B", { exact: true })).toBeVisible();
       await page
@@ -449,12 +470,14 @@ for (const mode of ["unknown", "partial", "failure"] as const) {
     await installConsoleApi(page, mode);
     await page.goto(url("console-overview"));
     if (mode === "failure") {
+      await page.locator("[data-console-metric=nodes] > details > summary").click();
       await expect(page.getByText(label("console_local_failed"), { exact: true })).toBeVisible();
       await expect(page.locator('[data-console-metric="usage"]')).toHaveCount(0);
       await expect(
         page.getByText(label("console_nodes_coverage_unavailable"), { exact: true })
       ).toBeVisible();
     } else {
+      await page.locator(".overview-details > summary").click();
       const usage = page.locator('[data-console-metric="usage"]');
       await expect(
         usage.getByText(label(`console_availability_${mode}`), { exact: true })
@@ -482,6 +505,7 @@ for (const mode of ["unknown", "partial", "failure"] as const) {
 test("revoked administrator loses cached overview values", async ({ page }) => {
   await installConsoleApi(page, "revoked");
   await page.goto(url("console-overview"));
+  await page.locator(".overview-details > summary").click();
   await expect(page.locator('[data-console-metric="usage"]')).toBeVisible();
   await page
     .locator(".console-overview")
@@ -514,3 +538,21 @@ for (const width of [1440, 390]) {
     expect(errors).toEqual([]);
   });
 }
+
+test("feedback counters stay unknown on failed reads, recover, and reach the inbox", async ({
+  page,
+}) => {
+  await installConsoleApi(page, "failure");
+  await page.goto(url("console-overview"));
+  const feedback = page.locator('[data-console-metric="feedback"]');
+  await expect(feedback.locator("[data-feedback-unread]")).toHaveText(label("console_unknown"));
+  await expect(feedback).toContainText(label("console_feedback_failed"));
+  await page.evaluate(() => {
+    (window as typeof window & { feedbackHarness: { fail: boolean } }).feedbackHarness.fail = false;
+  });
+  await page.getByRole("button", { name: label("refresh"), exact: true }).click();
+  await expect(feedback.locator("[data-feedback-unread]")).toHaveText("3");
+  await expect(feedback.locator("[data-feedback-waiting]")).toHaveText("2");
+  await feedback.getByRole("button", { name: label("console_feedback_open") }).click();
+  await expect(page).toHaveURL(/admin\/support/);
+});

@@ -7,7 +7,7 @@
     Globe2,
     Menu,
   } from "$components/ui/icons.js";
-  import { onDestroy, onMount, setContext, untrack } from "svelte";
+  import { onDestroy, onMount, setContext, tick, untrack } from "svelte";
   import { ADMIN_COMPOSITION, type AdminCompositionContext } from "./sections/compositionContext";
   import { MediaQuery } from "svelte/reactivity";
   import { prefersReducedMotion } from "svelte/motion";
@@ -34,6 +34,10 @@
   import type { UsersFilter, UsersRouteFilters } from "$lib/admin/usersRouteFilters";
   import type { AdminApi } from "./adminStores.js";
   import { lockPageScroll } from "$lib/webapp/scrollLock.js";
+  import {
+    focusFirstDialogControl,
+    handleDialogFocusTrap,
+  } from "$lib/components/dialogFocusTrap.js";
 
   type TranslateFn = (key: string, params?: Record<string, unknown>, fallback?: string) => string;
   type SettingsPath = string[];
@@ -235,8 +239,12 @@
   });
 
   const compactQuery = new MediaQuery("max-width: 720px", false);
+  const sidebarQuery = new MediaQuery("max-width: 1023px", false);
   const isCompact = $derived(compactQuery.current);
+  const sidebarDrawerOpen = $derived(sidebarQuery.current && sidebarOpen);
+  let sidebar = $state<HTMLElement | null>(null);
   let sidebarToggle = $state<HTMLButtonElement>();
+  let sidebarWasOpen = false;
   let adminLanguageMenuOpen = $state(false);
   let adminLanguageClickGuard = $state(false);
   let adminLanguageClickGuardArmed = $state(false);
@@ -302,10 +310,24 @@
     if (adminLanguageClickGuardArmed) setAdminLanguageMenuOpen(false);
   }
 
-  // The drawer is an overlay like any dialog, so the content behind it stops
-  // scrolling while it is open instead of tracking the finger under the scrim.
+  $effect.pre(() => {
+    const mobile = sidebarQuery.current;
+    const open = sidebarDrawerOpen;
+    // Capture focus before closing/resizing makes the sidebar inert.
+    const returnFocus =
+      mobile && !open && (sidebarWasOpen || sidebar?.contains(document.activeElement));
+    sidebarWasOpen = open;
+    if (!mobile) sidebarOpen = false;
+    if (returnFocus) {
+      void tick().then(() => {
+        if (sidebarQuery.current && !sidebarOpen) sidebarToggle?.focus();
+      });
+    }
+  });
+
   $effect(() => {
-    if (!sidebarOpen) return;
+    if (!sidebarDrawerOpen) return;
+    focusFirstDialogControl(() => (sidebarDrawerOpen ? sidebar : null));
     return lockPageScroll();
   });
 
@@ -382,10 +404,7 @@
 
 <svelte:window
   onkeydown={(event) => {
-    if (event.key !== "Escape" || event.defaultPrevented || !sidebarOpen) return;
-    event.preventDefault();
-    sidebarOpen = false;
-    sidebarToggle?.focus();
+    if (sidebarDrawerOpen) handleDialogFocusTrap(event, sidebar, () => (sidebarOpen = false));
   }}
 />
 
@@ -394,10 +413,11 @@
   class:is-sidebar-open={sidebarOpen}
   class:is-admin-language-open={adminLanguageGuardActive}
 >
-  {#if sidebarOpen}
+  {#if sidebarDrawerOpen}
     <button
       type="button"
       class="admin-sidebar-backdrop"
+      tabindex="-1"
       aria-label={at("close_menu", {}, "Close menu")}
       in:fade={sidebarBackdropFade()}
       out:fade={sidebarBackdropFade()}
@@ -415,8 +435,12 @@
     ></button>
   {/if}
   <aside
+    bind:this={sidebar}
     id={`${navigationId}-sidebar`}
     class="admin-sidebar"
+    inert={sidebarQuery.current && !sidebarOpen}
+    role={sidebarDrawerOpen ? "dialog" : undefined}
+    aria-modal={sidebarDrawerOpen ? "true" : undefined}
     aria-label={at("sidebar_navigation", {}, "Admin navigation")}
   >
     <div class="admin-sidebar-brand">
@@ -537,6 +561,7 @@
       {/if}
       <a
         class="admin-version-link"
+        tabindex="0"
         href={appRepositoryUrl}
         target="_blank"
         rel="noopener noreferrer"
@@ -548,7 +573,7 @@
     </div>
   </aside>
 
-  <section class="admin-content" data-scroll-container>
+  <section class="admin-content" data-scroll-container inert={sidebarDrawerOpen}>
     <header class="admin-header" class:is-user-detail={Boolean(usersStore.openedUser)}>
       <div style="display:flex; align-items:center; gap:12px; min-width:0;">
         <button

@@ -1,4 +1,7 @@
 import { expect, test } from "@playwright/test";
+import { readFileSync } from "node:fs";
+
+const locale: Record<string, string> = JSON.parse(readFileSync("../locales/ru.json", "utf8"));
 
 for (const width of [1440, 390]) {
   test(`account access shows saved intent and panel confirmation at ${width}px`, async ({
@@ -11,7 +14,8 @@ for (const width of [1440, 390]) {
     await page.locator("tr[data-user-id]").first().click();
     await page.setViewportSize({ width, height: 1000 });
     await page.getByRole("tab", { name: "Действия", exact: true }).click();
-    const status = page.getByRole("region", { name: "Синхронизация подключений" });
+    const status = page.getByRole("region", { name: locale.admin_account_access_title });
+    await expect(status).toContainText(locale.admin_account_access_scope);
     await expect(status).toContainText("Изменение подключений аккаунта не запрошено");
     const toggle = page.locator('[data-admin-action="request-user-ban-toggle"]');
     await toggle.click();

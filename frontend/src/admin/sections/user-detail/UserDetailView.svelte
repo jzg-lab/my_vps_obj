@@ -272,6 +272,7 @@
       {#key openedUser.user_id}<UserServices
           {at}
           userId={openedUser.user_id}
+          customerName={userDisplayName(openedUser)}
           {routePrefix}
           banned={Boolean(openedUser.is_banned)}
         />{/key}

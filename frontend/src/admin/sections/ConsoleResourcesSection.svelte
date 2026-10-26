@@ -20,6 +20,7 @@
   } from "$lib/admin/consoleResources";
   import ConsoleResourceCatalogStatus from "./nodes/ConsoleResourceCatalogStatus.svelte";
   import ConsoleResourceCatalogTable from "./nodes/ConsoleResourceCatalogTable.svelte";
+  import ConsoleResourceCards from "./nodes/ConsoleResourceCards.svelte";
   import ConsoleResourceDetail from "./nodes/ConsoleResourceDetail.svelte";
   import ResourceCreateDialog from "./nodes/ResourceCreateDialog.svelte";
   import { resourceOperationsUrl } from "$lib/admin/resourceOperations";
@@ -45,6 +46,7 @@
   let catalog = $state<ResourceCatalog | null>(null);
   let loading = $state(true);
   let failed = $state(false);
+  let table = $state(false);
   let createKind = $state<"group" | "host" | null>(null);
   let createTrigger: HTMLElement | null = null;
   async function closeCreate() {
@@ -118,6 +120,7 @@
   aria-busy={loading}
 >
   <AdminListToolbar
+    compact
     columns={1}
     total={catalog && !failed ? rows.length : undefined}
     totalLabel={at("console_catalog_known_count")}
@@ -161,13 +164,27 @@
   {#if loading}<p role="status">{at("loading")}</p>
   {:else if failed}<p role="alert">{at("console_catalog_load_failed")}</p>
   {:else if catalog}
-    <ConsoleResourceCatalogStatus {catalog} {at} />
-    {#if rows.length}<ConsoleResourceCatalogTable
-        {rows}
-        kind={route.kind}
-        {at}
-        onOpen={(resourceId) => navigate({ resourceId })}
-      />
+    <ConsoleResourceCatalogStatus {catalog} {at} compact />
+    <div class="catalog-views" role="group" aria-label={at("console_catalog_view")}>
+      <AdminButton size="sm" aria-pressed={!table} onclick={() => (table = false)}
+        >{at("console_catalog_view_cards")}</AdminButton
+      >
+      <AdminButton size="sm" aria-pressed={table} onclick={() => (table = true)}
+        >{at("console_nodes_view_table")}</AdminButton
+      >
+    </div>
+    {#if rows.length}{#if table}<ConsoleResourceCatalogTable
+          {rows}
+          kind={route.kind}
+          {at}
+          onOpen={(resourceId) => navigate({ resourceId })}
+        />{:else}<ConsoleResourceCards
+          {rows}
+          {catalog}
+          kind={route.kind}
+          {at}
+          onOpen={(resourceId) => navigate({ resourceId })}
+        />{/if}
     {:else}<AdminEmptyState tone="card"
         >{at(
           catalog.coverage === "complete"
@@ -205,6 +222,11 @@
     display: grid;
     gap: 16px;
     min-width: 0;
+  }
+  .catalog-views {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
   }
   p {
     margin: 0;

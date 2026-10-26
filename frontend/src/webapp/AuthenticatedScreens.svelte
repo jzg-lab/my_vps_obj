@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { prepareServiceSupportDraft, supportDraftScope } from "$lib/webapp/supportDrafts";
   import { qrLoginSiteLabel } from "$lib/webapp/qrLogin.js";
   import { giftState } from "$lib/webapp/gifts.svelte.js";
   import { THEME_PREFERENCE_DEFAULT, type ThemeOption } from "$lib/webapp/themePreference.js";
@@ -465,7 +466,22 @@
     {#if screen === "home" && independentServices}
       <ServicesHomeScreen {api} {t} {brand} {brandTitle} {goServices} />
     {:else if screen === "services" && independentServices}
-      <ServicesScreen {api} {t} {brand} {brandTitle} />
+      <ServicesScreen
+        {api}
+        {t}
+        {brand}
+        {brandTitle}
+        {copyText}
+        onHelp={supportEnabled || extensionSections.includes("support")
+          ? (serviceId) => {
+              prepareServiceSupportDraft(supportDraftScope(user), serviceId, t("wa_services_id"));
+              supportStore.closeTicketView({ skipPush: true });
+              goSupport();
+            }
+          : supportUrl
+            ? () => openExternalLink(supportUrl)
+            : undefined}
+      />
     {:else if screen === "home"}
       <HomeScreen
         {appSettings}

@@ -81,6 +81,17 @@ class ConsoleResourceRefOut(HttpResponseModel):
     name: str | None
 
 
+class ConsoleTrafficDayOut(HttpResponseModel):
+    date: date
+    bytes: int | None = Field(default=None, ge=0)
+
+
+class ConsoleSpeedSampleOut(HttpResponseModel):
+    sampled_at: datetime
+    rx_bytes_per_second: float | None = Field(default=None, ge=0)
+    tx_bytes_per_second: float | None = Field(default=None, ge=0)
+
+
 class ConsoleNodeTrafficWindowOut(HttpResponseModel):
     """UTC 日范围；完整 UUID 覆盖不证明历史采样连续，也不改变北京时间服务账期。"""
 
@@ -150,6 +161,8 @@ class ConsoleNodeOut(HttpResponseModel):
     )
     window_traffic_bytes: int | None = None
     window_traffic_quality: Literal["reported", "missing", "invalid"] = "missing"
+    daily_traffic: list[ConsoleTrafficDayOut] = Field(default_factory=list)
+    speed_history: list[ConsoleSpeedSampleOut] = Field(default_factory=list)
 
 
 class ConsoleHostOut(ConsoleResourceRefOut):

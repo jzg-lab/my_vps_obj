@@ -399,7 +399,7 @@ for (const width of [1440, 390]) {
     await serviceLink.click();
     const serviceDialog = page.getByRole("dialog", { name: label("console_service_detail") });
     await expect(
-      serviceDialog.getByRole("heading", { name: "Shared service", exact: true })
+      serviceDialog.getByRole("heading", { name: "Shared service", level: 3, exact: true })
     ).toBeVisible();
     await page.keyboard.press("Escape");
     await expect(serviceDialog).toHaveCount(0);
@@ -470,7 +470,7 @@ for (const width of [1440, 390]) {
       await service.click();
       const serviceDialog = page.getByRole("dialog", { name: text("console_service_detail") });
       await expect(
-        serviceDialog.getByRole("heading", { name: "Shared service", exact: true })
+        serviceDialog.getByRole("heading", { name: "Shared service", level: 3, exact: true })
       ).toBeVisible();
       await page.keyboard.press("Escape");
       await expect(service).toBeFocused();

@@ -41,7 +41,7 @@ button:disabled {
   transform: translateY(0);
 }
 
-.btn:focus-visible {
+.btn:focus-visible:not(:disabled) {
   outline: none;
   box-shadow:
     0 0 0 3px color-mix(in srgb, var(--accent) 28%, transparent),

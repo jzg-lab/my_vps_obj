@@ -33,6 +33,7 @@ for (const width of [1440, 390]) {
       await expect(page.getByRole("dialog")).toHaveCount(0);
       await expect(region.locator("tbody tr")).toHaveCount(count);
     }
+    await region.locator(":scope > details > summary").click();
     const first = region.locator("tbody tr").first();
     const other = region.locator("tbody tr").nth(1);
     const originalOther = await other.innerText();

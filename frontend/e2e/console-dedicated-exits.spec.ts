@@ -373,7 +373,11 @@ for (const width of [1440, 390]) {
             .click();
           const detail = serviceDialog(page);
           await expect(
-            detail.getByRole("heading", { name: currentService.service.name, exact: true })
+            detail.getByRole("heading", {
+              name: currentService.service.name,
+              level: 3,
+              exact: true,
+            })
           ).toBeVisible();
           await detail
             .getByRole("button", { name: label("services_activate"), exact: true })
@@ -522,7 +526,11 @@ for (const width of [1440, 390]) {
       await tab.setViewportSize({ width, height: 1000 });
       await expect(tab).toHaveURL(target.href);
       await expect(
-        serviceDialog(tab).getByRole("heading", { name: currentService.service.name, exact: true })
+        serviceDialog(tab).getByRole("heading", {
+          name: currentService.service.name,
+          level: 3,
+          exact: true,
+        })
       ).toBeVisible();
       await tab.reload();
       await expect(serviceDialog(tab)).toBeVisible();
@@ -536,7 +544,7 @@ for (const width of [1440, 390]) {
       const serviceUrl = page.url();
       const service = serviceDialog(page);
       await expect(
-        service.getByRole("heading", { name: currentService.service.name, exact: true })
+        service.getByRole("heading", { name: currentService.service.name, level: 3, exact: true })
       ).toBeVisible();
       await page.reload();
       await expect(service).toBeVisible();
@@ -714,7 +722,11 @@ for (const width of [1440, 390]) {
       await tab.setViewportSize({ width, height: 1000 });
       await expect(tab).toHaveURL(href);
       await expect(
-        serviceDialog(tab).getByRole("heading", { name: archivedService.service.name, exact: true })
+        serviceDialog(tab).getByRole("heading", {
+          name: archivedService.service.name,
+          level: 3,
+          exact: true,
+        })
       ).toBeVisible();
       await expect(
         serviceDialog(tab).getByRole("button", {
@@ -724,7 +736,11 @@ for (const width of [1440, 390]) {
       ).toHaveCount(0);
       await tab.reload();
       await expect(
-        serviceDialog(tab).getByRole("heading", { name: archivedService.service.name, exact: true })
+        serviceDialog(tab).getByRole("heading", {
+          name: archivedService.service.name,
+          level: 3,
+          exact: true,
+        })
       ).toBeVisible();
       await expectFocusInside(serviceDialog(tab));
       await tab.keyboard.press("Escape");
@@ -736,7 +752,7 @@ for (const width of [1440, 390]) {
       await historical.click();
       const service = serviceDialog(page);
       await expect(
-        service.getByRole("heading", { name: archivedService.service.name, exact: true })
+        service.getByRole("heading", { name: archivedService.service.name, level: 3, exact: true })
       ).toBeVisible();
       await expect(service.locator(".admin-entity-link.is-person")).toHaveCount(0);
       for (const key of [
@@ -752,7 +768,7 @@ for (const width of [1440, 390]) {
       await expectNoOverflow(page, service);
       await page.reload();
       await expect(
-        service.getByRole("heading", { name: archivedService.service.name, exact: true })
+        service.getByRole("heading", { name: archivedService.service.name, level: 3, exact: true })
       ).toBeVisible();
       await page.goBack();
       await expect(page).toHaveURL(sourceUrl);

@@ -940,6 +940,7 @@ from db import gift_models as gift_models  # noqa: E402
 from db import legacy_import_models as legacy_import_models  # noqa: E402
 from db import message_image_models as message_image_models  # noqa: E402
 from db import node_asset_models as node_asset_models  # noqa: E402
+from db import node_speed_models as node_speed_models  # noqa: E402
 from db import partner_models as partner_models  # noqa: E402
 from db import referral_accrual_models as referral_accrual_models  # noqa: E402
 from db import resource_operation_models as resource_operation_models  # noqa: E402

@@ -1,6 +1,7 @@
 <script lang="ts">
   import { onDestroy, tick } from "svelte";
   import ServiceSubscription from "../ServiceSubscription.svelte";
+  import CopyLinkField from "$components/patterns/CopyLinkField.svelte";
   import BrandMark from "$lib/webapp/BrandMark.svelte";
   import { RefreshCw, ArrowRight } from "$components/ui/icons.js";
   import Button from "$components/ui/button.svelte";
@@ -10,11 +11,13 @@
   import { AdminPagination } from "$components/patterns/admin/index.js";
   import { builtApiPath, unwrap, type ApiClient } from "$lib/webapp/publicApi.js";
   import { serviceBytes } from "$lib/admin/servicePlans.js";
+  import { isTemporaryServiceReadFailure } from "$lib/webapp/serviceReadFailure";
   import {
     serviceDate,
     serviceUsage,
     serviceResetState,
     serviceStatusKey,
+    serviceNextStepKey,
     type UserService,
     type CatalogPlan,
   } from "$lib/webapp/independentServices.js";
@@ -25,11 +28,15 @@
     t,
     brand,
     brandTitle,
+    copyText,
+    onHelp,
   }: {
     api: ApiClient["api"];
     t: Translate;
     brand: BrandConfig;
     brandTitle: string;
+    copyText: (value: string) => void | Promise<void>;
+    onHelp?: (serviceId: string) => void;
   } = $props();
   let tab = $state<"services" | "catalog">("services");
   let page = $state(0);
@@ -39,10 +46,14 @@
   let total = $state(0);
   let loading = $state(true);
   let failed = $state(false);
+  let readAt = $state("");
+  let scope = "";
+  let scopeApi: ApiClient["api"] | undefined;
   let selectedId = $state("");
   let detail = $state<UserService | null>(null);
   let detailLoading = $state(false);
   let detailFailed = $state(false);
+  let detailReadAt = $state("");
   let detailController: AbortController | undefined;
   let detailTrigger: HTMLElement | null = null;
   const pageSize = 10;
@@ -54,6 +65,20 @@
     const controller = new AbortController();
     loading = true;
     failed = false;
+    const nextScope = `${currentTab}:${currentPage}`;
+    if (scope !== nextScope || scopeApi !== api) {
+      scope = nextScope;
+      scopeApi = api;
+      services = [];
+      plans = [];
+      total = 0;
+      readAt = "";
+      detailController?.abort();
+      selectedId = "";
+      detail = null;
+      detailReadAt = "";
+      detailTrigger = null;
+    }
     void (async () => {
       try {
         const query = `?limit=${pageSize}&offset=${currentPage * pageSize}`;
@@ -76,10 +101,22 @@
           plans = result.plans;
           total = result.total;
         }
+        readAt = new Date().toISOString();
         if (currentPage > 0 && currentPage * pageSize >= total)
           page = Math.max(0, Math.ceil(total / pageSize) - 1);
-      } catch {
-        if (!controller.signal.aborted) failed = true;
+      } catch (error) {
+        if (!controller.signal.aborted) {
+          failed = true;
+          if (!isTemporaryServiceReadFailure(error)) {
+            services = [];
+            plans = [];
+            total = 0;
+            readAt = "";
+            detailController?.abort();
+            detail = null;
+            selectedId = "";
+          }
+        }
       } finally {
         if (!controller.signal.aborted) loading = false;
       }
@@ -92,8 +129,11 @@
     detailController?.abort();
     const controller = new AbortController();
     detailController = controller;
+    if (selectedId !== id) {
+      detail = null;
+      detailReadAt = "";
+    }
     selectedId = id;
-    detail = null;
     detailLoading = true;
     detailFailed = false;
     try {
@@ -105,9 +145,18 @@
           }
         )
       );
-      if (!controller.signal.aborted) detail = result.service;
-    } catch {
-      if (!controller.signal.aborted) detailFailed = true;
+      if (!controller.signal.aborted) {
+        detail = result.service;
+        detailReadAt = new Date().toISOString();
+      }
+    } catch (error) {
+      if (!controller.signal.aborted) {
+        detailFailed = true;
+        if (!isTemporaryServiceReadFailure(error)) {
+          detail = null;
+          detailReadAt = "";
+        }
+      }
     } finally {
       if (!controller.signal.aborted) detailLoading = false;
     }
@@ -116,6 +165,7 @@
     detailController?.abort();
     selectedId = "";
     detail = null;
+    detailReadAt = "";
     await tick();
     if (!selectedId && detailTrigger?.isConnected) detailTrigger.focus();
   }
@@ -128,12 +178,33 @@
   </p>
 {/snippet}
 
+{#snippet nextStep(service: UserService, inDetail = false)}
+  <div class="service-next-step" data-service-next-step>
+    <p>
+      {t(
+        inDetail && service.status === "active" && !service.sync_pending
+          ? "wa_services_next_import_detail"
+          : serviceNextStepKey(service)
+      )}
+    </p>
+    {#if onHelp}<Button variant="secondary" onclick={() => onHelp?.(service.id)}
+        >{t("wa_services_contact")}</Button
+      >{/if}
+  </div>
+{/snippet}
+
 {#snippet serviceFacts(service: UserService)}
   {@const usage = serviceUsage(service)}
   {@const reset = serviceResetState(service)}
   <dl class="service-facts">
     <div>
-      <dt>{t("wa_services_used")}</dt>
+      <dt>
+        {t(
+          service.usage_error && service.last_usage_sync_at
+            ? "wa_services_used_confirmed"
+            : "wa_services_used"
+        )}
+      </dt>
       <dd data-service-usage>
         {usage.remaining === null
           ? t("wa_services_usage_unknown")
@@ -142,9 +213,20 @@
       </dd>
     </div>
     <div>
-      <dt>{t("wa_services_remaining")}</dt>
+      <dt>
+        {t(
+          service.usage_error && service.last_usage_sync_at
+            ? "wa_services_remaining_confirmed"
+            : "wa_services_remaining"
+        )}
+      </dt>
       <dd data-service-remaining>
         {usage.remaining === null ? t("wa_services_usage_unknown") : serviceBytes(usage.remaining)}
+        {#if service.usage_error && service.last_usage_sync_at}<small
+            >{t("wa_services_confirmed_at", {
+              time: serviceDate(service.last_usage_sync_at),
+            })}</small
+          >{/if}
       </dd>
     </div>
     <div>
@@ -168,6 +250,8 @@
   </dl>
   {#if usage.percent !== null}<progress
       value={usage.percent}
+      class:exhausted={usage.remaining === 0}
+      class:unconfirmed={Boolean(service.usage_error)}
       max="100"
       aria-label={t("wa_services_used")}
     ></progress>{/if}
@@ -226,13 +310,18 @@
     aria-label={t(tab === "services" ? "wa_services_title" : "wa_services_catalog")}
     aria-busy={loading}
   >
-    {#if loading}<Card><p role="status">{t("wa_loading")}</p></Card>
-    {:else if failed}<Card
-        ><p role="alert">{t("wa_services_load_failed")}</p>
+    {#if failed}<Card
+        ><p role="alert">
+          {t("wa_services_load_failed")}
+          {readAt
+            ? t("wa_services_snapshot_stale", { time: serviceDate(readAt) })
+            : t("wa_services_snapshot_unknown")}
+        </p>
         <Button variant="secondary" onclick={() => revision++}>{t("wa_services_retry")}</Button
         ></Card
       >
-    {:else if tab === "services"}
+    {:else if loading}<Card><p role="status">{t("wa_loading")}</p></Card>{/if}
+    {#if readAt && tab === "services"}
       {#if !services.length}<Card
           ><h2>{t("wa_services_empty")}</h2>
           <p>{t("wa_services_manual_hint")}</p></Card
@@ -242,13 +331,21 @@
           <Card data-service-id={service.id}>
             <div class="service-heading">
               <h2>{service.name}</h2>
-              <Badge wrap variant={service.status === "active" ? "success" : "muted"}
-                >{t(serviceStatusKey(service.status))}</Badge
+              <Badge
+                wrap
+                variant={service.status === "active"
+                  ? "success"
+                  : service.status === "exhausted"
+                    ? "destructive"
+                    : "muted"}>{t(serviceStatusKey(service.status))}</Badge
               >
             </div>
             {@render terms(service)}
-            <p class="service-id">{t("wa_services_id")}: {service.id}</p>
+            <p class="service-id" title={service.id}>
+              #{service.id.slice(-8)} · {t("wa_services_started")}: {serviceDate(service.starts_at)}
+            </p>
             {@render serviceFacts(service)}
+            {@render nextStep(service)}
             <Button
               variant="secondary"
               onclick={(event: MouseEvent) => openDetail(service.id, event.currentTarget)}
@@ -257,7 +354,7 @@
           </Card>
         {/each}
       </div>
-    {:else}
+    {:else if readAt}
       <p>{t("wa_services_manual_hint")}</p>
       {#if !plans.length}<Card><p>{t("wa_services_catalog_empty")}</p></Card>{/if}
       <div class="services-grid">
@@ -284,9 +381,10 @@
         {/each}
       </div>
     {/if}
-    {#if !loading && !failed && total > pageSize}
+    {#if readAt && total > pageSize}
       <AdminPagination
         appearance="webapp"
+        disabled={loading || failed}
         {page}
         {total}
         pageCount={Math.ceil(total / pageSize)}
@@ -312,17 +410,35 @@
   focusKey={`${detailLoading}:${detailFailed}`}
   onclose={closeDetail}
 >
-  {#if detailLoading}<p role="status">{t("wa_loading")}</p>
-  {:else if detailFailed}<p role="alert">{t("wa_services_load_failed")}</p>
+  {#if detailFailed}<p role="alert">
+      {t("wa_services_load_failed")}
+      {detailReadAt
+        ? t("wa_services_snapshot_stale", { time: serviceDate(detailReadAt) })
+        : t("wa_services_snapshot_unknown")}
+    </p>
     <Button onclick={() => openDetail(selectedId)}>{t("wa_services_retry")}</Button>
-  {:else if detail}
+  {:else if detailLoading}<p role="status">{t("wa_loading")}</p>{/if}
+  {#if detail}
     {@const reset = serviceResetState(detail)}
     <div class="service-detail">
-      <Badge wrap variant={detail.status === "active" ? "success" : "muted"}
-        >{t(serviceStatusKey(detail.status))}</Badge
+      <Badge
+        wrap
+        variant={detail.status === "active"
+          ? "success"
+          : detail.status === "exhausted"
+            ? "destructive"
+            : "muted"}>{t(serviceStatusKey(detail.status))}</Badge
       >
       {@render terms(detail)}
-      <p class="service-id">{t("wa_services_id")}: {detail.id}</p>
+      <details class="service-explanation">
+        <summary>{t("wa_services_id")}: …{detail.id.slice(-8)}</summary>
+        <CopyLinkField
+          value={detail.id}
+          inputLabel={t("wa_services_id")}
+          copyLabel={t("wa_copy")}
+          oncopy={copyText}
+        />
+      </details>
       {#if detail.description}<p class="service-description">{detail.description}</p>{/if}
       {@render serviceFacts(detail)}
       <dl class="service-facts">
@@ -339,7 +455,8 @@
             </dd>
           </div>{/if}
       </dl>
-      {#if detail.status === "active" && !detail.sync_pending}
+      {#if !detailLoading && !detailFailed}{@render nextStep(detail, true)}{/if}
+      {#if !detailLoading && !detailFailed && detail.status === "active" && !detail.sync_pending}
         {#key detail.id}<ServiceSubscription {api} {t} serviceId={detail.id} />{/key}
       {:else}<p>
           {t(
@@ -349,13 +466,16 @@
           )}
         </p>
       {/if}
-      {#if detail.traffic_rule === "monthly" && reset !== "expires_first" && reset !== "ended"}<p
-          class="service-sync"
-        >
-          {t("wa_services_monthly_hint")}
-        </p>{/if}
-      <p class="service-sync">{t("wa_services_connection_unmeasured")}</p>
-      <p class="service-sync">{t("wa_services_help_evidence")}</p>
+      <details class="service-explanation">
+        <summary>{t("wa_services_explanation")}</summary>
+        {#if detail.traffic_rule === "monthly" && reset !== "expires_first" && reset !== "ended"}<p
+            class="service-sync"
+          >
+            {t("wa_services_monthly_hint")}
+          </p>{/if}
+        <p class="service-sync">{t("wa_services_connection_unmeasured")}</p>
+        <p class="service-sync">{t("wa_services_help_evidence")}</p>
+      </details>
       <p class="service-sync">{t("wa_services_timezone")}</p>
     </div>
   {/if}
@@ -448,8 +568,35 @@
     white-space: pre-wrap;
     overflow-wrap: anywhere;
   }
+  .service-next-step {
+    display: grid;
+    justify-items: start;
+    gap: 8px;
+    margin: 12px 0;
+  }
+  .service-next-step p {
+    margin: 0;
+  }
+  .service-explanation {
+    margin: 12px 0;
+  }
+  .service-explanation summary {
+    cursor: pointer;
+    margin-bottom: 8px;
+  }
+  [data-service-remaining] small {
+    display: block;
+    color: var(--muted);
+    font-size: 12px;
+  }
   .service-warning {
     color: var(--danger, #e44b4b);
+  }
+  progress.exhausted {
+    accent-color: var(--danger, #e44b4b);
+  }
+  progress.unconfirmed {
+    accent-color: var(--muted);
   }
   progress {
     width: 100%;

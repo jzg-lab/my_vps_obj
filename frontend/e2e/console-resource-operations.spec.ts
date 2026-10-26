@@ -80,12 +80,31 @@ for (const language of ["en", "ru", "zh-hans"] as const)
         await expect(root).toHaveAttribute("aria-busy", "false");
         await expect(root.locator("[data-resource-id]")).toHaveCount(2);
         await expect(root).toContainText(fixture.longName);
+        await expect(root.locator("[data-resource-card]")).toHaveCount(2);
+        await expect(root.locator(".catalog-status details")).not.toHaveAttribute("open", "");
+        await button(root, "console_nodes_view_table").click();
+        await expect(root.locator("[data-resource-card]")).toHaveCount(0);
+        await expect(root.locator("[data-resource-id]")).toHaveCount(2);
+        await button(root, "console_catalog_view_cards").click();
+        await capture(page, root, info, "relationship-cards");
         const trigger = root.locator(`[data-resource-id="${fixture.catalog.groups[0].id}"] button`);
         await trigger.focus();
         await trigger.press("Enter");
         let detail = dialog(page, "console_catalog_detail");
         await expect(detail).toContainText(fixture.catalog.groups[0].id);
+        await expect(detail.locator("[data-resource-inbound]")).toHaveCount(1);
+        await expect(
+          detail.locator(`a[href*="node_id=${fixture.catalog.nodes[0].id}"]`)
+        ).toBeVisible();
+        const hostLink = detail.locator(`a[href*="resource_id=${fixture.catalog.hosts[0].id}"]`);
+        await expect(hostLink).toBeVisible();
         await capture(page, detail, info, "group-detail");
+        await hostLink.click();
+        await expect(page).toHaveURL(/resources_kind=host/);
+        await expect(
+          detail.locator(`a[href*="resource_id=${fixture.catalog.groups[0].id}"]`)
+        ).toBeVisible();
+        await page.goBack();
         await page.reload();
         await expect(detail).toBeVisible();
         await button(detail, "close").click();
@@ -123,6 +142,42 @@ for (const language of ["en", "ru", "zh-hans"] as const)
         await expect(page).toHaveURL(/user_id=910002/);
         await expect(page).toHaveURL(/phase=delivery/);
         await expect(page.locator(".console-operations")).toBeVisible();
+        expect(fixture.writes()).toHaveLength(0);
+        fixture.finish();
+      });
+
+      test("partial relationship cards preserve unknowns and preview return focus", async ({
+        page,
+      }, info) => {
+        const fixture = await installResources(page, language);
+        fixture.catalog.coverage = "partial";
+        fixture.catalog.nodes = [];
+        fixture.catalog.hosts[0].is_disabled = null;
+        fixture.catalog.hosts[0].is_hidden = true;
+        await page.goto(`/demo/runtime/admin/node-resources${query}&resources_kind=host`);
+        const root = page.locator(".console-resources");
+        const card = root.locator("[data-resource-card]");
+        await expect(card).toContainText(label("console_rel_unknown_nodes"));
+        await expect(card).toContainText(label("console_rel_state_unknown"));
+        await expect(card).toContainText(label("console_rel_hidden"));
+        await capture(page, root, info, "partial-cards");
+        await card.locator("[data-resource-id] button").click();
+        const detail = dialog(page, "console_catalog_detail");
+        await expect(detail.locator(".resource-relations")).toContainText(
+          label("console_rel_partial")
+        );
+        await detail.locator(".resource-technical summary").click();
+        await capture(page, detail, info, "partial-technical-details");
+        await button(detail, "close").click();
+        fixture.catalog.coverage = "complete";
+        await page.reload();
+        await root.locator("[data-resource-id] button").click();
+        const previewTrigger = button(detail, "console_draft_host_open");
+        await previewTrigger.click();
+        const preview = page.getByRole("dialog").filter({ has: page.locator(".resource-draft") });
+        await expect(preview).toBeVisible();
+        await button(preview, "close").click();
+        await expect(previewTrigger).toBeFocused();
         expect(fixture.writes()).toHaveLength(0);
         fixture.finish();
       });

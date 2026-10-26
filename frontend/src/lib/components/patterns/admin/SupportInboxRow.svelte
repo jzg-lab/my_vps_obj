@@ -6,11 +6,18 @@
   type Props = {
     ticket: SupportTicketLike;
     active?: boolean;
+    wrap?: boolean;
     at?: TranslateFn;
     onOpen?: (ticket: SupportTicketLike) => void;
   };
 
-  let { ticket, active = false, at = (key) => key, onOpen = () => {} }: Props = $props();
+  let {
+    ticket,
+    active = false,
+    wrap = false,
+    at = (key) => key,
+    onOpen = () => {},
+  }: Props = $props();
 
   const user = $derived(ticket?.user || {});
   const timeLabel = $derived(
@@ -57,6 +64,7 @@
 </script>
 
 <button
+  class:wrap
   class:active
   class="support-inbox-row"
   type="button"
@@ -96,3 +104,21 @@
     {#if timeLabel}<small>{timeLabel}</small>{/if}
   </span>
 </button>
+
+<style>
+  .support-inbox-row.wrap {
+    grid-template-columns: 36px minmax(0, 1fr);
+  }
+  .wrap .support-inbox-row-title strong,
+  .wrap .support-inbox-row-main > small {
+    white-space: normal;
+    overflow-wrap: anywhere;
+  }
+  .wrap .support-row-badges {
+    grid-column: 2;
+    flex-direction: row;
+    flex-wrap: wrap;
+    align-items: center;
+    max-width: none;
+  }
+</style>

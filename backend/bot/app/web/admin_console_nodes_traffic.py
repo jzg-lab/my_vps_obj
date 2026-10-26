@@ -9,6 +9,7 @@ from bot.app.web.admin_console_nodes_schemas import (
     ConsoleNodeOut,
     ConsoleNodeTrafficPreset,
     ConsoleNodeTrafficWindowOut,
+    ConsoleTrafficDayOut,
 )
 from bot.services.panel_api_service import PanelApiService
 from bot.utils.ttl_cache import AsyncTTLCache
@@ -22,6 +23,7 @@ def traffic_dates(preset: ConsoleNodeTrafficPreset, now: datetime) -> tuple[date
 @dataclass
 class _Traffic:
     totals: dict[str, int]
+    daily: dict[str, list[ConsoleTrafficDayOut]]
     invalid_ids: set[str]
     partial: bool
     observed_at: datetime
@@ -37,6 +39,7 @@ def _parse_traffic(data: object, start: date, end: date) -> _Traffic:
     if not isinstance(rows, list):
         raise ValueError("invalid_response")
     totals: dict[str, int] = {}
+    daily: dict[str, list[ConsoleTrafficDayOut]] = {}
     seen: set[str] = set()
     invalid_ids: set[str] = set()
     partial = False
@@ -53,11 +56,26 @@ def _parse_traffic(data: object, start: date, end: date) -> _Traffic:
         if identity in seen or type(total) is not int or not 0 <= total <= 2**53 - 1:
             invalid_ids.add(identity)
             totals.pop(identity, None)
+            daily.pop(identity, None)
             partial = True
         elif identity not in invalid_ids:
             totals[identity] = total
+            daily[identity] = traffic_days(row.get("data"), start, end)
         seen.add(identity)
-    return _Traffic(totals, invalid_ids, partial, datetime.now(UTC))
+    return _Traffic(totals, daily, invalid_ids, partial, datetime.now(UTC))
+
+
+def traffic_days(values: object, start: date, end: date) -> list[ConsoleTrafficDayOut]:
+    count = (end - start).days + 1
+    if not isinstance(values, list) or len(values) != count:
+        return []
+    return [
+        ConsoleTrafficDayOut(
+            date=start + timedelta(days=index),
+            bytes=value if type(value) is int and 0 <= value <= 2**53 - 1 else None,
+        )
+        for index, value in enumerate(values)
+    ]
 
 
 class NodeTrafficReader:
@@ -87,6 +105,7 @@ class NodeTrafficReader:
         for node in nodes:
             node.window_traffic_bytes = None
             node.window_traffic_quality = "missing"
+            node.daily_traffic = []
         start, end = traffic_dates(preset, now)
         key = f"{preset}:{start.isoformat()}:{end.isoformat()}:UTC"
         self.cache.ttl_seconds = max(0, ttl_seconds)
@@ -125,6 +144,7 @@ class NodeTrafficReader:
         known_ids = {node.id for node in nodes}
         for node in nodes:
             node.window_traffic_bytes = data.totals.get(node.id)
+            node.daily_traffic = data.daily.get(node.id, [])
             node.window_traffic_quality = (
                 "invalid"
                 if node.id in data.invalid_ids

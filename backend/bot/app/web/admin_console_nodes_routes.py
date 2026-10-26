@@ -1,5 +1,6 @@
 """Administrator-only inventory and potential impact; GET never reconciles state."""
 
+import contextlib
 import re
 from datetime import UTC, datetime
 from typing import Literal
@@ -10,6 +11,7 @@ from pydantic import BaseModel, ConfigDict, Field, ValidationError
 
 from bot.app.web.admin_api_impl.auth import _require_admin_user_id
 from bot.app.web.admin_api_impl.common import _error, _ok
+from bot.app.web.admin_console_node_speed import NodeSpeedHistoryReader
 from bot.app.web.admin_console_nodes_panel import NodeInventory, NodeInventoryReader
 from bot.app.web.admin_console_nodes_schemas import (
     ConsoleNodeDetailOut,
@@ -36,6 +38,7 @@ from db.dal.admin_console_nodes_dal import (
 
 _INVENTORY_READER = web.AppKey("console_node_inventory", NodeInventoryReader)
 _TRAFFIC_READER = web.AppKey("console_node_traffic", NodeTrafficReader)
+_SPEED_READER = web.AppKey("console_node_speed", NodeSpeedHistoryReader)
 
 
 class ConsoleNodesQuery(BaseModel):
@@ -80,6 +83,8 @@ async def admin_console_nodes_route(request: web.Request) -> web.Response:
         inventory_complete=inventory.nodes.source.availability == "available",
         ttl_seconds=int(get_settings(request).ADMIN_PANEL_STATS_CACHE_TTL_SECONDS or 0),
     )
+    with contextlib.suppress(Exception):
+        await request.app[_SPEED_READER].attach(get_session_factory(request), nodes)
     if query.q:
         needle = query.q.casefold()
         nodes = [
@@ -153,6 +158,8 @@ async def admin_console_node_route(request: web.Request) -> web.Response:
         inventory_complete=inventory.nodes.source.availability == "available",
         ttl_seconds=int(get_settings(request).ADMIN_PANEL_STATS_CACHE_TTL_SECONDS or 0),
     )
+    with contextlib.suppress(Exception):
+        await request.app[_SPEED_READER].attach(get_session_factory(request), nodes)
     now = datetime.now(UTC)
     group_ids = inventory.node_groups(node)
     async with get_session_factory(request)() as session:
@@ -228,6 +235,7 @@ async def admin_console_service_resources_route(request: web.Request) -> web.Res
 def setup_admin_console_nodes_routes(app: web.Application) -> None:
     app[_INVENTORY_READER] = NodeInventoryReader()
     app[_TRAFFIC_READER] = NodeTrafficReader()
+    app[_SPEED_READER] = NodeSpeedHistoryReader()
     for handler, model in (
         (admin_console_nodes_route, ConsoleNodesListOut),
         (admin_console_node_route, ConsoleNodeDetailOut),

@@ -11,18 +11,20 @@
     sources,
     at,
     stale = false,
+    showCoverage = true,
   }: {
     coverage: ConsoleNodesPage["coverage"];
     sources: ConsoleNodeSource[];
     at: ConsoleNodesTranslate;
     stale?: boolean;
+    showCoverage?: boolean;
   } = $props();
 </script>
 
 <div class="node-sources" role="status">
-  <AdminBadge variant={coverage === "complete" ? "muted" : "warning"}
-    >{at(`console_nodes_coverage_${coverage}`)}</AdminBadge
-  >
+  {#if showCoverage}<AdminBadge variant={coverage === "complete" ? "muted" : "warning"}
+      >{at(`console_nodes_coverage_${coverage}`)}</AdminBadge
+    >{/if}
   <p>{at("console_nodes_read_time")}</p>
   <ul>
     {#each sources as source (source.source)}

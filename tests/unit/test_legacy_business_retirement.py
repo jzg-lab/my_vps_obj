@@ -205,6 +205,7 @@ def test_runtime_keeps_only_account_and_operational_workers() -> None:
         "OutboundSettingsRefresh",
         "AdminBroadcastWorker",
         "BackupWorker",
+        "NodeSpeedHistory",
     }
 
 

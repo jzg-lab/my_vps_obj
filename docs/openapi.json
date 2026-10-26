@@ -10727,6 +10727,13 @@
             ],
             "title": "Country Code"
           },
+          "daily_traffic": {
+            "items": {
+              "$ref": "#/components/schemas/ConsoleTrafficDayOut"
+            },
+            "title": "Daily Traffic",
+            "type": "array"
+          },
           "groups": {
             "items": {
               "$ref": "#/components/schemas/ConsoleResourceRefOut"
@@ -10818,6 +10825,13 @@
               }
             ],
             "title": "Profile Id"
+          },
+          "speed_history": {
+            "items": {
+              "$ref": "#/components/schemas/ConsoleSpeedSampleOut"
+            },
+            "title": "Speed History",
+            "type": "array"
           },
           "status": {
             "$ref": "#/components/schemas/ConsoleNodeStatus",
@@ -13102,6 +13116,106 @@
         "title": "ConsoleServiceRetryOut",
         "type": "object"
       },
+      "ConsoleServiceTrafficNodeOut": {
+        "properties": {
+          "bytes": {
+            "minimum": 0,
+            "title": "Bytes",
+            "type": "integer"
+          },
+          "node_id": {
+            "title": "Node Id",
+            "type": "string"
+          }
+        },
+        "required": [
+          "node_id",
+          "bytes"
+        ],
+        "title": "ConsoleServiceTrafficNodeOut",
+        "type": "object"
+      },
+      "ConsoleServiceTrafficOut": {
+        "properties": {
+          "availability": {
+            "enum": [
+              "available",
+              "partial",
+              "unavailable",
+              "unconfigured"
+            ],
+            "title": "Availability",
+            "type": "string"
+          },
+          "days": {
+            "items": {
+              "$ref": "#/components/schemas/ConsoleTrafficDayOut"
+            },
+            "title": "Days",
+            "type": "array"
+          },
+          "end_date": {
+            "format": "date",
+            "title": "End Date",
+            "type": "string"
+          },
+          "history_completeness": {
+            "const": "unknown",
+            "default": "unknown",
+            "title": "History Completeness",
+            "type": "string"
+          },
+          "nodes": {
+            "items": {
+              "$ref": "#/components/schemas/ConsoleServiceTrafficNodeOut"
+            },
+            "title": "Nodes",
+            "type": "array"
+          },
+          "observed_at": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Observed At"
+          },
+          "service_id": {
+            "title": "Service Id",
+            "type": "string"
+          },
+          "source": {
+            "const": "panel_service_identity_raw_traffic_not_billing",
+            "default": "panel_service_identity_raw_traffic_not_billing",
+            "title": "Source",
+            "type": "string"
+          },
+          "start_date": {
+            "format": "date",
+            "title": "Start Date",
+            "type": "string"
+          },
+          "timezone": {
+            "const": "UTC",
+            "default": "UTC",
+            "title": "Timezone",
+            "type": "string"
+          }
+        },
+        "required": [
+          "service_id",
+          "start_date",
+          "end_date",
+          "availability"
+        ],
+        "title": "ConsoleServiceTrafficOut",
+        "type": "object"
+      },
       "ConsoleServicesMetric": {
         "properties": {
           "archived": {
@@ -13143,6 +13257,46 @@
           "archived"
         ],
         "title": "ConsoleServicesMetric",
+        "type": "object"
+      },
+      "ConsoleSpeedSampleOut": {
+        "properties": {
+          "rx_bytes_per_second": {
+            "anyOf": [
+              {
+                "minimum": 0,
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Rx Bytes Per Second"
+          },
+          "sampled_at": {
+            "format": "date-time",
+            "title": "Sampled At",
+            "type": "string"
+          },
+          "tx_bytes_per_second": {
+            "anyOf": [
+              {
+                "minimum": 0,
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Tx Bytes Per Second"
+          }
+        },
+        "required": [
+          "sampled_at"
+        ],
+        "title": "ConsoleSpeedSampleOut",
         "type": "object"
       },
       "ConsoleSummaryOut": {
@@ -13189,6 +13343,33 @@
           "exits"
         ],
         "title": "ConsoleSummaryOut",
+        "type": "object"
+      },
+      "ConsoleTrafficDayOut": {
+        "properties": {
+          "bytes": {
+            "anyOf": [
+              {
+                "minimum": 0,
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Bytes"
+          },
+          "date": {
+            "format": "date",
+            "title": "Date",
+            "type": "string"
+          }
+        },
+        "required": [
+          "date"
+        ],
+        "title": "ConsoleTrafficDayOut",
         "type": "object"
       },
       "ConsoleUsageMetric": {
@@ -31964,6 +32145,63 @@
           }
         ],
         "summary": "获取独立服务的授权资源关联",
+        "tags": [
+          "管理后台"
+        ]
+      }
+    },
+    "/api/admin/console/services/{service_id}/traffic": {
+      "get": {
+        "operationId": "get_admin_console_service_traffic_route",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "service_id",
+            "required": true,
+            "schema": {
+              "pattern": "[^{}/]+",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "additionalProperties": false,
+                      "properties": {
+                        "ok": {
+                          "const": true,
+                          "type": "boolean"
+                        }
+                      },
+                      "required": [
+                        "ok"
+                      ],
+                      "type": "object"
+                    },
+                    {
+                      "$ref": "#/components/schemas/ConsoleServiceTrafficOut"
+                    }
+                  ]
+                }
+              }
+            },
+            "description": "JSON 响应"
+          }
+        },
+        "security": [
+          {
+            "AdminSession": []
+          },
+          {
+            "AdminBearer": []
+          }
+        ],
+        "summary": "读取独立服务近七日流量观测",
         "tags": [
           "管理后台"
         ]

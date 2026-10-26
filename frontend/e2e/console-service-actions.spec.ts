@@ -315,6 +315,7 @@ async function openConsumer(page: Page, consumer: Consumer, label: (key: string)
     consumer === "detail"
       ? page.getByRole("dialog", { name: label("console_service_detail"), exact: true })
       : page.locator(".user-services");
+  if (consumer === "customer") await host.locator(":scope > details > summary").click();
   const actions =
     consumer === "detail" ? host : host.locator("tbody tr").filter({ hasText: serviceId });
   await expect(actions).toContainText("Fixture service");
@@ -597,6 +598,9 @@ for (const width of [1440, 390]) {
           .getByRole("button", { name: label("services_activate"), exact: true })
           .click();
         await expect(activation).toHaveCount(0);
+        const serviceList = page.locator(".user-services > details");
+        if ((await serviceList.getAttribute("open")) === null)
+          await serviceList.locator("summary").click();
         await expect(
           page.locator(".user-services tbody tr").filter({ hasText: createdId })
         ).toBeVisible();

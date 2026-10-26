@@ -119,6 +119,19 @@ for (const language of ["en", "zh-hans"] as const) {
       const reply = (response: unknown, status = 200) =>
         route.fulfill({ status, contentType: "application/json", body: JSON.stringify(response) });
       if (method === "GET") {
+        if ([`${base}/traffic`, `${affectedBase}/traffic`].includes(pathname))
+          return reply({
+            ok: true,
+            service_id: pathname.split("/").at(-2)!,
+            start_date: "2026-10-18",
+            end_date: "2026-10-24",
+            timezone: "UTC",
+            availability: "unavailable",
+            days: [],
+            nodes: [],
+            source: "panel_service_identity_raw_traffic_not_billing",
+            history_completeness: "unknown",
+          } satisfies components["schemas"]["ConsoleServiceTrafficOut"] & { ok: true });
         if (pathname === "/admin/services") {
           const owner = new URL(path, url.origin).searchParams.get("user_id");
           const services = model.services.filter((item) => String(item.user_id) === owner);
@@ -259,6 +272,7 @@ for (const language of ["en", "zh-hans"] as const) {
         ? `/demo/runtime/admin/services${query}&q=Replacement&service_id=${fixture.detail.service.id}`
         : `/demo/runtime/admin/users/910002${query}`
     );
+    if (consumer === "customer") await page.locator(".user-services > details > summary").click();
     const host =
       consumer === "detail"
         ? page.getByRole("dialog", { name: label("console_service_detail"), exact: true })
@@ -598,7 +612,10 @@ for (const language of ["en", "zh-hans"] as const) {
           await expect(dialog).toHaveCount(0);
           await expect(trigger).toBeFocused();
           await expect(
-            host.getByText(label("services_status_paused"), { exact: true })
+            (consumer === "detail" ? host.locator(".service-visual") : host).getByText(
+              label("services_status_paused"),
+              { exact: true }
+            )
           ).toBeVisible();
           await expect(
             host.getByRole("button", { name: label("services_manage"), exact: true })

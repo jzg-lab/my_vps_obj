@@ -7,16 +7,21 @@
     ConsoleNodesTranslate,
   } from "$lib/admin/consoleNodesTypes";
   import ConsoleServiceResourcesView from "./ConsoleServiceResourcesView.svelte";
+  import type { UserService } from "$lib/admin/servicePlans";
   let {
     api,
     at,
     serviceId,
     routePrefix = "",
+    service,
+    onOpenService,
   }: {
     api: ApiClient["api"];
     at: ConsoleNodesTranslate;
     serviceId: string;
     routePrefix?: string;
+    service?: UserService;
+    onOpenService?: (serviceId: string) => void;
   } = $props();
   let resources = $state<ConsoleServiceResources | null>(null);
   let loading = $state(true);
@@ -63,6 +68,8 @@
       {resources}
       {at}
       {routePrefix}
+      {service}
+      {onOpenService}
       currentUrl={typeof window === "undefined"
         ? "http://localhost/admin/services"
         : window.location.href}

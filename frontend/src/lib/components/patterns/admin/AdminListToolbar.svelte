@@ -14,6 +14,7 @@
     totalLabel,
     columns = 3,
     mobileColumns,
+    compact = false,
     mobileFilterMode = "inline",
     onsubmit,
     class: className = "",
@@ -29,6 +30,7 @@
     totalLabel?: string;
     columns?: number;
     mobileColumns?: number;
+    compact?: boolean;
     mobileFilterMode?: "inline" | "dialog";
     onsubmit?: (event: SubmitEvent) => void;
     class?: string;
@@ -44,6 +46,7 @@
 <form
   class={cn("admin-list-toolbar", className)}
   data-mobile-filters={mobileFilterMode}
+  class:compact
   style={`--toolbar-columns: ${columns}; --toolbar-mobile-columns: ${mobileColumns ?? Math.min(2, columns)}`}
   onsubmit={(event) => {
     event.preventDefault();
@@ -156,6 +159,18 @@
     min-width: 0;
     align-self: center;
     text-align: right;
+  }
+  @media (min-width: 1100px) {
+    .admin-list-toolbar.compact {
+      grid-template-columns: minmax(220px, 1.2fr) minmax(0, 1fr);
+      align-items: end;
+    }
+    .compact .admin-list-toolbar-controls {
+      flex-wrap: wrap;
+    }
+    .compact .admin-list-toolbar-filters {
+      flex: 1 1 calc(var(--toolbar-columns) * 120px);
+    }
   }
   @media (max-width: 720px) {
     .admin-list-toolbar-metadata {

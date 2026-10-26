@@ -74,6 +74,19 @@ describe("console demo shares the existing service fixture", () => {
     });
   });
 
+  it("returns an explicit unconfigured history for every existing demo service", async () => {
+    const id = "12".padStart(32, "0");
+    expect(await mockApi(`/admin/console/services/${id}/traffic`)).toMatchObject({
+      ok: true,
+      service_id: id,
+      availability: "unconfigured",
+      observed_at: null,
+      days: [],
+      nodes: [],
+    });
+    expect(read("services/missing/traffic")).toEqual({ ok: false, error: "service_not_found" });
+  });
+
   it("does not disguise unknown console routes as a successful service detail", async () => {
     const id = "10".padStart(32, "0");
     expect(read(`services/${id}/unknown`)).toBeUndefined();

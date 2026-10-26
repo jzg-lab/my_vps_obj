@@ -57,6 +57,7 @@ from bot.services.hwid_device_notifications import (
 )
 from bot.services.hwid_device_webhook import HWID_DEVICE_EVENTS
 from bot.services.message_log_notifier import configure_message_log_notifier
+from bot.services.node_speed_history import NodeSpeedHistoryWorker
 from bot.services.panel_webhook_service import ACTIONABLE_EVENTS
 from bot.services.partner_program_worker import PartnerProgramWorker
 from bot.services.payment_reconciliation_worker import PaymentReconciliationWorker
@@ -562,6 +563,10 @@ async def _service_usage_task(ctx: PluginContext) -> None:
     await ServiceUsageWorker(ctx.require_session_factory(), ctx.require_panel_service()).run()
 
 
+async def _node_speed_history_task(ctx: PluginContext) -> None:
+    await NodeSpeedHistoryWorker(ctx.require_session_factory(), ctx.require_panel_service()).run()
+
+
 def _core_worker_tasks() -> list[WorkerTaskSpec]:
     return [
         WorkerTaskSpec(name="AccountAccessSync", factory=_account_access_sync_task),
@@ -580,6 +585,7 @@ def _core_worker_tasks() -> list[WorkerTaskSpec]:
             factory=_service_usage_task,
             enabled=lambda settings: not settings.panel_dry_run_enabled,
         ),
+        WorkerTaskSpec(name="NodeSpeedHistory", factory=_node_speed_history_task),
         WorkerTaskSpec(name="OutboundSettingsRefresh", factory=_outbound_settings_refresh_task),
         WorkerTaskSpec(name="AdminBroadcastWorker", factory=_admin_broadcast_task),
         WorkerTaskSpec(name="BackupWorker", factory=_backup_worker_task),

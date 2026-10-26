@@ -249,7 +249,7 @@ export async function capture(page: Page, host: Locator, info: TestInfo, name: s
     [
       root,
       ...root.querySelectorAll<HTMLElement>(
-        ".dialog-card, .dialog-body-scroll, .dialog-body-scroll > .scroll-area__viewport, form, .admin-field, .admin-select-trigger"
+        ".dialog-card, .dialog-body-scroll > .scroll-area__viewport, form, .admin-field, .admin-select-trigger"
       ),
     ]
       .filter((node) => node.getBoundingClientRect().width > 0)
@@ -261,6 +261,7 @@ export async function capture(page: Page, host: Locator, info: TestInfo, name: s
         scroll: node.scrollWidth,
       }))
   );
+  // Dialog scrollbars intentionally occupy the 12px gutter outside their root; inspect the viewport instead.
   expect(overflow).toEqual([]);
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 2)).toBe(
     true

@@ -65,6 +65,7 @@
 
 <section class="access-status" aria-label={at("account_access_title")} aria-busy={busy}>
   <AdminSectionHeader title={at("account_access_title")} />
+  <p>{at("account_access_scope")}</p>
   {#if failed}<p role="alert">{at("account_access_load_failed")}</p>
   {:else if status}
     <AdminBadge wrap variant={status.pending ? "warning" : "muted"}>

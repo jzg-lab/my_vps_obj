@@ -1,5 +1,6 @@
 import type { components } from "$lib/api/openapi.generated";
 import type { DedicatedExit, ServicePlan, UserService } from "$lib/admin/servicePlans";
+import { demoAdminUserById } from "./users";
 
 type Schema = components["schemas"];
 type State = {
@@ -9,6 +10,18 @@ type State = {
   exits: DedicatedExit[];
   owner: number;
 };
+function serviceCustomer(userId: number | null): Schema["ConsoleCustomerOut"] {
+  const user = userId === null ? undefined : demoAdminUserById(userId);
+  return {
+    user_id: userId,
+    minishop_id: user?.minishop_id ?? (userId === null ? null : `MS-${userId}`),
+    username: user?.username ?? null,
+    email: user?.email ?? null,
+    first_name: user?.first_name ?? null,
+    last_name: user?.last_name ?? null,
+    is_banned: user ? Boolean(user.is_banned) : null,
+  };
+}
 
 export function withCustomerServiceSummaries(
   response: unknown,
@@ -103,13 +116,13 @@ export function withCustomerServiceSummaries(
 export function adminConsoleDemoResponse(url: URL, state: State): unknown {
   const route = url.pathname;
   if (
-    !/^\/admin\/console\/(?:summary|nodes(?:\/[^/]+)?|services(?:\/[^/]+(?:\/resources)?)?)$/.test(
+    !/^\/admin\/console\/(?:summary|nodes(?:\/[^/]+)?|services(?:\/[^/]+(?:\/(?:resources|traffic))?)?)$/.test(
       route
     )
   )
     return undefined;
   const now = new Date().toISOString();
-  const { services, archived, plans, exits, owner } = state;
+  const { services, archived, plans, exits } = state;
   const page = Math.max(0, Number(url.searchParams.get("page")) || 0);
   const pageSize = Math.max(1, Math.min(100, Number(url.searchParams.get("page_size")) || 25));
   const sources: Schema["ConsoleNodeSourceOut"][] = (
@@ -121,15 +134,6 @@ export function adminConsoleDemoResponse(url: URL, state: State): unknown {
     last_success_at: null,
     error: "not_configured",
   }));
-  const customer: Schema["ConsoleCustomerOut"] = {
-    user_id: owner,
-    minishop_id: `MS-${owner}`,
-    username: null,
-    email: null,
-    first_name: null,
-    last_name: null,
-    is_banned: false,
-  };
   const sampled = services.filter((service) => service.last_usage_sync_at);
   const times = sampled.map((service) => service.last_usage_sync_at!).sort();
   const count = (predicate: (service: UserService) => boolean) => services.filter(predicate).length;
@@ -250,7 +254,11 @@ export function adminConsoleDemoResponse(url: URL, state: State): unknown {
     const userId = url.searchParams.get("user_id");
     const rows = services.filter((s) => {
       if (userId && String(s.user_id) !== userId) return false;
-      if (![s.name, s.id, customer.minishop_id].some((value) => value?.toLowerCase().includes(q)))
+      if (
+        ![s.name, s.id, serviceCustomer(s.user_id).minishop_id].some((value) =>
+          value?.toLowerCase().includes(q)
+        )
+      )
         return false;
       if (status === "sync_error") return !!s.sync_error;
       if (status === "sync_pending") return s.sync_pending;
@@ -274,7 +282,7 @@ export function adminConsoleDemoResponse(url: URL, state: State): unknown {
     const result: Schema["ConsoleServiceListOut"] = {
       services: rows
         .slice(page * pageSize, (page + 1) * pageSize)
-        .map((service) => ({ service, customer })),
+        .map((service) => ({ service, customer: serviceCustomer(service.user_id) })),
       total: rows.length,
       page,
       page_size: pageSize,
@@ -285,6 +293,21 @@ export function adminConsoleDemoResponse(url: URL, state: State): unknown {
   }
   const service = services.find((s) => s.id === route.split("/")[4]);
   if (!service) return { ok: false, error: "service_not_found" };
+  if (route.endsWith("/traffic")) {
+    const result: Schema["ConsoleServiceTrafficOut"] = {
+      service_id: service.id,
+      start_date: new Date(Date.parse(now) - 6 * 86400000).toISOString().slice(0, 10),
+      end_date: now.slice(0, 10),
+      timezone: "UTC",
+      availability: "unconfigured",
+      observed_at: null,
+      days: [],
+      nodes: [],
+      source: "panel_service_identity_raw_traffic_not_billing",
+      history_completeness: "unknown",
+    };
+    return { ok: true, ...result };
+  }
   const terms = plans.find((p) => p.id === service.plan_id)?.terms;
   if (!terms) return { ok: false, error: "service_not_found" };
   if (route.endsWith("/resources")) {
@@ -305,6 +328,11 @@ export function adminConsoleDemoResponse(url: URL, state: State): unknown {
     };
     return { ok: true, ...result };
   }
-  const detail: Schema["ConsoleServiceDetailOut"] = { service, customer, terms, connection: null };
+  const detail: Schema["ConsoleServiceDetailOut"] = {
+    service,
+    customer: serviceCustomer(service.user_id),
+    terms,
+    connection: null,
+  };
   return { ok: true, ...detail };
 }

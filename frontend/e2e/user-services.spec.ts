@@ -31,7 +31,8 @@ for (const width of [1440, 390]) {
     await expect(cards.first()).toContainText("117 GiB / 100 GiB");
     await expect(cards.first()).toContainText("17 GiB");
     await expect(cards.first()).toContainText("Лимит исчерпан");
-    await expect(cards.nth(1).locator("[data-service-remaining]")).toHaveText("77 GiB");
+    await expect(cards.nth(1).locator("[data-service-remaining]")).toContainText("77 GiB");
+    await expect(cards.nth(1).locator("[data-service-remaining]")).toContainText("2026-10-22 12:00");
     await expect(cards.nth(1)).toContainText(copy.wa_services_usage_stale);
     await expect(cards.nth(1)).toContainText("23 GiB / 100 GiB");
     await expect(cards.nth(1)).toContainText("2026-10-22 12:00");
@@ -40,7 +41,8 @@ for (const width of [1440, 390]) {
     const dialog = page.getByRole("dialog");
     await expect(dialog).toContainText(copy.wa_services_usage_stale);
     await expect(dialog).toContainText("23 GiB / 100 GiB");
-    await expect(dialog.locator("[data-service-remaining]")).toHaveText("77 GiB");
+    await expect(dialog.locator("[data-service-remaining]")).toContainText("77 GiB");
+    await expect(dialog.locator("[data-service-remaining]")).toContainText("2026-10-22 12:00");
     await expect(dialog).toContainText("2026-10-22 12:00");
     await expect(dialog).toContainText("192.0.2.10");
     await expect(dialog).toContainText("Ожидает проверки");

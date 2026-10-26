@@ -32,6 +32,13 @@ a {
   padding-bottom: var(--bottom-nav-clearance);
 }
 
+@media (max-width: 1023px) {
+  :root:has(.phone-screen > .bottom-nav),
+  .phone-screen:has(> .bottom-nav) {
+    scroll-padding-bottom: var(--bottom-nav-clearance);
+  }
+}
+
 .public-install-shell {
   width: min(100%, 440px);
   min-height: 100dvh;

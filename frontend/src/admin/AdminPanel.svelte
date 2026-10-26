@@ -377,7 +377,11 @@
   function setActive(id: string): void {
     const next = normalizeSection(id);
     sidebarOpen = false;
-    if (active === next && !usersStore.openedUser) return;
+    const nodeDetailOpen =
+      next === "nodes" &&
+      typeof window !== "undefined" &&
+      new URLSearchParams(window.location.search).has("node_id");
+    if (active === next && !usersStore.openedUser && !nodeDetailOpen) return;
     userReturnPath = "";
     userReturnScrollTop = 0;
     userReturnState = null;
@@ -392,6 +396,13 @@
     // has synchronized its screen state. Keep the browser route in sync even
     // in that transient state; the outer action normally writes the same URL.
     syncActiveSectionPath(next);
+    if (next === "nodes" && typeof window !== "undefined") {
+      const url = new URL(window.location.href);
+      for (const key of ["node_id", "service_id", "nodes_related_page"])
+        url.searchParams.delete(key);
+      window.history.replaceState(null, "", url);
+      window.dispatchEvent(new PopStateEvent("popstate"));
+    }
     applySectionRouteDefaults(next);
     replaceCurrentUsersRouteFilters(
       next === "users" ? currentUsersRouteFilters() : DEFAULT_USERS_ROUTE_FILTERS

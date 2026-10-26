@@ -55,6 +55,7 @@ for (const width of [1440, 390]) {
     await expect(submit).toBeEnabled();
     await submit.click();
     await expect(page.getByRole("dialog")).toHaveCount(0);
+    await region.locator(":scope > details > summary").click();
     await region.getByRole("button", { name: "Управление", exact: true }).click();
     await page.getByRole("button", { name: "Операция", exact: true }).click();
     await expect(page.getByRole("option", { name: "Сверить трафик", exact: true })).toBeVisible();

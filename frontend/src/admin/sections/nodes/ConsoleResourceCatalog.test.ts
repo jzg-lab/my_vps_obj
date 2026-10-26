@@ -7,6 +7,8 @@ import ConsoleResourceCatalogStatus from "./ConsoleResourceCatalogStatus.svelte"
 import ConsoleResourceCatalogTable from "./ConsoleResourceCatalogTable.svelte";
 import ConsoleResourceDetail from "./ConsoleResourceDetail.svelte";
 import ConsoleResourcesSection from "../ConsoleResourcesSection.svelte";
+import ConsoleResourceCards from "./ConsoleResourceCards.svelte";
+import ConsoleResourceRelations from "./ConsoleResourceRelations.svelte";
 
 const at = (key: string) => key;
 const api = async () => {
@@ -72,6 +74,49 @@ describe("resource catalog presentation", () => {
     expect(() => render(ConsoleResourceDetail, { props })).not.toThrow();
   });
 
+  it("renders stable card identities and distinguishes unknown Host configuration", () => {
+    const catalog = consoleResourceCatalogFixture();
+    const rows = [true, false, null].map((flag, index) => ({
+      ...catalog.hosts[0],
+      id: `host-${index}`,
+      is_hidden: flag,
+      is_disabled: flag,
+    }));
+    const html = render(ConsoleResourceCards, {
+      props: { catalog, rows, kind: "host", at, onOpen: () => {} },
+    }).body;
+    for (const key of [
+      "disabled",
+      "enabled",
+      "state_unknown",
+      "hidden",
+      "visible",
+      "visibility_unknown",
+    ])
+      expect(html).toContain(`console_rel_${key}`);
+    for (const row of rows) expect(html).toContain(`data-resource-id="${row.id}"`);
+  });
+
+  it("links known relationships to entity details and preserves incomplete evidence", () => {
+    const catalog = consoleResourceCatalogFixture();
+    catalog.coverage = "partial";
+    const html = render(ConsoleResourceRelations, {
+      props: {
+        catalog,
+        resource: catalog.groups[0],
+        at,
+        currentUrl: "https://console.test/app/admin/node-resources?resources_q=HK",
+        routePrefix: "/app",
+      },
+    }).body;
+    expect(html).toContain("console_rel_partial");
+    expect(html).toContain("/app/admin/nodes?");
+    expect(html).toContain(`node_id=${catalog.nodes[0].id}`);
+    expect(html).toContain(`resource_id=${catalog.hosts[0].id}`);
+    expect(html).toContain("resources_kind=host");
+    expect(html).toContain("hk.example.test");
+  });
+
   it.each(["en", "ru", "zh-hans"])("provides actual catalog translations in %s", (language) => {
     const locale: Record<string, string> = JSON.parse(
       readFileSync(new URL(`../../../../../locales/${language}.json`, import.meta.url), "utf8")
@@ -81,6 +126,8 @@ describe("resource catalog presentation", () => {
       "ConsoleResourceCatalogStatus.svelte",
       "ConsoleResourceCatalogTable.svelte",
       "ConsoleResourceDetail.svelte",
+      "ConsoleResourceCards.svelte",
+      "ConsoleResourceRelations.svelte",
     ])
       for (const match of readFileSync(new URL(file, import.meta.url), "utf8").matchAll(
         /"(console_[a-z_]+)"/g

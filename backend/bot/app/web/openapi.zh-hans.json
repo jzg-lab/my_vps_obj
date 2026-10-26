@@ -353,7 +353,8 @@
     "get_tariff_topup_options_route": "获取套餐流量加购选项",
     "get_theme_effects_route": "获取当前主题效果",
     "get_theme_effect_asset_route": "获取主题效果资源",
-    "post_activate_trial_route": "开通试用"
+    "post_activate_trial_route": "开通试用",
+    "get_admin_console_service_traffic_route": "读取独立服务近七日流量观测"
   },
   "tags": {
     "admin": "管理后台",
