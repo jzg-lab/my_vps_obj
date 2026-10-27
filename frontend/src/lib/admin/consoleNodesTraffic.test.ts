@@ -72,6 +72,7 @@ describe("node traffic window consumers", () => {
         onPageChange: () => {},
         onBack: () => {},
         onOpenUserCard: () => {},
+        onMetadataSaved: () => {},
       },
     }).body;
     expect(windowCell(html)).toContain("0 B");

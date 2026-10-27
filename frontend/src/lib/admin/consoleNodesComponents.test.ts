@@ -155,6 +155,7 @@ describe("node inventory presentation", () => {
         onPageChange: () => {},
         onBack: () => {},
         onOpenUserCard: () => {},
+        onMetadataSaved: () => {},
       },
     }).body;
     expect(html).toContain("console_nodes_association_scope");

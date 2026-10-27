@@ -40,8 +40,11 @@ const metrics: SystemMetrics = {
 const node: MetricsNode = {
   id: "10000000-0000-0000-0000-000000000001",
   name: "Node visible system",
+  display_name: null,
   address: "192.0.2.1",
   country_code: null,
+  region: null,
+  provider: null,
   status: "online",
   is_disabled: false,
   is_connecting: false,

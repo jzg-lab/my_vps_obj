@@ -138,6 +138,7 @@ EXPECTED_CORE_MIGRATION_IDS = [
     "0119_account_operations",
     "0120_node_assets",
     "0121_node_speed_samples",
+    "0122_node_metadata",
 ]
 
 

@@ -8,13 +8,20 @@ from uuid import UUID
 
 from aiohttp import web
 from pydantic import BaseModel, ConfigDict, Field, ValidationError
+from sqlalchemy.exc import SQLAlchemyError
 
 from bot.app.web.admin_api_impl.auth import _require_admin_user_id
 from bot.app.web.admin_api_impl.common import _error, _ok
+from bot.app.web.admin_console_node_metadata_schemas import (
+    ConsoleNodeMetadataBody,
+    ConsoleNodeMetadataDeletedOut,
+    ConsoleNodeMetadataOut,
+)
 from bot.app.web.admin_console_node_speed import NodeSpeedHistoryReader
 from bot.app.web.admin_console_nodes_panel import NodeInventory, NodeInventoryReader
 from bot.app.web.admin_console_nodes_schemas import (
     ConsoleNodeDetailOut,
+    ConsoleNodeOut,
     ConsoleNodeServiceOut,
     ConsoleNodesListOut,
     ConsoleNodeTrafficPreset,
@@ -22,6 +29,7 @@ from bot.app.web.admin_console_nodes_schemas import (
 )
 from bot.app.web.admin_console_nodes_traffic import NodeTrafficReader
 from bot.app.web.context import get_panel_service, get_session_factory, get_settings
+from bot.app.web.request_parsing import parse_body_or_400
 from bot.app.web.route_contracts import (
     ADMIN_SECURITY,
     RouteContract,
@@ -30,6 +38,7 @@ from bot.app.web.route_contracts import (
 )
 from bot.services.user_service_access import service_ready_for_delivery, service_status
 from config.service_plans import ServicePlanTerms
+from db.dal import node_metadata_dal
 from db.dal.admin_console_nodes_dal import (
     ServiceResourceRow,
     read_service_resources,
@@ -66,6 +75,27 @@ async def _inventory(request: web.Request) -> NodeInventory:
     )
 
 
+async def _attach_local_metadata(
+    request: web.Request, nodes: list[ConsoleNodeOut]
+) -> list[ConsoleNodeOut]:
+    if not nodes:
+        return nodes
+    async with get_session_factory(request)() as session:
+        metadata = await node_metadata_dal.list_for_nodes(session, [node.id for node in nodes])
+    return [
+        node.model_copy(
+            update={
+                "display_name": metadata[node.id].display_name,
+                "region": metadata[node.id].region,
+                "provider": metadata[node.id].provider,
+            }
+        )
+        if node.id in metadata
+        else node
+        for node in nodes
+    ]
+
+
 async def admin_console_nodes_route(request: web.Request) -> web.Response:
     _require_admin_user_id(request)
     if len(request.query.getall("traffic_window", [])) > 1:
@@ -83,6 +113,10 @@ async def admin_console_nodes_route(request: web.Request) -> web.Response:
         inventory_complete=inventory.nodes.source.availability == "available",
         ttl_seconds=int(get_settings(request).ADMIN_PANEL_STATS_CACHE_TTL_SECONDS or 0),
     )
+    try:
+        nodes = await _attach_local_metadata(request, nodes)
+    except SQLAlchemyError:
+        return _error(503, "node_metadata_unavailable")
     with contextlib.suppress(Exception):
         await request.app[_SPEED_READER].attach(get_session_factory(request), nodes)
     if query.q:
@@ -92,12 +126,20 @@ async def admin_console_nodes_route(request: web.Request) -> web.Response:
             for node in nodes
             if needle
             in " ".join(
-                (node.id, node.name, node.address or "", node.country_code or "")
+                (
+                    node.id,
+                    node.name,
+                    node.display_name or "",
+                    node.address or "",
+                    node.country_code or "",
+                    node.region or "",
+                    node.provider or "",
+                )
             ).casefold()
         ]
     if query.status != "all":
         nodes = [node for node in nodes if node.status == query.status]
-    nodes.sort(key=lambda node: (node.name.casefold(), node.id))
+    nodes.sort(key=lambda node: ((node.display_name or node.name).casefold(), node.id))
     start = query.page * query.page_size
     result = ConsoleNodesListOut(
         nodes=nodes[start : start + query.page_size],
@@ -158,6 +200,11 @@ async def admin_console_node_route(request: web.Request) -> web.Response:
         inventory_complete=inventory.nodes.source.availability == "available",
         ttl_seconds=int(get_settings(request).ADMIN_PANEL_STATS_CACHE_TTL_SECONDS or 0),
     )
+    try:
+        nodes = await _attach_local_metadata(request, nodes)
+    except SQLAlchemyError:
+        return _error(503, "node_metadata_unavailable")
+    target = next(item for item in nodes if item.id == node_id)
     with contextlib.suppress(Exception):
         await request.app[_SPEED_READER].attach(get_session_factory(request), nodes)
     now = datetime.now(UTC)
@@ -168,7 +215,7 @@ async def admin_console_node_route(request: web.Request) -> web.Response:
     complete = coverage == "complete"
     start = query.page * query.page_size
     result = ConsoleNodeDetailOut(
-        node=next(item for item in nodes if item.id == node_id),
+        node=target,
         hosts=inventory.node_hosts(node),
         groups=inventory.group_refs(group_ids),
         services=[_service_out(row, now=now) for row in rows[start : start + query.page_size]],
@@ -214,6 +261,11 @@ async def admin_console_service_resources_route(request: web.Request) -> web.Res
         coverage = "partial"
     now = datetime.now(UTC)
     service_out = _service_out(rows[0], now=now)
+    node_views = [inventory.node_out(node) for node in nodes]
+    try:
+        node_views = await _attach_local_metadata(request, node_views)
+    except SQLAlchemyError:
+        return _error(503, "node_metadata_unavailable")
     result = ConsoleServiceResourcesOut(
         service_id=service_id,
         status=service_out.status,
@@ -221,13 +273,80 @@ async def admin_console_service_resources_route(request: web.Request) -> web.Res
         currently_eligible=service_out.currently_eligible,
         configured_group_ids=sorted(group_ids),
         groups=inventory.group_refs(group_ids),
-        nodes=[inventory.node_out(node) for node in nodes],
+        nodes=node_views,
         hosts=list(hosts.values()),
         coverage=coverage,
         sources=inventory.sources,
         local_observed_at=now,
     )
     response = _ok(result.model_dump(mode="json"))
+    response.headers["Cache-Control"] = "private, no-store"
+    return response
+
+
+async def _editable_node(request: web.Request) -> str | web.Response:
+    try:
+        node_id = str(UUID(request.match_info["node_id"]))
+    except ValueError:
+        return _error(400, "invalid_console_node_metadata_request")
+    inventory = await _inventory(request)
+    if inventory.nodes.source.availability != "available":
+        return _error(503, "node_inventory_unavailable")
+    if not any(str(node.uuid) == node_id for node in inventory.nodes.rows):
+        return _error(404, "node_not_found")
+    return node_id
+
+
+async def admin_console_node_metadata_route(request: web.Request) -> web.Response:
+    _require_admin_user_id(request)
+    body = await parse_body_or_400(
+        request,
+        ConsoleNodeMetadataBody,
+        validation_error_response_factory=lambda _: _error(
+            400, "invalid_console_node_metadata_request"
+        ),
+    )
+    node_id = await _editable_node(request)
+    if isinstance(node_id, web.Response):
+        return node_id
+    try:
+        async with get_session_factory(request)() as session:
+            row = await node_metadata_dal.save(
+                session,
+                node_id,
+                display_name=body.display_name,
+                region=body.region,
+                provider=body.provider,
+            )
+            result = ConsoleNodeMetadataOut(
+                node_id=row.node_id,
+                display_name=row.display_name,
+                region=row.region,
+                provider=row.provider,
+                updated_at=row.updated_at,
+            )
+            await session.commit()
+    except SQLAlchemyError:
+        return _error(503, "node_metadata_unavailable")
+    response = _ok(result.model_dump(mode="json"))
+    response.headers["Cache-Control"] = "private, no-store"
+    return response
+
+
+async def admin_console_node_metadata_delete_route(request: web.Request) -> web.Response:
+    _require_admin_user_id(request)
+    node_id = await _editable_node(request)
+    if isinstance(node_id, web.Response):
+        return node_id
+    try:
+        async with get_session_factory(request)() as session:
+            deleted = await node_metadata_dal.delete_for_node(session, node_id)
+            await session.commit()
+    except SQLAlchemyError:
+        return _error(503, "node_metadata_unavailable")
+    response = _ok(
+        ConsoleNodeMetadataDeletedOut(node_id=node_id, deleted=deleted).model_dump(mode="json")
+    )
     response.headers["Cache-Control"] = "private, no-store"
     return response
 
@@ -251,6 +370,34 @@ def setup_admin_console_nodes_routes(app: web.Application) -> None:
         )
     app.router.add_get("/api/admin/console/nodes", admin_console_nodes_route)
     app.router.add_get("/api/admin/console/nodes/{node_id}", admin_console_node_route)
+    for handler, response_model, request_model in (
+        (
+            admin_console_node_metadata_route,
+            ConsoleNodeMetadataOut,
+            ConsoleNodeMetadataBody,
+        ),
+        (
+            admin_console_node_metadata_delete_route,
+            ConsoleNodeMetadataDeletedOut,
+            None,
+        ),
+    ):
+        register_contract(
+            handler.__name__,
+            RouteContract(
+                request_model=request_model,
+                response_schema=ok_envelope_for(response_model),
+                models=(response_model,),
+                security=ADMIN_SECURITY,
+            ),
+        )
+    app.router.add_put(
+        "/api/admin/console/nodes/{node_id}/metadata", admin_console_node_metadata_route
+    )
+    app.router.add_delete(
+        "/api/admin/console/nodes/{node_id}/metadata",
+        admin_console_node_metadata_delete_route,
+    )
     app.router.add_get(
         "/api/admin/console/services/{service_id}/resources", admin_console_service_resources_route
     )

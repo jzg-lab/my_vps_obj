@@ -16,6 +16,7 @@
     ConsoleNodesTranslate,
   } from "$lib/admin/consoleNodesTypes";
   import { nodeControlStatus, nodeMetricQuality } from "./nodeSystemMetrics";
+  import { consoleNodeCountryLabel } from "$lib/admin/consoleNodeMetadata";
 
   let {
     nodes,
@@ -70,11 +71,18 @@
         <div class="node-card-title">
           <AdminEntityLink
             kind="code"
-            label={node.name}
+            label={node.display_name ?? node.name}
             title={`${node.name} · ${node.id}`}
             onclick={onOpenNode ? () => onOpenNode?.(node.id) : undefined}
           />
           <small>{node.address ?? at("console_unknown")}</small>
+          <small
+            >{at("console_nodes_country")}: {consoleNodeCountryLabel(node.country_code) ??
+              at("console_unknown")}</small
+          >
+          {#if node.region}<small>{at("console_nodes_region")}: {node.region}</small>{/if}
+          {#if node.provider}<small>{at("console_nodes_provider")}: {node.provider}</small>{/if}
+          {#if node.display_name}<small>{at("console_nodes_panel_name")}: {node.name}</small>{/if}
         </div>
         <AdminBadge
           variant={controlStatus === "online"
@@ -120,9 +128,7 @@
         </div>
       </div>
       {#if compact}<small class="card-note"
-          >{node.country_code ?? at("console_unknown")} · {node.groups
-            .map((group) => group.name)
-            .join(" / ") || at("console_unknown")}</small
+          >{node.groups.map((group) => group.name).join(" / ") || at("console_unknown")}</small
         >{/if}
       {#if !compact}<details class="card-note node-auxiliary">
           <summary>{at("console_node_auxiliary")}</summary>

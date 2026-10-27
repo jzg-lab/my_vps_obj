@@ -1267,6 +1267,24 @@ export interface paths {
     patch?: never;
     trace?: never;
   };
+  "/api/admin/console/nodes/{node_id}/metadata": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    /** 保存节点的本地显示标注 */
+    put: operations["put_admin_console_node_metadata_route"];
+    post?: never;
+    /** 清除节点的本地显示标注 */
+    delete: operations["delete_admin_console_node_metadata_delete_route"];
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
   "/api/admin/console/operations": {
     parameters: {
       query?: never;
@@ -10385,14 +10403,64 @@ export interface components {
       /** @default null */
       traffic: components["schemas"]["ConsoleNodeTrafficWindowOut"] | null;
     };
+    /** ConsoleNodeMetadataBody */
+    ConsoleNodeMetadataBody: {
+      /**
+       * Display Name
+       * @default null
+       */
+      display_name: string | null;
+      /**
+       * Provider
+       * @default null
+       */
+      provider: string | null;
+      /**
+       * Region
+       * @default null
+       */
+      region: string | null;
+    };
+    /** ConsoleNodeMetadataDeletedOut */
+    ConsoleNodeMetadataDeletedOut: {
+      /** Deleted */
+      deleted: boolean;
+      /** Node Id */
+      node_id: string;
+    };
+    /** ConsoleNodeMetadataOut */
+    ConsoleNodeMetadataOut: {
+      /** Display Name */
+      display_name: string | null;
+      /** Node Id */
+      node_id: string;
+      /** Provider */
+      provider: string | null;
+      /** Region */
+      region: string | null;
+      /**
+       * Updated At
+       * Format: date-time
+       */
+      updated_at: string;
+    };
     /** ConsoleNodeOut */
     ConsoleNodeOut: {
       /** Address */
       address: string | null;
-      /** Country Code */
+      /**
+       * Country Code
+       * @description Remnawave Node.countryCode；不从地址或名称推断
+       */
       country_code: string | null;
       /** Daily Traffic */
       daily_traffic?: components["schemas"]["ConsoleTrafficDayOut"][];
+      /**
+       * Display Name
+       * @description 本项目按 Node UUID 保存的本地显示名；不修改 Panel 名称
+       * @default null
+       */
+      display_name: string | null;
       /** Groups */
       groups: components["schemas"]["ConsoleResourceRefOut"][];
       /** Id */
@@ -10426,6 +10494,18 @@ export interface components {
       online_scope: "panel_reported_identities_not_unique_customers";
       /** Profile Id */
       profile_id: string | null;
+      /**
+       * Provider
+       * @description 管理员在本项目填写的本地网络服务商标注
+       * @default null
+       */
+      provider: string | null;
+      /**
+       * Region
+       * @description 管理员在本项目填写的本地地区／城市标注
+       * @default null
+       */
+      region: string | null;
       /** Speed History */
       speed_history?: components["schemas"]["ConsoleSpeedSampleOut"][];
       /** @description 管理连接状态，不证明真实代理路径可用 */
@@ -19143,6 +19223,60 @@ export interface operations {
             /** @constant */
             ok: true;
           } & components["schemas"]["ConsoleNodeDetailOut"];
+        };
+      };
+    };
+  };
+  put_admin_console_node_metadata_route: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        node_id: string;
+      };
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["ConsoleNodeMetadataBody"];
+      };
+    };
+    responses: {
+      /** @description JSON 响应 */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": {
+            /** @constant */
+            ok: true;
+          } & components["schemas"]["ConsoleNodeMetadataOut"];
+        };
+      };
+    };
+  };
+  delete_admin_console_node_metadata_delete_route: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        node_id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description JSON 响应 */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": {
+            /** @constant */
+            ok: true;
+          } & components["schemas"]["ConsoleNodeMetadataDeletedOut"];
         };
       };
     };

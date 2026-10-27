@@ -9,6 +9,7 @@
     ConsoleNodeSource,
   } from "$lib/admin/consoleNodesTypes";
   import { nodeWindowTrafficQuality } from "$lib/admin/consoleNodesTraffic";
+  import { consoleNodeCountryLabel } from "$lib/admin/consoleNodeMetadata";
   import { nodeControlStatus } from "./nodeSystemMetrics";
   let {
     nodes,
@@ -43,7 +44,8 @@
         <td class="node-identity" data-label={at("console_nodes_node")}
           ><AdminEntityLink
             kind="code"
-            label={node.name}
+            label={node.display_name ?? node.name}
+            title={node.display_name ? `${node.name} · ${node.id}` : node.id}
             idText={node.id}
             onclick={onOpenNode ? () => onOpenNode?.(node.id) : undefined}
           /></td
@@ -66,8 +68,10 @@
         </td>
         <td data-label={at("console_nodes_address")}
           >{node.address ?? at("console_unknown")}<small
-            >{node.country_code ?? at("console_unknown")}</small
-          ></td
+            >{at("console_nodes_country")}: {consoleNodeCountryLabel(node.country_code) ??
+              at("console_unknown")}</small
+          >{#if node.region}<small>{at("console_nodes_region")}: {node.region}</small>{/if}
+          {#if node.provider}<small>{at("console_nodes_provider")}: {node.provider}</small>{/if}</td
         >
         <td data-label={at("console_nodes_groups")}
           >{#each node.groups as group (group.id)}<small>{group.name ?? group.id}</small>{:else}{at(

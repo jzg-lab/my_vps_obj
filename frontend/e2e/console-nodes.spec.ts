@@ -29,6 +29,20 @@ async function installNodesApi(page: Page, mode = "normal", language = "ru") {
         users_online_quality: index === 0 ? "missing" : "unverified_zero",
         traffic_used_bytes: index === 0 ? null : 0,
       }));
+      type LocalNodeMetadata = {
+        display_name: string | null;
+        region: string | null;
+        provider: string | null;
+      };
+      const metadataStorageKey = "rw_demo_managed_node_metadata";
+      let localMetadata = JSON.parse(localStorage.getItem(metadataStorageKey) || "{}") as Record<
+        string,
+        LocalNodeMetadata
+      >;
+      const withLocalMetadata = <T extends (typeof rows)[number]>(node: T) => ({
+        ...node,
+        ...(localMetadata[node.id] ?? { display_name: null, region: null, provider: null }),
+      });
       const services =
         mode === "visual"
           ? [
@@ -52,6 +66,25 @@ async function installNodesApi(page: Page, mode = "normal", language = "ru") {
               ...props,
               api: async (path, options) => {
                 const request = new URL(path, "https://fixture.test");
+                if (request.pathname.endsWith("/metadata")) {
+                  const nodeId = request.pathname.split("/").at(-2) || "";
+                  if (options?.method === "PUT") {
+                    const fields = JSON.parse(String(options.body || "{}")) as LocalNodeMetadata;
+                    localMetadata[nodeId] = fields;
+                    localStorage.setItem(metadataStorageKey, JSON.stringify(localMetadata));
+                    return {
+                      ok: true,
+                      node_id: nodeId,
+                      ...fields,
+                      updated_at: "2026-10-27T00:00:00Z",
+                    };
+                  }
+                  if (options?.method === "DELETE") {
+                    delete localMetadata[nodeId];
+                    localStorage.setItem(metadataStorageKey, JSON.stringify(localMetadata));
+                    return { ok: true, node_id: nodeId, deleted: true };
+                  }
+                }
                 if (
                   mode === "visual" &&
                   request.pathname.endsWith(`/services/${"b".repeat(32)}/resources`)
@@ -83,7 +116,7 @@ async function installNodesApi(page: Page, mode = "normal", language = "ru") {
                     ? {
                         ok: true,
                         ...detail,
-                        node: selectedNode,
+                        node: withLocalMetadata(selectedNode),
                         ...(mode === "visual" ? { traffic } : {}),
                       }
                     : { ok: false, error: "node_not_found" };
@@ -132,7 +165,7 @@ async function installNodesApi(page: Page, mode = "normal", language = "ru") {
                         : "available";
                   return {
                     ok: true,
-                    nodes: selected.slice(page * 25, (page + 1) * 25),
+                    nodes: selected.slice(page * 25, (page + 1) * 25).map(withLocalMetadata),
                     total: mode === "unavailable" || mode === "stale" ? null : selected.length,
                     page,
                     page_size: 25,
@@ -438,6 +471,71 @@ for (const [width, language] of [
 }
 
 for (const width of [1440, 390]) {
+  test(`managed node labels save locally and clear cleanly at ${width}px`, async ({
+    page,
+  }, testInfo) => {
+    await page.setViewportSize({ width, height: 1000 });
+    await installNodesApi(page);
+    await page.goto(url);
+    const section = page.locator(".console-nodes");
+    const card = section.locator(`[data-node-card-id="${consoleNodeFixture.id}"]`);
+    await card.getByRole("button", { name: /HK inventory node/ }).click();
+    const detail = page.getByRole("region", { name: label("console_nodes_detail") });
+    const edit = detail.getByRole("button", {
+      name: label("console_nodes_metadata_edit"),
+      exact: true,
+    });
+    await edit.click();
+    const dialog = page.getByRole("dialog", { name: label("console_nodes_metadata_title") });
+    await expect(dialog).toBeVisible();
+    await dialog
+      .getByRole("textbox", { name: label("console_nodes_display_name"), exact: true })
+      .fill("Tokyo relay");
+    await dialog
+      .getByRole("textbox", { name: label("console_nodes_region"), exact: true })
+      .fill("Tokyo");
+    await dialog
+      .getByRole("textbox", { name: label("console_nodes_provider"), exact: true })
+      .fill("Example Networks");
+    await dialog
+      .getByRole("button", { name: label("console_nodes_metadata_save"), exact: true })
+      .click();
+    await expect(dialog).not.toBeVisible();
+    await expect(detail.getByRole("heading", { name: "Tokyo relay", exact: true })).toBeVisible();
+    await expect(detail).toContainText("Tokyo");
+    await expect(detail).toContainText("Example Networks");
+    await expect(edit).toBeFocused();
+    await page.screenshot({
+      path: testInfo.outputPath(`node-metadata-saved-${width}.png`),
+      fullPage: true,
+      animations: "disabled",
+    });
+
+    await page.reload();
+    await expect(detail.getByRole("heading", { name: "Tokyo relay", exact: true })).toBeVisible();
+    await edit.click();
+    const clearDialog = page.getByRole("dialog", { name: label("console_nodes_metadata_title") });
+    await clearDialog.screenshot({
+      path: testInfo.outputPath(`node-metadata-dialog-${width}.png`),
+      animations: "disabled",
+    });
+    const surface = clearDialog.locator(".dialog-card");
+    await expect(surface).toBeVisible();
+    expect(
+      await surface.evaluate((element) => element.scrollWidth - element.clientWidth)
+    ).toBeLessThanOrEqual(2);
+    expect(await page.evaluate(() => document.body.scrollWidth - innerWidth)).toBeLessThanOrEqual(
+      2
+    );
+    await clearDialog
+      .getByRole("button", { name: label("console_nodes_metadata_clear"), exact: true })
+      .click();
+    await expect(clearDialog).not.toBeVisible();
+    await expect(
+      detail.getByRole("heading", { name: "HK inventory node", exact: true })
+    ).toBeVisible();
+  });
+
   test(`node customer return retains a nonzero inventory page at ${width}px`, async ({
     page,
   }, testInfo) => {

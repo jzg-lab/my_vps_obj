@@ -24,6 +24,7 @@
     ConsoleNodesPage,
     ConsoleNodesTranslate,
   } from "$lib/admin/consoleNodesTypes";
+  import type { ConsoleNodeMetadata } from "$lib/admin/consoleNodeMetadata";
   import ConsoleNodeDetail from "./nodes/ConsoleNodeDetail.svelte";
   import ConsoleNodeSources from "./nodes/ConsoleNodeSources.svelte";
   import ConsoleNodeInventory from "./nodes/ConsoleNodeInventory.svelte";
@@ -137,6 +138,18 @@
     } finally {
       if (request === token) loading = false;
     }
+  }
+  function updateNodeMetadata(metadata: ConsoleNodeMetadata | null) {
+    if (!detail) return;
+    detail = {
+      ...detail,
+      node: {
+        ...detail.node,
+        display_name: metadata?.display_name ?? null,
+        region: metadata?.region ?? null,
+        provider: metadata?.provider ?? null,
+      },
+    };
   }
   $effect(() => {
     if (assetRoute.view === "unmanaged") {
@@ -270,6 +283,7 @@
         page={route.relatedPage}
         {loading}
         onPageChange={(relatedPage) => navigate({ relatedPage })}
+        onMetadataSaved={updateNodeMetadata}
         onBack={() => navigate({ nodeId: "", relatedPage: 0 })}
       />
     {:else if data}

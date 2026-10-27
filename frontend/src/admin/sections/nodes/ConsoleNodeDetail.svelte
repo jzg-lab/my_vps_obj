@@ -6,14 +6,20 @@
     AdminEntityLink,
     AdminPagination,
   } from "$components/patterns/admin/index.js";
+  import { Pencil } from "$components/ui/icons.js";
   import { nodeRelatedUrl } from "$lib/admin/consoleNodesNavigation";
   import type { ConsoleNodeDetail, ConsoleNodesTranslate } from "$lib/admin/consoleNodesTypes";
+  import {
+    consoleNodeCountryLabel,
+    type ConsoleNodeMetadata,
+  } from "$lib/admin/consoleNodeMetadata";
   import type { ApiClient } from "$lib/webapp/publicApi";
   import ConsoleNodeSources from "./ConsoleNodeSources.svelte";
   import ConsoleNodeTable from "./ConsoleNodeTable.svelte";
   import NodeSystemMetrics from "./NodeSystemMetrics.svelte";
   import ConsoleNodeResourcePreview from "./ConsoleNodeResourcePreview.svelte";
   import ConsoleResourceDraftPreview from "./ConsoleResourceDraftPreview.svelte";
+  import ConsoleNodeMetadataDialog from "./ConsoleNodeMetadataDialog.svelte";
   import type { DraftTarget } from "./resourceDraftPreview";
   let {
     api,
@@ -26,6 +32,7 @@
     onPageChange,
     onBack,
     onOpenUserCard,
+    onMetadataSaved,
   }: {
     api: ApiClient["api"];
     detail: ConsoleNodeDetail;
@@ -37,10 +44,13 @@
     onPageChange: (page: number) => void;
     onBack: () => void;
     onOpenUserCard: (userId: unknown) => void;
+    onMetadataSaved: (metadata: ConsoleNodeMetadata | null) => void;
   } = $props();
   let heading: HTMLHeadingElement | undefined;
   let draftTarget = $state<DraftTarget | null>(null);
   let draftTrigger: HTMLElement | null = null;
+  let metadataOpen = $state(false);
+  let metadataTrigger: HTMLElement | null = null;
   function openDraft(target: DraftTarget, event: MouseEvent) {
     draftTrigger = event.currentTarget instanceof HTMLElement ? event.currentTarget : null;
     draftTarget = target;
@@ -49,6 +59,19 @@
     draftTarget = null;
     await tick();
     draftTrigger?.focus();
+  }
+  function openMetadata(event: MouseEvent) {
+    metadataTrigger = event.currentTarget instanceof HTMLElement ? event.currentTarget : null;
+    metadataOpen = true;
+  }
+  async function closeMetadata() {
+    metadataOpen = false;
+    await tick();
+    metadataTrigger?.focus();
+  }
+  async function metadataSaved(metadata: ConsoleNodeMetadata | null) {
+    onMetadataSaved(metadata);
+    await closeMetadata();
   }
   onMount(() => heading?.focus());
 </script>
@@ -132,22 +155,42 @@
   <div><AdminButton onclick={onBack}>{at("console_nodes_back")}</AdminButton></div>
   <header class="node-heading">
     <div>
-      <h3 bind:this={heading} tabindex="-1">{detail.node.name}</h3>
+      <h3 bind:this={heading} tabindex="-1">{detail.node.display_name ?? detail.node.name}</h3>
       <p class="node-id">{detail.node.id}</p>
+      {#if detail.node.display_name}<p class="node-id">
+          {at("console_nodes_panel_name")}: {detail.node.name}
+        </p>{/if}
     </div>
-    <ConsoleNodeResourcePreview
-      {api}
-      node={detail.node}
-      {at}
-      {currentUrl}
-      {routePrefix}
-      {onOpenUserCard}
-    />
+    <div class="node-heading-actions">
+      <AdminButton size="sm" onclick={openMetadata}
+        ><Pencil size={16} />{at("console_nodes_metadata_edit")}</AdminButton
+      >
+      <ConsoleNodeResourcePreview
+        {api}
+        node={detail.node}
+        {at}
+        {currentUrl}
+        {routePrefix}
+        {onOpenUserCard}
+      />
+    </div>
   </header>
   <dl class="node-facts">
     <div>
       <dt>{at("console_nodes_address")}</dt>
       <dd>{detail.node.address ?? at("console_unknown")}</dd>
+    </div>
+    <div>
+      <dt>{at("console_nodes_country")}</dt>
+      <dd>{consoleNodeCountryLabel(detail.node.country_code) ?? at("console_unknown")}</dd>
+    </div>
+    <div>
+      <dt>{at("console_nodes_region")}</dt>
+      <dd>{detail.node.region ?? at("console_unknown")}</dd>
+    </div>
+    <div>
+      <dt>{at("console_nodes_provider")}</dt>
+      <dd>{detail.node.provider ?? at("console_unknown")}</dd>
     </div>
     <div>
       <dt>{at("console_node_metrics_cpu_model")}</dt>
@@ -212,6 +255,15 @@
       onclose={closeDraft}
     />
   {/key}
+{/if}
+{#if metadataOpen}
+  <ConsoleNodeMetadataDialog
+    {api}
+    {at}
+    node={detail.node}
+    onclose={closeMetadata}
+    onsaved={metadataSaved}
+  />
 {/if}
 
 <style>
@@ -297,6 +349,13 @@
     align-items: center;
     justify-content: space-between;
     gap: 12px;
+    flex-wrap: wrap;
+  }
+  .node-heading-actions {
+    display: flex;
+    align-items: flex-start;
+    justify-content: flex-end;
+    gap: 8px;
     flex-wrap: wrap;
   }
   .node-heading h3 {

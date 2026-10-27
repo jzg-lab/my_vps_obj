@@ -10,8 +10,11 @@ import type { components } from "$lib/api/openapi.generated";
 export const consoleNodeFixture: ConsoleNode = {
   id: "10000000-0000-0000-0000-000000000001",
   name: "HK inventory node",
+  display_name: null,
   address: "192.0.2.1",
   country_code: "HK",
+  region: null,
+  provider: null,
   status: "unknown",
   is_disabled: null,
   is_connecting: null,

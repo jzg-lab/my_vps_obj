@@ -11,19 +11,21 @@ from uuid import UUID
 
 import pytest
 from aiohttp import web
-from aiohttp.test_utils import TestClient, TestServer
+from aiohttp.test_utils import TestClient, TestServer, make_mocked_request
 from sqlalchemy import delete, func, select
 
 from bot.app.web.admin_api_impl.auth import admin_auth_middleware
 from bot.app.web.admin_console_nodes_panel import NodeInventoryReader
 from bot.app.web.admin_console_nodes_routes import setup_admin_console_nodes_routes
 from bot.app.web.context import PANEL_SERVICE, SESSION_FACTORY, SETTINGS
+from bot.app.web.route_contracts import ADMIN_SECURITY, get_contracts
 from bot.app.web.webapp_auth import create_webapp_session_token
 from bot.services.panel_api_service import PanelApiService
 from config.service_exit_replacement import ReplacementProgress, ReplacementRequest
 from config.settings import Settings
 from db.auth_models import AccountRole
 from db.dal.user_services_dal import save_plan
+from db.node_metadata_models import NodeMetadata
 from db.service_models import (
     DedicatedExit,
     ServiceConnection,
@@ -137,11 +139,12 @@ class AdminConsoleNodesTests(ServiceDatabaseTestCase):
             ADMIN_PANEL_STATS_CACHE_TTL_SECONDS=0,
             _env_file=None,
         )
-        app = web.Application(middlewares=[admin_auth_middleware])
+        app: web.Application = web.Application(middlewares=[admin_auth_middleware])
         app[SETTINGS] = self.settings
         app[SESSION_FACTORY] = self.sessions
         app[PANEL_SERVICE] = self.panel
         setup_admin_console_nodes_routes(app)
+        self.app = app
         self.client = TestClient(TestServer(app))
         await self.client.start_server()
         self.addAsyncCleanup(self.client.close)
@@ -209,6 +212,96 @@ class AdminConsoleNodesTests(ServiceDatabaseTestCase):
             assert (
                 await self.client.get("/api/admin/console/nodes?" + query, headers=self.admin)
             ).status == 400
+
+    async def test_local_node_metadata_is_saved_by_uuid_and_reused_in_all_node_views(self) -> None:
+        response = await self.client.put(
+            f"/api/admin/console/nodes/{NODE}/metadata",
+            headers=self.admin,
+            json={
+                "display_name": " Tokyo relay ",
+                "region": " Tokyo ",
+                "provider": " Example Networks ",
+            },
+        )
+        assert response.status == 200
+        saved = await response.json()
+        assert saved["display_name"] == "Tokyo relay"
+        assert saved["region"] == "Tokyo" and saved["provider"] == "Example Networks"
+        assert saved["node_id"] == NODE
+
+        listing = await self.client.get("/api/admin/console/nodes?q=Tokyo", headers=self.admin)
+        body = await listing.json()
+        assert body["total"] == 1
+        assert body["nodes"][0]["display_name"] == "Tokyo relay"
+        assert body["nodes"][0]["country_code"] == "US"
+
+        detail = await self.client.get(f"/api/admin/console/nodes/{NODE}", headers=self.admin)
+        assert (await detail.json())["node"]["region"] == "Tokyo"
+
+        service, _, _ = await self.activate()
+        resources = await self.client.get(
+            f"/api/admin/console/services/{service.id}/resources", headers=self.admin
+        )
+        assert (await resources.json())["nodes"][0]["provider"] == "Example Networks"
+
+        cleared = await self.client.delete(
+            f"/api/admin/console/nodes/{NODE}/metadata", headers=self.admin
+        )
+        assert (await cleared.json()) == {"ok": True, "node_id": NODE, "deleted": True}
+        refreshed = await self.client.get(f"/api/admin/console/nodes/{NODE}", headers=self.admin)
+        assert (await refreshed.json())["node"]["display_name"] is None
+        async with self.sessions() as session:
+            assert await session.get(NodeMetadata, NODE) is None
+
+    async def test_node_metadata_writes_require_a_fresh_existing_node_and_valid_fields(
+        self,
+    ) -> None:
+        path = f"/api/admin/console/nodes/{NODE}/metadata"
+        invalid = await self.client.put(
+            path,
+            headers=self.admin,
+            json={"display_name": "x" * 121, "region": None, "provider": None},
+        )
+        assert invalid.status == 400
+        unknown = await self.client.put(
+            f"/api/admin/console/nodes/{UUID(int=999)}/metadata",
+            headers=self.admin,
+            json={"display_name": "Alias"},
+        )
+        assert unknown.status == 404
+
+        self.responses["/nodes"] = RuntimeError("private panel error")
+        stale = await self.client.put(
+            path,
+            headers=self.admin,
+            json={"display_name": "Alias"},
+        )
+        assert stale.status == 503
+        async with self.sessions() as session:
+            assert await session.get(NodeMetadata, NODE) is None
+
+    async def test_node_metadata_write_routes_have_typed_admin_contracts(self) -> None:
+        contracts = get_contracts()
+        for method, path, handler_name, has_body in (
+            (
+                "PUT",
+                f"/api/admin/console/nodes/{NODE}/metadata",
+                "admin_console_node_metadata_route",
+                True,
+            ),
+            (
+                "DELETE",
+                f"/api/admin/console/nodes/{NODE}/metadata",
+                "admin_console_node_metadata_delete_route",
+                False,
+            ),
+        ):
+            request = make_mocked_request(method, path, app=self.app)
+            resolved = await self.app.router.resolve(request)
+            assert resolved.handler.__name__ == handler_name
+            contract = contracts[handler_name]
+            assert contract.security == ADMIN_SECURITY
+            assert (contract.request_model is not None) is has_body
 
     async def test_bidirectional_scope_uses_uuids_and_deduplicates_customers_across_pages(
         self,

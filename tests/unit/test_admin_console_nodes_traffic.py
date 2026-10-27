@@ -270,6 +270,11 @@ class NodeTrafficRouteTests(IsolatedAsyncioTestCase):
         with (
             patch.object(routes, "_require_admin_user_id"),
             patch.object(routes, "_inventory", AsyncMock(return_value=inventory)),
+            patch.object(
+                routes,
+                "_attach_local_metadata",
+                AsyncMock(side_effect=lambda _request, nodes: nodes),
+            ),
             patch.object(routes, "get_panel_service", return_value=panel),
             patch.object(
                 routes, "get_settings", return_value=Mock(ADMIN_PANEL_STATS_CACHE_TTL_SECONDS=0)
@@ -306,6 +311,11 @@ class NodeTrafficRouteTests(IsolatedAsyncioTestCase):
             with (
                 patch.object(routes, "_require_admin_user_id"),
                 patch.object(routes, "_inventory", AsyncMock(return_value=inventory)),
+                patch.object(
+                    routes,
+                    "_attach_local_metadata",
+                    AsyncMock(side_effect=lambda _request, nodes: nodes),
+                ),
                 patch.object(routes, "get_panel_service", return_value=panel),
                 patch.object(
                     routes, "get_settings", return_value=Mock(ADMIN_PANEL_STATS_CACHE_TTL_SECONDS=0)

@@ -125,8 +125,13 @@ class ConsoleNodeTrafficWindowOut(HttpResponseModel):
 class ConsoleNodeOut(HttpResponseModel):
     id: str
     name: str
+    display_name: str | None = Field(
+        default=None, description="本项目按 Node UUID 保存的本地显示名；不修改 Panel 名称"
+    )
     address: str | None
-    country_code: str | None
+    country_code: str | None = Field(description="Remnawave Node.countryCode；不从地址或名称推断")
+    region: str | None = Field(default=None, description="管理员在本项目填写的本地地区／城市标注")
+    provider: str | None = Field(default=None, description="管理员在本项目填写的本地网络服务商标注")
     status: ConsoleNodeStatus = Field(description="管理连接状态，不证明真实代理路径可用")
     is_disabled: bool | None
     is_connecting: bool | None

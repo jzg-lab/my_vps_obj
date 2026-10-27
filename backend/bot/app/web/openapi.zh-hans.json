@@ -74,6 +74,8 @@
     "get_admin_console_summary_route": "获取统一管理台业务指标",
     "get_admin_console_nodes_route": "查询节点库存与运行状态",
     "get_admin_console_node_route": "获取节点详情与潜在影响范围",
+    "put_admin_console_node_metadata_route": "保存节点的本地显示标注",
+    "delete_admin_console_node_metadata_delete_route": "清除节点的本地显示标注",
     "get_admin_console_service_resources_route": "获取独立服务的授权资源关联",
     "post_admin_console_service_preflight_route": "预检独立服务开通与资源条件",
     "get_admin_console_service_diagnostics_route": "读取独立服务的脱敏诊断证据",
