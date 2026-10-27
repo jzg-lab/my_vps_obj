@@ -124,16 +124,16 @@ npm run project:down
 | 本机专用私钥 | `~/.ssh/my_vps_obj_prod_ed25519`，权限 `0600`；公钥已加入服务器 `authorized_keys` |
 | 网站 Compose 目录 | `/opt/remnawave-minishop`；使用 `docker-compose.yml` 与 `docker-compose.override.yml` |
 | 线上配置与应用文件 | `/opt/remnawave-minishop/.env`、`/opt/remnawave-minishop/data` |
-| 本次源码与构建材料 | 网站 `/opt/my-vps-obj/releases/a3c04376-console-20261027`；worker `/opt/my-vps-obj/releases/307641d8-speed-20261027`；旧发布目录保留 |
+| 本次源码与构建材料 | 当前 `/opt/my-vps-obj/releases/076c718b-country-20261028`；旧发布目录保留 |
 | 当前部署摘要 | `/opt/my-vps-obj/last-deployment.json` |
-| 切换前备份 | 首次发布 `/opt/my-vps-obj/backups/pre-a3c04376-20261027`；worker 补丁 `/opt/my-vps-obj/backups/pre-307641d8-speed-20261027`；旧备份保留 |
+| 切换前备份 | 当前 `/opt/my-vps-obj/backups/pre-076c718b-country-20261028-final`；旧备份及本轮中断备份保留 |
 | 面板 / HTTPS / Node 目录 | `/opt/remnawave`、`/opt/remnawave-edge`、`/opt/remnawave-node` |
 
 SSH 公钥认证原本关闭，本轮已启用并通过不复用旧连接的密钥登录验证；保留原密码登录方式。密码不存入本文、Git 或服务器资料。换电脑时需另行配置密钥，不能假设本机别名自动同步。
 
-### 当前发布（2026-10-27）
+### 当前发布（2026-10-28）
 
-网站 backend／frontend 为远程 `origin/main` 的准确提交 `a3c0437676d9603c467666218fa1b7412c03833b`，镜像标签为 `a3c04376-console-20261027`；网速采集 worker 已单独更新为准确提交 `307641d8890586c54a2a3e09fc668ad31d491991`，镜像标签为 `307641d8-speed-20261027`。各镜像均由仓库完整 Dockerfile 在服务器构建，worker 补丁未重启网站、未增加迁移。环境配置和基础服务沿用原部署，新增迁移已应用到 `0121_node_speed_samples`。实际镜像摘要与源码／备份目录以 `/opt/my-vps-obj/last-deployment.json` 为准；上线验收、后续修复及保留边界见[本次生产部署证据](../implementation-plan.md#production-console-20261027)。下方 10 月 23 日的镜像和构建过程为历史记录。
+backend／worker／frontend 均为远程 `origin/main` 的准确提交 `076c718bcd65b1be87b7ae15c6151a30ab6be00b`，镜像标签 `076c718b-country-20261028`，由仓库完整 Dockerfile 在服务器构建。环境配置与基础服务沿用原部署；追加迁移已应用到 `0122_node_metadata`。实际镜像摘要、各组件提交、源码及最终备份以 `/opt/my-vps-obj/last-deployment.json` 为准。节点列表／详情 API 已验收，实际国家码为一个 `US` 和两个 `XX`，后两者无有效国家信息。完整门禁、切换中断及修复、验收边界见[实施计划第 14 节](../implementation-plan.md#14-统一管理台执行追踪2026-10-24)。下方首次替换过程为历史记录。
 
 ### 首次替换与配置基线（2026-10-23，历史）
 
