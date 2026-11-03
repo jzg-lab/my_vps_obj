@@ -306,6 +306,7 @@
   let sectionLoadToken = 0;
   let activeSectionComponent = $state<DynamicComponent | null>(null);
   let activeSectionLoading = $state(false);
+  let loadedSectionId = $state("");
 
   function warmSectionComponent(section: AdminSectionDescriptor): void {
     sectionComponentLoader.warm(section);
@@ -353,8 +354,13 @@
   $effect(() => {
     const section = activeSection;
     const token = ++sectionLoadToken;
-    activeSectionComponent = null;
+    loadedSectionId = section?.id ?? "";
+    activeSectionComponent = section ? sectionComponentLoader.get(section) : null;
     if (!section) {
+      activeSectionLoading = false;
+      return;
+    }
+    if (activeSectionComponent) {
       activeSectionLoading = false;
       return;
     }
@@ -881,7 +887,7 @@
   <AdminPanelLayout
     api={stableApi}
     {active}
-    {activeSectionComponent}
+    activeSectionComponent={loadedSectionId === active ? activeSectionComponent : null}
     {activeSectionLoading}
     featureAvailable={activeSectionFeatureAvailable}
     {featuresResolved}

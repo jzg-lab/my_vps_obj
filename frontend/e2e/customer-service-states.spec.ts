@@ -91,6 +91,7 @@ for (const language of ["en", "ru", "zh-hans"]) {
           .click();
         await expect(activation).toHaveCount(0);
         const relations = services.locator("[data-customer-relations]");
+        await relations.locator(":scope > summary").click();
         const usage = services.locator(".customer-usage");
         const quota = services.locator(".quota");
         await expect(relations).toContainText(label("console_nodes_pending_configuration"));
@@ -111,13 +112,13 @@ for (const language of ["en", "ru", "zh-hans"]) {
           page.getByRole("region", { name: label("account_access_title"), exact: true })
         ).toContainText(label("account_access_scope"));
         await services.screenshot({ path: testInfo.outputPath("pending-customer.png") });
-        await relations.locator("details > summary").click();
+        await relations.locator(".service-resources > details > summary").click();
         await expect(
           relations
             .getByText(label("console_nodes_availability_unconfigured"), { exact: false })
             .first()
         ).toBeVisible();
-        await relations.locator("details > summary").click();
+        await relations.locator(".service-resources > details > summary").click();
 
         for (const [mode, key] of [
           ["failure", "console_visual_history_failed"],

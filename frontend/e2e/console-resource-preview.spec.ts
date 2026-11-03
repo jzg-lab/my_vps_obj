@@ -431,6 +431,7 @@ for (const width of [1440, 390]) {
       await installResourcePreviewApi(page, language);
       await page.goto(baseUrl);
       const detail = page.getByRole("region", { name: text("console_nodes_detail") });
+      await detail.locator(".node-configuration > summary").click();
       const groupEntry = detail.getByRole("button", {
         name: text("console_draft_group_open"),
         exact: true,
@@ -621,6 +622,7 @@ for (const mode of ["partial", "unavailable", "failed"] as const) {
   }) => {
     await installResourcePreviewApi(page);
     await page.goto(baseUrl);
+    await page.locator(".node-configuration > summary").click();
     await page
       .getByRole("button", { name: label("console_draft_group_open"), exact: true })
       .click();

@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { onDestroy } from "svelte";
+  import { onDestroy, untrack } from "svelte";
   import { AdminButton } from "$components/patterns/admin/index.js";
   import AdminMetricChart from "$components/patterns/admin/AdminMetricChart.svelte";
   import ServiceUsageSummary from "./ServiceUsageSummary.svelte";
@@ -18,12 +18,18 @@
   let loading = $state(false);
   let request = 0;
   let controller: AbortController | undefined;
+  const serviceScope = $derived(services.map((service) => service.id).join(":"));
+  let scope = "";
   async function load(rows: UserService[]) {
     const token = ++request;
     controller?.abort();
     controller = new AbortController();
     const signal = controller.signal;
-    histories = {};
+    const nextScope = rows.map((service) => service.id).join(":");
+    if (scope !== nextScope) {
+      scope = nextScope;
+      histories = {};
+    }
     loading = true;
     const results = await Promise.all(
       rows.map(async (service) => {
@@ -50,7 +56,8 @@
     }
   }
   $effect(() => {
-    void load(services);
+    void serviceScope;
+    untrack(() => void load(services));
   });
   onDestroy(() => {
     request++;
@@ -65,7 +72,7 @@
   );
   const series = $derived(
     services.map((service) => ({
-      label: service.name,
+      label: `${service.name} · …${service.id.slice(-8)}`,
       values: dates.map(
         (date) => histories[service.id]?.days?.find((day) => day.date === date)?.bytes ?? null
       ),
@@ -74,6 +81,9 @@
   const hasSamples = $derived(series.some((row) => row.values.some((value) => value !== null)));
 </script>
 
+<div class="customer-service-summaries">
+  {#each services as service (service.id)}<ServiceUsageSummary {service} {at} />{/each}
+</div>
 <section class="customer-usage" aria-label={at("console_customer_usage")} aria-busy={loading}>
   <header>
     <h3>{at("console_customer_usage")}</h3>
@@ -82,7 +92,8 @@
     >
   </header>
   {#if loading}<p role="status">{at("loading")}</p>
-  {:else if hasSamples}
+  {/if}
+  {#if hasSamples}
     <p>{at("console_visual_history_scope")}</p>
     <AdminMetricChart
       title={at("console_customer_usage")}
@@ -100,9 +111,6 @@
       {#if message}<p role="status">{service.name} · {at(message)}</p>{/if}
     {/each}{/if}
 </section>
-<div class="customer-service-summaries">
-  {#each services as service (service.id)}<ServiceUsageSummary {service} {at} />{/each}
-</div>
 
 <style>
   .customer-usage {

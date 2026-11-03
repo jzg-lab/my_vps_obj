@@ -7524,5 +7524,11 @@
   "admin_console_node_control_unknown": "Management unknown",
   "admin_console_node_auxiliary": "Identity and collection details",
   "admin_console_copy_failed": "Copy failed. Select the value and copy manually.",
-  "wa_services_next_import_detail": "Use the subscription controls below to import this service and view its setup guide."
+  "wa_services_next_import_detail": "Use the subscription controls below to import this service and view its setup guide.",
+  "admin_user_profile_details": "Account details and notifications",
+  "admin_console_nodes_identity_details": "Address and hardware details",
+  "admin_console_nodes_configuration": "Configuration, groups and sources",
+  "admin_console_node_metrics_details": "Full metrics and observation sources",
+  "admin_console_node_uptime_days": "{days}d {hours}h",
+  "admin_console_node_uptime_hours": "{hours}h {minutes}m"
 }

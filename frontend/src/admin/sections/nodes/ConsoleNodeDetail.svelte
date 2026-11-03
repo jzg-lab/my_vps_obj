@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { navigateConsoleLink } from "$lib/admin/consoleNavigation";
   import { onMount, tick } from "svelte";
   import {
     AdminBadge,
@@ -8,6 +9,8 @@
   } from "$components/patterns/admin/index.js";
   import { Pencil } from "$components/ui/icons.js";
   import { nodeRelatedUrl } from "$lib/admin/consoleNodesNavigation";
+  import { nodeControlStatus } from "./nodeSystemMetrics";
+  import { serviceDate } from "$lib/webapp/independentServices";
   import type { ConsoleNodeDetail, ConsoleNodesTranslate } from "$lib/admin/consoleNodesTypes";
   import {
     consoleNodeCountryLabel,
@@ -29,6 +32,7 @@
     routePrefix = "",
     page,
     loading = false,
+    stale = false,
     onPageChange,
     onBack,
     onOpenUserCard,
@@ -41,6 +45,7 @@
     routePrefix?: string;
     page: number;
     loading?: boolean;
+    stale?: boolean;
     onPageChange: (page: number) => void;
     onBack: () => void;
     onOpenUserCard: (userId: unknown) => void;
@@ -74,6 +79,14 @@
     await closeMetadata();
   }
   onMount(() => heading?.focus());
+  const controlStatus = $derived(
+    stale
+      ? "unknown"
+      : nodeControlStatus(
+          detail.node,
+          detail.sources.find((source) => source.source === "nodes")
+        )
+  );
 </script>
 
 {#snippet related()}
@@ -88,66 +101,73 @@
     {#if !detail.associations_complete}<p role="status">
         {at("console_nodes_incomplete_relations")}
       </p>{/if}
-    {#if detail.services.length}
-      <div class="related-services">
-        {#each detail.services as service (service.id)}
-          <article>
-            <a href={nodeRelatedUrl(currentUrl, { serviceId: service.id }, routePrefix).href}
-              ><AdminEntityLink kind="code" label={service.name} idText={service.id} /></a
-            >
-            <a
-              href={nodeRelatedUrl(currentUrl, { userId: service.user_id }, routePrefix).href}
-              onclick={(event) => {
-                if (
-                  event.button !== 0 ||
-                  event.metaKey ||
-                  event.ctrlKey ||
-                  event.shiftKey ||
-                  event.altKey
-                )
-                  return;
-                event.preventDefault();
-                onOpenUserCard(service.user_id);
-              }}><AdminEntityLink label={String(service.user_id)} /></a
-            >
-            <div>
-              <AdminBadge>{at(`services_status_${service.status}`)}</AdminBadge><small
-                >{at(
-                  service.currently_eligible ? "console_nodes_eligible" : "console_nodes_ineligible"
-                )}</small
+    <details>
+      <summary>{at("console_visual_service_list")}</summary>
+      {#if detail.services.length}
+        <div class="related-services">
+          {#each detail.services as service (service.id)}
+            <article>
+              <a
+                href={nodeRelatedUrl(currentUrl, { serviceId: service.id }, routePrefix).href}
+                onclick={navigateConsoleLink}
+                ><AdminEntityLink kind="code" label={service.name} idText={service.id} /></a
               >
-            </div>
-          </article>
-        {/each}
-      </div>
-    {:else}<p>
-        {at(
-          detail.associations_complete
-            ? "console_nodes_no_services"
-            : "console_nodes_no_known_services"
-        )}
-      </p>{/if}
-    <AdminPagination
-      {page}
-      total={detail.service_total}
-      pageCount={detail.service_total === null
-        ? null
-        : Math.ceil(detail.service_total / detail.page_size)}
-      disabled={loading}
-      onPageChange={detail.service_total === null ? null : onPageChange}
-      onPrev={() => onPageChange(page - 1)}
-      onNext={() => onPageChange(page + 1)}
-      prevDisabled={page === 0}
-      nextDisabled={detail.services.length < detail.page_size}
-      prevLabel={at("services_previous")}
-      nextLabel={at("services_next")}
-      pageLabel={at("services_page")}
-      ofLabel={at("services_of")}
-      totalLabel={at("services_count")}
-      jumpLabel={at("services_page")}
-      jumpAriaLabel={at("services_go_page")}
-      goLabel={at("services_go_page")}
-    />
+              <a
+                href={nodeRelatedUrl(currentUrl, { userId: service.user_id }, routePrefix).href}
+                onclick={(event) => {
+                  if (
+                    event.button !== 0 ||
+                    event.metaKey ||
+                    event.ctrlKey ||
+                    event.shiftKey ||
+                    event.altKey
+                  )
+                    return;
+                  event.preventDefault();
+                  onOpenUserCard(service.user_id);
+                }}><AdminEntityLink label={String(service.user_id)} /></a
+              >
+              <div>
+                <AdminBadge>{at(`services_status_${service.status}`)}</AdminBadge><small
+                  >{at(
+                    service.currently_eligible
+                      ? "console_nodes_eligible"
+                      : "console_nodes_ineligible"
+                  )}</small
+                >
+              </div>
+            </article>
+          {/each}
+        </div>
+      {:else}<p>
+          {at(
+            detail.associations_complete
+              ? "console_nodes_no_services"
+              : "console_nodes_no_known_services"
+          )}
+        </p>{/if}
+      <AdminPagination
+        {page}
+        total={detail.service_total}
+        pageCount={detail.service_total === null
+          ? null
+          : Math.ceil(detail.service_total / detail.page_size)}
+        disabled={loading}
+        onPageChange={detail.service_total === null ? null : onPageChange}
+        onPrev={() => onPageChange(page - 1)}
+        onNext={() => onPageChange(page + 1)}
+        prevDisabled={page === 0}
+        nextDisabled={detail.services.length < detail.page_size}
+        prevLabel={at("services_previous")}
+        nextLabel={at("services_next")}
+        pageLabel={at("services_page")}
+        ofLabel={at("services_of")}
+        totalLabel={at("services_count")}
+        jumpLabel={at("services_page")}
+        jumpAriaLabel={at("services_go_page")}
+        goLabel={at("services_go_page")}
+      />
+    </details>
   </section>
 {/snippet}
 
@@ -156,13 +176,25 @@
   <header class="node-heading">
     <div>
       <h3 bind:this={heading} tabindex="-1">{detail.node.display_name ?? detail.node.name}</h3>
+      <AdminBadge
+        variant={controlStatus === "online"
+          ? "success"
+          : controlStatus === "offline"
+            ? "danger"
+            : "muted"}>{at(`console_node_control_${controlStatus}`)}</AdminBadge
+      >
+      <p class="node-id">
+        {at("console_observed_at")}: {detail.node.observed_at
+          ? serviceDate(detail.node.observed_at)
+          : at("console_unknown")}
+      </p>
       <p class="node-id">{detail.node.id}</p>
       {#if detail.node.display_name}<p class="node-id">
           {at("console_nodes_panel_name")}: {detail.node.name}
         </p>{/if}
     </div>
     <div class="node-heading-actions">
-      <AdminButton size="sm" onclick={openMetadata}
+      <AdminButton size="sm" disabled={loading || stale} onclick={openMetadata}
         ><Pencil size={16} />{at("console_nodes_metadata_edit")}</AdminButton
       >
       <ConsoleNodeResourcePreview
@@ -175,72 +207,80 @@
       />
     </div>
   </header>
-  <dl class="node-facts">
-    <div>
-      <dt>{at("console_nodes_address")}</dt>
-      <dd>{detail.node.address ?? at("console_unknown")}</dd>
-    </div>
-    <div>
-      <dt>{at("console_nodes_country")}</dt>
-      <dd>{consoleNodeCountryLabel(detail.node.country_code) ?? at("console_unknown")}</dd>
-    </div>
-    <div>
-      <dt>{at("console_nodes_region")}</dt>
-      <dd>{detail.node.region ?? at("console_unknown")}</dd>
-    </div>
-    <div>
-      <dt>{at("console_nodes_provider")}</dt>
-      <dd>{detail.node.provider ?? at("console_unknown")}</dd>
-    </div>
-    <div>
-      <dt>{at("console_node_metrics_cpu_model")}</dt>
-      <dd>{detail.node.system?.cpu_model ?? at("console_unknown")}</dd>
-    </div>
-  </dl>
+  <details class="node-facts-panel">
+    <summary>{at("console_nodes_identity_details")}</summary>
+    <dl class="node-facts">
+      <div>
+        <dt>{at("console_nodes_address")}</dt>
+        <dd>{detail.node.address ?? at("console_unknown")}</dd>
+      </div>
+      <div>
+        <dt>{at("console_nodes_country")}</dt>
+        <dd>{consoleNodeCountryLabel(detail.node.country_code) ?? at("console_unknown")}</dd>
+      </div>
+      <div>
+        <dt>{at("console_nodes_region")}</dt>
+        <dd>{detail.node.region ?? at("console_unknown")}</dd>
+      </div>
+      <div>
+        <dt>{at("console_nodes_provider")}</dt>
+        <dd>{detail.node.provider ?? at("console_unknown")}</dd>
+      </div>
+      <div>
+        <dt>{at("console_node_metrics_cpu_model")}</dt>
+        <dd>{detail.node.system?.cpu_model ?? at("console_unknown")}</dd>
+      </div>
+    </dl>
+  </details>
   <NodeSystemMetrics
     node={detail.node}
     traffic={detail.traffic}
     source={detail.sources.find((source) => source.source === "nodes")}
     {at}
     {related}
+    {stale}
   />
-  <ConsoleNodeTable
-    nodes={[detail.node]}
-    traffic={detail.traffic ?? null}
-    source={detail.sources.find((source) => source.source === "nodes")}
-    {at}
-  />
-  <dl>
-    <div>
-      <dt>{at("console_nodes_profile")}</dt>
-      <dd>{detail.node.profile_id ?? at("console_unknown")}</dd>
-    </div>
-    <div>
-      <dt>{at("console_nodes_inbounds")}</dt>
-      <dd>{detail.node.inbound_ids.join(", ") || at("console_unknown")}</dd>
-    </div>
-    <div>
-      <dt>{at("console_nodes_groups")}</dt>
-      <dd>
-        {#each detail.groups as group (group.id)}<span
-            >{group.name ?? at("console_unknown")} · {group.id}</span
-          ><AdminButton onclick={(event) => openDraft({ kind: "group", id: group.id }, event)}
-            >{at("console_draft_group_open")}</AdminButton
-          >{:else}{at("console_nodes_no_known_groups")}{/each}
-      </dd>
-    </div>
-    <div>
-      <dt>{at("console_nodes_hosts")}</dt>
-      <dd>
-        {#each detail.hosts as host (host.id)}<span
-            >{host.name ?? at("console_unknown")} · {host.id}</span
-          ><AdminButton onclick={(event) => openDraft({ kind: "host", id: host.id }, event)}
-            >{at("console_draft_host_open")}</AdminButton
-          >{:else}{at("console_nodes_no_known_hosts")}{/each}
-      </dd>
-    </div>
-  </dl>
-  <ConsoleNodeSources coverage={detail.coverage} sources={detail.sources} {at} />
+  <details class="node-configuration">
+    <summary>{at("console_nodes_configuration")}</summary>
+    <ConsoleNodeTable
+      nodes={[detail.node]}
+      traffic={detail.traffic ?? null}
+      source={detail.sources.find((source) => source.source === "nodes")}
+      {at}
+      {stale}
+    />
+    <dl>
+      <div>
+        <dt>{at("console_nodes_profile")}</dt>
+        <dd>{detail.node.profile_id ?? at("console_unknown")}</dd>
+      </div>
+      <div>
+        <dt>{at("console_nodes_inbounds")}</dt>
+        <dd>{detail.node.inbound_ids.join(", ") || at("console_unknown")}</dd>
+      </div>
+      <div>
+        <dt>{at("console_nodes_groups")}</dt>
+        <dd>
+          {#each detail.groups as group (group.id)}<span
+              >{group.name ?? at("console_unknown")} · {group.id}</span
+            ><AdminButton onclick={(event) => openDraft({ kind: "group", id: group.id }, event)}
+              >{at("console_draft_group_open")}</AdminButton
+            >{:else}{at("console_nodes_no_known_groups")}{/each}
+        </dd>
+      </div>
+      <div>
+        <dt>{at("console_nodes_hosts")}</dt>
+        <dd>
+          {#each detail.hosts as host (host.id)}<span
+              >{host.name ?? at("console_unknown")} · {host.id}</span
+            ><AdminButton onclick={(event) => openDraft({ kind: "host", id: host.id }, event)}
+              >{at("console_draft_host_open")}</AdminButton
+            >{:else}{at("console_nodes_no_known_hosts")}{/each}
+        </dd>
+      </div>
+    </dl>
+    <ConsoleNodeSources coverage={detail.coverage} sources={detail.sources} {at} />
+  </details>
 </section>
 
 {#if draftTarget}
@@ -316,6 +356,15 @@
     display: grid;
     gap: 16px;
     min-width: 0;
+  }
+  summary {
+    cursor: pointer;
+    padding-block: 10px;
+    font-weight: 600;
+  }
+  .node-configuration[open] {
+    display: grid;
+    gap: 16px;
   }
   h3,
   h4,

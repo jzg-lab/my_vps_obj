@@ -170,17 +170,38 @@
         <ExternalLink size={14} />{at("user_open_remnawave_profile", {}, "Open in Remnawave")}
       </a>
     {/if}
-    <AdminButton
-      size="sm"
-      variant="ghost"
-      onclick={openUserTelegramProfile}
-      disabled={!openedUserTelegramProfileLink}
-      title={openedUserTelegramProfileHint}
-    >
-      <ExternalLink size={14} />{at("user_open_tg_profile", {}, "Open Telegram")}
-    </AdminButton>
+    {#if openedUserTelegramProfileLink || !serviceModel.independent}<AdminButton
+        size="sm"
+        variant="ghost"
+        onclick={openUserTelegramProfile}
+        disabled={!openedUserTelegramProfileLink}
+        title={openedUserTelegramProfileHint}
+      >
+        <ExternalLink size={14} />{at("user_open_tg_profile", {}, "Open Telegram")}
+      </AdminButton>{/if}
   </div>
   {#if openedUserDetail && details}
-    <div class="admin-user-hero-facts">{@render details()}</div>
+    <div class="admin-user-hero-facts">
+      {#if serviceModel.independent}<details class="profile-details">
+          <summary>{at("user_profile_details")}</summary>
+          {@render details()}
+        </details>{:else}{@render details()}{/if}
+    </div>
   {/if}
 </header>
+
+<style>
+  .profile-details {
+    width: 100%;
+    min-width: 0;
+  }
+  .profile-details > summary {
+    cursor: pointer;
+    color: var(--admin-muted);
+    font-size: 13px;
+    padding-block: 4px;
+  }
+  .profile-details[open] > summary {
+    margin-bottom: 12px;
+  }
+</style>

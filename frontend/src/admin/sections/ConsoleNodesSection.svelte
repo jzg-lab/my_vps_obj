@@ -1,5 +1,6 @@
 <script lang="ts">
-  import { onDestroy, onMount, tick } from "svelte";
+  import { navigateConsoleLink } from "$lib/admin/consoleNavigation";
+  import { onDestroy, onMount, tick, untrack } from "svelte";
   import Input from "$components/ui/input.svelte";
   import {
     AdminButton,
@@ -39,6 +40,7 @@
     type NodeAssetView,
   } from "$lib/admin/consoleNodeAssets";
   import ConsoleNodeAssets from "./nodes/ConsoleNodeAssets.svelte";
+  import { consoleAccessDenied } from "$lib/admin/consoleServices";
 
   let {
     api,
@@ -58,6 +60,9 @@
     typeof window === "undefined" ? "http://localhost/admin/nodes" : window.location.href
   );
   const assetRoute = $derived(readNodeAssetsRoute(new URL(currentUrl).search));
+  const activeView = $derived(assetRoute.view);
+  const routeScope = $derived(JSON.stringify(route));
+  let table = $state(false);
   function navigateAssets(view: NodeAssetView, page?: number) {
     const url = nodeAssetsViewUrl(window.location.href, view, page);
     window.history.pushState(null, "", url);
@@ -78,6 +83,8 @@
   }
   let request = 0;
   let controller: AbortController | null = null;
+  let scope = "";
+  let listSnapshot: { scope: string; data: ConsoleNodesPage } | null = null;
   const statuses = ["all", "online", "offline", "unknown"] as const;
   const items = $derived(
     statuses.map((value) => ({
@@ -102,9 +109,15 @@
     controller?.abort();
     controller = new AbortController();
     loading = true;
-    failed = false;
-    data = null;
-    detail = null;
+    const nextScope = current.nodeId
+      ? consoleNodeDetailPath(current)
+      : consoleNodesListPath(current);
+    if (scope !== nextScope) {
+      scope = nextScope;
+      failed = false;
+      data = !current.nodeId && listSnapshot?.scope === scope ? listSnapshot.data : null;
+      detail = null;
+    }
     try {
       if (current.nodeId) {
         const result = unwrap(
@@ -112,6 +125,7 @@
         );
         if (request !== token) return;
         detail = result;
+        failed = false;
         if (
           result.service_total !== null &&
           current.relatedPage > 0 &&
@@ -126,6 +140,8 @@
         );
         if (request !== token) return;
         data = result;
+        failed = false;
+        listSnapshot = { scope: nextScope, data: result };
         if (
           result.total !== null &&
           current.page > 0 &&
@@ -133,8 +149,15 @@
         )
           navigate({ page: Math.max(0, Math.ceil(result.total / result.page_size) - 1) });
       }
-    } catch {
-      if (request === token) failed = true;
+    } catch (error) {
+      if (request === token) {
+        failed = true;
+        if (consoleAccessDenied(error)) {
+          data = null;
+          detail = null;
+          listSnapshot = null;
+        }
+      }
     } finally {
       if (request === token) loading = false;
     }
@@ -152,15 +175,20 @@
     };
   }
   $effect(() => {
-    if (assetRoute.view === "unmanaged") {
-      request++;
-      controller?.abort();
-      data = null;
-      detail = null;
-      loading = false;
-      return;
-    }
-    void load({ ...route });
+    const view = activeView;
+    void routeScope;
+    untrack(() => {
+      if (view === "unmanaged") {
+        request++;
+        controller?.abort();
+        data = null;
+        detail = null;
+        scope = "";
+        loading = false;
+        return;
+      }
+      void load({ ...route });
+    });
   });
   onMount(() => {
     const restore = () => {
@@ -204,8 +232,9 @@
               onboarding = true;
             }}>{at("resource_ops_action_node_create")}</AdminButton
           >
-          <a href={resourceOperationsUrl(currentUrl, routePrefix).href}
-            >{at("resource_ops_title")}</a
+          <a
+            href={resourceOperationsUrl(currentUrl, routePrefix).href}
+            onclick={navigateConsoleLink}>{at("resource_ops_title")}</a
           >
         </div>{/if}
     </div>{/if}
@@ -218,8 +247,9 @@
     />
   {:else}
     {#if route.serviceId}<p>
-        <a href={nodeRelatedUrl(currentUrl, { serviceId: route.serviceId }, routePrefix).href}
-          >{at("console_nodes_return_service")}: {route.serviceId}</a
+        <a
+          href={nodeRelatedUrl(currentUrl, { serviceId: route.serviceId }, routePrefix).href}
+          onclick={navigateConsoleLink}>{at("console_nodes_return_service")}: {route.serviceId}</a
         >
         · {at("console_nodes_inventory_scope")}
       </p>{/if}
@@ -263,9 +293,11 @@
           >{at("refresh")}</AdminButton
         >{/if}
     </div>
-    {#if loading}<p role="status">{at("loading")}</p>
-    {:else if failed}
-      <p role="alert">{at("console_nodes_load_failed")}</p>
+    {#if loading}<p role="status">{at("loading")}</p>{/if}
+    {#if failed}<p role="alert">
+        {at(data || detail ? "console_refresh_failed" : "console_nodes_load_failed")}
+      </p>{/if}
+    {#if failed && !data && !detail}
       {#if route.nodeId}<div>
           <AdminButton onclick={() => load(route)}>{at("refresh")}</AdminButton>
           <AdminButton onclick={() => navigate({ nodeId: "", relatedPage: 0 })}
@@ -282,6 +314,7 @@
         {onOpenUserCard}
         page={route.relatedPage}
         {loading}
+        stale={failed}
         onPageChange={(relatedPage) => navigate({ relatedPage })}
         onMetadataSaved={updateNodeMetadata}
         onBack={() => navigate({ nodeId: "", relatedPage: 0 })}
@@ -289,10 +322,12 @@
     {:else if data}
       {#if data.nodes.length}
         <ConsoleNodeInventory
+          bind:table
           nodes={data.nodes}
           traffic={data.traffic}
           source={data.sources.find((source) => source.source === "nodes")}
           {at}
+          stale={failed}
           onOpenNode={(nodeId) => navigate({ nodeId, relatedPage: 0 })}
         />
       {:else}<AdminEmptyState tone="card"
@@ -307,6 +342,7 @@
       <ConsoleNodeTrafficChart
         nodes={data}
         comparison
+        stale={failed}
         {at}
         onNode={(nodeId) => navigate({ nodeId, relatedPage: 0 })}
       />
@@ -359,6 +395,7 @@
 <style>
   .console-nodes {
     display: grid;
+    grid-template-columns: minmax(0, 1fr);
     gap: 16px;
     min-width: 0;
   }

@@ -7524,5 +7524,11 @@
   "admin_console_node_control_unknown": "Управление: неизвестно",
   "admin_console_node_auxiliary": "ID и сведения о сборе",
   "admin_console_copy_failed": "Не удалось скопировать. Выделите значение и скопируйте вручную.",
-  "wa_services_next_import_detail": "Используйте блок подписки ниже для импорта этой услуги и просмотра инструкции."
+  "wa_services_next_import_detail": "Используйте блок подписки ниже для импорта этой услуги и просмотра инструкции.",
+  "admin_user_profile_details": "Данные аккаунта и уведомления",
+  "admin_console_nodes_identity_details": "Адрес и оборудование",
+  "admin_console_nodes_configuration": "Конфигурация, группы и источники",
+  "admin_console_node_metrics_details": "Все метрики и источники наблюдений",
+  "admin_console_node_uptime_days": "{days} д {hours} ч",
+  "admin_console_node_uptime_hours": "{hours} ч {minutes} мин"
 }

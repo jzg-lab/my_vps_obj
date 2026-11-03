@@ -1,10 +1,6 @@
 <script lang="ts">
   import type { Snippet } from "svelte";
-  import {
-    AdminBadge,
-    AdminChartEmptyState,
-    AdminTable,
-  } from "$components/patterns/admin/index.js";
+  import { AdminBadge, AdminTable } from "$components/patterns/admin/index.js";
   import type { ConsoleNodesTranslate } from "$lib/admin/consoleNodesTypes";
   import type { ConsoleNodeTraffic } from "$lib/admin/consoleNodesTypes";
   import { serviceBytes } from "$lib/admin/servicePlans";
@@ -17,6 +13,8 @@
     nodeMetricText,
     bytesPerSecondToMbps,
     nodeSpeedSummary,
+    nodeSpeedText,
+    nodeUptimeText,
     type MetricsNode,
     type MetricsSource,
   } from "./nodeSystemMetrics";
@@ -27,6 +25,7 @@
     source,
     traffic,
     related,
+    stale = false,
     at,
   }: {
     node: MetricsNode;
@@ -34,6 +33,7 @@
     traffic?: ConsoleNodeTraffic | null;
     at: ConsoleNodesTranslate;
     related?: Snippet;
+    stale?: boolean;
   } = $props();
   const nodeSource = $derived(source?.source === "nodes" ? source : undefined);
   const memoryPercent = $derived.by(() => {
@@ -67,12 +67,10 @@
       values: speedSamples.map((sample) => bytesPerSecondToMbps(sample.tx_bytes_per_second)),
     },
   ]);
-  function speedValue(bytesPerSecond: number | null | undefined) {
-    const value = bytesPerSecondToMbps(bytesPerSecond ?? null);
-    return value === null
-      ? at("console_unknown")
-      : `${value.toLocaleString(undefined, { maximumFractionDigits: 1 })} Mbps`;
-  }
+  const hasSpeedSamples = $derived(
+    speedSeries.some((series) => series.values.some((value) => value !== null))
+  );
+  const speedValue = (value: number | null | undefined) => nodeSpeedText(value, at);
 </script>
 
 <section class="node-system-metrics" aria-label={at("console_node_metrics_title")}>
@@ -102,7 +100,7 @@
         </article>
         <article class="metric-visual-card">
           <span>{at("console_node_metrics_uptime_seconds")}</span><strong
-            >{nodeMetricText(node.system, nodeMetricRows[8], at)}</strong
+            >{nodeUptimeText(node.system, at)}</strong
           >
         </article>
       </div>
@@ -111,7 +109,7 @@
   </div>
   <article class="metric-visual-card metric-history-card">
     <h4>{at("console_visual_speed")}</h4>
-    {#if speedSummary.latest}
+    {#if speedSummary.latest && hasSpeedSamples}
       <p>{at("console_node_speed_latest")} · {serviceDate(speedSummary.latest.sampled_at)}</p>
       <div class="speed-summary" data-speed-summary>
         <div class="rx">
@@ -137,12 +135,12 @@
         title={at("console_visual_speed")}
         labels={speedLabels}
         series={speedSeries}
-        format={(value) => `${value.toLocaleString(undefined, { maximumFractionDigits: 1 })} Mbps`}
+        format={(value) => speedValue((value * 1_000_000) / 8)}
         missingLabel={at("console_visual_speed_missing")}
         tableLabel={at("console_visual_table")}
         timeLabel={at("console_visual_day")}
       />
-    {:else}<AdminChartEmptyState label={at("console_visual_speed_missing")} plotHeight={180} />{/if}
+    {:else}<p role="status">{at("console_visual_speed_missing")}</p>{/if}
   </article>
 
   <section
@@ -166,102 +164,107 @@
           >{at(`console_nodes_availability_${traffic.availability}`)}</AdminBadge
         >{/if}
     {/if}
-    <AdminMetricChart
-      title={at("console_node_daily_traffic")}
-      labels={(node.daily_traffic ?? []).map((day) => day.date.slice(5))}
-      series={[{ label: node.name, values: (node.daily_traffic ?? []).map((day) => day.bytes) }]}
-      variant="bar"
-      height={280}
-      format={serviceBytes}
-      missingLabel={at("console_visual_history_missing")}
-      tableLabel={at("console_visual_table")}
-      timeLabel={at("console_visual_day")}
-    />
+    {#if node.daily_traffic?.some((day) => day.bytes !== null)}<AdminMetricChart
+        title={at("console_node_daily_traffic")}
+        labels={(node.daily_traffic ?? []).map((day) => day.date.slice(5))}
+        series={[{ label: node.name, values: (node.daily_traffic ?? []).map((day) => day.bytes) }]}
+        variant="bar"
+        height={280}
+        format={serviceBytes}
+        missingLabel={at("console_visual_history_missing")}
+        tableLabel={at("console_visual_table")}
+        timeLabel={at("console_visual_day")}
+      />{:else}<p role="status">{at("console_visual_history_missing")}</p>{/if}
     <p>{at("console_node_daily_scope")}</p>
   </section>
 
-  <div class="metrics-observation" role="status">
-    <p>
-      {at("console_node_metrics_source")}: <AdminBadge
-        wrap
-        variant={nodeSource?.availability === "available" ? "muted" : "warning"}
-        >{nodeSource
-          ? at(`console_nodes_availability_${nodeSource.availability}`)
-          : at("console_unknown")}</AdminBadge
-      >
-    </p>
-    {#if nodeSource?.error}<p>{at(`console_node_metrics_error_${nodeSource.error}`)}</p>{/if}
-    <p data-metrics-read-time>
-      {at("console_nodes_last_success")}: {node.observed_at
-        ? serviceDate(node.observed_at)
-        : at("console_unknown")}
-    </p>
-    <p data-metrics-sample-time>
-      {at("console_node_metrics_sample_time")}: {at("console_node_metrics_sample_unknown")}
-    </p>
-    {#if nodeSource}<p>
-        {at("console_nodes_attempted")}: {serviceDate(nodeSource.attempted_at)}
-      </p>{/if}
-    <p>{at("console_node_metrics_freshness")}</p>
-    {#if node.users_online_quality === "unverified_zero"}<p>
-        {at("console_node_metrics_online_unverified")}
-      </p>{/if}
-  </div>
+  <details class="metrics-details">
+    <summary>{at("console_node_metrics_details")}</summary>
+    <div class="metrics-observation" role="status">
+      <p>
+        {at("console_node_metrics_source")}: <AdminBadge
+          wrap
+          variant={nodeSource?.availability === "available" ? "muted" : "warning"}
+          >{nodeSource
+            ? at(`console_nodes_availability_${nodeSource.availability}`)
+            : at("console_unknown")}</AdminBadge
+        >
+      </p>
+      {#if nodeSource?.error}<p>{at(`console_node_metrics_error_${nodeSource.error}`)}</p>{/if}
+      <p data-metrics-read-time>
+        {at("console_nodes_last_success")}: {node.observed_at
+          ? serviceDate(node.observed_at)
+          : at("console_unknown")}
+      </p>
+      <p data-metrics-sample-time>
+        {at("console_node_metrics_sample_time")}: {at("console_node_metrics_sample_unknown")}
+      </p>
+      {#if nodeSource}<p>
+          {at("console_nodes_attempted")}: {serviceDate(nodeSource.attempted_at)}
+        </p>{/if}
+      <p>{at("console_node_metrics_freshness")}</p>
+      {#if node.users_online_quality === "unverified_zero"}<p>
+          {at("console_node_metrics_online_unverified")}
+        </p>{/if}
+    </div>
 
-  <p>{at("console_node_visuals_rate_scope")}</p>
-  <AdminTable layout="fixed" minWidth="0">
-    <thead
-      ><tr>
-        <th>{at("console_node_metrics_metric")}</th>
-        <th>{at("console_node_metrics_value")}</th>
-        <th>{at("console_node_metrics_quality")}</th>
-      </tr></thead
-    >
-    <tbody>
-      {#each nodeMetricRows as row (row.field)}
-        {@const quality = nodeMetricQuality(node.system, row.field)}
-        <tr data-node-metric={row.field} data-metric-quality={quality}>
-          <td data-label={at("console_node_metrics_metric")}
-            >{at(`console_node_metrics_${row.field}`)}</td
-          >
-          <td data-label={at("console_node_metrics_value")}
-            >{nodeMetricText(node.system, row, at)}</td
-          >
-          <td data-label={at("console_node_metrics_quality")}
-            ><AdminBadge wrap variant={quality === "invalid" ? "warning" : "muted"}
-              >{at(`console_node_metrics_${quality}`)}</AdminBadge
-            ></td
-          >
-        </tr>
-      {/each}
-    </tbody>
-  </AdminTable>
-  <p>{at("console_node_metrics_load_scope")}</p>
-  <p>{at("console_node_metrics_memory_scope")}</p>
-  <p>{at("console_node_metrics_network_scope")}</p>
-
-  <section aria-label={at("console_node_metrics_connectivity")}>
-    <h4>{at("console_node_metrics_connectivity")}</h4>
-    <p>
-      {at("console_node_metrics_control_status")}: <AdminBadge wrap
-        >{at(`console_nodes_status_${nodeControlStatus(node, nodeSource)}`)}</AdminBadge
+    <p>{at("console_node_visuals_rate_scope")}</p>
+    <AdminTable layout="fixed" minWidth="0">
+      <thead
+        ><tr>
+          <th>{at("console_node_metrics_metric")}</th>
+          <th>{at("console_node_metrics_value")}</th>
+          <th>{at("console_node_metrics_quality")}</th>
+        </tr></thead
       >
-    </p>
-    {#if node.is_disabled}<p>{at("console_nodes_disabled")}</p>{/if}
-    {#if node.is_connecting}<p>{at("console_nodes_connecting")}</p>{/if}
-    <p>{at("console_node_metrics_control_scope")}</p>
-    <dl>
-      <div>
-        <dt>{at("console_node_metrics_latency")}</dt>
-        <dd>{at("console_node_metrics_not_collected")}</dd>
-      </div>
-      <div>
-        <dt>{at("console_node_metrics_packet_loss")}</dt>
-        <dd>{at("console_node_metrics_not_collected")}</dd>
-      </div>
-    </dl>
-    <p>{at("console_node_metrics_probe_missing")}</p>
-  </section>
+      <tbody>
+        {#each nodeMetricRows as row (row.field)}
+          {@const quality = nodeMetricQuality(node.system, row.field)}
+          <tr data-node-metric={row.field} data-metric-quality={quality}>
+            <td data-label={at("console_node_metrics_metric")}
+              >{at(`console_node_metrics_${row.field}`)}</td
+            >
+            <td data-label={at("console_node_metrics_value")}
+              >{nodeMetricText(node.system, row, at)}</td
+            >
+            <td data-label={at("console_node_metrics_quality")}
+              ><AdminBadge wrap variant={quality === "invalid" ? "warning" : "muted"}
+                >{at(`console_node_metrics_${quality}`)}</AdminBadge
+              ></td
+            >
+          </tr>
+        {/each}
+      </tbody>
+    </AdminTable>
+    <p>{at("console_node_metrics_load_scope")}</p>
+    <p>{at("console_node_metrics_memory_scope")}</p>
+    <p>{at("console_node_metrics_network_scope")}</p>
+
+    <section aria-label={at("console_node_metrics_connectivity")}>
+      <h4>{at("console_node_metrics_connectivity")}</h4>
+      <p>
+        {at("console_node_metrics_control_status")}: <AdminBadge wrap
+          >{at(
+            `console_nodes_status_${stale ? "unknown" : nodeControlStatus(node, nodeSource)}`
+          )}</AdminBadge
+        >
+      </p>
+      {#if node.is_disabled}<p>{at("console_nodes_disabled")}</p>{/if}
+      {#if node.is_connecting}<p>{at("console_nodes_connecting")}</p>{/if}
+      <p>{at("console_node_metrics_control_scope")}</p>
+      <dl>
+        <div>
+          <dt>{at("console_node_metrics_latency")}</dt>
+          <dd>{at("console_node_metrics_not_collected")}</dd>
+        </div>
+        <div>
+          <dt>{at("console_node_metrics_packet_loss")}</dt>
+          <dd>{at("console_node_metrics_not_collected")}</dd>
+        </div>
+      </dl>
+      <p>{at("console_node_metrics_probe_missing")}</p>
+    </section>
+  </details>
 </section>
 
 <style>
@@ -269,7 +272,7 @@
     display: grid;
     grid-template-columns: minmax(0, 1.5fr) minmax(0, 1fr);
     gap: 16px;
-    align-items: stretch;
+    align-items: start;
   }
   .server-summary,
   .related-summary {
@@ -290,6 +293,15 @@
   }
   .metric-visual-card strong {
     font-size: 24px;
+  }
+  .metrics-details > summary {
+    cursor: pointer;
+    padding-block: 12px;
+    font-weight: 600;
+  }
+  .metrics-details[open] {
+    display: grid;
+    gap: 12px;
   }
   @media (max-width: 1000px) {
     .system-summary {

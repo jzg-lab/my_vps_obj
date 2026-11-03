@@ -87,3 +87,33 @@ export function bytesPerSecondToMbps(value: number | null): number | null {
     ? (value * 8) / 1_000_000
     : null;
 }
+
+export function nodeSpeedText(value: number | null | undefined, at: ConsoleNodesTranslate): string {
+  const mbps = bytesPerSecondToMbps(value ?? null);
+  if (mbps === null) return at("console_unknown");
+  if (mbps > 0 && mbps < 0.1) {
+    const bytes = value! < 0.005 ? `${value} B` : serviceBytes(value!);
+    return at("console_node_metrics_rate_value", { value: bytes });
+  }
+  return `${mbps.toLocaleString(undefined, { maximumFractionDigits: 1 })} Mbps`;
+}
+
+export function nodeUptimeText(
+  metrics: NodeSystemMetrics | undefined,
+  at: ConsoleNodesTranslate
+): string {
+  if (nodeMetricQuality(metrics, "uptime_seconds") !== "reported")
+    return nodeMetricText(metrics, nodeMetricRows[8], at);
+  const seconds = Math.floor(metrics!.uptime_seconds!);
+  if (seconds >= 86400)
+    return at("console_node_uptime_days", {
+      days: Math.floor(seconds / 86400),
+      hours: Math.floor((seconds % 86400) / 3600),
+    });
+  if (seconds >= 3600)
+    return at("console_node_uptime_hours", {
+      hours: Math.floor(seconds / 3600),
+      minutes: Math.floor((seconds % 3600) / 60),
+    });
+  return at("console_node_metrics_seconds_value", { value: seconds });
+}

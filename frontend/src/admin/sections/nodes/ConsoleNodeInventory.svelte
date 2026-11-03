@@ -16,6 +16,7 @@
     compact = false,
     at,
     onOpenNode,
+    table = $bindable(false),
   }: {
     nodes: ConsoleNode[];
     source?: ConsoleNodeSource;
@@ -24,8 +25,8 @@
     compact?: boolean;
     at: ConsoleNodesTranslate;
     onOpenNode?: (id: string) => void;
+    table?: boolean;
   } = $props();
-  let table = $state(false);
 </script>
 
 <div class="inventory-view" role="group" aria-label={at("console_nodes_view")}>
@@ -46,5 +47,8 @@
     display: flex;
     flex-wrap: wrap;
     gap: 8px;
+  }
+  .inventory-view ~ div {
+    min-width: 0;
   }
 </style>

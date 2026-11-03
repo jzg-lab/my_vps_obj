@@ -6,14 +6,14 @@ import {
   consoleNodeTrafficFixture,
 } from "../src/lib/admin/consoleNodesFixtures";
 
-async function install(page: Page, language: string) {
+async function install(page: Page, language: string, scenario = "normal") {
   await page.addInitScript(
-    ({ node, detail, traffic, language }) => {
+    ({ node, detail, traffic, language, scenario }) => {
       localStorage.setItem("rw_minishop_demo_language", language);
       type Reply = Record<string, unknown>;
       type Props = { api: (path: string, options?: RequestInit) => Promise<Reply> };
       type Bundle = { mount: (target: HTMLElement, props: Props) => unknown };
-      const harness = { fail: false, paths: [] as string[] };
+      const harness = { fail: false, paths: [] as string[], summaryReturned: false };
       Object.defineProperty(window, "overviewHarness", { value: harness });
       let bundle: Bundle | undefined;
       Object.defineProperty(window, "SubscriptionWebAppAdmin", {
@@ -27,6 +27,18 @@ async function install(page: Page, language: string) {
               api: async (path, options) => {
                 const url = new URL(path, "https://fixture.test");
                 harness.paths.push(path);
+                if (harness.fail && url.pathname === "/admin/support/stats")
+                  return { ok: false, error: "temporarily_unavailable" };
+                if (scenario === "denied" && url.pathname === "/admin/support/stats")
+                  return { ok: false, error: "forbidden" };
+                if (scenario !== "normal" && url.pathname === "/admin/console/summary") {
+                  await new Promise<void>((resolve) =>
+                    window.addEventListener("fixture-release-summary", () => resolve(), {
+                      once: true,
+                    })
+                  );
+                }
+
                 if (url.pathname === "/admin/console/nodes") {
                   if (harness.fail) throw new Error("fixture_unavailable");
                   const preset = url.searchParams.get("traffic_window") || "today";
@@ -113,7 +125,9 @@ async function install(page: Page, language: string) {
                     ],
                     total: 1,
                   };
-                return props.api(path, options);
+                const result = await props.api(path, options);
+                if (url.pathname === "/admin/console/summary") harness.summaryReturned = true;
+                return result;
               },
             });
           bundle = value;
@@ -125,6 +139,7 @@ async function install(page: Page, language: string) {
       detail: consoleNodeDetailFixture,
       traffic: consoleNodeTrafficFixture,
       language,
+      scenario,
     }
   );
 }
@@ -186,6 +201,7 @@ for (const width of [1440, 390])
         .getByRole("button", { name: at("refresh"), exact: true })
         .click();
       await expect(chart).toContainText(at("console_stale"));
+      await expect(page.locator("[data-feedback-waiting]")).toHaveText(at("console_unknown"));
       await expect(chart.locator("[data-overview-window]")).toContainText("2026-10-18");
       expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(
         true
@@ -206,3 +222,34 @@ for (const width of [1440, 390])
       expect(errors).toEqual([]);
     });
   }
+
+test("overview renders ready panels while one summary request is still pending", async ({
+  page,
+}) => {
+  await install(page, "zh-hans", "slow-summary");
+  await page.goto("/demo/runtime/admin/console-overview?mock=services&theme_preview=dark");
+  const overview = page.locator(".console-overview");
+  await expect(overview).toHaveAttribute("aria-busy", "true");
+  await expect(page.locator("[data-node-card-id]").first()).toBeVisible();
+  await expect(page.locator('[data-ticket-id="123"]')).toBeVisible();
+  await expect(page.locator("[data-overview-todos]")).toContainText("Review this service");
+  await page.evaluate(() => window.dispatchEvent(new Event("fixture-release-summary")));
+  await expect(overview).toHaveAttribute("aria-busy", "false");
+});
+
+test("a denied overview read clears earlier panels and ignores late responses", async ({
+  page,
+}) => {
+  await install(page, "zh-hans", "denied");
+  await page.goto("/demo/runtime/admin/console-overview?mock=services&theme_preview=dark");
+  await expect(page.locator(".console-overview")).toHaveAttribute("aria-busy", "false");
+  await expect(page.locator("[data-node-card-id]")).toHaveCount(0);
+  await page.evaluate(() => window.dispatchEvent(new Event("fixture-release-summary")));
+  await page.waitForFunction(
+    () =>
+      (window as typeof window & { overviewHarness: { summaryReturned: boolean } }).overviewHarness
+        .summaryReturned
+  );
+  await expect(page.locator("[data-node-card-id]")).toHaveCount(0);
+  await expect(page.locator("[data-summary-observed-at]")).toHaveCount(0);
+});

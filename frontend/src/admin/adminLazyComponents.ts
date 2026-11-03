@@ -35,7 +35,14 @@ export function createAdminSectionComponentLoader() {
     void load(section).catch(() => {});
   }
 
-  return { load, warm };
+  function get(section: AdminSectionDescriptor): DynamicComponent | null {
+    return (
+      loadedSectionComponents.get(section.id) ??
+      (section.component ? dynamicComponent(section.component) : null)
+    );
+  }
+
+  return { load, warm, get };
 }
 
 export function loadDynamicComponent(

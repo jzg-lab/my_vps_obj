@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { onDestroy } from "svelte";
+  import { onDestroy, untrack } from "svelte";
   import { AdminButton } from "$components/patterns/admin/index.js";
   import { builtApiPath, unwrap, type ApiClient } from "$lib/webapp/publicApi";
   import type {
@@ -28,11 +28,16 @@
   let failed = $state(false);
   let request = 0;
   let controller: AbortController | null = null;
+  const currentServiceId = $derived(serviceId);
+  let scope = "";
   async function load(id: string) {
     const token = ++request;
     controller?.abort();
     controller = new AbortController();
-    resources = null;
+    if (scope !== id) {
+      scope = id;
+      resources = null;
+    }
     loading = true;
     failed = false;
     try {
@@ -52,7 +57,8 @@
     }
   }
   $effect(() => {
-    void load(serviceId);
+    const id = currentServiceId;
+    untrack(() => void load(id));
   });
   onDestroy(() => {
     request++;
@@ -62,7 +68,8 @@
 
 <section aria-label={at("console_nodes_resources")} aria-busy={loading}>
   {#if loading}<p role="status">{at("loading")}</p>
-  {:else if failed}<p role="alert">{at("console_nodes_resources_failed")}</p>
+  {/if}
+  {#if failed}<p role="alert">{at("console_nodes_resources_failed")}</p>
     <AdminButton onclick={() => load(serviceId)}>{at("refresh")}</AdminButton>
   {:else if resources}<ConsoleServiceResourcesView
       {resources}

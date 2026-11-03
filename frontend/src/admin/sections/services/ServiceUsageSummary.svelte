@@ -1,5 +1,9 @@
 <script lang="ts">
-  import { AdminBadge, AdminTrafficCard } from "$components/patterns/admin/index.js";
+  import {
+    AdminBadge,
+    AdminTrafficCard,
+    AdminEntityLink,
+  } from "$components/patterns/admin/index.js";
   import { serviceBytes, type UserService, type ServiceTranslate } from "$lib/admin/servicePlans";
   import { serviceUsage, serviceDate, serviceResetState } from "$lib/webapp/independentServices";
   let { service, at }: { service: UserService; at: ServiceTranslate } = $props();
@@ -9,6 +13,7 @@
 
 <div class="quota">
   <h4>{service.name}</h4>
+  <AdminEntityLink kind="code" label={`…${service.id.slice(-8)}`} title={service.id} />
   <AdminBadge variant={service.status === "active" ? "success" : "muted"}
     >{at(`services_status_${service.status}`)}</AdminBadge
   >

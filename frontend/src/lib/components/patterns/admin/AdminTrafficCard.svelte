@@ -22,6 +22,7 @@
   }: Props = $props();
 
   const clamped = $derived(Math.max(0, Math.min(100, Number(percent) || 0)));
+  const percentLabel = $derived(clamped.toLocaleString(undefined, { maximumFractionDigits: 2 }));
 </script>
 
 <div
@@ -47,6 +48,6 @@
   </div>
   <div class="admin-traffic-meta">
     <span>{left}</span>
-    <span>{clamped}%</span>
+    <span>{percentLabel}%</span>
   </div>
 </div>

@@ -186,6 +186,7 @@ for (const width of [320, 390, 1440]) {
       }
       await row.getByRole("button", { name: /HK inventory node/ }).click();
       const detail = page.getByRole("region", { name: at("console_nodes_detail") });
+      await detail.locator(".metrics-details > summary").click();
       await expect(detail).toContainText(at("console_node_metrics_control_scope"));
       await expect(detail).toContainText(at("console_node_metrics_probe_missing"));
       await expect(detail).toContainText(at("console_node_metrics_sample_unknown"));

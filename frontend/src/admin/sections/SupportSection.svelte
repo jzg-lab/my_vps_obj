@@ -14,11 +14,11 @@
     AdminListToolbar,
     AdminField,
     AdminSelect,
-    SupportComposer,
     SupportInboxRow,
     SupportTicketHeader,
     SupportUserContextPanel,
   } from "$components/patterns/admin/index.js";
+  import SupportComposer from "$components/patterns/admin/SupportComposer.svelte";
   import { TicketMessageBubble, TypingIndicator } from "$components/patterns/webapp/index.js";
   import Dialog from "$components/ui/dialog.svelte";
   import AdminExtensionPoint from "./AdminExtensionPoint.svelte";

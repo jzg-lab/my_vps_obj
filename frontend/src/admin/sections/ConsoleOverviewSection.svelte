@@ -42,6 +42,8 @@
   let localFailed = $state(false);
   let nodesFailed = $state(false);
   let loading = $state(true);
+  let feedbackLoading = $state(true);
+  let ticketsLoading = $state(true);
   let controller: AbortController | null = null;
   let request = 0;
   let supportStats = $state<components["schemas"]["AdminSupportStatsOut"] | null>(null);
@@ -131,66 +133,112 @@
     controller = new AbortController();
     loading = true;
     const signal = controller.signal;
-    const [local, remote, feedback, ticketList, operations] = await Promise.allSettled([
-      api("/admin/console/summary", { signal }).then(unwrap),
-      api(
-        builtApiPath<"/api/admin/console/nodes">(
-          `/admin/console/nodes?page_size=5&page=0&traffic_window=${window}`
-        ),
-        {
-          signal,
+    feedbackLoading = true;
+    ticketsLoading = true;
+    async function read<T>(promise: Promise<T>, apply: (value: T) => void, fail: () => void) {
+      try {
+        const value = await promise;
+        if (token === request) apply(value);
+      } catch (error) {
+        if (token !== request) return;
+        if (consoleAccessDenied(error)) {
+          request++;
+          controller?.abort();
+          todos = null;
+          summary = null;
+          nodes = null;
+          supportStats = null;
+          tickets = null;
+          feedbackReadAt = null;
+          localFailed = nodesFailed = feedbackFailed = ticketsFailed = true;
+          loading = feedbackLoading = ticketsLoading = false;
+          return;
         }
-      ).then(unwrap),
-      api("/admin/support/stats", { signal }).then(unwrap),
-      api(
-        buildAdminSupportTicketsPath(
-          new URLSearchParams({
-            limit: "3",
-            offset: "0",
-            status: "awaiting_admin",
-            sort: "importance_desc",
-          })
-        ),
-        { signal }
-      ).then(unwrap),
-      api(
-        builtApiPath<"/api/admin/console/operations">(
-          "/admin/console/operations?needs_attention=true&limit=4"
-        ),
-        { signal }
-      ).then(unwrap),
+        fail();
+      }
+    }
+    await Promise.all([
+      read(
+        api("/admin/console/summary", { signal }).then(unwrap),
+        (value) => {
+          summary = value;
+          localFailed = false;
+        },
+        () => {
+          localFailed = true;
+        }
+      ),
+      read(
+        api(
+          builtApiPath<"/api/admin/console/nodes">(
+            `/admin/console/nodes?page_size=5&page=0&traffic_window=${window}`
+          ),
+          { signal }
+        ).then(unwrap),
+        (value) => {
+          nodes = value;
+          trafficWindow = window;
+          nodesFailed = false;
+        },
+        () => {
+          nodesFailed = true;
+        }
+      ),
+      read(
+        api("/admin/support/stats", { signal }).then(unwrap),
+        (value) => {
+          supportStats = value.stats;
+          feedbackReadAt = new Date().toISOString();
+          feedbackFailed = false;
+        },
+        () => {
+          feedbackFailed = true;
+          supportStats = null;
+          feedbackReadAt = null;
+        }
+      ).finally(() => {
+        if (token === request) feedbackLoading = false;
+      }),
+      read(
+        api(
+          buildAdminSupportTicketsPath(
+            new URLSearchParams({
+              limit: "3",
+              offset: "0",
+              status: "awaiting_admin",
+              sort: "importance_desc",
+            })
+          ),
+          { signal }
+        ).then(unwrap),
+        (value) => {
+          tickets = value.tickets;
+          ticketsFailed = false;
+        },
+        () => {
+          ticketsFailed = true;
+        }
+      ).finally(() => {
+        if (token === request) ticketsLoading = false;
+      }),
+      read(
+        api(
+          builtApiPath<"/api/admin/console/operations">(
+            "/admin/console/operations?needs_attention=true&limit=4"
+          ),
+          { signal }
+        ).then(unwrap),
+        (value) => {
+          todos = value;
+        },
+        () => {
+          todos = null;
+        }
+      ),
     ]);
-    if (token !== request) return;
-    const accessDenied = [local, remote].some(
-      (result) => result.status === "rejected" && consoleAccessDenied(result.reason)
-    );
-    if (accessDenied) {
-      todos = null;
-      summary = null;
-      nodes = null;
-      supportStats = null;
-      tickets = null;
-      feedbackReadAt = null;
-      localFailed = true;
-      nodesFailed = true;
-      loading = false;
-      return;
-    }
-    localFailed = local.status === "rejected";
-    nodesFailed = remote.status === "rejected";
-    if (local.status === "fulfilled") summary = local.value;
-    if (remote.status === "fulfilled") {
-      nodes = remote.value;
-      trafficWindow = window;
-    }
-    feedbackFailed = feedback.status === "rejected";
-    supportStats = feedback.status === "fulfilled" ? feedback.value.stats : null;
-    feedbackReadAt = feedback.status === "fulfilled" ? new Date().toISOString() : null;
-    ticketsFailed = ticketList.status === "rejected";
-    tickets = ticketList.status === "fulfilled" ? ticketList.value.tickets : null;
-    todos = operations.status === "fulfilled" ? operations.value : null;
-    loading = false;
+    if (token === request) loading = false;
   }
+
   $effect(() => {
     untrack(() => {
       void load("7d");
@@ -316,7 +364,7 @@
         failed={feedbackFailed}
         listFailed={ticketsFailed}
         readAt={feedbackReadAt}
-        {loading}
+        loading={feedbackLoading || ticketsLoading}
         {at}
         {routePrefix}
         onOpen={() => openSection("support")}
@@ -328,7 +376,7 @@
     {tickets}
     stale={nodesFailed}
     listFailed={ticketsFailed}
-    {loading}
+    loading={ticketsLoading}
     {at}
     onNode={openNode}
   />

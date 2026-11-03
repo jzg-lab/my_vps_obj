@@ -51,6 +51,7 @@ async function installNodesApi(page: Page, mode = "normal", language = "ru") {
             ]
           : [service.service];
       let bundle: Bundle | undefined;
+      let nodeReads = 0;
       let failOnce = mode === "failure";
       let failSecondHistory = false;
       window.addEventListener("fixture-history-failure", () => {
@@ -66,6 +67,11 @@ async function installNodesApi(page: Page, mode = "normal", language = "ru") {
               ...props,
               api: async (path, options) => {
                 const request = new URL(path, "https://fixture.test");
+                const reads = JSON.parse(
+                  sessionStorage.getItem("fixture-reads") || "[]"
+                ) as string[];
+                reads.push(path);
+                sessionStorage.setItem("fixture-reads", JSON.stringify(reads));
                 if (request.pathname.endsWith("/metadata")) {
                   const nodeId = request.pathname.split("/").at(-2) || "";
                   if (options?.method === "PUT") {
@@ -116,6 +122,9 @@ async function installNodesApi(page: Page, mode = "normal", language = "ru") {
                     ? {
                         ok: true,
                         ...detail,
+                        ...(mode === "slow-refresh"
+                          ? { service_total: 26, customer_total: 26 }
+                          : {}),
                         node: withLocalMetadata(selectedNode),
                         ...(mode === "visual" ? { traffic } : {}),
                       }
@@ -143,6 +152,9 @@ async function installNodesApi(page: Page, mode = "normal", language = "ru") {
                     expiring_within_days: 7,
                   };
                 if (request.pathname === "/admin/console/nodes") {
+                  nodeReads++;
+                  if (mode === "slow-refresh" && nodeReads > 1)
+                    await new Promise((resolve) => setTimeout(resolve, 800));
                   if (failOnce) {
                     failOnce = false;
                     throw new Error("node_inventory_unavailable");
@@ -332,6 +344,7 @@ for (const [width, language] of [
     await expect(
       detail.getByText(label("console_nodes_association_scope"), { exact: true })
     ).toBeVisible();
+    await detail.locator(".node-related-panel > details > summary").click();
     await expect(detail.getByRole("link", { name: /Shared service/ })).toHaveAttribute(
       "href",
       /service_id=aaaaaaaa/
@@ -359,6 +372,7 @@ for (const [width, language] of [
     expect(
       await page.evaluate(() => document.body.scrollWidth - window.innerWidth)
     ).toBeLessThanOrEqual(2);
+    await detail.locator(".node-related-panel > details > summary").click();
     await detail.getByRole("link", { name: /Shared service/ }).click();
     const service = page.getByRole("dialog", { name: label("console_service_detail") });
     await expect(
@@ -384,10 +398,12 @@ for (const [width, language] of [
     await expect(service).toBeVisible();
     await page.goBack();
     await expect(page).toHaveURL(detailUrl);
+    await detail.locator(".node-related-panel > details > summary").click();
     await customerLink.click();
     const userServices = page.locator(".user-services");
     await expect(userServices).toBeVisible();
     const relations = userServices.locator("[data-customer-relations]");
+    await relations.locator(":scope > summary").click();
     await expect(relations.locator(".customer-identity")).toContainText(String(customer.user_id));
     await expect(relations.locator(".relation-service")).toHaveAttribute(
       "href",
@@ -402,10 +418,10 @@ for (const [width, language] of [
     await expect(page).toHaveURL(
       (value) => value.pathname === `/demo/runtime/admin/users/${customer.minishop_id}`
     );
-    await userServices.locator(":scope > details > summary").click();
+    await userServices.locator(":scope > details:not([data-customer-relations]) > summary").click();
     await expect(
       userServices
-        .locator(":scope > details")
+        .locator(":scope > details:not([data-customer-relations])")
         .getByText(consoleNodeServiceFixture.service.id, { exact: true })
     ).toBeVisible();
     const loadedCustomerUrl = page.url();
@@ -427,7 +443,7 @@ for (const [width, language] of [
     expect(
       await page.evaluate(() => document.body.scrollWidth - window.innerWidth)
     ).toBeLessThanOrEqual(2);
-    await userServices.locator(":scope > details > summary").click();
+    await userServices.locator(":scope > details:not([data-customer-relations]) > summary").click();
     await userServices
       .getByRole("button", { name: label("console_service_detail"), exact: true })
       .click();
@@ -550,6 +566,7 @@ for (const width of [1440, 390]) {
       .click();
     const detailUrl = page.url();
     const detail = page.getByRole("region", { name: label("console_nodes_detail") });
+    await detail.locator(".node-related-panel > details > summary").click();
     await detail.getByRole("link", { name: String(customer.user_id), exact: true }).click();
     await expect(page.locator(".admin-user-hero")).toContainText(customer.minishop_id!);
     await page.reload();
@@ -699,6 +716,7 @@ for (const width of [1440, 390]) {
       `/demo/runtime/admin/users/${customer.user_id}?mock=services&theme_preview=dark`
     );
     const relations = page.locator("[data-customer-relations]");
+    await relations.locator(":scope > summary").click();
     await expect(relations.locator(".relation-service")).toHaveCount(2);
     await expect(relations.locator(".relation-nodes a")).toHaveCount(2);
     await expect(relations).toContainText("Tokyo independent service");
@@ -740,6 +758,7 @@ for (const width of [1440, 390]) {
     await speed.screenshot({ path: testInfo.outputPath(`node-speed-${width}.png`) });
     await page.screenshot({ path: testInfo.outputPath(`node-page-${width}.png`) });
     await daily.screenshot({ path: testInfo.outputPath(`node-daily-${width}.png`) });
+    await metrics.locator(".metrics-details > summary").click();
     const order = await metrics.evaluate((element) => {
       const speed = element.querySelector(".metric-history-card")!.getBoundingClientRect();
       const daily = element.querySelector("[data-node-daily-traffic]")!.getBoundingClientRect();
@@ -765,3 +784,94 @@ for (const width of [1440, 390]) {
     expect(errors).toEqual([]);
   });
 }
+
+for (const width of [1280, 390]) {
+  test(`console refresh preserves table and link navigation avoids document loads at ${width}px`, async ({
+    page,
+  }, testInfo) => {
+    await page.setViewportSize({ width, height: 1000 });
+    await installNodesApi(page, "slow-refresh", "zh-hans");
+    await page.goto(url);
+    const section = page.locator(".console-nodes");
+    await section.getByRole("button", { name: "表格视图", exact: true }).click();
+    const row = section.locator(`[data-node-id="${consoleNodeFixture.id}"]`);
+    await expect(row).toBeVisible();
+    expect(
+      await section.evaluate((element) => element.getBoundingClientRect().right <= innerWidth)
+    ).toBe(true);
+    await section.getByRole("button", { name: "刷新", exact: true }).click();
+    await expect(section).toHaveAttribute("aria-busy", "true");
+    await expect(row).toBeVisible();
+    await expect(section).toHaveAttribute("aria-busy", "false");
+    await page.screenshot({ path: testInfo.outputPath(`table-${width}.png`), fullPage: true });
+    await row.getByRole("button", { name: /HK inventory node/ }).click();
+    const detail = page.locator(".node-detail");
+    await detail.getByRole("button", { name: "返回节点列表", exact: true }).click();
+    await expect(row).toBeVisible();
+    await expect(section.getByRole("button", { name: "表格视图", exact: true })).toHaveAttribute(
+      "aria-pressed",
+      "true"
+    );
+    await row.getByRole("button", { name: /HK inventory node/ }).click();
+    await detail.locator(".node-related-panel > details > summary").click();
+    expect(
+      await detail
+        .locator(".metric-history-card")
+        .evaluate((element) => element.getBoundingClientRect().height)
+    ).toBeLessThan(150);
+    const pagination = detail.locator(".node-related-panel .admin-pagination");
+    const fits = await pagination.evaluate((element) => {
+      const box = element.getBoundingClientRect();
+      const children = [...element.children].map((child) => child.getBoundingClientRect());
+      return (
+        children.every((child) => child.left >= box.left - 1 && child.right <= box.right + 1) &&
+        children.every((child, index) =>
+          children
+            .slice(index + 1)
+            .every(
+              (other) =>
+                child.bottom <= other.top ||
+                other.bottom <= child.top ||
+                child.right <= other.left ||
+                other.right <= child.left
+            )
+        )
+      );
+    });
+    expect(fits).toBe(true);
+    await detail.screenshot({ path: testInfo.outputPath(`related-pagination-${width}.png`) });
+    let documents = 0;
+    page.on("request", (request) => {
+      if (request.isNavigationRequest() && request.resourceType() === "document") documents++;
+    });
+    await detail.getByRole("link", { name: /Shared service/ }).click();
+    const service = page.getByRole("dialog");
+    await expect(service).toBeVisible();
+    const serviceReads = await page.evaluate(
+      () => JSON.parse(sessionStorage.getItem("fixture-reads") || "[]") as string[]
+    );
+    expect(serviceReads.filter((path) => path.startsWith("/admin/console/services?"))).toHaveLength(
+      1
+    );
+    await service.getByRole("link", { name: /HK inventory node/ }).click();
+    await expect(detail).toBeVisible();
+    expect(documents).toBe(0);
+  });
+}
+
+test("customer initial load reads each service resource and history once", async ({ page }) => {
+  await installNodesApi(page, "visual", "zh-hans");
+  await page.goto(`/demo/runtime/admin/users/${customer.user_id}?mock=services&theme_preview=dark`);
+  await expect(page.locator(".customer-usage canvas")).toBeVisible();
+  await page.locator("[data-customer-relations] > summary").click();
+  await expect(page.locator(".relation-nodes a")).toHaveCount(2);
+  const reads = await page.evaluate(
+    () => JSON.parse(sessionStorage.getItem("fixture-reads") || "[]") as string[]
+  );
+  const relevant = reads.filter(
+    (path) =>
+      path.startsWith("/admin/services?") || /\/services\/[^/]+\/(resources|traffic)/.test(path)
+  );
+  expect(relevant).toHaveLength(5);
+  expect(new Set(relevant).size).toBe(5);
+});

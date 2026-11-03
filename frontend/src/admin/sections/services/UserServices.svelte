@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { onDestroy } from "svelte";
+  import { onDestroy, untrack } from "svelte";
   import {
     serviceDate as date,
     serviceResetState,
@@ -55,6 +55,8 @@
   let scope = "";
   let controller: AbortController | null = null;
   let request = 0;
+  const owner = $derived(userId);
+  const loadScope = $derived(JSON.stringify([owner, page, banned]));
   async function load(currentPage: number, owner: number | null) {
     const id = ++request;
     controller?.abort();
@@ -96,13 +98,13 @@
     }
   }
   $effect(() => {
-    void userId;
+    void owner;
     page = 0;
     total = undefined;
   });
   $effect(() => {
-    void banned;
-    void load(page, userId);
+    void loadScope;
+    untrack(() => void load(page, owner));
   });
   onDestroy(() => {
     request++;
@@ -129,8 +131,8 @@
             disabled={loading || failed}
             onrefresh={() => void load(page, userId)}
             oncreated={() => {
-              page = 0;
-              void load(0, userId);
+              if (page === 0) void load(0, userId);
+              else page = 0;
             }}
           />{/key}{/if}{/snippet}
   </AdminListToolbar>
@@ -146,12 +148,13 @@
       >{at(userId === null ? "services_no_history" : "services_no_services")}</AdminEmptyState
     >{:else if services.length}
     {#if userId !== null}
-      <section
+      <CustomerServiceUsage {services} {api} {at} />
+      <details
         class="customer-relations"
         aria-label={at("console_customer_relations")}
         data-customer-relations
       >
-        <h3>{at("console_customer_relations")}</h3>
+        <summary>{at("console_customer_relations")}</summary>
         <p>{at("console_nodes_resource_scope")}</p>
         <div class="customer-flow">
           <div class="customer-identity">
@@ -176,8 +179,7 @@
           </div>
         </div>
         <p>{at("console_customer_relations_scope")}</p>
-      </section>
-      <CustomerServiceUsage {services} {api} {at} />
+      </details>
     {/if}
     <details open={userId === null}>
       <summary>{at("console_visual_service_list")}</summary>
@@ -314,13 +316,19 @@
 
 <style>
   .customer-relations {
-    display: grid;
-    gap: 16px;
     min-width: 0;
-    padding: 20px;
+    padding: 8px 20px;
     border: 1px solid var(--admin-border);
     border-radius: 14px;
     background: var(--admin-surface);
+  }
+  .customer-relations[open] {
+    display: grid;
+    gap: 16px;
+    padding-bottom: 20px;
+  }
+  .customer-relations > summary {
+    font-weight: 600;
   }
   .customer-relations p {
     color: var(--admin-muted);

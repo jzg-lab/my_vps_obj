@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { navigateConsoleLink } from "$lib/admin/consoleNavigation";
   import { AdminEntityLink } from "$components/patterns/admin/index.js";
   import { nodesRouteUrl, readNodesRoute, nodeRelatedUrl } from "$lib/admin/consoleNodesNavigation";
   import type { UserService } from "$lib/admin/servicePlans";
@@ -77,7 +78,10 @@
       <span class="relation-connector" aria-hidden="true"></span>
       <div class="relation-nodes">
         {#each resources.nodes as node (node.id)}
-          <a href={nodesRouteUrl(currentUrl, { ...route, nodeId: node.id }, routePrefix).href}>
+          <a
+            href={nodesRouteUrl(currentUrl, { ...route, nodeId: node.id }, routePrefix).href}
+            onclick={navigateConsoleLink}
+          >
             <small>{at("console_nodes_node")}</small>
             <AdminEntityLink kind="code" label={node.name} idText={node.id} />
           </a>
@@ -99,7 +103,9 @@
       </p>{:else}<p>{at("console_nodes_no_known_groups")}</p>{/each}
     <h5>{at("console_nodes_node")}</h5>
     {#each resources.nodes as node (node.id)}
-      <a href={nodesRouteUrl(currentUrl, { ...route, nodeId: node.id }, routePrefix).href}
+      <a
+        href={nodesRouteUrl(currentUrl, { ...route, nodeId: node.id }, routePrefix).href}
+        onclick={navigateConsoleLink}
         ><AdminEntityLink kind="code" label={node.name} idText={node.id} /></a
       >
     {:else}<p>

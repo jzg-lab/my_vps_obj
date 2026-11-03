@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { navigateConsoleLink } from "$lib/admin/consoleNavigation";
   import { tick } from "svelte";
   import Dialog from "$components/ui/dialog.svelte";
   import {
@@ -155,7 +156,9 @@
               >
                 {#if resource.node_ids === undefined}{at(
                     "console_unknown"
-                  )}{:else}{#each resource.node_ids as id}<a href={nodeHref(id)}
+                  )}{:else}{#each resource.node_ids as id}<a
+                      href={nodeHref(id)}
+                      onclick={navigateConsoleLink}
                       >{catalog.nodes.find((item) => item.id === id)?.name ?? at("console_unknown")} ·
                       {id}</a
                     >{:else}{at("console_catalog_no_node_selection")}{/each}{/if}

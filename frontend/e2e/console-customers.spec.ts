@@ -384,7 +384,9 @@ for (const width of [1440, 390]) {
         .click();
       await expect(page).toHaveURL(/admin\/users\/ms_/);
       const customerUrl = page.url();
-      await page.locator(".user-services > details > summary").click();
+      await page
+        .locator(".user-services > details:not([data-customer-relations]) > summary")
+        .click();
       await page
         .locator(".user-services tbody tr")
         .first()

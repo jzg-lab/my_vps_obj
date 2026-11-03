@@ -79,6 +79,13 @@ export default defineConfig(({ command, mode }) => {
           manualChunks: isAdminBuild
             ? (id) => {
                 const normalizedId = id.split(path.sep).join("/");
+                if (
+                  /\/node_modules\/(@tiptap\/|prosemirror-|orderedmap\/|w3c-keyname\/|rope-sequence\/)/.test(
+                    normalizedId
+                  )
+                ) {
+                  return "admin-richtext";
+                }
                 if (normalizedId.includes("/node_modules/uplot/")) {
                   return "admin-chart";
                 }

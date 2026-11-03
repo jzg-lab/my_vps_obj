@@ -21,7 +21,8 @@ for (const width of [1440, 390]) {
           ? page.getByRole("dialog", { name: at("console_service_detail"), exact: true })
           : page.locator(".user-services");
       await expect(host).toContainText(fixture.service.name);
-      if (consumer === "customer") await host.locator(":scope > details > summary").click();
+      if (consumer === "customer")
+        await host.locator(":scope > details:not([data-customer-relations]) > summary").click();
       expect(fixture.calls.filter((call) => call.path.endsWith("/diagnostics"))).toHaveLength(0);
       await host.getByRole("button", { name: at("console_ops_title"), exact: true }).click();
       const dialog = page.getByRole("dialog", { name: at("console_ops_title"), exact: true });

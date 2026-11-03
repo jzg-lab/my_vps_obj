@@ -42,6 +42,7 @@
       ) ?? [])
     )
   );
+  const hasSamples = $derived(series.some((row) => row.values.some((value) => value !== null)));
 </script>
 
 <section
@@ -54,17 +55,17 @@
     {#if stale}<AdminBadge variant="warning">{at("console_stale")}</AdminBadge>{/if}
   </header>
   <p>{at("console_node_daily_scope")}</p>
-  <AdminMetricChart
-    title={at(comparison ? "console_node_daily_traffic" : "console_visual_daily")}
-    labels={dates.map((date) => date.slice(5))}
-    {series}
-    variant="bar"
-    height={comparison ? 280 : 240}
-    format={serviceBytes}
-    missingLabel={at("console_visual_history_missing")}
-    tableLabel={at("console_visual_table")}
-    timeLabel={at("console_visual_day")}
-  />
+  {#if hasSamples}<AdminMetricChart
+      title={at(comparison ? "console_node_daily_traffic" : "console_visual_daily")}
+      labels={dates.map((date) => date.slice(5))}
+      {series}
+      variant="bar"
+      height={comparison ? 280 : 240}
+      format={serviceBytes}
+      missingLabel={at("console_visual_history_missing")}
+      tableLabel={at("console_visual_table")}
+      timeLabel={at("console_visual_day")}
+    />{:else}<p role="status">{at("console_visual_history_missing")}</p>{/if}
   {#if comparison}<ul class="metric-bars" aria-label={at("console_ops_traffic_title")}>
       {#each nodes?.nodes ?? [] as node (node.id)}
         {@const value =

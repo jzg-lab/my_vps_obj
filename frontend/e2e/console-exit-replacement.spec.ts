@@ -272,7 +272,10 @@ for (const language of ["en", "zh-hans"] as const) {
         ? `/demo/runtime/admin/services${query}&q=Replacement&service_id=${fixture.detail.service.id}`
         : `/demo/runtime/admin/users/910002${query}`
     );
-    if (consumer === "customer") await page.locator(".user-services > details > summary").click();
+    if (consumer === "customer")
+      await page
+        .locator(".user-services > details:not([data-customer-relations]) > summary")
+        .click();
     const host =
       consumer === "detail"
         ? page.getByRole("dialog", { name: label("console_service_detail"), exact: true })

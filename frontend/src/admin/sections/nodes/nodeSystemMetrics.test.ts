@@ -9,6 +9,8 @@ import {
   nodeMetricText,
   bytesPerSecondToMbps,
   nodeSpeedSummary,
+  nodeSpeedText,
+  nodeUptimeText,
   type MetricsNode,
   type MetricsSource,
   type NodeMetricField,
@@ -83,6 +85,22 @@ function rowHtml(html: string, field: NodeMetricField) {
 }
 
 describe("node system metric values", () => {
+  it("keeps tiny rates visible and compacts uptime without inventing missing values", () => {
+    expect(nodeSpeedText(198, at)).toBe("console_node_metrics_rate_value[198 B]");
+    expect(nodeSpeedText(0.001, at)).toContain("0.001 B");
+    expect(nodeSpeedText(0, at)).toBe("0 Mbps");
+    expect(nodeSpeedText(null, at)).toBe("console_unknown");
+    expect(nodeSpeedText(-1, at)).toBe("console_unknown");
+    expect(nodeUptimeText({ ...metrics, uptime_seconds: 1103852.9 }, at)).toBe(
+      "console_node_uptime_days[12,18]"
+    );
+    expect(nodeUptimeText({ ...metrics, uptime_seconds: 3661 }, at)).toBe(
+      "console_node_uptime_hours[1,1]"
+    );
+    expect(nodeUptimeText(metrics, at)).toBe("console_node_metrics_seconds_value[0]");
+    expect(nodeUptimeText(undefined, at)).toBe("console_node_metrics_missing");
+  });
+
   it("converts byte rates to decimal Mbps and summarizes observed RX/TX peaks separately", () => {
     const samples = [
       {

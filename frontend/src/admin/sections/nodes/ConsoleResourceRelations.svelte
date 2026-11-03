@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { navigateConsoleLink } from "$lib/admin/consoleNavigation";
   import { AdminBadge, AdminEntityLink } from "$components/patterns/admin";
   import { Server, Share2, Radio } from "$components/ui/icons";
   import {
@@ -64,7 +65,7 @@
         </div>
         {#each branch.nodes as node (node.id)}
           <div class="target-row">
-            <a href={nodeHref(node.id)}
+            <a href={nodeHref(node.id)} onclick={navigateConsoleLink}
               ><AdminEntityLink kind="code" label={node.name} idText={`…${node.id.slice(-8)}`} /></a
             >
             <AdminBadge wrap variant={node.is_disabled === true ? "warning" : "muted"}
@@ -91,7 +92,7 @@
         </div>
         {#each branch.peers as peer (peer.id)}
           <div class="target-row">
-            <a href={peerHref(peer.id)}
+            <a href={peerHref(peer.id)} onclick={navigateConsoleLink}
               ><AdminEntityLink kind="code" label={peer.name} idText={`…${peer.id.slice(-8)}`} /></a
             >
             {#if resource.kind === "group"}<p>

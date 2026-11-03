@@ -672,7 +672,6 @@
             class="admin-section-stage"
             data-admin-active-section={active}
             in:fade={sectionFade()}
-            out:fade={sectionFade()}
           >
             <AdminSectionTabs
               sectionId={active}

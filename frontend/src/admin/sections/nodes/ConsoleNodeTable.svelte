@@ -29,6 +29,7 @@
 </script>
 
 <AdminTable layout="fixed" minWidth={traffic !== undefined ? "1200px" : "1080px"}>
+  <colgroup><col style="width: 22%" /><col span={traffic !== undefined ? 7 : 6} /></colgroup>
   <thead
     ><tr
       >{#each ["console_nodes_node", "console_node_metrics_control_status", "console_nodes_address", "console_nodes_groups", "console_nodes_online", ...(traffic !== undefined ? ["console_nodes_window_traffic"] : []), "console_nodes_traffic", "console_observed_at"] as key}<th

@@ -75,7 +75,7 @@ for (const width of [1440, 390]) {
       await expect(dialog).toHaveCount(0);
       await expect(services.locator("tbody tr")).toHaveCount(count);
     }
-    await services.locator(":scope > details > summary").click();
+    await services.locator(":scope > details:not([data-customer-relations]) > summary").click();
     const serviceRows = services.locator("tbody");
     await expect(
       serviceRows.getByText("Ожидает настройки подключения", { exact: true })

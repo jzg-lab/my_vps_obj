@@ -38,7 +38,8 @@ for (const surface of surfaces) {
     fixture.state.total = 41;
     await fixture.goto();
     const root = fixture.root();
-    if (surface === "customer") await root.locator(":scope > details > summary").click();
+    if (surface === "customer")
+      await root.locator(":scope > details:not([data-customer-relations]) > summary").click();
     await expect(root).toContainText(service.name);
     await expect(root).toContainText("23 GiB");
     await page.clock.setFixedTime(new Date("2026-10-25T03:00:00Z"));
@@ -588,7 +589,10 @@ for (const width of [1440, 390]) {
       const fixture = await installServiceReads(page, surface);
       await fixture.goto();
       if (surface === "customer")
-        await fixture.root().locator(":scope > details > summary").click();
+        await fixture
+          .root()
+          .locator(":scope > details:not([data-customer-relations]) > summary")
+          .click();
       const trigger = fixture.root().getByRole("button", {
         name:
           surface === "global" ? new RegExp(service.name) : fixture.label("console_service_detail"),
@@ -662,7 +666,10 @@ for (const width of [1440, 390]) {
     const fixture = await installServiceReads(page, "customer");
     fixture.state.detailFailure = 503;
     await fixture.goto();
-    await fixture.root().locator(":scope > details > summary").click();
+    await fixture
+      .root()
+      .locator(":scope > details:not([data-customer-relations]) > summary")
+      .click();
     const trigger = fixture
       .root()
       .getByRole("button", { name: fixture.label("console_service_detail"), exact: true });

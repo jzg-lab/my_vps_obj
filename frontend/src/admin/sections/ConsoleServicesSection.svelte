@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { onDestroy, onMount, tick } from "svelte";
+  import { onDestroy, onMount, tick, untrack } from "svelte";
   import Input from "$components/ui/input.svelte";
   import {
     AdminBadge,
@@ -55,6 +55,9 @@
   let detailTrigger: HTMLElement | null = null;
   let detailScope = "";
   let triggeredServiceId = "";
+  const queryScope = $derived(
+    JSON.stringify([route.q, route.status, route.sort, route.page, route.userId])
+  );
   let request = 0;
   let controller: AbortController | null = null;
   const statusItems = $derived(
@@ -147,8 +150,8 @@
     }
   }
   $effect(() => {
-    const { q, status, sort, page, userId } = route;
-    void load({ q, status, sort, page, userId, serviceId: "" });
+    void queryScope;
+    untrack(() => void load({ ...route, serviceId: "" }));
   });
   onMount(() => {
     const restore = () => {

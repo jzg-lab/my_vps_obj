@@ -4303,5 +4303,11 @@
   "admin_console_node_control_unknown": "管理状态未知",
   "admin_console_node_auxiliary": "节点标识与采集明细",
   "admin_console_copy_failed": "复制失败，请选中完整值手动复制。",
-  "wa_services_next_import_detail": "使用下方订阅入口导入这份服务，或查看使用教程。"
+  "wa_services_next_import_detail": "使用下方订阅入口导入这份服务，或查看使用教程。",
+  "admin_user_profile_details": "账号资料与通知",
+  "admin_console_nodes_identity_details": "地址与硬件资料",
+  "admin_console_nodes_configuration": "配置、授权组与数据来源",
+  "admin_console_node_metrics_details": "完整指标与采集依据",
+  "admin_console_node_uptime_days": "{days} 天 {hours} 小时",
+  "admin_console_node_uptime_hours": "{hours} 小时 {minutes} 分钟"
 }
