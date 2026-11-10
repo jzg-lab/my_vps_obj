@@ -162,7 +162,7 @@
       if (request === token) loading = false;
     }
   }
-  function updateNodeMetadata(metadata: ConsoleNodeMetadata | null) {
+  async function updateNodeMetadata(metadata: ConsoleNodeMetadata | null) {
     if (!detail) return;
     detail = {
       ...detail,
@@ -171,8 +171,15 @@
         display_name: metadata?.display_name ?? null,
         region: metadata?.region ?? null,
         provider: metadata?.provider ?? null,
+        country_override: metadata?.country_code ?? null,
+        country_lookup_ip: metadata?.country_lookup_ip ?? null,
+        country_code: metadata?.country_code ?? null,
+        country_source: metadata?.country_code ? "manual" : "unknown",
+        country_ip: null,
+        country_looked_up_at: null,
       },
     };
+    await load(route);
   }
   $effect(() => {
     const view = activeView;

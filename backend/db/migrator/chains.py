@@ -51,6 +51,8 @@ from .chain_0119_account_operations import CHAIN_0119_ACCOUNT_OPERATIONS
 from .chain_0120_node_assets import CHAIN_0120_NODE_ASSETS
 from .chain_0121_node_speed_samples import CHAIN_0121_NODE_SPEED_SAMPLES
 from .chain_0122_node_metadata import CHAIN_0122_NODE_METADATA
+from .chain_0123_node_country_override import CHAIN_0123_NODE_COUNTRY_OVERRIDE
+from .chain_0124_node_country_lookup_ip import CHAIN_0124_NODE_COUNTRY_LOOKUP_IP
 from .engine import Migration
 
 MIGRATIONS: list[Migration] = [
@@ -103,4 +105,6 @@ MIGRATIONS: list[Migration] = [
     *CHAIN_0120_NODE_ASSETS,
     *CHAIN_0121_NODE_SPEED_SAMPLES,
     *CHAIN_0122_NODE_METADATA,
+    *CHAIN_0123_NODE_COUNTRY_OVERRIDE,
+    *CHAIN_0124_NODE_COUNTRY_LOOKUP_IP,
 ]

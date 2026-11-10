@@ -15,12 +15,16 @@ describe("console node metadata", () => {
       display_name: "Tokyo relay",
       region: "Tokyo",
       provider: "Example Networks",
+      country_code: "JP",
+      country_lookup_ip: "8.8.8.8",
       updated_at: "2026-10-27T00:00:00Z",
     });
     const saved = await saveConsoleNodeMetadata(api as never, "node-uuid", {
       display_name: " Tokyo relay ",
       region: " Tokyo ",
       provider: " Example Networks ",
+      country_code: " jp ",
+      country_lookup_ip: " 8.8.8.8 ",
     });
     expect(api).toHaveBeenCalledWith(
       "/admin/console/nodes/node-uuid/metadata",
@@ -30,6 +34,8 @@ describe("console node metadata", () => {
           display_name: "Tokyo relay",
           region: "Tokyo",
           provider: "Example Networks",
+          country_code: "JP",
+          country_lookup_ip: "8.8.8.8",
         }),
       })
     );
@@ -54,9 +60,12 @@ describe("console node metadata", () => {
   });
 
   it("renders country codes in the selected language and preserves unknown values", () => {
-    expect(consoleNodeCountryLabel("US", "en")).toBe("United States (US)");
+    expect(consoleNodeCountryLabel("US", "en")).toBe("🇺🇸 United States (US)");
     expect(consoleNodeCountryLabel("US", "zh-Hans")).toContain("美国");
     expect(consoleNodeCountryLabel(null, "en")).toBeNull();
-    expect(consoleNodeCountryLabel("unknown", "en")).toBe("unknown");
+    expect(consoleNodeCountryLabel("unknown", "en")).toBeNull();
+    expect(consoleNodeCountryLabel("XX", "en")).toBeNull();
+    expect(consoleNodeCountryLabel("ZZ", "en")).toBeNull();
+    expect(consoleNodeCountryLabel("jp", "zh-Hans")).toBe("🇯🇵 日本 (JP)");
   });
 });

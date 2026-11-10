@@ -20,6 +20,7 @@ from bot.app.web.admin_console_nodes_routes import setup_admin_console_nodes_rou
 from bot.app.web.context import PANEL_SERVICE, SESSION_FACTORY, SETTINGS
 from bot.app.web.route_contracts import ADMIN_SECURITY, get_contracts
 from bot.app.web.webapp_auth import create_webapp_session_token
+from bot.services.node_geolocation import NodeCountry
 from bot.services.panel_api_service import PanelApiService
 from config.service_exit_replacement import ReplacementProgress, ReplacementRequest
 from config.settings import Settings
@@ -221,6 +222,7 @@ class AdminConsoleNodesTests(ServiceDatabaseTestCase):
                 "display_name": " Tokyo relay ",
                 "region": " Tokyo ",
                 "provider": " Example Networks ",
+                "country_code": " jp ",
             },
         )
         assert response.status == 200
@@ -233,7 +235,8 @@ class AdminConsoleNodesTests(ServiceDatabaseTestCase):
         body = await listing.json()
         assert body["total"] == 1
         assert body["nodes"][0]["display_name"] == "Tokyo relay"
-        assert body["nodes"][0]["country_code"] == "US"
+        assert body["nodes"][0]["country_code"] == "JP"
+        assert body["nodes"][0]["country_source"] == "manual"
 
         detail = await self.client.get(f"/api/admin/console/nodes/{NODE}", headers=self.admin)
         assert (await detail.json())["node"]["region"] == "Tokyo"
@@ -250,6 +253,8 @@ class AdminConsoleNodesTests(ServiceDatabaseTestCase):
         assert (await cleared.json()) == {"ok": True, "node_id": NODE, "deleted": True}
         refreshed = await self.client.get(f"/api/admin/console/nodes/{NODE}", headers=self.admin)
         assert (await refreshed.json())["node"]["display_name"] is None
+        assert (await refreshed.json())["node"]["country_override"] is None
+        assert (await refreshed.json())["node"]["country_code"] is None
         async with self.sessions() as session:
             assert await session.get(NodeMetadata, NODE) is None
 
@@ -263,6 +268,26 @@ class AdminConsoleNodesTests(ServiceDatabaseTestCase):
             json={"display_name": "x" * 121, "region": None, "provider": None},
         )
         assert invalid.status == 400
+        for code in ("XX", "ZZ", "UK", "AA", "🇺🇸"):
+            invalid_country = await self.client.put(
+                path, headers=self.admin, json={"country_code": code}
+            )
+            assert invalid_country.status == 400
+        for ip in (
+            "127.0.0.1",
+            "192.168.1.1",
+            "::1",
+            "192.0.2.1",
+            "node.example",
+            "https://8.8.8.8",
+            "8.8.8.8:443",
+            "ff02::1",
+            "2606:4700:4700::1111%eth0",
+        ):
+            invalid_ip = await self.client.put(
+                path, headers=self.admin, json={"country_lookup_ip": ip}
+            )
+            assert invalid_ip.status == 400
         unknown = await self.client.put(
             f"/api/admin/console/nodes/{UUID(int=999)}/metadata",
             headers=self.admin,
@@ -279,6 +304,63 @@ class AdminConsoleNodesTests(ServiceDatabaseTestCase):
         assert stale.status == 503
         async with self.sessions() as session:
             assert await session.get(NodeMetadata, NODE) is None
+
+    async def test_ip_country_enrichment_is_reused_without_writing_to_panel(self) -> None:
+        country = NodeCountry("JP", "8.8.8.8", datetime.now(UTC))
+        with patch(
+            "bot.services.node_geolocation.NodeCountryReader.read", AsyncMock(return_value=country)
+        ) as lookup:
+            paths = ["/api/admin/console/nodes", f"/api/admin/console/nodes/{NODE}"]
+            service, _, _ = await self.activate()
+            paths.append(f"/api/admin/console/services/{service.id}/resources")
+            for path in paths:
+                response = await self.client.get(path, headers=self.admin)
+                assert response.status == 200
+                body = await response.json()
+                nodes = [body["node"]] if "node" in body else body["nodes"]
+                assert nodes
+                for node in nodes:
+                    assert node["country_code"] == "JP" and node["country_source"] == "geoip"
+                    assert node["country_ip"] == "8.8.8.8"
+                    assert node["country_looked_up_at"] is not None
+            assert lookup.await_count >= 3
+        assert all(call.args[0] == "GET" for call in self.panel_request.await_args_list)
+
+    async def test_public_lookup_ip_overrides_only_location_and_can_be_changed_and_cleared(
+        self,
+    ) -> None:
+        async def country_for_address(address: str | None) -> NodeCountry:
+            codes = {"8.8.8.8": "US", "2606:4700:4700::1111": "AU"}
+            return (
+                NodeCountry(codes[address], address, datetime.now(UTC))
+                if address is not None and address in codes
+                else NodeCountry()
+            )
+
+        path = f"/api/admin/console/nodes/{NODE}/metadata"
+        with patch(
+            "bot.services.node_geolocation.NodeCountryReader.read",
+            AsyncMock(side_effect=country_for_address),
+        ) as lookup:
+            for ip, code in (("8.8.8.8", "US"), ("2606:4700:4700:0:0:0:0:1111", "AU"), ("", None)):
+                saved = await self.client.put(
+                    path,
+                    headers=self.admin,
+                    json={"display_name": "Retained label", "country_lookup_ip": ip},
+                )
+                assert saved.status == 200
+                response = await self.client.get(
+                    f"/api/admin/console/nodes/{NODE}", headers=self.admin
+                )
+                node = (await response.json())["node"]
+                assert node["address"] == "192.0.2.1" and node["display_name"] == "Retained label"
+                assert node["country_code"] == code
+                assert node["country_source"] == ("geoip" if code else "unknown")
+                assert node["country_lookup_ip"] == (node["country_ip"] if ip else None)
+            lookup.assert_any_await("8.8.8.8")
+            lookup.assert_any_await("2606:4700:4700::1111")
+            lookup.assert_any_await("192.0.2.1")
+        assert all(call.args[0] == "GET" for call in self.panel_request.await_args_list)
 
     async def test_node_metadata_write_routes_have_typed_admin_contracts(self) -> None:
         contracts = get_contracts()

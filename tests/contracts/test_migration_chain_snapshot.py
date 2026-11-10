@@ -139,6 +139,8 @@ EXPECTED_CORE_MIGRATION_IDS = [
     "0120_node_assets",
     "0121_node_speed_samples",
     "0122_node_metadata",
+    "0123_node_country_override",
+    "0124_node_country_lookup_ip",
 ]
 
 

@@ -27,4 +27,6 @@ class NodeMetadata(Base):
     display_name: Mapped[str | None] = mapped_column(String(120))
     region: Mapped[str | None] = mapped_column(String(120))
     provider: Mapped[str | None] = mapped_column(String(120))
+    country_code: Mapped[str | None] = mapped_column(String(2))
+    country_lookup_ip: Mapped[str | None] = mapped_column(String(45))
     updated_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)

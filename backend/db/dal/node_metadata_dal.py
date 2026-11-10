@@ -22,6 +22,8 @@ async def save(
     display_name: str | None,
     region: str | None,
     provider: str | None,
+    country_code: str | None = None,
+    country_lookup_ip: str | None = None,
 ) -> NodeMetadata:
     row = await session.get(NodeMetadata, node_id)
     if row is None:
@@ -30,6 +32,8 @@ async def save(
     row.display_name = display_name
     row.region = region
     row.provider = provider
+    row.country_code = country_code
+    row.country_lookup_ip = country_lookup_ip
     row.updated_at = datetime.now(UTC)
     await session.flush()
     return row

@@ -7,6 +7,8 @@ export type ConsoleNodeMetadataDraft = {
   display_name: string;
   region: string;
   provider: string;
+  country_code?: string;
+  country_lookup_ip?: string;
 };
 
 function metadataPath(nodeId: string) {
@@ -24,6 +26,8 @@ export async function saveConsoleNodeMetadata(
     display_name: draft.display_name.trim() || null,
     region: draft.region.trim() || null,
     provider: draft.provider.trim() || null,
+    country_code: draft.country_code?.trim().toUpperCase() || null,
+    country_lookup_ip: draft.country_lookup_ip?.trim() || null,
   };
   return unwrap(
     await api(metadataPath(nodeId), { method: "PUT" as const, body: JSON.stringify(body) })
@@ -38,8 +42,13 @@ export async function clearConsoleNodeMetadata(
 }
 
 export function consoleNodeMetadataDraftReady(draft: ConsoleNodeMetadataDraft): boolean {
-  return [draft.display_name, draft.region, draft.provider].every(
-    (value) => Array.from(value.trim()).length <= 120
+  const code = draft.country_code?.trim().toUpperCase();
+  return (
+    (!code || consoleNodeCountryLabel(code, "en") !== null) &&
+    (draft.country_lookup_ip?.trim().length ?? 0) <= 45 &&
+    [draft.display_name, draft.region, draft.provider].every(
+      (value) => Array.from(value.trim()).length <= 120
+    )
   );
 }
 
@@ -63,8 +72,12 @@ export function consoleNodeCountryLabel(
   locale?: string
 ): string | null {
   const code = countryCode?.trim().toUpperCase();
-  if (!code) return null;
-  if (!/^[A-Z]{2}$/.test(code)) return countryCode;
+  if (
+    !code ||
+    !/^[A-Z]{2}$/.test(code) ||
+    ["XX", "ZZ", "EU", "UN", "QO", "XA", "XB"].includes(code)
+  )
+    return null;
   try {
     const selectedLocale =
       locale ??
@@ -72,8 +85,12 @@ export function consoleNodeCountryLabel(
         ? "en"
         : document.documentElement.lang || navigator.language || "en");
     const name = new Intl.DisplayNames([selectedLocale], { type: "region" }).of(code);
-    return name && name !== code ? `${name} (${code})` : code;
+    if (!name || name === code) return null;
+    const flag = String.fromCodePoint(
+      ...Array.from(code, (char) => 0x1f1e6 + char.charCodeAt(0) - 65)
+    );
+    return `${flag} ${name} (${code})`;
   } catch {
-    return code;
+    return null;
   }
 }

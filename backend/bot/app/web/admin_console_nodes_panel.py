@@ -163,7 +163,7 @@ class NodeInventory:
             id=str(node.uuid),
             name=node.name,
             address=node.address,
-            country_code=node.countryCode or None,
+            country_code=None,
             status=status,
             is_disabled=node.isDisabled,
             is_connecting=node.isConnecting,

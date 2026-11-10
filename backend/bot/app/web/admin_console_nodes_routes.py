@@ -1,5 +1,6 @@
 """Administrator-only inventory and potential impact; GET never reconciles state."""
 
+import asyncio
 import contextlib
 import re
 from datetime import UTC, datetime
@@ -36,6 +37,7 @@ from bot.app.web.route_contracts import (
     ok_envelope_for,
     register_contract,
 )
+from bot.services.node_geolocation import NodeCountry, NodeCountryReader
 from bot.services.user_service_access import service_ready_for_delivery, service_status
 from config.service_plans import ServicePlanTerms
 from db.dal import node_metadata_dal
@@ -48,6 +50,7 @@ from db.dal.admin_console_nodes_dal import (
 _INVENTORY_READER = web.AppKey("console_node_inventory", NodeInventoryReader)
 _TRAFFIC_READER = web.AppKey("console_node_traffic", NodeTrafficReader)
 _SPEED_READER = web.AppKey("console_node_speed", NodeSpeedHistoryReader)
+_COUNTRY_READER = web.AppKey("console_node_country", NodeCountryReader)
 
 
 class ConsoleNodesQuery(BaseModel):
@@ -82,18 +85,43 @@ async def _attach_local_metadata(
         return nodes
     async with get_session_factory(request)() as session:
         metadata = await node_metadata_dal.list_for_nodes(session, [node.id for node in nodes])
-    return [
-        node.model_copy(
-            update={
-                "display_name": metadata[node.id].display_name,
-                "region": metadata[node.id].region,
-                "provider": metadata[node.id].provider,
-            }
+    countries: dict[str, NodeCountry] = {}
+
+    async def locate(node: ConsoleNodeOut) -> None:
+        local = metadata.get(node.id)
+        if local is None or not local.country_code:
+            address = (local.country_lookup_ip if local else None) or node.address
+            countries[node.id] = await request.app[_COUNTRY_READER].read(address)
+
+    # Bound the whole batch as well as each lookup; geolocation cannot stall inventory.
+    with contextlib.suppress(TimeoutError):
+        async with asyncio.timeout(4):
+            await asyncio.gather(*(locate(node) for node in nodes))
+    result: list[ConsoleNodeOut] = []
+    for node in nodes:
+        local = metadata.get(node.id)
+        country = countries.get(node.id, NodeCountry())
+        override = local.country_code if local else None
+        result.append(
+            node.model_copy(
+                update={
+                    "display_name": local.display_name if local else None,
+                    "region": local.region if local else None,
+                    "provider": local.provider if local else None,
+                    "country_override": override,
+                    "country_lookup_ip": local.country_lookup_ip if local else None,
+                    "country_code": override or country.country_code,
+                    "country_source": "manual"
+                    if override
+                    else "geoip"
+                    if country.country_code
+                    else "unknown",
+                    "country_ip": country.ip,
+                    "country_looked_up_at": country.looked_up_at,
+                }
+            )
         )
-        if node.id in metadata
-        else node
-        for node in nodes
-    ]
+    return result
 
 
 async def admin_console_nodes_route(request: web.Request) -> web.Response:
@@ -317,12 +345,16 @@ async def admin_console_node_metadata_route(request: web.Request) -> web.Respons
                 display_name=body.display_name,
                 region=body.region,
                 provider=body.provider,
+                country_code=body.country_code,
+                country_lookup_ip=body.country_lookup_ip,
             )
             result = ConsoleNodeMetadataOut(
                 node_id=row.node_id,
                 display_name=row.display_name,
                 region=row.region,
                 provider=row.provider,
+                country_code=row.country_code,
+                country_lookup_ip=row.country_lookup_ip,
                 updated_at=row.updated_at,
             )
             await session.commit()
@@ -355,6 +387,7 @@ def setup_admin_console_nodes_routes(app: web.Application) -> None:
     app[_INVENTORY_READER] = NodeInventoryReader()
     app[_TRAFFIC_READER] = NodeTrafficReader()
     app[_SPEED_READER] = NodeSpeedHistoryReader()
+    app[_COUNTRY_READER] = NodeCountryReader()
     for handler, model in (
         (admin_console_nodes_route, ConsoleNodesListOut),
         (admin_console_node_route, ConsoleNodeDetailOut),

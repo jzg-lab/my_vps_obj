@@ -129,7 +129,16 @@ class ConsoleNodeOut(HttpResponseModel):
         default=None, description="本项目按 Node UUID 保存的本地显示名；不修改 Panel 名称"
     )
     address: str | None
-    country_code: str | None = Field(description="Remnawave Node.countryCode；不从地址或名称推断")
+    country_code: str | None = Field(
+        description="手动纠正优先，否则按定位用公网 IP 或节点管理地址定位；不是出口核验"
+    )
+    country_override: str | None = None
+    country_lookup_ip: str | None = Field(
+        default=None, description="管理员指定的定位用公网 IP；不改变节点连接地址"
+    )
+    country_source: Literal["manual", "geoip", "unknown"] = "unknown"
+    country_ip: str | None = None
+    country_looked_up_at: datetime | None = None
     region: str | None = Field(default=None, description="管理员在本项目填写的本地地区／城市标注")
     provider: str | None = Field(default=None, description="管理员在本项目填写的本地网络服务商标注")
     status: ConsoleNodeStatus = Field(description="管理连接状态，不证明真实代理路径可用")

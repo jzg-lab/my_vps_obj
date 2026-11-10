@@ -32,6 +32,8 @@
     display_name: initial.display_name ?? "",
     region: initial.region ?? "",
     provider: initial.provider ?? "",
+    country_code: initial.country_override ?? "",
+    country_lookup_ip: initial.country_lookup_ip ?? "",
   });
   let busy = $state(false);
   let error = $state("");
@@ -92,6 +94,28 @@
           disabled={busy}
         />
       </AdminField>
+      <AdminField
+        label={at("console_nodes_country_lookup_ip")}
+        hint={at("console_nodes_country_lookup_ip_hint")}
+      >
+        <Input
+          aria-label={at("console_nodes_country_lookup_ip")}
+          bind:value={draft.country_lookup_ip}
+          maxlength={45}
+          disabled={busy}
+        />
+      </AdminField>
+      <AdminField
+        label={at("console_nodes_country_override")}
+        hint={at("console_nodes_country_override_hint")}
+      >
+        <Input
+          aria-label={at("console_nodes_country_override")}
+          bind:value={draft.country_code}
+          maxlength={2}
+          disabled={busy}
+        />
+      </AdminField>
       <AdminField label={at("console_nodes_region")} hint={at("console_nodes_local_value_hint")}>
         <Input
           aria-label={at("console_nodes_region")}
@@ -112,7 +136,7 @@
     {#if error}<p role="alert">{at(error)}</p>{/if}
     <div class="admin-dialog-actions">
       <AdminButton disabled={busy} onclick={close}>{at("cancel")}</AdminButton>
-      {#if node.display_name || node.region || node.provider}<AdminButton
+      {#if node.display_name || node.region || node.provider || node.country_override || node.country_lookup_ip}<AdminButton
           disabled={busy}
           onclick={() => void submit(true)}>{at("console_nodes_metadata_clear")}</AdminButton
         >{/if}

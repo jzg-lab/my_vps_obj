@@ -33,6 +33,8 @@ async function installNodesApi(page: Page, mode = "normal", language = "ru") {
         display_name: string | null;
         region: string | null;
         provider: string | null;
+        country_code: string | null;
+        country_lookup_ip: string | null;
       };
       const metadataStorageKey = "rw_demo_managed_node_metadata";
       let localMetadata = JSON.parse(localStorage.getItem(metadataStorageKey) || "{}") as Record<
@@ -42,6 +44,18 @@ async function installNodesApi(page: Page, mode = "normal", language = "ru") {
       const withLocalMetadata = <T extends (typeof rows)[number]>(node: T) => ({
         ...node,
         ...(localMetadata[node.id] ?? { display_name: null, region: null, provider: null }),
+        country_override: localMetadata[node.id]?.country_code ?? null,
+        country_lookup_ip: localMetadata[node.id]?.country_lookup_ip ?? null,
+        country_code:
+          localMetadata[node.id]?.country_code ??
+          (localMetadata[node.id]?.country_lookup_ip ? "US" : node.country_code),
+        country_source: localMetadata[node.id]?.country_code ? "manual" : "geoip",
+        country_ip: localMetadata[node.id]?.country_code
+          ? null
+          : (localMetadata[node.id]?.country_lookup_ip ?? node.country_ip),
+        country_looked_up_at: localMetadata[node.id]?.country_code
+          ? null
+          : node.country_looked_up_at,
       });
       const services =
         mode === "visual"
@@ -249,6 +263,7 @@ for (const width of [320, 1440]) {
           .getByRole("button", { name: copy.admin_console_nodes_view_table, exact: true })
           .click();
         const row = page.locator(`[data-node-id="${consoleNodeFixture.id}"]`);
+        await expect(row).toContainText("🇭🇰");
         for (const [selector, value] of [
           [".admin-entity-link-label", consoleNodeFixture.name],
           [".admin-entity-link-id", consoleNodeFixture.id],
@@ -491,10 +506,16 @@ for (const width of [1440, 390]) {
     page,
   }, testInfo) => {
     await page.setViewportSize({ width, height: 1000 });
-    await installNodesApi(page);
+    const language = width === 390 ? "zh-hans" : "ru";
+    const copy: Record<string, string> = JSON.parse(
+      readFileSync(`../locales/${language}.json`, "utf8")
+    );
+    const label = (key: string) => copy[`admin_${key}`];
+    await installNodesApi(page, "normal", language);
     await page.goto(url);
     const section = page.locator(".console-nodes");
     const card = section.locator(`[data-node-card-id="${consoleNodeFixture.id}"]`);
+    await expect(card).toContainText("🇭🇰");
     await card.getByRole("button", { name: /HK inventory node/ }).click();
     const detail = page.getByRole("region", { name: label("console_nodes_detail") });
     const edit = detail.getByRole("button", {
@@ -504,6 +525,12 @@ for (const width of [1440, 390]) {
     await edit.click();
     const dialog = page.getByRole("dialog", { name: label("console_nodes_metadata_title") });
     await expect(dialog).toBeVisible();
+    await dialog
+      .getByRole("textbox", { name: label("console_nodes_country_lookup_ip"), exact: true })
+      .fill("8.8.8.8");
+    await dialog
+      .getByRole("textbox", { name: label("console_nodes_country_override"), exact: true })
+      .fill("jp");
     await dialog
       .getByRole("textbox", { name: label("console_nodes_display_name"), exact: true })
       .fill("Tokyo relay");
@@ -521,6 +548,26 @@ for (const width of [1440, 390]) {
     await expect(detail).toContainText("Tokyo");
     await expect(detail).toContainText("Example Networks");
     await expect(edit).toBeFocused();
+    await detail.locator(".node-facts-panel > summary").click();
+    await expect(detail.locator(".node-facts-panel")).toContainText("🇯🇵");
+    await expect(detail.locator(".node-facts-panel")).toContainText(
+      label("console_nodes_country_manual")
+    );
+    await edit.click();
+    const autoDialog = page.getByRole("dialog", { name: label("console_nodes_metadata_title") });
+    await autoDialog
+      .getByRole("textbox", { name: label("console_nodes_country_override"), exact: true })
+      .fill("");
+    await autoDialog
+      .getByRole("button", { name: label("console_nodes_metadata_save"), exact: true })
+      .click();
+    await expect(autoDialog).not.toBeVisible();
+    await expect(detail.locator(".node-facts-panel")).toContainText("🇺🇸");
+    await expect(detail.locator(".node-facts-panel")).toContainText("8.8.8.8");
+    await expect(detail.locator(".node-facts-panel")).toContainText("192.0.2.1");
+    await expect(detail.locator(".node-facts-panel")).toContainText(
+      label("console_nodes_country_lookup_ip_scope")
+    );
     await page.screenshot({
       path: testInfo.outputPath(`node-metadata-saved-${width}.png`),
       fullPage: true,
@@ -547,6 +594,7 @@ for (const width of [1440, 390]) {
       .getByRole("button", { name: label("console_nodes_metadata_clear"), exact: true })
       .click();
     await expect(clearDialog).not.toBeVisible();
+    await expect(detail.locator(".node-facts-panel")).toContainText("🇭🇰");
     await expect(
       detail.getByRole("heading", { name: "HK inventory node", exact: true })
     ).toBeVisible();

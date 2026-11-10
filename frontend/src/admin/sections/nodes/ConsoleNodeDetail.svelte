@@ -49,7 +49,7 @@
     onPageChange: (page: number) => void;
     onBack: () => void;
     onOpenUserCard: (userId: unknown) => void;
-    onMetadataSaved: (metadata: ConsoleNodeMetadata | null) => void;
+    onMetadataSaved: (metadata: ConsoleNodeMetadata | null) => void | Promise<void>;
   } = $props();
   let heading: HTMLHeadingElement | undefined;
   let draftTarget = $state<DraftTarget | null>(null);
@@ -75,7 +75,7 @@
     metadataTrigger?.focus();
   }
   async function metadataSaved(metadata: ConsoleNodeMetadata | null) {
-    onMetadataSaved(metadata);
+    await onMetadataSaved(metadata);
     await closeMetadata();
   }
   onMount(() => heading?.focus());
@@ -216,7 +216,31 @@
       </div>
       <div>
         <dt>{at("console_nodes_country")}</dt>
-        <dd>{consoleNodeCountryLabel(detail.node.country_code) ?? at("console_unknown")}</dd>
+        <dd>
+          {consoleNodeCountryLabel(detail.node.country_code) ?? at("console_unknown")}
+          <small
+            >{at(
+              detail.node.country_source === "manual"
+                ? "console_nodes_country_manual"
+                : detail.node.country_lookup_ip
+                  ? "console_nodes_country_lookup_ip_scope"
+                  : "console_nodes_country_address_scope"
+            )}</small
+          >
+          {#if detail.node.country_ip}
+            <small>{at("console_nodes_country_geoip", { ip: detail.node.country_ip })}</small>
+          {/if}
+          {#if detail.node.country_lookup_ip && !detail.node.country_ip}
+            <small>{at("console_nodes_country_lookup_ip")}: {detail.node.country_lookup_ip}</small>
+          {/if}
+          {#if detail.node.country_looked_up_at}
+            <small
+              >{at("console_nodes_country_lookup_time")}: {serviceDate(
+                detail.node.country_looked_up_at
+              )}</small
+            >
+          {/if}
+        </dd>
       </div>
       <div>
         <dt>{at("console_nodes_region")}</dt>
@@ -307,6 +331,9 @@
 {/if}
 
 <style>
+  .node-facts-panel dd small {
+    display: block;
+  }
   .related-services {
     display: grid;
     gap: 12px;

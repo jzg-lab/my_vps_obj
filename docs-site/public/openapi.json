@@ -10706,6 +10706,32 @@
       "ConsoleNodeMetadataBody": {
         "additionalProperties": false,
         "properties": {
+          "country_code": {
+            "anyOf": [
+              {
+                "maxLength": 2,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Country Code"
+          },
+          "country_lookup_ip": {
+            "anyOf": [
+              {
+                "maxLength": 45,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Country Lookup Ip"
+          },
           "display_name": {
             "anyOf": [
               {
@@ -10769,6 +10795,30 @@
       },
       "ConsoleNodeMetadataOut": {
         "properties": {
+          "country_code": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Country Code"
+          },
+          "country_lookup_ip": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Country Lookup Ip"
+          },
           "display_name": {
             "anyOf": [
               {
@@ -10844,8 +10894,68 @@
                 "type": "null"
               }
             ],
-            "description": "Remnawave Node.countryCode；不从地址或名称推断",
+            "description": "手动纠正优先，否则按定位用公网 IP 或节点管理地址定位；不是出口核验",
             "title": "Country Code"
+          },
+          "country_ip": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Country Ip"
+          },
+          "country_looked_up_at": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Country Looked Up At"
+          },
+          "country_lookup_ip": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "description": "管理员指定的定位用公网 IP；不改变节点连接地址",
+            "title": "Country Lookup Ip"
+          },
+          "country_override": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Country Override"
+          },
+          "country_source": {
+            "default": "unknown",
+            "enum": [
+              "manual",
+              "geoip",
+              "unknown"
+            ],
+            "title": "Country Source",
+            "type": "string"
           },
           "daily_traffic": {
             "items": {

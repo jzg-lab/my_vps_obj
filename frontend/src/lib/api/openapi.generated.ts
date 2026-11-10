@@ -10406,6 +10406,16 @@ export interface components {
     /** ConsoleNodeMetadataBody */
     ConsoleNodeMetadataBody: {
       /**
+       * Country Code
+       * @default null
+       */
+      country_code: string | null;
+      /**
+       * Country Lookup Ip
+       * @default null
+       */
+      country_lookup_ip: string | null;
+      /**
        * Display Name
        * @default null
        */
@@ -10430,6 +10440,16 @@ export interface components {
     };
     /** ConsoleNodeMetadataOut */
     ConsoleNodeMetadataOut: {
+      /**
+       * Country Code
+       * @default null
+       */
+      country_code: string | null;
+      /**
+       * Country Lookup Ip
+       * @default null
+       */
+      country_lookup_ip: string | null;
       /** Display Name */
       display_name: string | null;
       /** Node Id */
@@ -10450,9 +10470,36 @@ export interface components {
       address: string | null;
       /**
        * Country Code
-       * @description Remnawave Node.countryCode；不从地址或名称推断
+       * @description 手动纠正优先，否则按定位用公网 IP 或节点管理地址定位；不是出口核验
        */
       country_code: string | null;
+      /**
+       * Country Ip
+       * @default null
+       */
+      country_ip: string | null;
+      /**
+       * Country Looked Up At
+       * @default null
+       */
+      country_looked_up_at: string | null;
+      /**
+       * Country Lookup Ip
+       * @description 管理员指定的定位用公网 IP；不改变节点连接地址
+       * @default null
+       */
+      country_lookup_ip: string | null;
+      /**
+       * Country Override
+       * @default null
+       */
+      country_override: string | null;
+      /**
+       * Country Source
+       * @default unknown
+       * @enum {string}
+       */
+      country_source: "manual" | "geoip" | "unknown";
       /** Daily Traffic */
       daily_traffic?: components["schemas"]["ConsoleTrafficDayOut"][];
       /**
