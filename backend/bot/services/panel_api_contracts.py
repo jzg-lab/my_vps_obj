@@ -98,6 +98,7 @@ class PanelApiOperation(StrEnum):
     NODE_CREATE = "nodes.create"
     NODE_ENABLE = "nodes.enable"
     NODE_DISABLE = "nodes.disable"
+    NODE_DELETE = "nodes.delete"
     GROUP_CREATE = "internal-squads.create"
     GROUP_UPDATE = "internal-squads.update"
     HOST_CREATE = "hosts.create"
@@ -543,6 +544,24 @@ PANEL_API_OPERATION_CONTRACTS: tuple[PanelApiOperationContract, ...] = (
         coverage=WRITE_COVERAGE,
     ),
     _contract(PanelApiOperation.HOSTS_LIST, "GET", "/hosts", "/hosts"),
+    _contract(
+        PanelApiOperation.NODE_DELETE,
+        "DELETE",
+        "/nodes/{uuid}",
+        "/nodes",
+        generations=RW3_ONLY,
+        success_statuses=(204,),
+        mutation=True,
+        idempotent=False,
+        empty_success_body=True,
+        identity_sensitive=True,
+        response_shape="204 empty acknowledgement; deletion and Xray stop are queued",
+        compatibility_note=(
+            "Pinned 3.4.5 only. Requires unassociated-node preview and fresh absence readback; "
+            "acknowledgement does not prove proxy shutdown. No automatic retry."
+        ),
+        coverage=(PanelApiCoverage.UNIT,),
+    ),
     *(
         _contract(
             operation,

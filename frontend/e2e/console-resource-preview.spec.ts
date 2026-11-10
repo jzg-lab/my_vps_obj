@@ -7,7 +7,11 @@ import {
   consoleNodeFixture,
   consoleNodeServiceFixture,
 } from "../src/lib/admin/consoleNodesFixtures";
-import { consoleResourcePreviewFixture } from "../src/lib/webapp/mockApi/consoleResourcePreview";
+import {
+  consoleResourcePreviewFixture,
+  consoleResourceCatalogFixture,
+} from "../src/lib/webapp/mockApi/consoleResourcePreview";
+import { resourceOperationFixture } from "../src/lib/webapp/mockApi/consoleResourceOperations";
 import { resolveLocaleKey } from "../src/lib/webapp/constants";
 
 type Preview = components["schemas"]["ConsoleResourcePreviewOut"];
@@ -29,6 +33,7 @@ const baseUrl =
   "/demo/runtime/admin/nodes?section=nodes&mock=services&theme_preview=dark&nodes_q=HK&nodes_page=2&nodes_related_page=1&node_id=" +
   consoleNodeFixture.id;
 const serviceId = consoleNodeDetailFixture.services[0].id;
+const removalHostName = consoleResourceCatalogFixture().hosts[0].name;
 
 declare global {
   interface Window {
@@ -67,10 +72,40 @@ function makePreview(): Preview {
   return preview;
 }
 
-async function installResourcePreviewApi(page: Page, language: Language = "zh-hans") {
+async function installResourcePreviewApi(
+  page: Page,
+  language: Language = "zh-hans",
+  nodeDisabled: boolean | null = null,
+  unassociated = false
+) {
   const preview = makePreview();
+  const removal = consoleResourcePreviewFixture({
+    operation: "node_delete",
+    target_id: consoleNodeFixture.id,
+    force_restart: false,
+  });
+  removal.related_hosts = [consoleResourceCatalogFixture().hosts[0]];
+  removal.blockers = ["node_has_related_hosts", "node_has_related_services"];
+  if (unassociated) {
+    removal.related_hosts = [];
+    removal.blockers = [];
+    removal.coverage = "complete";
+    removal.fingerprint = "d".repeat(64);
+    removal.direct = {
+      ...removal.direct,
+      group_ids: [],
+      services: [],
+      customer_ids: [],
+      service_total: 0,
+      customer_total: 0,
+    };
+    removal.affected_service_ids = [];
+    removal.affected_customer_ids = [];
+  }
+  removal.execution_available = unassociated;
+  const removalOperation = { ...resourceOperationFixture(removal.change), preview: removal };
   await page.addInitScript(
-    ({ detail, node, preview, language, service }) => {
+    ({ detail, node, preview, language, service, removal, removalOperation }) => {
       localStorage.setItem("rw_minishop_demo_language", language);
       type Props = { api: (path: string, options?: RequestInit) => Promise<unknown> };
       type Bundle = { mount: (target: HTMLElement, props: Props) => unknown };
@@ -107,32 +142,36 @@ async function installResourcePreviewApi(page: Page, language: Language = "zh-ha
                     : null;
                 const requestedChange = requestBody?.change ?? preview.change;
                 const responsePreview: Preview =
-                  requestedChange.operation === "group_inbounds" ||
-                  requestedChange.operation === "host_update"
-                    ? ((await props.api("/admin/console/resources/preview", {
-                        method: "POST",
-                        body: JSON.stringify({ change: requestedChange }),
-                      })) as Preview)
-                    : {
-                        ...preview,
-                        change: requestedChange,
-                        possible_reload:
-                          requestedChange.operation === "node_restart"
-                            ? {
-                                ...preview.possible_reload,
-                                services: [
-                                  {
-                                    ...preview.possible_reload.services[0],
-                                    name: "Late restart result",
-                                  },
-                                ],
-                              }
-                            : preview.possible_reload,
-                      };
+                  requestedChange.operation === "node_delete"
+                    ? removal
+                    : requestedChange.operation === "group_inbounds" ||
+                        requestedChange.operation === "host_update"
+                      ? ((await props.api("/admin/console/resources/preview", {
+                          method: "POST",
+                          body: JSON.stringify({ change: requestedChange }),
+                        })) as Preview)
+                      : {
+                          ...preview,
+                          change: requestedChange,
+                          possible_reload:
+                            requestedChange.operation === "node_restart"
+                              ? {
+                                  ...preview.possible_reload,
+                                  services: [
+                                    {
+                                      ...preview.possible_reload.services[0],
+                                      name: "Late restart result",
+                                    },
+                                  ],
+                                }
+                              : preview.possible_reload,
+                        };
                 if (request.pathname === "/admin/console/nodes")
                   return { ok: true, nodes: [node], total: 100, page: 2, page_size: 25 };
                 if (request.pathname === `/admin/console/nodes/${node.id}`)
                   return { ok: true, ...detail };
+                if (request.pathname === "/admin/console/resources/operations" && method === "POST")
+                  return { ok: true, duplicate: false, operation: removalOperation };
                 if (request.pathname === "/admin/console/resources/catalog") {
                   if (harness.catalogMode === "failed") throw new Error("fixture_catalog_failed");
                   const catalog = (await props.api(
@@ -210,9 +249,14 @@ async function installResourcePreviewApi(page: Page, language: Language = "zh-ha
       });
     },
     {
-      detail: consoleNodeDetailFixture,
-      node: consoleNodeFixture,
+      detail: {
+        ...consoleNodeDetailFixture,
+        node: { ...consoleNodeDetailFixture.node, is_disabled: nodeDisabled },
+      },
+      node: { ...consoleNodeFixture, is_disabled: nodeDisabled },
       preview,
+      removal,
+      removalOperation,
       language,
       service: consoleNodeServiceFixture,
     }
@@ -286,7 +330,159 @@ async function scrollDraftToTop(dialog: Locator) {
   await expect.poll(() => viewport.evaluate((element) => element.scrollTop)).toBe(0);
 }
 
+for (const language of ["en", "ru", "zh-hans"] as const)
+  for (const width of [1440, 390]) {
+    test(`direct node actions preserve review and focus at ${width}px in ${language}`, async ({
+      page,
+    }, info) => {
+      const nodeDisabled = width === 390;
+      await installResourcePreviewApi(page, language, nodeDisabled);
+      await page.setViewportSize({ width, height: 1000 });
+      await page.goto(baseUrl);
+      const detail = page.getByRole("region", { name: label("console_nodes_detail", language) });
+      const action = nodeDisabled ? "node_enable" : "node_disable";
+      const trigger = detail.getByRole("button", {
+        name: label(`console_resource_${action}`, language),
+        exact: true,
+      });
+      await expect(trigger).toBeVisible();
+      await expect(
+        detail.getByRole("button", {
+          name: label(
+            `console_resource_${nodeDisabled ? "node_disable" : "node_enable"}`,
+            language
+          ),
+          exact: true,
+        })
+      ).toHaveCount(0);
+      await page.screenshot({ path: info.outputPath("node-actions.png"), fullPage: true });
+      await trigger.click();
+      const dialog = page.getByRole("dialog", { name: label("console_resource_title", language) });
+      await expect(
+        dialog.getByRole("button", {
+          name: label("console_resource_operation", language),
+          exact: true,
+        })
+      ).toHaveText(label(`console_resource_${action}`, language));
+      expect(
+        await page.evaluate(() =>
+          window.__resourcePreviewHarness.calls.filter(({ method }) => method !== "GET")
+        )
+      ).toEqual([]);
+      await dialog
+        .getByRole("button", { name: label("console_resource_preview", language), exact: true })
+        .click();
+      const confirmation = dialog.getByRole("checkbox", {
+        name: label("console_resource_confirm", language),
+        exact: true,
+      });
+      await expect(confirmation).not.toBeChecked();
+      await expect(
+        dialog.getByRole("button", { name: label("resource_ops_submit", language), exact: true })
+      ).toBeDisabled();
+      await page.screenshot({ path: info.outputPath("node-action-review.png"), fullPage: true });
+      await page.keyboard.press("Escape");
+      await expect(dialog).toBeHidden();
+      await expect(trigger).toBeFocused();
+      await detail
+        .getByRole("button", {
+          name: label("console_resource_node_restart", language),
+          exact: true,
+        })
+        .click();
+      await expect(
+        dialog.getByRole("checkbox", {
+          name: label("console_resource_force_restart", language),
+          exact: true,
+        })
+      ).not.toBeChecked();
+      await expect(
+        dialog.getByRole("button", {
+          name: label("console_resource_operation", language),
+          exact: true,
+        })
+      ).toHaveText(label("console_resource_node_restart", language));
+      expect(
+        await page.evaluate(() =>
+          window.__resourcePreviewHarness.calls.filter(
+            ({ path, method }) => method !== "GET" && path !== "/admin/console/resources/preview"
+          )
+        )
+      ).toEqual([]);
+      expect(await page.evaluate(() => document.body.scrollWidth - innerWidth)).toBeLessThanOrEqual(
+        2
+      );
+      await page.keyboard.press("Escape");
+      await detail
+        .getByRole("button", { name: label("console_resource_node_delete", language), exact: true })
+        .click();
+      await expect(dialog).toContainText(label("console_resource_node_delete_hint", language));
+      await dialog
+        .getByRole("button", { name: label("console_resource_preview", language), exact: true })
+        .click();
+      await expect(
+        dialog.getByRole("region", {
+          name: label("console_resource_related_hosts", language),
+          exact: true,
+        })
+      ).toContainText(removalHostName);
+      await expect(dialog).toContainText(
+        label("console_resource_blocker_node_has_related_hosts", language)
+      );
+      await expect(dialog).toContainText(
+        label("console_resource_blocker_node_has_related_services", language)
+      );
+      await expect(
+        dialog.getByRole("checkbox", {
+          name: label("console_resource_confirm", language),
+          exact: true,
+        })
+      ).toBeDisabled();
+      await expect(
+        dialog.getByRole("button", { name: label("resource_ops_submit", language), exact: true })
+      ).toBeDisabled();
+      await page.screenshot({ path: info.outputPath("node-removal-blocked.png"), fullPage: true });
+    });
+  }
+
 for (const width of [1440, 390]) {
+  test(`unassociated node removal requires confirmation at ${width}px`, async ({ page }, info) => {
+    await installResourcePreviewApi(page, "zh-hans", false, true);
+    await page.setViewportSize({ width, height: 1000 });
+    await page.goto(baseUrl);
+    await page
+      .getByRole("region", { name: label("console_nodes_detail") })
+      .getByRole("button", { name: label("console_resource_node_delete"), exact: true })
+      .click();
+    const dialog = page.getByRole("dialog", { name: label("console_resource_title") });
+    await dialog
+      .getByRole("button", { name: label("console_resource_preview"), exact: true })
+      .click();
+    await expect(dialog).toContainText(label("console_resource_no_related_hosts"));
+    const submit = dialog.getByRole("button", { name: label("resource_ops_submit"), exact: true });
+    await expect(submit).toBeDisabled();
+    await dialog
+      .getByRole("checkbox", { name: label("console_resource_confirm"), exact: true })
+      .check();
+    await expect(submit).toBeEnabled();
+    await page.screenshot({ path: info.outputPath("node-removal-confirm.png"), fullPage: true });
+    await submit.click();
+    await expect(dialog).toContainText(label("resource_ops_recorded"));
+    const requests = await page.evaluate(() =>
+      window.__resourcePreviewHarness.calls.filter(
+        ({ path, method }) => path === "/admin/console/resources/operations" && method === "POST"
+      )
+    );
+    expect(requests).toHaveLength(1);
+    expect(JSON.parse(requests[0].body!)).toMatchObject({
+      change: { operation: "node_delete", target_id: consoleNodeFixture.id },
+      expected_fingerprint: "d".repeat(64),
+    });
+    expect(await page.evaluate(() => document.body.scrollWidth - innerWidth)).toBeLessThanOrEqual(
+      2
+    );
+  });
+
   test(`Node resource preview stays truthful at ${width}px in zh-hans`, async ({ page }, info) => {
     await page.setViewportSize({ width, height: 1000 });
     await installResourcePreviewApi(page);
@@ -296,7 +492,9 @@ for (const width of [1440, 390]) {
     await expect(
       detail.getByRole("heading", { name: consoleNodeFixture.name, exact: true })
     ).toBeVisible();
-    await detail.getByRole("button", { name: label("console_resource_open"), exact: true }).click();
+    await detail
+      .getByRole("button", { name: label("console_resource_node_disable"), exact: true })
+      .click();
     const previewDialog = page.getByRole("dialog", { name: label("console_resource_title") });
     await expect(previewDialog).toBeVisible();
 

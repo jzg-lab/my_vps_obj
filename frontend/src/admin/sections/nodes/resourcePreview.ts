@@ -28,7 +28,12 @@ export type PreviewState = {
   validation: Revalidation["reason"] | "failed" | null;
 };
 
-export const nodeOperations = ["node_enable", "node_disable", "node_restart"] as const;
+export const nodeOperations = [
+  "node_enable",
+  "node_disable",
+  "node_restart",
+  "node_delete",
+] as const;
 
 export function canReviewPreview(preview: ResourcePreview | null): boolean {
   return Boolean(
@@ -37,7 +42,7 @@ export function canReviewPreview(preview: ResourcePreview | null): boolean {
     preview.blockers.length === 0 &&
     preview.fingerprint &&
     (preview.current || preview.change.operation.endsWith("_create")) &&
-    preview.proposed &&
+    (preview.proposed || (preview.change.operation === "node_delete" && preview.current)) &&
     preview.remote_authorization_verified
   );
 }

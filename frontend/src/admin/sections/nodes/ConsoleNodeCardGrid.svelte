@@ -101,6 +101,10 @@
       {#if oldValue}<p class="card-note">{at("console_stale")}</p>{/if}
       {#if node.is_disabled}<p class="card-note">{at("console_nodes_disabled")}</p>{/if}
       {#if node.is_connecting}<p class="card-note">{at("console_nodes_connecting")}</p>{/if}
+      {#if !compact}<p class="card-note">
+          {at("console_nodes_groups")}: {node.groups.map((group) => group.name).join(" / ") ||
+            at("console_nodes_no_known_groups")}
+        </p>{/if}
       <div class="node-card-metrics">
         <div class="node-card-metric">
           <span>{at("console_nodes_window_traffic")}</span>
@@ -146,8 +150,10 @@
               : at("console_unknown")}
           </p>
         </details>{/if}
-      {#if onOpenNode}<AdminButton size="sm" onclick={() => onOpenNode?.(node.id)}
-          >{at("console_nodes_detail")}</AdminButton
+      {#if onOpenNode}<AdminButton
+          size="sm"
+          variant={compact ? "default" : "primary"}
+          onclick={() => onOpenNode?.(node.id)}>{at("console_nodes_detail")}</AdminButton
         >{/if}
     </article>
   {/each}

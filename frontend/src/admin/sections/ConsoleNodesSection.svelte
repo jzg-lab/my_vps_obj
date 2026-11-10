@@ -75,6 +75,13 @@
   let failed = $state(false);
   let onboarding = $state(false);
   let onboardingTrigger: HTMLElement | null = null;
+  let nodeActions = $state<HTMLDivElement>();
+  async function startPendingOnboarding() {
+    navigateAssets("managed");
+    await tick();
+    onboardingTrigger = nodeActions?.querySelector("button") ?? null;
+    onboarding = true;
+  }
   async function closeOnboarding() {
     onboarding = false;
     await load(route);
@@ -230,9 +237,10 @@
           >
         </Tabs.List>
       </Tabs.Root>
-      {#if assetRoute.view === "managed"}<div class="node-actions">
+      {#if assetRoute.view === "managed"}<div class="node-actions" bind:this={nodeActions}>
           <AdminButton
             size="sm"
+            variant="primary"
             onclick={(event) => {
               onboardingTrigger =
                 event.currentTarget instanceof HTMLElement ? event.currentTarget : null;
@@ -251,6 +259,7 @@
       {at}
       page={assetRoute.page}
       onPageChange={(page) => navigateAssets("unmanaged", page)}
+      onStartOnboarding={startPendingOnboarding}
     />
   {:else}
     {#if route.serviceId}<p>
@@ -261,6 +270,7 @@
         · {at("console_nodes_inventory_scope")}
       </p>{/if}
     {#if !route.nodeId}
+      <p>{at("console_nodes_purpose")}</p>
       <AdminListToolbar
         compact
         total={data?.total ?? undefined}

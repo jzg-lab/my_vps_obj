@@ -22,6 +22,8 @@ const blockerKeys = new Map<string, string>(
     unknown_host_inbound: "console_resource_blocker_unknown_host_inbound",
     node_disabled: "console_resource_blocker_node_disabled",
     node_has_no_active_inbounds: "console_resource_blocker_node_has_no_active_inbounds",
+    node_has_related_hosts: "console_resource_blocker_node_has_related_hosts",
+    node_has_related_services: "console_resource_blocker_node_has_related_services",
     replacement_scope_unconfirmed: "console_resource_blocker_replacement_scope",
     replacement_service_unconfirmed: "console_resource_blocker_replacement_service",
     replacement_customer_unavailable: "console_resource_blocker_replacement_customer",
@@ -57,6 +59,7 @@ const recoveryKeys = {
   inverse_node_action_requires_fresh_preview: "console_resource_recovery_inverse",
   restart_has_no_automatic_rollback: "console_resource_recovery_restart",
   creation_requires_explicit_reconciliation_no_automatic_delete: "resource_ops_recovery_create",
+  node_removal_requires_manual_onboarding: "console_resource_recovery_node_delete",
 } satisfies Record<ResourcePreview["recovery"], string>;
 
 export function resourceRecoveryKey(recovery: ResourcePreview["recovery"]): string {

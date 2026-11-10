@@ -98,7 +98,7 @@ async def observe_resource_operation(
         inventory
     ):
         return observation
-    if require_fresh and any(
+    if (require_fresh or row.operation == "node_delete") and any(
         source.observed_at.tzinfo is None
         or not read_started_at <= as_utc(source.observed_at) <= observation.observed_at
         for source in inventory.sources
@@ -178,6 +178,9 @@ async def observe_resource_operation(
     if blockers:
         return observation
     observation.values = values
+    if row.operation == "node_delete":
+        observation.configuration = "matched" if values is None else "different"
+        return observation
     if values is None:
         observation.configuration = "missing"
         return observation
@@ -262,7 +265,10 @@ async def accept_resource_evidence(
     if removed:
         # Recheck after IO; a slow inventory read cannot extend the evidence lifetime.
         _require_removal_evidence(row, body)
-        if observation.configuration != "missing" or observation.values is not None:
+        if (
+            observation.configuration != "missing"
+            and not (row.operation == "node_delete" and observation.configuration == "matched")
+        ) or observation.values is not None:
             raise ServiceConflict("resource_evidence_invalid")
     if body.result == "applied" and observation.configuration != "matched":
         raise ServiceConflict("resource_evidence_invalid")

@@ -22,11 +22,13 @@
     at,
     page,
     onPageChange,
+    onStartOnboarding,
   }: {
     api: ApiClient["api"];
     at: ConsoleNodesTranslate;
     page: number;
     onPageChange: (page: number) => void;
+    onStartOnboarding: () => void;
   } = $props();
   let data = $state<NodeAssetsPage | null>(null);
   let loading = $state(true);
@@ -93,6 +95,7 @@
   aria-label={at("console_node_assets_pending")}
   aria-busy={loading}
 >
+  <p>{at("console_node_assets_purpose")}</p>
   <p class="admin-muted">{at("console_node_assets_scope")}</p>
   <AdminListToolbar total={data?.total} totalLabel={at("console_node_assets_count")}>
     {#snippet actions()}
@@ -136,6 +139,10 @@
       goLabel={at("services_go_page")}
     />
   {/if}
+  <div class="node-assets-next">
+    <p>{at("console_node_assets_next")}</p>
+    <AdminButton onclick={onStartOnboarding}>{at("console_node_assets_start")}</AdminButton>
+  </div>
 </section>
 
 {#if action}<ConsoleNodeAssetDialog {api} {at} {action} onclose={close} onsaved={saved} />{/if}
@@ -145,6 +152,12 @@
     display: grid;
     gap: 16px;
     min-width: 0;
+  }
+  .node-assets-next {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 12px;
   }
   p {
     margin: 0;

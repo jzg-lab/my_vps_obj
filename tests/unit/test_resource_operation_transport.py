@@ -42,6 +42,7 @@ class ResourceReply(Reply):
         ({"operation": "node_enable", "target_id": N1}, "POST", f"/nodes/{N1}/actions/enable"),
         ({"operation": "node_disable", "target_id": N1}, "POST", f"/nodes/{N1}/actions/disable"),
         ({"operation": "node_restart", "target_id": N1}, "POST", f"/nodes/{N1}/actions/restart"),
+        ({"operation": "node_delete", "target_id": N1}, "DELETE", f"/nodes/{N1}"),
     ],
 )
 def test_supported_payloads_use_only_pinned_fields(
@@ -74,6 +75,11 @@ def test_supported_payloads_use_only_pinned_fields(
         ("node_restart", 202, {"response": True}, "accepted"),
         ("node_restart", 200, {"response": True}, "unknown"),
         ("node_restart", 202, None, "accepted"),
+        ("node_delete", 204, None, "accepted"),
+        ("node_delete", 200, {"response": {"uuid": N1}}, "unknown"),
+        ("node_delete", 404, None, "unknown"),
+        ("node_delete", 500, None, "unknown"),
+        ("node_delete", 403, None, "rejected"),
     ],
 )
 def test_raw_http_status_and_identity_control_receipt(
@@ -137,6 +143,7 @@ def test_dry_run_blocks_real_client_as_well_as_dry_run_client() -> None:
         create_change("node") | {"address": "https://user:password@node.invalid"},
         create_change("host") | {"privateKey": SECRET},
         {"operation": "host_update", "target_id": H1, "patch": {"port": None}},
+        {"operation": "node_delete", "target_id": N1, "force_restart": True},
     ],
 )
 def test_invalid_or_secret_fields_are_rejected(change: dict[str, object]) -> None:

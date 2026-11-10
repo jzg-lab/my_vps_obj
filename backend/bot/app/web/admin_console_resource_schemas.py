@@ -89,7 +89,7 @@ class ResourceHostChange(ResourceBody):
 
 
 class ResourceNodeChange(ResourceBody):
-    operation: Literal["node_enable", "node_disable", "node_restart"]
+    operation: Literal["node_enable", "node_disable", "node_restart", "node_delete"]
     target_id: UUID
     force_restart: StrictBool = False
 
@@ -255,6 +255,7 @@ class ConsoleResourcePreviewOut(HttpResponseModel):
     possible_reload: ResourceImpactOut
     affected_service_ids: list[str]
     affected_customer_ids: list[int]
+    related_hosts: list[ResourceValuesOut] = Field(default_factory=list)
     coverage: Literal["complete", "partial"]
     blockers: list[str]
     sources: list[ResourceSourceOut]
@@ -273,6 +274,7 @@ class ConsoleResourcePreviewOut(HttpResponseModel):
         "inverse_node_action_requires_fresh_preview",
         "restart_has_no_automatic_rollback",
         "creation_requires_explicit_reconciliation_no_automatic_delete",
+        "node_removal_requires_manual_onboarding",
     ]
 
 

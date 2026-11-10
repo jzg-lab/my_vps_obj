@@ -151,6 +151,36 @@ for (const language of ["en", "ru", "zh-hans"])
         name: `${label("console_node_assets_edit")}: Inventory <node>`,
         exact: true,
       });
+      await expect(edit).toHaveText(label("console_node_assets_edit"));
+      await expect(
+        section.getByRole("button", {
+          name: `${label("console_node_assets_delete")}: Inventory <node>`,
+          exact: true,
+        })
+      ).toHaveText(label("console_node_assets_delete"));
+      await page.screenshot({
+        path: testInfo.outputPath(`assets-list-${language}-${width}.png`),
+        fullPage: true,
+        animations: "disabled",
+      });
+      await section
+        .getByRole("button", { name: label("console_node_assets_start"), exact: true })
+        .click();
+      const onboarding = page.getByRole("dialog", {
+        name: label("resource_ops_action_node_create"),
+        exact: true,
+      });
+      await expect(onboarding).toBeVisible();
+      expect(state.records).toHaveLength(1);
+      await page.keyboard.press("Escape");
+      await expect(onboarding).toBeHidden();
+      await expect(
+        page.getByRole("button", { name: label("resource_ops_action_node_create"), exact: true })
+      ).toBeFocused();
+      await page
+        .getByRole("tab", { name: label("console_node_assets_pending"), exact: true })
+        .click();
+      await expect(section.locator("tbody tr")).toHaveCount(1);
       await edit.click();
       dialog = page.getByRole("dialog", { name: label("console_node_assets_edit"), exact: true });
       await expect(

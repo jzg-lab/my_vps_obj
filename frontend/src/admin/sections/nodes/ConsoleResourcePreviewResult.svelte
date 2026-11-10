@@ -2,6 +2,8 @@
   import { AdminBadge, AdminEntityLink, AdminTable } from "$components/patterns/admin/index.js";
   import type { ConsoleNodesTranslate } from "$lib/admin/consoleNodesTypes";
   import { nodeRelatedUrl } from "$lib/admin/consoleNodesNavigation";
+  import { resourcesRouteUrl } from "$lib/admin/consoleResources";
+  import { navigateConsoleLink } from "$lib/admin/consoleNavigation";
   import { serviceDate } from "$lib/webapp/independentServices";
   import type { ResourcePreview } from "./resourcePreview";
   import { resourceBlockerText, resourceRecoveryKey } from "./resourcePreviewMessages";
@@ -58,6 +60,7 @@
           : nodeFields
   );
   const customers = $derived([...new Set(preview.affected_customer_ids)]);
+  const relatedHosts = $derived(preview.related_hosts ?? []);
   const serviceIds = $derived([...new Set(preview.affected_service_ids)]);
   function display(value: string | string[] | number | boolean | null | undefined) {
     if (value === null || value === undefined) return at("console_unknown");
@@ -98,28 +101,52 @@
           </li>{/each}
       </ul>
     </div>{/if}
-  <AdminTable>
-    <thead
-      ><tr
-        ><th>{at("console_resource_field")}</th><th>{at("console_resource_current")}</th><th
-          >{at("console_resource_proposed")}</th
-        ></tr
-      ></thead
-    >
-    <tbody>
-      {#each fields as [field, key]}
-        {#if field !== "force_restart" || preview.change.operation === "node_restart"}
-          <tr
-            ><td data-label={at("console_resource_field")}>{at(key)}</td>
-            <td data-label={at("console_resource_current")}>{display(preview.current?.[field])}</td>
-            <td data-label={at("console_resource_proposed")}
-              >{display(preview.proposed?.[field])}</td
-            ></tr
-          >
-        {/if}
-      {/each}
-    </tbody>
-  </AdminTable>
+  {#if preview.change.operation === "node_delete"}
+    <p role="note">{at("console_resource_node_delete_hint")}</p>
+    <p>
+      {at("console_resource_node_delete_target")}: {preview.current?.name ?? at("console_unknown")} ·
+      {preview.current?.id ?? at("console_unknown")}
+    </p>
+    <section aria-label={at("console_resource_related_hosts")}>
+      <h4>{at("console_resource_related_hosts")}: {relatedHosts.length}</h4>
+      <ul>
+        {#each relatedHosts as host (host.id)}<li>
+            <a
+              href={resourcesRouteUrl(
+                currentUrl,
+                { kind: "host", query: "", resourceId: host.id ?? "" },
+                routePrefix
+              ).href}
+              onclick={navigateConsoleLink}
+              ><AdminEntityLink kind="code" label={host.name} idText={host.id ?? undefined} /></a
+            >
+          </li>{:else}<li>{at("console_resource_no_related_hosts")}</li>{/each}
+      </ul>
+    </section>
+  {:else}<AdminTable>
+      <thead
+        ><tr
+          ><th>{at("console_resource_field")}</th><th>{at("console_resource_current")}</th><th
+            >{at("console_resource_proposed")}</th
+          ></tr
+        ></thead
+      >
+      <tbody>
+        {#each fields as [field, key]}
+          {#if field !== "force_restart" || preview.change.operation === "node_restart"}
+            <tr
+              ><td data-label={at("console_resource_field")}>{at(key)}</td>
+              <td data-label={at("console_resource_current")}
+                >{display(preview.current?.[field])}</td
+              >
+              <td data-label={at("console_resource_proposed")}
+                >{display(preview.proposed?.[field])}</td
+              ></tr
+            >
+          {/if}
+        {/each}
+      </tbody>
+    </AdminTable>{/if}
   <section aria-label={at("console_resource_affected_services")}>
     <h4>{at("console_resource_affected_services")}: {serviceIds.length}</h4>
     <ul>

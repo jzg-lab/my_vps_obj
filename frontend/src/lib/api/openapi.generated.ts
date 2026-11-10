@@ -11067,7 +11067,10 @@ export interface components {
         | "restore_previous_host_and_refresh_subscription"
         | "inverse_node_action_requires_fresh_preview"
         | "restart_has_no_automatic_rollback"
-        | "creation_requires_explicit_reconciliation_no_automatic_delete";
+        | "creation_requires_explicit_reconciliation_no_automatic_delete"
+        | "node_removal_requires_manual_onboarding";
+      /** Related Hosts */
+      related_hosts?: components["schemas"]["ResourceValuesOut"][];
       /** Remote Authorization Verified */
       remote_authorization_verified: boolean;
       /**
@@ -14662,7 +14665,7 @@ export interface components {
        * @description discriminator enum property added by openapi-typescript
        * @enum {string}
        */
-      operation: "node_disable" | "node_enable" | "node_restart";
+      operation: "node_delete" | "node_disable" | "node_enable" | "node_restart";
       /**
        * Target Id
        * Format: uuid

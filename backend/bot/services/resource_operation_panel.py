@@ -100,6 +100,8 @@ def resource_payload(
         payload = _host_payload(change.patch.model_dump(mode="json", exclude_unset=True))
         payload["uuid"] = str(change.target_id)
         return PanelApiOperation.HOST_UPDATE, "/hosts", payload
+    if change.operation == "node_delete":
+        return PanelApiOperation.NODE_DELETE, f"/nodes/{change.target_id}", None
     operation = {
         "node_enable": PanelApiOperation.NODE_ENABLE,
         "node_disable": PanelApiOperation.NODE_DISABLE,
@@ -148,6 +150,8 @@ async def dispatch_resource(
             or result.get("error")
         ):
             return ResourceReceipt("unknown")
+        if change.operation == "node_delete":
+            return ResourceReceipt("accepted", str(change.target_id))
         if change.operation == "node_restart":
             if status != 202:
                 return ResourceReceipt("unknown")

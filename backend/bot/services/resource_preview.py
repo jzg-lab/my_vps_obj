@@ -207,6 +207,7 @@ def build_resource_preview(
     direct_profiles: set[UUID] = set()
     reload_nodes: set[UUID] = set()
     reload_profiles: set[UUID] = set()
+    related_hosts: list[ResourceValuesOut] = []
     recovery: LiteralRecovery
 
     if isinstance(change, (ResourceGroupCreate, ResourceNodeCreate)):
@@ -346,7 +347,23 @@ def build_resource_preview(
             direct_nodes = {node.uuid}
             direct_groups = groups_for(direct_nodes)
             direct_profiles = {profile} if profile else set()
-    if proposed is None:
+            if change.operation == "node_delete":
+                recovery = "node_removal_requires_manual_onboarding"
+                proposed = None
+                inbounds = {item.uuid for item in node.configProfile.activeInbounds}
+                related_hosts = [
+                    host_values(host, blockers)
+                    for host in inventory.hosts.rows
+                    if node.uuid in host.nodes
+                    or (
+                        not host.nodes
+                        and host.inbound.configProfileUuid == profile
+                        and host.inbound.configProfileInboundUuid in inbounds
+                    )
+                ]
+                if related_hosts:
+                    blockers.add("node_has_related_hosts")
+    if proposed is None and not (change.operation == "node_delete" and current is not None):
         blockers.add("target_not_found")
     reload_groups = groups_for(reload_nodes) - direct_groups
     relevant_replacements = [
@@ -358,6 +375,8 @@ def build_resource_preview(
         blockers.update(impact.blockers)
     direct = _impact(direct_groups, direct_nodes, direct_profiles, services, replacements)
     reload = _impact(reload_groups, reload_nodes, reload_profiles, services, replacements)
+    if change.operation == "node_delete" and (direct.service_total or reload.service_total):
+        blockers.add("node_has_related_services")
     now = datetime.now(UTC)
     fingerprint = (
         None
@@ -390,6 +409,7 @@ def build_resource_preview(
             }
         ),
         affected_customer_ids=sorted(set(direct.customer_ids + reload.customer_ids)),
+        related_hosts=sorted(related_hosts, key=lambda host: host.id or ""),
         coverage="partial" if blockers else "complete",
         blockers=sorted(blockers),
         sources=[
@@ -429,4 +449,5 @@ type LiteralRecovery = Literal[
     "inverse_node_action_requires_fresh_preview",
     "restart_has_no_automatic_rollback",
     "creation_requires_explicit_reconciliation_no_automatic_delete",
+    "node_removal_requires_manual_onboarding",
 ]

@@ -77,6 +77,7 @@ Core 同时认证 2 代 API：当前代与维护代。
 | `internal-squads.add-users` | POST | `/internal-squads/{uuid}/bulk-actions/add-many-users` | rw3-numeric-user-id | 200, 202, 204 | 带 `response` 字段的 JSON 封装；空 2xx 正文视为成功 | 3.x 每批 1000 个数值 ID 定向更新；2.8.1 相似 add-users 会作用全体，因此逐目标 PATCH。 | unit, live-write |
 | `internal-squads.remove-users` | DELETE | `/internal-squads/{uuid}/bulk-actions/remove-many-users` | rw3-numeric-user-id | 200, 202, 204 | 带 `response` 字段的 JSON 封装；空 2xx 正文视为成功 | 3.x 每批 1000 个数值 ID 定向更新；2.8.1 逐用户 PATCH。 | unit, live-write |
 | `hosts.list` | GET | `/hosts` | rw2-uuid-user-id, rw3-numeric-user-id | 200 | 带 `response` 字段的 JSON 封装 | 全部已认证 API 代保持稳定。 | unit, live-read |
+| `nodes.delete` | DELETE | `/nodes/{uuid}` | rw3-numeric-user-id | 204 | 204 空回执；登记删除及 Xray 停止进入队列；空 2xx 正文视为成功 | 仅限固定 3.4.5；须预览确认节点无关联，并通过新鲜清单读回确认登记已消失。受理回执不证明代理停止，不自动重试。 | unit |
 | `nodes.create` | POST | `/nodes` | rw3-numeric-user-id | 201 | 带 `response` 字段的 JSON 封装 | 限定 3.4.5 的资源操作；受理回执不代表实际运行已经验证。 | unit |
 | `nodes.enable` | POST | `/nodes/{uuid}/actions/enable` | rw3-numeric-user-id | 200 | 带 `response` 字段的 JSON 封装 | 限定 3.4.5 的资源操作；受理回执不代表实际运行已经验证。 | unit |
 | `nodes.disable` | POST | `/nodes/{uuid}/actions/disable` | rw3-numeric-user-id | 200 | 带 `response` 字段的 JSON 封装 | 限定 3.4.5 的资源操作；受理回执不代表实际运行已经验证。 | unit |

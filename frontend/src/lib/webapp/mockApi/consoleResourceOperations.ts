@@ -38,7 +38,8 @@ export function resourceOperationPreviewFixture(change: ResourceChange): Resourc
   if (
     change.operation === "node_enable" ||
     change.operation === "node_disable" ||
-    change.operation === "node_restart"
+    change.operation === "node_restart" ||
+    change.operation === "node_delete"
   )
     preview = consoleResourcePreviewFixture(change);
   else if (change.operation === "group_inbounds")

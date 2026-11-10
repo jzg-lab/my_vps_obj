@@ -45,6 +45,12 @@
   </p>
   <p>{at(operation.gate_active ? "resource_ops_gate_held" : "resource_ops_gate_released")}</p>
   <p>{at("resource_ops_runtime_unverified")}</p>
+  {#if operation.change.operation === "node_delete"}
+    <p role="note">{at("console_resource_node_delete_hint")}</p>
+    {#if operation.observation?.configuration === "matched"}
+      <p role="status">{at("resource_ops_node_delete_confirmed")}</p>
+    {/if}
+  {/if}
   {#if operation.error_code}<p role="alert">{at(resourceErrorKey(operation.error_code))}</p>{/if}
   {#if operation.error_code === "resource_target_removed"}
     <p role="note">{at("resource_ops_removed_warning")}</p>

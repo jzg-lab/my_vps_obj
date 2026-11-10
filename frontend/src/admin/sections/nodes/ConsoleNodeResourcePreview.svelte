@@ -22,6 +22,7 @@
     at,
     currentUrl,
     routePrefix = "",
+    disabled = false,
     onOpenUserCard,
   }: {
     api: ApiClient["api"];
@@ -29,12 +30,14 @@
     at: ConsoleNodesTranslate;
     currentUrl: string;
     routePrefix?: string;
+    disabled?: boolean;
     onOpenUserCard: (id: unknown) => void;
   } = $props();
   const previewState = untrack(() => createResourcePreview(api));
   let route = $state(readNodePreviewRoute(""));
   let sourceUrl = $state("");
   let content: HTMLDivElement | undefined;
+  let trigger: HTMLElement | null = null;
   const reviewable = $derived(
     !$previewState.busy &&
       $previewState.validation !== "incomplete" &&
@@ -56,6 +59,11 @@
   }
   function serviceHref(serviceId: string) {
     return nodePreviewUrl(sourceUrl || currentUrl, { ...route, serviceId }, routePrefix).href;
+  }
+  async function closePreview() {
+    navigate({ open: false, operation: "", forceRestart: false, serviceId: "" });
+    await tick();
+    trigger?.focus();
   }
   async function closeService() {
     const serviceId = route.serviceId;
@@ -80,7 +88,21 @@
   onDestroy(() => previewState.destroy());
 </script>
 
-<AdminButton onclick={() => navigate({ open: true })}>{at("console_resource_open")}</AdminButton>
+{#each nodeOperations as operation}
+  {#if (operation !== "node_enable" || node.is_disabled !== false) && (operation !== "node_disable" || node.is_disabled !== true)}
+    <AdminButton
+      size="sm"
+      {disabled}
+      variant={operation === "node_disable" || operation === "node_delete"
+        ? "dangerSoft"
+        : "default"}
+      onclick={(event) => {
+        trigger = event.currentTarget instanceof HTMLElement ? event.currentTarget : null;
+        navigate({ open: true, operation, forceRestart: false, serviceId: "" });
+      }}>{at(`console_resource_${operation}`)}</AdminButton
+    >
+  {/if}
+{/each}
 <Dialog
   open={route.open && !route.serviceId}
   portal
@@ -89,10 +111,13 @@
   title={at("console_resource_title")}
   description={at("resource_ops_review_scope")}
   closeLabel={at("close")}
-  onclose={() => navigate({ open: false, operation: "", forceRestart: false, serviceId: "" })}
+  onclose={closePreview}
 >
   <div bind:this={content} class="node-resource-preview" aria-busy={Boolean($previewState.busy)}>
     <p>{node.name} · {node.id}</p>
+    {#if route.operation === "node_delete" && !$previewState.preview}<p role="note">
+        {at("console_resource_node_delete_hint")}
+      </p>{/if}
     <AdminField label={at("console_resource_operation")}>
       <AdminSelect
         value={route.operation}

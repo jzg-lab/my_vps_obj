@@ -29,7 +29,7 @@
         <td data-label={at("console_node_assets_name")}>
           <div class="asset-name">
             <strong>{asset.name}</strong>
-            <AdminBadge variant="muted">{at("console_node_assets_unmanaged")}</AdminBadge>
+            <AdminBadge variant="warning">{at("console_node_assets_unmanaged")}</AdminBadge>
           </div>
         </td>
         <td data-label={at("console_node_assets_address")}><code>{asset.address}</code></td>
@@ -39,23 +39,23 @@
         <td data-label={at("actions")}
           ><div class="asset-actions">
             <AdminButton
-              size="icon"
+              size="sm"
               title={at("console_node_assets_edit")}
               aria-label={`${at("console_node_assets_edit")}: ${asset.name}`}
               onclick={(event) => {
                 if (event.currentTarget instanceof HTMLElement)
                   onAction({ kind: "edit", asset }, event.currentTarget);
-              }}><Pencil size={16} /></AdminButton
+              }}><Pencil size={16} />{at("console_node_assets_edit")}</AdminButton
             >
             <AdminButton
-              size="icon"
+              size="sm"
               variant="dangerSoft"
               title={at("console_node_assets_delete")}
               aria-label={`${at("console_node_assets_delete")}: ${asset.name}`}
               onclick={(event) => {
                 if (event.currentTarget instanceof HTMLElement)
                   onAction({ kind: "delete", asset }, event.currentTarget);
-              }}><Trash2 size={16} /></AdminButton
+              }}><Trash2 size={16} />{at("console_node_assets_delete")}</AdminButton
             >
           </div></td
         >

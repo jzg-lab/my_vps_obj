@@ -17,6 +17,7 @@ export const resourceActions = [
   "node_enable",
   "node_disable",
   "node_restart",
+  "node_delete",
   "group_inbounds",
   "host_update",
 ] as const;

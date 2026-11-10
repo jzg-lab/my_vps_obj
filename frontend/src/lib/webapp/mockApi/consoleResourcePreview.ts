@@ -48,19 +48,22 @@ export function consoleResourcePreviewFixture(change: NodeChange): Preview {
       .size,
   };
   const found = change.target_id === consoleNodeFixture.id;
+  const deleting = change.operation === "node_delete";
+  const blockedDeletion = deleting && found && direct.service_total > 0;
   const fingerprint =
     (change.operation === "node_enable" ? "1" : change.operation === "node_disable" ? "2" : "3") +
     (change.force_restart ? "1" : "0");
   return {
     change: { ...change },
     current: found ? current : null,
-    proposed: found
-      ? {
-          ...current,
-          is_disabled: change.operation === "node_disable",
-          force_restart: change.operation === "node_restart" ? change.force_restart : null,
-        }
-      : null,
+    proposed:
+      found && !deleting
+        ? {
+            ...current,
+            is_disabled: change.operation === "node_disable",
+            force_restart: change.operation === "node_restart" ? change.force_restart : null,
+          }
+        : null,
     direct: found
       ? direct
       : {
@@ -83,17 +86,19 @@ export function consoleResourcePreviewFixture(change: NodeChange): Preview {
     },
     affected_service_ids: found ? direct.services.map((service) => service.service_id) : [],
     affected_customer_ids: found ? direct.customer_ids : [],
+    related_hosts: [],
     association_basis: "configured_and_observed_scope_not_live_connections",
-    blockers: found ? [] : ["target_not_found"],
-    coverage: found ? "complete" : "partial",
+    blockers: !found ? ["target_not_found"] : blockedDeletion ? ["node_has_related_services"] : [],
+    coverage: found && !blockedDeletion ? "complete" : "partial",
     execution_available: false,
-    fingerprint: found ? fingerprint.padEnd(64, "0") : null,
+    fingerprint: found && !blockedDeletion ? fingerprint.padEnd(64, "0") : null,
     observed_at: "2026-10-24T08:00:00Z",
     observed_panel_version: "3.4.5",
     reviewed_panel_version: "3.4.5",
     remote_authorization_verified: true,
-    recovery:
-      change.operation === "node_restart"
+    recovery: deleting
+      ? "node_removal_requires_manual_onboarding"
+      : change.operation === "node_restart"
         ? "restart_has_no_automatic_rollback"
         : "inverse_node_action_requires_fresh_preview",
     sources: (
@@ -363,7 +368,8 @@ export function consoleResourcePreviewDemoResponse(path: string, options: Reques
       !("operation" in change) ||
       (change.operation !== "node_enable" &&
         change.operation !== "node_disable" &&
-        change.operation !== "node_restart") ||
+        change.operation !== "node_restart" &&
+        change.operation !== "node_delete") ||
       !("target_id" in change) ||
       typeof change.target_id !== "string" ||
       !/^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$/i.test(change.target_id) ||

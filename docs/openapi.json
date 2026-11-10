@@ -12347,10 +12347,18 @@
               "restore_previous_host_and_refresh_subscription",
               "inverse_node_action_requires_fresh_preview",
               "restart_has_no_automatic_rollback",
-              "creation_requires_explicit_reconciliation_no_automatic_delete"
+              "creation_requires_explicit_reconciliation_no_automatic_delete",
+              "node_removal_requires_manual_onboarding"
             ],
             "title": "Recovery",
             "type": "string"
+          },
+          "related_hosts": {
+            "items": {
+              "$ref": "#/components/schemas/ResourceValuesOut"
+            },
+            "title": "Related Hosts",
+            "type": "array"
           },
           "remote_authorization_verified": {
             "title": "Remote Authorization Verified",
@@ -20427,6 +20435,7 @@
             "host_create": "#/components/schemas/ResourceHostCreate",
             "host_update": "#/components/schemas/ResourceHostChange",
             "node_create": "#/components/schemas/ResourceNodeCreate",
+            "node_delete": "#/components/schemas/ResourceNodeChange",
             "node_disable": "#/components/schemas/ResourceNodeChange",
             "node_enable": "#/components/schemas/ResourceNodeChange",
             "node_restart": "#/components/schemas/ResourceNodeChange"
@@ -20964,7 +20973,8 @@
             "enum": [
               "node_enable",
               "node_disable",
-              "node_restart"
+              "node_restart",
+              "node_delete"
             ],
             "title": "Operation",
             "type": "string"

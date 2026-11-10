@@ -155,7 +155,7 @@ describe("pending node UI consumers", () => {
   });
   it("shows loading as unknown count, not an empty list or invented online metrics", () => {
     const html = render(ConsoleNodeAssets, {
-      props: { api: noApi, at, page: 0, onPageChange: () => {} },
+      props: { api: noApi, at, page: 0, onPageChange: () => {}, onStartOnboarding: () => {} },
     }).body;
     expect(html).toContain("console_node_assets_scope");
     expect(html).toContain('aria-busy="true"');

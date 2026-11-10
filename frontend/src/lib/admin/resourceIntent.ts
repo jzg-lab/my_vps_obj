@@ -44,6 +44,7 @@ export function validResourceChange(value: unknown): value is ResourceChange {
     case "node_enable":
     case "node_disable":
     case "node_restart":
+    case "node_delete":
       return (
         exact(value, ["operation", "target_id", "force_restart"]) &&
         uuid(value.target_id) &&

@@ -204,6 +204,7 @@
         {currentUrl}
         {routePrefix}
         {onOpenUserCard}
+        disabled={loading || stale}
       />
     </div>
   </header>
