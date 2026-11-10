@@ -111,6 +111,7 @@
   title={at("console_resource_title")}
   description={at("resource_ops_review_scope")}
   closeLabel={at("close")}
+  focusKey={$previewState.busy ?? "ready"}
   onclose={closePreview}
 >
   <div bind:this={content} class="node-resource-preview" aria-busy={Boolean($previewState.busy)}>

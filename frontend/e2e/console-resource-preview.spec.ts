@@ -369,9 +369,25 @@ for (const language of ["en", "ru", "zh-hans"] as const)
           window.__resourcePreviewHarness.calls.filter(({ method }) => method !== "GET")
         )
       ).toEqual([]);
-      await dialog
-        .getByRole("button", { name: label("console_resource_preview", language), exact: true })
-        .click();
+      await page.evaluate(() => {
+        window.__resourcePreviewHarness.holdNextPreview = true;
+      });
+      const readPreview = dialog.getByRole("button", {
+        name: label("console_resource_preview", language),
+        exact: true,
+      });
+      await readPreview.click();
+      await expect(readPreview).toBeDisabled();
+      await page.evaluate(
+        () =>
+          new Promise<void>((resolve) =>
+            requestAnimationFrame(() => requestAnimationFrame(() => resolve()))
+          )
+      );
+      await expect
+        .poll(() => dialog.evaluate((element) => element.contains(document.activeElement)))
+        .toBe(true);
+      await page.evaluate(() => window.__resourcePreviewHarness.releasePreview());
       const confirmation = dialog.getByRole("checkbox", {
         name: label("console_resource_confirm", language),
         exact: true,
@@ -442,6 +458,14 @@ for (const language of ["en", "ru", "zh-hans"] as const)
         dialog.getByRole("button", { name: label("resource_ops_submit", language), exact: true })
       ).toBeDisabled();
       await page.screenshot({ path: info.outputPath("node-removal-blocked.png"), fullPage: true });
+      await page.keyboard.press("Escape");
+      await expect(dialog).toBeHidden();
+      await expect(
+        detail.getByRole("button", {
+          name: label("console_resource_node_delete", language),
+          exact: true,
+        })
+      ).toBeFocused();
     });
   }
 
