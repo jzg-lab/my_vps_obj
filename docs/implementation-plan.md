@@ -304,6 +304,18 @@
 - **原工作区完整门禁：** 以下为提取独立发布源码前的混合工作区结果；发布候选须另行验证。根目录 `npm run check` 通过：后端 **6791 passed、100 skipped、1773 subtests passed**，架构、Ruff、1651 文件格式及 1525 文件 mypy 通过；前端 **258 文件／2203 单测、740 浏览器回归（12.9 分钟）**，Svelte 零错误／零警告，类型、lint、格式及正式构建通过。条件跳过不记作真实环境验收。初次门禁因文档站 OpenAPI 副本未同步中止，运行既有同步器后完整重跑通过，见 `full-check.log` 与 `full-check-r2.log`。文档构建 **124 页通过**，58 处仓库文档路径检查及 `git diff --check` 通过；最终截图保存在同目录 `final-screenshots/`。
 - **边界与证据：** `data/qa/node-management-20261111/` 保存浏览器、mypy 和完整门禁日志。已目视检查待接入列表、编辑与删除弹窗、已纳管详情及移除预览的桌面／手机布局；采用本地 QA 样例。执行侧验证为替身上游与真实 SQLite 操作记录，不是实际 Node 删除、代理停止或客户端断连验收。未连接生产、提交、推送或部署。
 
+### 节点操作合并与生产发布（2026-11-11）
+
+用户明确授权合并、推送和部署；对应 UC-02／07／08、F03／F06／F07、UA-07／14／16。从混合工作区提取本次范围到独立发布工作树，未带入备份恢复、启动器停服、用量同步或节点网速读取等其他修改。功能提交 `0d2ad0eb70873e5789040c8de73cebb0f6384392` 与焦点修复 `e2008e3404698e7b073057f47670a54580bf9eba` 均已快进合入并推送 `origin/main`，已核对远程引用；原工作文件逐字节保留，仅追加本次修复和发布记录。
+
+- **独立候选门禁：** 功能提交与最终焦点修复提交分别完整运行根目录 `npm run check`。最终后端 **6689 passed、100 skipped、1763 subtests passed**，架构、Ruff、1644 文件格式及 1518 文件 mypy 通过；前端 **258 文件／2203 单测、740 浏览器回归（13.0m）**，Svelte 零错误／零警告，类型、lint、格式和正式构建通过。条件跳过不是实际环境验收。独立文档检查和构建 **124 页通过**。
+- **首轮上线与现场修复：** `0d2ad0eb-nodes-20261111` 于北京时间 01:52 切换，应用健康、业务数量与只读关联阻断验证通过，但线上浏览器发现异步预览禁用当前按钮后焦点落到正文，Esc 无法关闭。补充持有请求并等待浏览器绘制的回归，先复现失败，再复用现有 Dialog 的 `focusKey`；三语／1440、390 专项 **6 passed**。首轮门禁未覆盖这个时序，失败日志保留，不将首次浏览器验收记为通过。
+- **最终构建与切换：** 最终准确源码 `e2008e34` 经 Git bundle 传输，按完整仓库 Dockerfile 构建三个镜像并核对 revision 标签和运行用户源码读取；北京时间 02:20:08 切换至 `e2008e34-nodes-20261111`。仅替换 backend／worker／frontend 及 migrate 镜像，Panel、Node、Caddy、数据库和 Redis 容器 ID 与启动时间均保持一致。源码 `/opt/my-vps-obj/releases/e2008e34-nodes-20261111`，部署摘要 `/opt/my-vps-obj/last-deployment.json`。
+- **备份与健康：** 停止 backend／worker 后创建应用归档及 PostgreSQL custom dump，SHA-256 和 `pg_restore --list` 校验通过；备份 `/opt/my-vps-obj/backups/pre-e2008e34-nodes-20261111-final`，首轮备份另行保留。无新增迁移，集合仍为 120 项、末项 `0124_node_country_lookup_ip`；用户／服务／连接／开通记录前后为 **8／7／7／14**。backend／frontend healthy、worker running，重启数与切换后错误标记计数均为零。旧 backend／worker 停止退出码 143、OOM false，不宣称退出码 0 或完整清理；未演练生产回退或数据库恢复。
+- **现场验收与边界：** 三台真实节点列表／详情及只读移除预览通过，有关联线路／服务时阻断、无可执行指纹。线上 1440／390 浏览器验证已纳管用途、卡片与详情操作、标注表单、移除阻断、Esc 关闭和焦点返回；待接入清单当前为空，仅打开新增表单且未保存。两尺寸无页面错误或横向溢出，除只读预览 POST 外未发业务写请求。待接入编辑／删除由本地模拟浏览器覆盖，未在线上制造测试资产。未实际移除任何生产节点、卸载程序、停用／重启节点或验证代理及旧连接断开。
+
+日志、只读 API 结果、截图、原工作区保全清单及合并证据位于 `data/qa/node-management-release-20261111/`，其中 `full-check.log` 为首轮准确候选、`full-check-focus.log` 为最终修复，`async-focus-red-r2.log`／`async-focus-green.log` 为焦点红绿回归，`browser-production-focus.json` 与 `production-health-focus.json` 为最终线上结果。运行版本为上述功能／修复提交；后续发布记录提交仅更新文档。
+
 ## 历史记录入口
 
 <a id="local-node-and-recovery-acceptance"></a>
