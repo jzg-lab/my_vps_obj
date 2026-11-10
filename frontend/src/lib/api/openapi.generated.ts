@@ -14499,6 +14499,11 @@ export interface components {
       /** Inbound Ids */
       inbound_ids: string[];
       /**
+       * Name
+       * @default null
+       */
+      name: string | null;
+      /**
        * @description discriminator enum property added by openapi-typescript
        * @enum {string}
        */
@@ -14604,6 +14609,11 @@ export interface components {
        * @default null
        */
       is_hidden: boolean | null;
+      /**
+       * Name
+       * @default null
+       */
+      name: string | null;
       /**
        * Node Ids
        * @default null

@@ -152,10 +152,12 @@ export function resourceRecovery(operation: ResourceOperation): ResourceChange |
         operation: "group_inbounds",
         target_id: before.id,
         inbound_ids: [...before.inbound_ids],
+        name: operation.change.name == null ? null : before.name,
       };
     case "host_update": {
       const old = operation.change.patch;
       const patch: Partial<components["schemas"]["ResourceHostPatch"]> = {};
+      if (old.name != null) patch.name = before.name;
       if (old.profile_id != null) {
         if (!before.profile_id || before.inbound_ids.length !== 1) return null;
         patch.profile_id = before.profile_id;

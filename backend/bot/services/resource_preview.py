@@ -246,7 +246,17 @@ def build_resource_preview(
             before = groups[group.uuid]
             after = set(change.inbound_ids)
             current = group_values(group)
-            proposed = current.model_copy(update={"inbound_ids": _ids(after)})
+            if change.name is not None and any(
+                item.uuid != group.uuid and item.name == change.name
+                for item in inventory.groups.rows
+            ):
+                blockers.add("resource_create_conflict")
+            proposed = current.model_copy(
+                update={
+                    "inbound_ids": _ids(after),
+                    **({"name": change.name} if change.name is not None else {}),
+                }
+            )
             if after - inbound_profiles.keys():
                 blockers.add("unknown_proposed_inbound")
             direct_groups = {group.uuid}

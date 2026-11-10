@@ -324,6 +324,16 @@ class ResourcePreviewTests(IsolatedAsyncioTestCase):
         assert not result.execution_available and result.remote_authorization_verified
         assert request.await_count == 5
 
+    async def test_group_rename_is_shown_in_the_confirmed_proposal(self) -> None:
+        panel, _ = panel_fixture(inventory_fixture())
+        change = ConsoleResourcePreviewBody.model_validate(
+            {"change": {**group_change(), "name": "Updated group"}}
+        ).change
+        result = build_resource_preview(change, await read_preview_inventory(panel), fixture_rows())
+        assert result.current and result.current.name == "Same group name"
+        assert result.proposed and result.proposed.name == "Updated group"
+        assert result.coverage == "complete" and result.fingerprint
+
     async def test_dedicated_disabled_unverified_bound_resource_is_still_potential_impact(
         self,
     ) -> None:
@@ -389,6 +399,7 @@ class ResourcePreviewTests(IsolatedAsyncioTestCase):
                     "operation": "host_update",
                     "target_id": H1,
                     "patch": {
+                        "name": "New client route",
                         "profile_id": P2,
                         "inbound_id": I3,
                         "node_ids": [N3],
@@ -403,6 +414,8 @@ class ResourcePreviewTests(IsolatedAsyncioTestCase):
         ).change
         result = build_resource_preview(change, await read_preview_inventory(panel), fixture_rows())
         assert result.fingerprint
+        assert result.current and result.current.name == "Host"
+        assert result.proposed and result.proposed.name == "New client route"
         assert result.direct.group_ids == [G1, G3]
         assert result.direct.node_ids == [N1, N3]
         assert result.direct.customer_ids == [11, 33]
@@ -517,6 +530,18 @@ class ResourcePreviewTests(IsolatedAsyncioTestCase):
         {"operation": "node_restart", "target_id": "name"},
         {"operation": "node_disable", "target_id": N1, "force_restart": True},
         {"operation": "group_inbounds", "target_id": G1, "inbound_ids": [I1, I1]},
+        {
+            "operation": "group_inbounds",
+            "target_id": G1,
+            "inbound_ids": [I1],
+            "name": "Default-Squad",
+        },
+        {
+            "operation": "group_inbounds",
+            "target_id": G1,
+            "inbound_ids": [I1],
+            "name": "Invalid/name",
+        },
         {"operation": "host_update", "target_id": H1, "patch": {}},
         {"operation": "host_update", "target_id": H1, "patch": {"is_disabled": None}},
         {"operation": "host_update", "target_id": H1, "patch": {"is_disabled": "false"}},
@@ -530,6 +555,7 @@ class ResourcePreviewTests(IsolatedAsyncioTestCase):
             "patch": {"address": "https://user:secret@host"},
         },
         {"operation": "host_update", "target_id": H1, "patch": {"port": True}},
+        {"operation": "host_update", "target_id": H1, "patch": {"name": ""}},
     ],
 )
 def test_reject_unsupported_ambiguous_or_sensitive_proposals(change: dict[str, object]) -> None:

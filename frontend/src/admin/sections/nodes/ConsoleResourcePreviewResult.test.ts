@@ -53,12 +53,20 @@ describe("resource preview presentation", () => {
         operation: "group_inbounds",
         target_id: catalog.groups[0].id,
         inbound_ids: [],
+        name: null,
       })
     );
     expect(group).toContain("console_nodes_inbounds");
     expect(group).toContain("console_resource_none");
     expect(group).toContain("console_resource_recovery_inbounds");
     expect(group).not.toContain("console_resource_disabled");
+    const renamedGroup = consoleResourceDraftPreviewFixture({
+      operation: "group_inbounds",
+      target_id: catalog.groups[0].id,
+      inbound_ids: catalog.groups[0].inbound_ids,
+      name: "Customer group",
+    });
+    expect(renamedGroup.proposed?.name).toBe("Customer group");
     const change = initialDraft(catalog, { kind: "host", id: catalog.hosts[0].id })!;
     if (change.operation !== "host_update") throw new Error("wrong fixture");
     change.patch = {

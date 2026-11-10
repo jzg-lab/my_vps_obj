@@ -91,6 +91,8 @@ def resource_payload(
             payload["name"] = change.name
             return PanelApiOperation.GROUP_CREATE, "/internal-squads", payload
         payload["uuid"] = str(change.target_id)
+        if change.name is not None:
+            payload["name"] = change.name
         return PanelApiOperation.GROUP_UPDATE, "/internal-squads", payload
     if isinstance(change, ResourceHostCreate):
         payload = _host_payload(change.model_dump(mode="json"))

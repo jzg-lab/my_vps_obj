@@ -20550,6 +20550,21 @@
             "title": "Inbound Ids",
             "type": "array"
           },
+          "name": {
+            "anyOf": [
+              {
+                "maxLength": 30,
+                "minLength": 2,
+                "pattern": "^[A-Za-z0-9_\\s-]+$",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Name"
+          },
           "operation": {
             "const": "group_inbounds",
             "title": "Operation",
@@ -20796,6 +20811,20 @@
             ],
             "default": null,
             "title": "Is Hidden"
+          },
+          "name": {
+            "anyOf": [
+              {
+                "maxLength": 100,
+                "minLength": 1,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Name"
           },
           "node_ids": {
             "anyOf": [

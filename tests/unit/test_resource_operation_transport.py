@@ -30,12 +30,21 @@ class ResourceReply(Reply):
         (create_change("host"), "POST", "/hosts"),
         (create_change("group"), "POST", "/internal-squads"),
         (
-            {"operation": "group_inbounds", "target_id": G1, "inbound_ids": [I1]},
+            {
+                "operation": "group_inbounds",
+                "target_id": G1,
+                "inbound_ids": [I1],
+                "name": "Renamed group",
+            },
             "PATCH",
             "/internal-squads",
         ),
         (
-            {"operation": "host_update", "target_id": H1, "patch": {"is_disabled": True}},
+            {
+                "operation": "host_update",
+                "target_id": H1,
+                "patch": {"is_disabled": True, "name": "New route name"},
+            },
             "PATCH",
             "/hosts",
         ),
@@ -58,8 +67,13 @@ def test_supported_payloads_use_only_pinned_fields(
     if change["operation"] == "group_create":
         assert payload == {"name": "New group", "inbounds": [I1]}
     if change["operation"] == "host_update":
-        assert payload == {"uuid": H1, "isDisabled": True}
-        assert typed.model_dump(mode="json")["patch"] == {"is_disabled": True}
+        assert payload == {"uuid": H1, "isDisabled": True, "remark": "New route name"}
+        assert typed.model_dump(mode="json")["patch"] == {
+            "is_disabled": True,
+            "name": "New route name",
+        }
+    if change["operation"] == "group_inbounds":
+        assert payload == {"inbounds": [I1], "uuid": G1, "name": "Renamed group"}
 
 
 @pytest.mark.parametrize(

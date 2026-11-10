@@ -114,6 +114,20 @@
     {#if editable && catalog && change}
       {#if change.operation === "group_inbounds"}
         <p>{at("console_group_edit_help")}</p>
+        <AdminField label={at("console_group_name")}>
+          <Input
+            value={change.name ?? resource?.name ?? ""}
+            readonly={resource?.name === "Default-Squad"}
+            minlength={2}
+            maxlength={30}
+            pattern="[A-Za-z0-9_\\s-]+"
+            aria-label={at("console_group_name")}
+            oninput={(event) => {
+              if (change.operation === "group_inbounds")
+                draft.setChange({ ...change, name: event.currentTarget.value });
+            }}
+          />
+        </AdminField>
         <fieldset>
           <legend>{at("console_group_lines")}</legend>
           <p>{at("console_group_lines_help")}</p>
@@ -141,6 +155,14 @@
             </p>{/if}
         </fieldset>
       {:else if host}
+        <AdminField label={at("console_resource_name")}>
+          <Input
+            value={host.name}
+            maxlength={100}
+            aria-label={at("console_resource_name")}
+            oninput={(event) => hostPatch({ name: event.currentTarget.value })}
+          />
+        </AdminField>
         <AdminField label={at("console_catalog_endpoint")}
           ><Input
             value={host.address ?? resource?.address ?? ""}

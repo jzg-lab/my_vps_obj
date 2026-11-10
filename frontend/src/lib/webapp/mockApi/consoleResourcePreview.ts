@@ -235,9 +235,14 @@ export function consoleResourceDraftPreviewFixture(change: DraftChange): Preview
   const proposed = !current
     ? null
     : change.operation === "group_inbounds"
-      ? { ...current, inbound_ids: [...change.inbound_ids].sort() }
+      ? {
+          ...current,
+          name: change.name ?? current.name,
+          inbound_ids: [...change.inbound_ids].sort(),
+        }
       : {
           ...current,
+          name: change.patch.name,
           profile_id: change.patch.profile_id,
           inbound_ids: [change.patch.inbound_id],
           node_ids: [...change.patch.node_ids].sort(),
@@ -289,12 +294,19 @@ function parseDraft(value: unknown): DraftChange | null {
   if (
     value.operation === "group_inbounds" &&
     ids(value.inbound_ids) &&
-    Object.keys(value).every((key) => ["operation", "target_id", "inbound_ids"].includes(key))
+    Object.keys(value).every((key) =>
+      ["operation", "target_id", "inbound_ids", "name"].includes(key)
+    )
   )
     return {
       operation: value.operation,
       target_id: value.target_id,
       inbound_ids: value.inbound_ids,
+      name:
+        typeof value.name === "string"
+          ? value.name
+          : (consoleResourceCatalogFixture().groups.find((item) => item.id === value.target_id)
+              ?.name ?? ""),
     };
   const patch = value.patch;
   if (
@@ -311,6 +323,7 @@ function parseDraft(value: unknown): DraftChange | null {
           "group_ids",
           "is_disabled",
           "is_hidden",
+          "name",
         ].includes(key)
     ) ||
     !uuid(patch.profile_id) ||
@@ -328,6 +341,11 @@ function parseDraft(value: unknown): DraftChange | null {
     patch: {
       profile_id: patch.profile_id,
       inbound_id: patch.inbound_id,
+      name:
+        typeof patch.name === "string"
+          ? patch.name
+          : (consoleResourceCatalogFixture().hosts.find((item) => item.id === value.target_id)
+              ?.name ?? ""),
       node_ids: patch.node_ids,
       group_mode: patch.group_mode,
       group_ids: patch.group_ids,

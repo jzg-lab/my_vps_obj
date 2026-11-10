@@ -46,14 +46,27 @@ function harness(target = group) {
 }
 
 describe("resource draft construction", () => {
+  it("keeps the reserved default group editable without requesting a rename", () => {
+    const reserved = structuredClone(catalog);
+    reserved.groups[0].name = "Default-Squad";
+    const change = initialDraft(reserved, group);
+    expect(change).toMatchObject({ name: null, inbound_ids: reserved.groups[0].inbound_ids });
+    expect(validDraft(reserved, change)).toBe(true);
+  });
   it("takes the whole group membership from the catalog, retaining empty replacement sets", () => {
     expect(initialDraft(catalog, group)).toEqual({
       operation: "group_inbounds",
       target_id: group.id,
       inbound_ids: catalog.groups[0].inbound_ids,
+      name: catalog.groups[0].name,
     });
     expect(
-      validDraft(catalog, { operation: "group_inbounds", target_id: group.id, inbound_ids: [] })
+      validDraft(catalog, {
+        operation: "group_inbounds",
+        target_id: group.id,
+        inbound_ids: [],
+        name: null,
+      })
     ).toBe(true);
     expect(initialDraft(catalog, { ...group, id: "missing" })).toBeNull();
   });
@@ -62,6 +75,7 @@ describe("resource draft construction", () => {
     expect(change.operation).toBe("host_update");
     if (change.operation !== "host_update") throw new Error("wrong fixture");
     expect(change.patch).toEqual({
+      name: catalog.hosts[0].name,
       profile_id: catalog.hosts[0].profile_id,
       inbound_id: catalog.hosts[0].inbound_ids[0],
       node_ids: catalog.hosts[0].node_ids,
@@ -96,6 +110,7 @@ describe("resource draft construction", () => {
         operation: "group_inbounds",
         target_id: group.id,
         inbound_ids: ["missing"],
+        name: null,
       })
     ).toBe(false);
     expect(
@@ -103,6 +118,7 @@ describe("resource draft construction", () => {
         operation: "group_inbounds",
         target_id: group.id,
         inbound_ids: [catalog.groups[0].inbound_ids[0], catalog.groups[0].inbound_ids[0]],
+        name: null,
       })
     ).toBe(false);
   });
@@ -217,7 +233,12 @@ describe("resource draft preview state", () => {
       const oldChange = get(draft).change!;
       const pending = operation === "preview" ? draft.load() : draft.revalidate();
       const old = calls.at(-1)!;
-      draft.setChange({ operation: "group_inbounds", target_id: group.id, inbound_ids: [] });
+      draft.setChange({
+        operation: "group_inbounds",
+        target_id: group.id,
+        inbound_ids: [],
+        name: null,
+      });
       await preview();
       draft.confirm(true);
       old.resolve(
@@ -263,7 +284,12 @@ describe("resource draft preview state", () => {
       const pending = draft.load();
       const response = result(get(draft).change!);
       if (field === "change")
-        response.change = { operation: "group_inbounds", target_id: group.id, inbound_ids: [] };
+        response.change = {
+          operation: "group_inbounds",
+          target_id: group.id,
+          inbound_ids: [],
+          name: null,
+        };
       else response[field] = { ...response[field]!, id: "wrong-target" };
       calls.at(-1)!.resolve(response);
       await pending;

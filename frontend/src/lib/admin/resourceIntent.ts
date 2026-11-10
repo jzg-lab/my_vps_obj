@@ -53,9 +53,13 @@ export function validResourceChange(value: unknown): value is ResourceChange {
       );
     case "group_inbounds":
       return (
-        exact(value, ["operation", "target_id", "inbound_ids"]) &&
+        exact(value, ["operation", "target_id", "inbound_ids", "name"]) &&
         uuid(value.target_id) &&
-        ids(value.inbound_ids)
+        ids(value.inbound_ids) &&
+        (value.name == null ||
+          (string(value.name, 2, 30) &&
+            /^[A-Za-z0-9_\s-]+$/.test(value.name) &&
+            value.name !== "Default-Squad"))
       );
     case "group_create":
       return (
@@ -112,6 +116,7 @@ export function validResourceChange(value: unknown): value is ResourceChange {
         return false;
       const patch = value.patch;
       const rules: Record<string, (value: unknown) => boolean> = {
+        name: (v) => string(v, 1, 100),
         profile_id: uuid,
         inbound_id: uuid,
         node_ids: ids,

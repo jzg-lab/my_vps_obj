@@ -10,6 +10,7 @@ type HostPatch = components["schemas"]["ResourceHostPatch"];
 type SafeHostPatch = {
   [
     K in
+      | "name"
       | "profile_id"
       | "inbound_id"
       | "node_ids"
@@ -54,7 +55,12 @@ export function initialDraft(catalog: ResourceCatalog, target: DraftTarget): Dra
   if (target.kind === "group") {
     const group = catalog.groups.find((item) => item.id === target.id);
     return group?.id
-      ? { operation: "group_inbounds", target_id: group.id, inbound_ids: [...group.inbound_ids] }
+      ? {
+          operation: "group_inbounds",
+          target_id: group.id,
+          inbound_ids: [...group.inbound_ids],
+          name: group.name === "Default-Squad" ? null : group.name,
+        }
       : null;
   }
   const host = catalog.hosts.find((item) => item.id === target.id);
@@ -73,6 +79,7 @@ export function initialDraft(catalog: ResourceCatalog, target: DraftTarget): Dra
     operation: "host_update",
     target_id: host.id,
     patch: {
+      name: host.name,
       profile_id: host.profile_id,
       inbound_id: host.inbound_ids[0],
       node_ids: [...host.node_ids],

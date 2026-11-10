@@ -137,7 +137,13 @@ async def _recovery(
         if any(previous.get(key) != value for key, value in desired.items()):
             raise ServiceConflict("resource_recovery_invalid")
     elif isinstance(change, ResourceGroupChange) and original.operation == "group_inbounds":
-        if [str(item) for item in change.inbound_ids] != before.inbound_ids:
+        old_change = CHANGE_ADAPTER.validate_python(original.request)
+        if (
+            not isinstance(old_change, ResourceGroupChange)
+            or [str(item) for item in change.inbound_ids] != before.inbound_ids
+            or (old_change.name is None and change.name is not None)
+            or (old_change.name is not None and change.name != before.name)
+        ):
             raise ServiceConflict("resource_recovery_invalid")
     elif isinstance(change, ResourceNodeChange) and original.operation in {
         "node_enable",

@@ -26,6 +26,9 @@ class ResourceGroupChange(ResourceBody):
     operation: Literal["group_inbounds"]
     target_id: UUID
     inbound_ids: list[UUID]
+    name: str | None = Field(
+        default=None, min_length=2, max_length=30, pattern=r"^[A-Za-z0-9_\s-]+$"
+    )
 
     @field_validator("inbound_ids")
     @classmethod
@@ -34,8 +37,16 @@ class ResourceGroupChange(ResourceBody):
             raise ValueError("duplicate_resource_id")
         return sorted(value)
 
+    @field_validator("name")
+    @classmethod
+    def reserved_name(cls, value: str | None) -> str | None:
+        if value == "Default-Squad":
+            raise ValueError("invalid_group_name")
+        return value
+
 
 class ResourceHostPatch(ResourceBody):
+    name: str | None = Field(default=None, min_length=1, max_length=100)
     profile_id: UUID | None = None
     inbound_id: UUID | None = None
     node_ids: list[UUID] | None = None

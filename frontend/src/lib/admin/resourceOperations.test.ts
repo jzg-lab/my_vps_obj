@@ -126,6 +126,20 @@ describe("resource operation contracts", () => {
     create.gate_active = false;
     expect(resourceRecovery(create)).toBeNull();
   });
+  it("restores a group name only when the original operation renamed it", () => {
+    const operation = resourceOperationFixture({
+      operation: "group_inbounds",
+      target_id: consoleNodeFixture.groups[0].id,
+      inbound_ids: [],
+      name: null,
+    });
+    operation.status = "succeeded";
+    operation.gate_active = false;
+    expect(resourceRecovery(operation)).toMatchObject({ name: null });
+    if (operation.change.operation !== "group_inbounds") throw new Error("wrong fixture");
+    operation.change.name = "Renamed group";
+    expect(resourceRecovery(operation)).toMatchObject({ name: operation.preview.current?.name });
+  });
   it("binds manual evidence to the real last attempt and observed time", () => {
     const operation = resourceOperationFixture({
       operation: "group_create",

@@ -68,6 +68,7 @@ export function resourceOperationPreviewFixture(change: ResourceChange): Resourc
           node_ids: null,
           is_disabled: null,
           is_hidden: null,
+          name: null,
           ...change.patch,
         },
       };
@@ -86,6 +87,7 @@ export function resourceOperationPreviewFixture(change: ResourceChange): Resourc
             node_ids: null,
             is_disabled: null,
             is_hidden: null,
+            name: null,
             ...change.patch,
           },
         },
