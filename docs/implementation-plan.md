@@ -298,6 +298,8 @@
 **线路与授权组改名（2026-11-11，本地实现）：** 对应 F07、UC-08、UA-14。管理员可从线路或授权组详情进入编辑草稿，改客户订阅中的线路显示名或授权组名；改名沿用现有影响预览、管理员确认、执行前复核和结果读回，不更改 Node 名称或服务器配置。当前认证的 Panel API 契约没有 Host／授权组删除接口，故暂不展示删除操作；待上游接口确认并认证后再实现带关联检查的配置删除。
 
 - **验证：** 根目录 `npm run check` 完整通过：后端 **6693 passed、100 skipped、1763 subtests passed**，架构、Ruff、格式及全仓 mypy（1518 文件）通过；前端 **258 文件／2203 单测、740 浏览器回归**及构建通过。首轮安装脚本 SAN 测试因 macOS LibreSSL 失败，按本地环境文档使用 Homebrew OpenSSL 3 后完整重跑通过。随后补充默认组保留名只读、成员编辑不提交保留名及按原操作范围恢复名称的保护，最终前端静态检查、**258 文件／2205 单测、67 项资源专项浏览器回归**及正式构建通过。`npm run check:docs` 与 `npm run build:docs`（124 页）通过。默认组仍可编辑成员，不能改名；线上发布与验收另行记录。
+- **生产发布（2026-11-11 03:53:39，北京时间）：** 功能提交 `9382295749131e88209b784291848f13d7fdf683` 已快进合入并推送 `origin/main`，远端 ref 已核对。生产按完整 Dockerfile 构建三份镜像并核对 revision，标签 `93822957-route-rename-20261111`；源码 `/opt/my-vps-obj/releases/93822957-route-rename-20261111`，备份 `/opt/my-vps-obj/backups/pre-93822957-route-rename-20261111-final`。停写后备份应用文件与 PostgreSQL，归档 SHA256 及 `pg_restore --list` 均通过；无新增迁移，120 项仍到 `0124_node_country_lookup_ip`。客户 8、服务 7、连接 7、订单 14，切换前后数量一致；数据库、Redis、Remnawave、Node 与 HTTPS 基础容器身份和启动时间未变。backend／frontend healthy，worker running，三者重启次数为 0，切换后日志无 ERROR／CRITICAL／Traceback／PermissionError。
+- **线上界面验收：** 使用现有管理员身份的短效会话，在真实网站 1440px／390px 打开普通授权组、默认组与线路编辑表单，共 6 个场景通过并目视检查截图；普通组与线路名称可输入，默认组名只读，取消后关闭，无横向溢出、页面异常或 API 写请求。没有对现有线路／组提交改名，不以输入验证冒充线上写入或客户端更新验收；真实写入与恢复规则由上述本地测试覆盖。证据保存在忽略目录 `data/qa/route-rename-release-20261111/` 的 `health-production.json`、`browser-production.json` 与 `production-*.png`，临时会话文件已移除。线路／授权组删除仍未开放。
 
 ### 节点操作可发现性与移除登记（2026-11-11，本地实现）
 

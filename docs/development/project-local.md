@@ -124,14 +124,18 @@ npm run project:down
 | 本机专用私钥 | `~/.ssh/my_vps_obj_prod_ed25519`，权限 `0600`；公钥已加入服务器 `authorized_keys` |
 | 网站 Compose 目录 | `/opt/remnawave-minishop`；使用 `docker-compose.yml` 与 `docker-compose.override.yml` |
 | 线上配置与应用文件 | `/opt/remnawave-minishop/.env`、`/opt/remnawave-minishop/data` |
-| 本次源码与构建材料 | 当前 `/opt/my-vps-obj/releases/e2008e34-nodes-20261111`；旧发布目录保留 |
+| 本次源码与构建材料 | 当前 `/opt/my-vps-obj/releases/93822957-route-rename-20261111`；旧发布目录保留 |
 | 当前部署摘要 | `/opt/my-vps-obj/last-deployment.json` |
-| 切换前备份 | 当前 `/opt/my-vps-obj/backups/pre-e2008e34-nodes-20261111-final`；旧备份保留 |
+| 切换前备份 | 当前 `/opt/my-vps-obj/backups/pre-93822957-route-rename-20261111-final`；旧备份保留 |
 | 面板 / HTTPS / Node 目录 | `/opt/remnawave`、`/opt/remnawave-edge`、`/opt/remnawave-node` |
 
 SSH 公钥认证原本关闭，本轮已启用并通过不复用旧连接的密钥登录验证；保留原密码登录方式。密码不存入本文、Git 或服务器资料。换电脑时需另行配置密钥，不能假设本机别名自动同步。
 
 ### 当前发布（2026-11-11，北京时间）
+
+backend／worker／frontend 均为已合入并推送 `origin/main` 的准确功能提交 `9382295749131e88209b784291848f13d7fdf683`，镜像标签 `93822957-route-rename-20261111`，新增线路显示名与授权组改名，默认组名保留。源码经 Git bundle 传输并按完整 Dockerfile 构建，镜像 revision 已核对；源码 `/opt/my-vps-obj/releases/93822957-route-rename-20261111`，切换前备份 `/opt/my-vps-obj/backups/pre-93822957-route-rename-20261111-final`。无新增迁移，仍到 `0124_node_country_lookup_ip`；切换时间与镜像摘要以 `/opt/my-vps-obj/last-deployment.json` 为准。原配置、数据卷和非应用基础服务保留。完整检查与生产验收见[实施计划第 14 节](../implementation-plan.md#14-统一管理台执行追踪2026-10-24)；后续发布记录仅更新文档，不改变运行源码。
+
+### 上次发布（2026-11-11，节点操作与移除登记）
 
 backend／worker／frontend 均为已合入并推送 `origin/main` 的准确提交 `e2008e3404698e7b073057f47670a54580bf9eba`，镜像标签 `e2008e34-nodes-20261111`，包含节点操作可发现性、关联阻断后的移除登记及预览焦点修复。源码经 Git bundle 传输，按完整仓库 Dockerfile 构建，镜像 revision 已核对。源码 `/opt/my-vps-obj/releases/e2008e34-nodes-20261111`，备份 `/opt/my-vps-obj/backups/pre-e2008e34-nodes-20261111-final`；无新增迁移，仍到 `0124_node_country_lookup_ip`。原配置、数据卷和非应用基础服务保留；镜像摘要与切换时间以 `/opt/my-vps-obj/last-deployment.json` 为准，完整检查、首轮上线修复和生产验收仅在[实施计划第 14 节](../implementation-plan.md#14-统一管理台执行追踪2026-10-24)维护。后续合入的发布记录仅更新文档，不改变运行源码。
 
