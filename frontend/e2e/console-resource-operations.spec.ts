@@ -38,7 +38,8 @@ for (const language of ["en", "ru", "zh-hans"] as const)
       }
       async function groupReview(page: Page) {
         const { target, trigger } = await startCreate(page, "group");
-        await field(target, "console_resource_name").fill("QA-group");
+        await field(target, "console_group_name").fill("QA-group");
+        await expect(target).toContainText(label("console_group_create_help"));
         await target.locator(".resource-create-form").getByRole("checkbox").first().check();
         await button(target.locator(".resource-create-form"), "console_resource_preview").click();
         await expect(target.locator(".resource-preview-result")).toBeVisible();
@@ -196,8 +197,8 @@ for (const language of ["en", "ru", "zh-hans"] as const)
         await expect(target).toContainText(label("resource_ops_error_input"));
         expect(startWrites(fixture)).toHaveLength(1);
         await button(target, "resource_ops_edit_draft").click();
-        await expect(field(target, "console_resource_name")).toHaveValue("QA-group");
-        await field(target, "console_resource_name").fill("QA-corrected-group");
+        await expect(field(target, "console_group_name")).toHaveValue("QA-group");
+        await field(target, "console_group_name").fill("QA-corrected-group");
         await button(target.locator(".resource-create-form"), "console_resource_preview").click();
         await confirm(target);
         await expect(target).toContainText(label("resource_ops_status_pending"));

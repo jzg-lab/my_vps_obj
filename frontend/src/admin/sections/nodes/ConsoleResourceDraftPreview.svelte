@@ -113,10 +113,12 @@
     {/if}
     {#if editable && catalog && change}
       {#if change.operation === "group_inbounds"}
+        <p>{at("console_group_edit_help")}</p>
         <fieldset>
-          <legend>{at("console_nodes_inbounds")}</legend>
+          <legend>{at("console_group_lines")}</legend>
+          <p>{at("console_group_lines_help")}</p>
           {#each catalog.profiles as profile (profile.id)}
-            <p>{profile.name} · {profile.id}</p>
+            <p>{profile.name}</p>
             {#each profile.inbounds as inbound (inbound.id)}
               <label
                 ><Checkbox
@@ -130,7 +132,7 @@
                       });
                   }}
                 />
-                <span>{inbound.tag} · {inbound.id}</span></label
+                <span>{inbound.tag}</span></label
               >
             {/each}
           {/each}

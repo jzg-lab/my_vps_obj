@@ -69,17 +69,18 @@
     if (validResourceChange(change)) onReview(change);
   }}
 >
-  <AdminField label={at("console_resource_name")}
+  <AdminField label={at(kind === "group" ? "console_group_name" : "console_resource_name")}
     ><Input
       bind:value={name}
-      aria-label={at("console_resource_name")}
+      aria-label={at(kind === "group" ? "console_group_name" : "console_resource_name")}
       required
       minlength={kind === "node" ? 3 : kind === "group" ? 2 : 1}
       maxlength={kind === "host" ? 100 : 30}
       pattern={kind === "group" ? "[A-Za-z0-9_\\s-]+" : undefined}
     /></AdminField
   >
-  {#if kind === "group"}<p>{at("resource_ops_group_name_rule")}</p>
+  {#if kind === "group"}<p>{at("console_group_create_help")}</p>
+    <p>{at("resource_ops_group_name_rule")}</p>
   {:else}
     <AdminField label={at("console_nodes_address")}
       ><Input
@@ -178,10 +179,11 @@
     >
   {:else}
     <fieldset>
-      <legend>{at("console_nodes_inbounds")}</legend>
+      <legend>{at(kind === "group" ? "console_group_lines" : "console_nodes_inbounds")}</legend>
+      {#if kind === "group"}<p>{at("console_group_lines_help")}</p>{/if}
       {#each kind === "group" ? catalog.profiles : catalog.profiles.filter((profile) => profile.id === profileId) as profile}<p
         >
-          {profile.name} · {profile.id}
+          {profile.name}
         </p>
         {#each profile.inbounds as inbound}<label
             ><Checkbox
@@ -190,7 +192,7 @@
               onCheckedChange={(value) => {
                 inboundIds = toggle(inboundIds, inbound.id, value);
               }}
-            /><span>{inbound.tag} · {inbound.id}</span></label
+            /><span>{inbound.tag}</span></label
           >{/each}
       {/each}
     </fieldset>

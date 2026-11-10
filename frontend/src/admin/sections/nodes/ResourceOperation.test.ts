@@ -30,6 +30,7 @@ describe("resource operation presentation", () => {
       );
       const at = (key: string) => locale[resolveLocaleKey(`admin_${key}`)] ?? key;
       expect(at("console_resource_name")).toBe(name);
+      const groupName = at("console_group_name");
       const catalog = consoleResourceCatalogFixture();
       const preview = resourceOperationPreviewFixture({
         operation: "group_create",
@@ -39,7 +40,7 @@ describe("resource operation presentation", () => {
       const form = render(ResourceCreateForm, {
         props: { kind: "group", at, catalog, onReview: () => {} },
       }).body;
-      expect(form).toContain(`aria-label="${name}"`);
+      expect(form).toContain(`aria-label="${groupName}"`);
       expect(form).not.toContain(at("services_name"));
       const review = render(ConsoleResourcePreviewResult, {
         props: {
